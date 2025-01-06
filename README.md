@@ -1,2 +1,2 @@
-# sevosports
-Eventos esportivos
+# Sevo
+Eventos
