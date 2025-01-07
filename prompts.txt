@@ -1,3 +1,17 @@
+Voce sempre deve responder em portugues do brasil
+Voce é um desenvolver senior e precisa criar um plugin com as caracteristicas definidas explicitamente aqui 
+Nao deve criar cpt sem ser solicitado
+Nao deve criar campo em cpt existente sem ser solicitado
+Nao deve alterar arquivo que nao tenha relacao com o pedido explicitado
+Para estrutura do servico ficaremos assim:
+1. A pasta de templates tera subpastas de cpts, shortcodes, singles, dashboards
+2. A pasta de assets tera subpastas css, js
+Os arquivos criados devem seguir as seguintes regras:
+1. Arquivos de cpt iniciam com cpt-sevo-{funcao}
+2. Arquivos de shortcodes iniciam com short-sevo-{funcao}
+3. Arquivos de singles iniciam com single-sevo-{funcao}
+
+
 CPT sevo-orgs
 
 crie um cpt com o nome de sevo-orgs com os seguintes campos:
@@ -42,7 +56,6 @@ data de fim das inscricoes -> deve ser campo data sem horario e aceitar datas su
 data de inicio do evento -> deve ser campo data sem horario e aceitar datas superiores a data de inicio de fim das inscricoes,
 data de fim do evento -> deve ser campo data sem horario e aceitar datas superiores a data de inicio do evento,
 numero de vagas -> deve ser um campo numerico e nao deve ser maior que o numero maximo de vagas do evento,
-categorias -> deve ser um campo de selecao com as categorias do evento
 
 esse cpt devera estar em arquivo template separado do templatpe principal do plugin, com o nome de sevo-cpt-secoes.php
 
