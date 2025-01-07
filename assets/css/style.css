@@ -1,0 +1,21 @@
+/* Estilos para o single-sevo-org.php */
+.sevo-organizacao-single { /* Estilos gerais para a página da organização */
+    /* ... */
+}
+
+.sevo-organizacao-single .sevo-org-thumbnail { /* Estilos para a thumbnail */
+    /* ... */
+}
+
+.sevo-organizacao-single .sevo-org-detalhes { /* Estilos para os detalhes da organização */
+    /* ... */
+}
+
+/* Estilos para a listagem de organizações (se houver) */
+.sevo-organizacoes-lista {
+    /* ... */
+}
+
+.sevo-organizacao-item {
+    /* ... */
+}

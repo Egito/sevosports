@@ -1,0 +1,103 @@
+CPT sevo-orgs
+
+crie um cpt com o nome de sevo-orgs com os seguintes campos:
+
+titulo, 
+descricao -> deve ser gravada no campo content, 
+thumbnail, 
+proprietario -> deve estar ligado a um usuario a ser selecionado, 
+maximo de secoes -> deve ser um campo numerico com o nome de maximo de secoes abertas
+
+esse cpt devera estar em arquivo template separado do templatpe principal do plugin, com o nome de sevo-cpt-eventos.php
+
+---
+
+CPT sevo-eventos
+
+crie um cpt com o nome de sevo-eventos com os seguintes campos:
+
+organizacao -> deve estar ligado a um registro da tabela sevo-orgs a ser selecionado, 
+titulo, 
+descricao -> deve ser gravada no campo content, 
+thumbnail, 
+numero maximo de vagas,
+editor -> deve estar ligado a um usuario a ser selecionado,
+status -> deve ser gravado no campo status do post e ter os mesmos valores do status do post padrao,
+categorias -> deve ser um campo de selecao com as categorias do evento que somente podem ser grupo ou individual
+
+esse cpt devera estar em arquivo template separado do templatpe principal do plugin, com o nome de sevo-cpt-eventos.php
+
+--
+
+CPT sevo-secoes
+
+crie um cpt com o nome de sevo-secoes com os seguintes campos:
+
+evento -> deve estar ligado a um registro da tabela sevo-eventos a ser selecionado, 
+titulo, 
+descricao -> deve ser gravada no campo content, 
+thumbnail, 
+data de inicio das inscricoes -> deve ser um campo data sem horario, 
+data de fim das inscricoes -> deve ser campo data sem horario e aceitar datas superiores a data de inicio das inscricoes,
+data de inicio do evento -> deve ser campo data sem horario e aceitar datas superiores a data de inicio de fim das inscricoes,
+data de fim do evento -> deve ser campo data sem horario e aceitar datas superiores a data de inicio do evento,
+numero de vagas -> deve ser um campo numerico e nao deve ser maior que o numero maximo de vagas do evento,
+categorias -> deve ser um campo de selecao com as categorias do evento
+
+esse cpt devera estar em arquivo template separado do templatpe principal do plugin, com o nome de sevo-cpt-secoes.php
+
+---
+
+Dashboard eventos
+
+crie um dashboard com shotcode [sevo-eventos] que devera listar todos as secoes cadastradas em modelo card,
+
+esse dashboard widget devera estar em arquivo template separado do templatpe principal do plugin,
+com o nome de dashboard-sevo-eventos.php com css e js tambem devem ter o mesmo nome,
+
+o card devera ter o thumbnail do evento, e tipo de participacao em cima da imagem no canto superior direito alinhado ao topo,
+
+use um degrade azul com branco no fundo do card com o azul embaixo,
+
+o card deve ter o titulo do evento, as vagas, o autor ou proprietario, o numero de secoes relacionadas, 
+suavize as fontes e o tamanho do card, e devera ser responsivo, seja criativo,
+
+deve conter filtros para tipo de participacao, titulo da organizacao relacionada,
+
+os filtros devem obedecer o relacionamento entre os cpts, e devem ser independentes, ou seja,
+ao mudar qualquer filtro os demais devem ser limpos,
+
+use uma lista com scroll infinito para os cards,
+
+no topo o dashboard devera ter cards com o numero organizacoes, eventos, e secoes cadastradas, e
+devera haver mais um card com o numero de secoes que estao com inscricoes abertas na data do dia de hoje, e
+devera haver mais um card com o numero de secoes que estao em andamento na data do dia de hoje, e
+devera haver mais um card com o numero de secoes que estao para iniciar o evento apos a data do dia de hoje,
+use cores derivadas de verde, passando por azul e chegando ao vermelho, nesses cards informativos
+
+---
+
+Dashboard secoes
+
+crie um dashboard com shotcode [sevo-secoes] que devera listar todos as secoes cadastradas em modelo card,
+
+esse dashboard widget devera estar em arquivo template separado do templatpe principal do plugin,
+com o nome de dashboard-sevo-secoes.php e os css e js tambem devem ter o mesmo nome,
+
+o card devera ter o thumbnail da secao, e as taxonomias em cima da imagem no canto superior direito alinhado ao topo,
+
+use um degrade azul com branco no fundo do card com o azul embaixo,
+
+o card deve ter o titulo da secao, as datas de inscricao e evento, as vagas, e o numero de inscritos, 
+suavize as fontes e o tamanho do card, e devera ser responsivo, e seja criativo,
+
+deve conter filtros para taxonomias da secao, tipo de participacao do evento, titulo de evento relacionado,
+de ano da data de inscricao inicial e da data de inicio da secao (trazer somente os anos das datas
+existentes e relacionadas com o filtro),
+
+os filtros devem obedecer o relacionamento entre os cpts, e devem ser independentes, ou seja,
+ao mudar qualquer filtro os demais devem ser limpos,
+
+use uma lista com scroll infinito para os cards,
+
+no topo o dashboard devera conter os cards de sumario criados no dashboard de eventos

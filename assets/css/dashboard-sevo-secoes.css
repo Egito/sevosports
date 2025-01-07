@@ -1,0 +1,329 @@
+/* Dashboard Container */
+.sevo-dashboard-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Cards de resumo */
+.sevo-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    padding: 10px 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+    text-align: center;
+    color: white;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.summary-card h3 {
+    margin: 0;
+    font-size: 0.75em;
+    font-weight: 500;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.summary-card .count {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-top: 4px;
+    line-height: 1.2;
+}
+
+/* Cores dos cards de resumo */
+.summary-card.green-card {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.summary-card.teal-card {
+    background: linear-gradient(135deg, #1abc9c, #16a085);
+}
+
+.summary-card.cyan-card {
+    background: linear-gradient(135deg, #00bcd4, #0097a7);
+}
+
+.summary-card.blue-card {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.summary-card.yellow-card {
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+}
+
+.summary-card.orange-card {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+}
+
+.summary-card.red-card {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* Cards de seções */
+#secoes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+.secao-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.secao-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.secao-images {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.secao-main-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s ease;
+}
+
+.secao-card:hover .secao-main-image {
+    transform: scale(1.05);
+}
+
+.evento-thumbnail {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 3px solid white;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    transition: transform 0.2s ease;
+}
+
+.evento-thumbnail:hover {
+    transform: scale(1.1);
+}
+
+.evento-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.secao-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.secao-header {
+    margin-bottom: 15px;
+}
+
+.secao-title {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    color: #2d3748;
+}
+
+.secao-evento {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    color: #4a5568;
+}
+
+.secao-dates {
+    margin: 15px 0;
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.date-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    padding: 6px 0;
+}
+
+.date-row.inscricao {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 8px;
+}
+
+.date-label {
+    color: #4a5568;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.date-label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3498db;
+}
+
+.date-range {
+    color: #2d3748;
+    font-weight: 600;
+    background: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+.secao-vagas {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.vagas-progress {
+    height: 10px;
+    background: #f0f2f5;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    transition: width 0.3s ease;
+    border-radius: 6px;
+}
+
+.vagas-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+    color: #4a5568;
+    justify-content: space-between;
+}
+
+.vagas-numero {
+    font-weight: 600;
+    color: #2d3748;
+    background: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+.vagas-numero {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .sevo-summary-cards {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    
+    .summary-card {
+        padding: 12px 10px;
+    }
+    
+    .summary-card h3 {
+        font-size: 0.8em;
+    }
+    
+    .summary-card .count {
+        font-size: 1.4em;
+    }
+}
+
+@media (max-width: 900px) {
+    .sevo-summary-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sevo-summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .summary-card {
+        padding: 15px;
+    }
+    
+    .summary-card h3 {
+        font-size: 0.85em;
+    }
+    
+    .summary-card .count {
+        font-size: 1.5em;
+        margin-top: 6px;
+    }
+    
+    #secoes-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .summary-card {
+        padding: 10px 8px;
+    }
+    
+    .summary-card h3 {
+        font-size: 0.75em;
+    }
+    
+    .summary-card .count {
+        font-size: 1.3em;
+        margin-top: 4px;
+    }
+}
