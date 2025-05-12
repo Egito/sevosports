@@ -9,14 +9,9 @@ if (!defined('ABSPATH')) {
 }
 
 // Enqueue necessary styles and scripts
-wp_enqueue_style('dashboard-sevo-secoes-style', plugin_dir_url(__FILE__) . 'assets/css/dashboard-sevo-secoes.css', array(), '1.0.0');
-wp_enqueue_script('dashboard-sevo-secoes-script', plugin_dir_url(__FILE__) . 'assets/js/dashboard-sevo-secoes.js', array('jquery'), '1.0.0', true);
-
-// Localize script
-wp_localize_script('dashboard-sevo-secoes-script', 'sevoSecoesDashboard', array(
-    'ajaxurl' => admin_url('admin-ajax.php'),
-    'nonce' => wp_create_nonce('sevo_secoes_nonce')
-));
+// Os scripts e estilos já são registrados em sevo-eventos.php
+wp_enqueue_style('dashboard-sevo-secoes-style');
+wp_enqueue_script('dashboard-sevo-secoes-script');
 
 // Include summary cards template
 require_once plugin_dir_path(__FILE__) . 'templates/summary-cards.php';
