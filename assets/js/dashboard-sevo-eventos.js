@@ -1,80 +1,92 @@
 jQuery(document).ready(function($) {
+    'use strict';
+
     let page = 1;
     let loading = false;
-    let noMorePosts = false;
-    
-    // Função para carregar eventos
-    function loadEventos(resetGrid = false) {
-        if (loading) return;
-        
-        loading = true;
-        $('#eventos-container').addClass('loading');
-        
-        if (resetGrid) {
-            page = 1;
-            noMorePosts = false;
-            $('#eventos-container').empty();
+    let hasMore = true;
+    const container = $('#sevo-eventos-container');
+    const loadingIndicator = $('#sevo-loading-indicator');
+
+    /**
+     * Busca e carrega os eventos via AJAX.
+     * @param {boolean} reset - Se verdadeiro, limpa o container e reseta a paginação.
+     */
+    function loadEvents(reset = false) {
+        if (loading || (!hasMore && !reset)) {
+            return;
         }
-        
+
+        loading = true;
+        loadingIndicator.show();
+
+        if (reset) {
+            page = 1;
+            hasMore = true;
+            container.empty();
+        }
+
+        const filters = {
+            action: sevoDashboard.action,
+            nonce: sevoDashboard.nonce,
+            page: page,
+            tipo_evento: $('#filtro-tipo-evento').val(),
+            categoria_evento: $('#filtro-categoria-evento').val(),
+            ano_evento: $('#filtro-ano-evento').val(),
+        };
+
         $.ajax({
-            url: sevoEventos.ajaxurl,
+            url: sevoDashboard.ajax_url,
             type: 'POST',
-            data: {
-                action: 'load_more_eventos',
-                nonce: sevoEventos.nonce,
-                page: page,
-                tipo_participacao: $('#tipo-participacao-filter').val(),
-                organizacao: $('#organizacao-filter').val()
-            },
+            data: filters,
             success: function(response) {
-                if (response.success && response.data) {
-                    if (response.data.html) {
-                        const $html = $(response.data.html);
-                        
-                        // Tornar cards clicáveis
-                        $html.find('.sevo-evento-card').each(function() {
-                            const $card = $(this);
-                            const slug = $card.data('slug');
-                            
-                            $card.css('cursor', 'pointer').on('click', function() {
-                                window.location.href = `/single-sevo-evento/${slug}`;
-                            });
-                        });
-                        
-                        $('#eventos-container').append($html);
+                if (response.success) {
+                    if (response.data.items && response.data.items.length > 0) {
+                        container.append(response.data.items);
                         page++;
-                    } else {
-                        noMorePosts = true;
+                    } else if (reset) {
+                        container.html('<p>Nenhum evento encontrado com os filtros selecionados.</p>');
+                    }
+                    
+                    hasMore = response.data.hasMore;
+                } else {
+                    if (reset) {
+                         container.html('<p>Ocorreu um erro ao carregar os eventos.</p>');
                     }
                 }
-                
-                loading = false;
-                $('#eventos-container').removeClass('loading');
             },
             error: function() {
+                if (reset) {
+                    container.html('<p>Ocorreu um erro de comunicação. Tente novamente.</p>');
+                }
+            },
+            complete: function() {
                 loading = false;
-                $('#eventos-container').removeClass('loading');
-                console.error('Erro ao carregar eventos');
+                loadingIndicator.hide();
             }
         });
     }
-    
-    // Event listeners para filtros
+
+    // Listener para os filtros
     $('.sevo-filter').on('change', function() {
-        const currentId = $(this).attr('id');
-        // Limpar outros filtros
-        $('.sevo-filter').not('#' + currentId).val('');
-        loadEventos(true);
+        loadEvents(true); // Reseta e carrega os eventos
     });
     
-    // Infinite scroll
-    $(window).on('scroll', function() {
-        if (!loading && !noMorePosts && 
-            ($(window).scrollTop() + $(window).height() > $(document).height() - 100)) {
-            loadEventos();
+    // Adiciona o click para ir para a página do evento
+    container.on('click', '.evento-card', function() {
+        const slug = $(this).data('slug');
+        if (slug) {
+            window.location.href = '/evento/' + slug;
         }
     });
-    
-    // Carregar eventos iniciais
-    loadEventos(true);
+
+    // Scroll Infinito
+    $(window).on('scroll', function() {
+        // Carrega mais quando o usuário estiver a 300px do final da página
+        if ($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+            loadEvents();
+        }
+    });
+
+    // Carga inicial
+    loadEvents(true);
 });

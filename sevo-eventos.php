@@ -2,8 +2,8 @@
 /*
 Plugin Name: Sevo Eventos
 Plugin URI: http://www.sevosports.com
-Description: Plugin para gerenciamento de eventos e seções
-Version: 1.0
+Description: Plugin para gerenciamento de organizações, tipos de eventos, eventos e inscrições, com integração a um fórum.
+Version: 2.0
 Author: Egito Salvador
 Author URI: http://www.sevosports.com
 License: GPL2
@@ -14,11 +14,11 @@ if (!defined('ABSPATH')) {
 }
 
 // Definir constantes do plugin
-define('SEVO_EVENTOS_VERSION', '1.0');
+define('SEVO_EVENTOS_VERSION', '2.0');
 define('SEVO_EVENTOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SEVO_EVENTOS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-class Sevo_Eventos {
+class Sevo_Eventos_Main {
     private static $instance = null;
 
     private function __construct() {
@@ -30,8 +30,11 @@ class Sevo_Eventos {
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
 
         // Registrar handlers AJAX
-        add_action('wp_ajax_iniciar_inscricao', array($this, 'ajax_iniciar_inscricao'));
-        add_action('wp_ajax_nopriv_iniciar_inscricao', array($this, 'ajax_iniciar_inscricao'));
+        add_action('wp_ajax_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
+        add_action('wp_ajax_nopriv_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
+        
+        // Registrar scripts e estilos
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
     }
 
     public static function get_instance() {
@@ -42,67 +45,62 @@ class Sevo_Eventos {
     }
 
     private function load_files() {
-        // Carregar os arquivos dos Custom Post Types
-        require_once plugin_dir_path(__FILE__) . 'includes/sevo-cpt-orgs.php';
-        require_once plugin_dir_path(__FILE__) . 'includes/sevo-cpt-eventos.php';
-        require_once plugin_dir_path(__FILE__) . 'includes/sevo-cpt-secoes.php';
+        // Carregar os arquivos dos Custom Post Types refatorados
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/sevo-cpt-orgs.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/sevo-cpt-eventos.php'; // Agora é Tipos de Eventos
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/sevo-cpt-secoes.php'; // Agora é Eventos
 
-        // Instanciar os CPTs
+        // Instanciar os CPTs com as novas classes
         new Sevo_Orgs_CPT();
-        new Sevo_Eventos_CPT();
-        new Sevo_Secoes_CPT();
+        new Sevo_Tipos_Eventos_CPT();
+        new Sevo_Eventos_CPT_Final();
+
+        // Carregar a nova integração com o Fórum
+        if (class_exists('AsgarosForum')) {
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/sevo-forum-integration.php';
+        }
+
+        // Incluir handlers de shortcode
+        // (Serão ajustados nos próximos passos)
+        // require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-secoes-shortcode.php';
+        // require_once SEVO_EVENTOS_PLUGIN_DIR . 'dashboard-sevo-eventos.php';
     }
 
-    public function ajax_iniciar_inscricao() {
-        // Verificar nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'sevo_eventos_nonce')) {
-            wp_send_json_error(array('message' => 'Invalid nonce'));
+    /**
+     * AJAX para buscar vagas máximas do TIPO de evento.
+     */
+    public function ajax_get_tipo_evento_max_vagas() {
+        check_ajax_referer('sevo_admin_nonce', 'nonce');
+
+        if (!isset($_POST['tipo_evento_id'])) {
+            wp_send_json_error('Missing tipo_evento_id');
         }
 
-        // Verificar se o ID da seção foi fornecido
-        if (empty($_POST['secao_id'])) {
-            wp_send_json_error(array('message' => 'ID da seção não fornecido'));
-        }
+        $tipo_evento_id = absint($_POST['tipo_evento_id']);
+        $max_vagas = get_post_meta($tipo_evento_id, '_sevo_tipo_evento_max_vagas', true);
 
-        $secao_id = absint($_POST['secao_id']);
-        $secao = get_post($secao_id);
+        wp_send_json_success(array('max_vagas' => $max_vagas ?: 0));
+    }
+    
+    public function enqueue_assets() {
+        // Estilos e scripts para os dashboards (serão ajustados)
+        wp_register_style(
+            'sevo-eventos-dashboard-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-sevo-eventos.css',
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
 
-        if (!$secao || $secao->post_type !== 'sevo-secoes') {
-            wp_send_json_error(array('message' => 'Seção não encontrada'));
-        }
-
-        // Verificar se as inscrições estão abertas
-        $data_inicio = get_post_meta($secao_id, '_sevo_secao_data_inicio_inscricoes', true);
-        $data_fim = get_post_meta($secao_id, '_sevo_secao_data_fim_inscricoes', true);
-        $agora = current_time('mysql');
-
-        if ($agora < $data_inicio) {
-            wp_send_json_error(array('message' => 'As inscrições ainda não foram abertas'));
-        }
-
-        if ($agora > $data_fim) {
-            wp_send_json_error(array('message' => 'As inscrições já foram encerradas'));
-        }
-
-        // Verificar vagas disponíveis
-        $vagas = get_post_meta($secao_id, '_sevo_secao_vagas', true);
-        $inscritos = 0; // Implementar contagem de inscritos
-
-        if ($inscritos >= $vagas) {
-            wp_send_json_error(array('message' => 'Não há mais vagas disponíveis'));
-        }
-
-        // Redirecionar para página de inscrição
-        wp_send_json_success(array(
-            'redirect_url' => add_query_arg(array(
-                'secao_id' => $secao_id,
-                'action' => 'inscricao'
-            ), get_permalink($secao_id))
-        ));
+        wp_register_script(
+            'sevo-eventos-dashboard-script',
+             SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-sevo-eventos.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
     }
 
     public function activate() {
-        // Atualizar regras de rewrite
         flush_rewrite_rules();
     }
 
@@ -111,116 +109,8 @@ class Sevo_Eventos {
     }
 }
 
-// Adicionar handler AJAX para obter número máximo de vagas do evento
-add_action('wp_ajax_get_evento_max_vagas', 'sevo_get_evento_max_vagas');
-function sevo_get_evento_max_vagas() {
-    // Verificar nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'sevo_eventos_nonce')) {
-        wp_send_json_error('Invalid nonce');
-    }
-
-    // Verificar se o ID do evento foi fornecido
-    if (!isset($_POST['evento_id'])) {
-        wp_send_json_error('Missing evento_id');
-    }
-
-    $evento_id = absint($_POST['evento_id']);
-    $max_vagas = get_post_meta($evento_id, '_sevo_evento_max_vagas', true);
-
-    wp_send_json_success(array('max_vagas' => $max_vagas ?: 0));
-}
-
-// Registrar scripts e estilos
-function sevo_enqueue_assets() {
-    // Registrar e enfileirar CSS
-    wp_register_style(
-        'sevo-eventos-style',
-        plugins_url('assets/css/sevo-eventos.css', __FILE__),
-        array(),
-        SEVO_EVENTOS_VERSION
-    );
-
-    // Registrar CSS específico para o CPT de organizações
-    wp_register_style(
-        'cpt-sevo-org-style',
-        plugins_url('assets/css/cpt-sevo-org-css.css', __FILE__),
-        array(),
-        SEVO_EVENTOS_VERSION
-    );
-
-    // Registrar e enfileirar JavaScript
-    wp_register_script(
-        'sevo-eventos-script',
-        plugins_url('assets/js/sevo-eventos.js', __FILE__),
-        array('jquery'),
-        SEVO_EVENTOS_VERSION,
-        true
-    );
-
-    // Localizar script
-    wp_localize_script('sevo-eventos-script', 'sevoEventos', array(
-        'ajaxurl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('sevo_eventos_nonce')
-    ));
-
-    // Registrar e enfileirar CSS do dashboard
-    wp_register_style(
-        'sevo-eventos-dashboard-style',
-        plugins_url('assets/css/dashboard-sevo-eventos.css', __FILE__),
-        array(),
-        SEVO_EVENTOS_VERSION
-    );
-
-    // Registrar e enfileirar JavaScript do dashboard
-    wp_register_script(
-        'sevo-eventos-dashboard-script',
-        plugins_url('assets/js/dashboard-sevo-eventos.js', __FILE__),
-        array('jquery'),
-        SEVO_EVENTOS_VERSION,
-        true
-    );
-
-    // Localizar script do dashboard
-    wp_localize_script('sevo-eventos-dashboard-script', 'sevoEventos', array(
-        'ajaxurl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('sevo_eventos_nonce')
-    ));
-}
-add_action('wp_enqueue_scripts', 'sevo_enqueue_assets');
-
-// Register scripts and styles
-add_action('wp_enqueue_scripts', function() {
-    wp_register_style(
-        'dashboard-sevo-secoes-style',
-        plugins_url('assets/css/dashboard-sevo-secoes.css', __FILE__),
-        array(),
-        SEVO_EVENTOS_VERSION
-    );
-
-    wp_register_script(
-        'dashboard-sevo-secoes-script',
-        plugins_url('assets/js/dashboard-sevo-secoes.js', __FILE__),
-        array('jquery'),
-        SEVO_EVENTOS_VERSION,
-        true
-    );
-
-    wp_localize_script('dashboard-sevo-secoes-script', 'sevoSecoesDashboard', array(
-        'ajaxurl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('sevo_secoes_nonce')
-    ));
-});
-
-// Include shortcode handler
-require_once SEVO_EVENTOS_PLUGIN_DIR . '/includes/shortcodes/sevo-secoes-shortcode.php';
-
-// Incluir arquivo do dashboard
-require_once plugin_dir_path(__FILE__) . 'dashboard-sevo-eventos.php';
-
 // Inicializar o plugin
-function sevo_eventos() {
-    return Sevo_Eventos::get_instance();
+function sevo_eventos_run() {
+    return Sevo_Eventos_Main::get_instance();
 }
-
-// Iniciar o plugin
-sevo_eventos();
+sevo_eventos_run();

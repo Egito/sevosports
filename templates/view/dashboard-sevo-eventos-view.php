@@ -1,76 +1,69 @@
 <?php
+/**
+ * View para o Dashboard de Eventos
+ * Carrega os filtros e o container onde os eventos serão exibidos via AJAX.
+ */
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-function sevo_render_dashboard($config) {
-    ?>
-    <div class="sevo-dashboard-container">
-        <?php if ($config['show_summary']) : ?>
-            <!-- Cards de Resumo -->
-            <?php echo sevo_get_summary_cards(); ?>
-        <?php endif; ?>
+// Carrega a função dos cards de resumo, se ainda não tiver sido carregada.
+if (!function_exists('sevo_get_summary_cards')) {
+    require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/summary-cards.php';
+}
 
-        <?php if ($config['show_filters']) : ?>
-            <!-- Filtros -->
-            <div class="sevo-filters">
-                <div class="filter-group">
-                    <label for="tipo-participacao-filter">Tipo de Participação:</label>
-                    <select id="tipo-participacao-filter" class="sevo-filter">
-                        <option value="">Todos</option>
-                        <?php
-                        $tipos_participacao = array();
-                        $meta_values = get_terms(array(
-                            'taxonomy' => 'sevo_evento_tipo_participacao',
-                            'hide_empty' => false,
-                        ));
-                        
-                        foreach ($meta_values as $term) {
-                            $tipos_participacao[] = $term->name;
-                        }
-                        
-                        foreach ($tipos_participacao as $tipo) {
-                            echo '<option value="' . esc_attr($tipo) . '">' . esc_html($tipo) . '</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
+// Busca os termos para os filtros
+$categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hide_empty' => false));
+$tipos_evento = get_posts(array('post_type' => 'sevo-tipo-evento', 'posts_per_page' => -1));
 
-                <div class="filter-group">
-                    <label for="organizacao-filter">Organização:</label>
-                    <select id="organizacao-filter" class="sevo-filter">
-                        <option value="">Todas</option>
-                        <?php
-                        $organizacoes = get_posts(array(
-                            'post_type' => 'sevo-orgs',
-                            'posts_per_page' => -1,
-                            'orderby' => 'title',
-                            'order' => 'ASC'
-                        ));
-                        
-                        foreach ($organizacoes as $org) {
-                            echo '<option value="' . esc_attr($org->ID) . '">' . esc_html($org->post_title) . '</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
+// Busca os anos disponíveis para o filtro
+global $wpdb;
+$years = $wpdb->get_col("
+    SELECT DISTINCT YEAR(meta_value)
+    FROM {$wpdb->postmeta}
+    WHERE meta_key = '_sevo_evento_data_inicio_evento'
+    AND meta_value IS NOT NULL
+    AND meta_value != ''
+    ORDER BY meta_value DESC
+");
 
-                <button id="limpar-filtros" class="sevo-button">
-                    Limpar Filtros
-                </button>
-            </div>
-        <?php endif; ?>
+?>
 
-        <!-- Container de Eventos -->
-        <div id="eventos-container">
-            <div class="sevo-loader" style="display: none;">
-                <div class="loader"></div>
-                <p>Carregando eventos...</p>
-            </div>
-            <div class="no-events" style="display: none;">
-                <p>Nenhum evento encontrado com os filtros selecionados.</p>
-            </div>
+<div class="sevo-dashboard-container">
+    <?php echo sevo_get_summary_cards(); ?>
+
+    <div class="sevo-filters">
+        <div class="sevo-filter-group">
+            <select id="filtro-tipo-evento" class="sevo-filter">
+                <option value="">Todos os Tipos de Evento</option>
+                <?php foreach ($tipos_evento as $tipo) : ?>
+                    <option value="<?php echo esc_attr($tipo->ID); ?>"><?php echo esc_html($tipo->post_title); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="sevo-filter-group">
+            <select id="filtro-categoria-evento" class="sevo-filter">
+                <option value="">Todas as Categorias</option>
+                <?php foreach ($categorias_evento as $categoria) : ?>
+                    <option value="<?php echo esc_attr($categoria->term_id); ?>"><?php echo esc_html($categoria->name); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="sevo-filter-group">
+            <select id="filtro-ano-evento" class="sevo-filter">
+                <option value="">Todos os Anos</option>
+                <?php foreach ($years as $year) : ?>
+                    <option value="<?php echo esc_attr($year); ?>"><?php echo esc_html($year); ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
     </div>
-    <?php
-}
+
+    <div id="sevo-eventos-container" class="sevo-grid">
+        </div>
+
+    <div id="sevo-loading-indicator" style="display: none; text-align: center; padding: 20px;">
+        <p>Carregando mais eventos...</p>
+    </div>
+</div>

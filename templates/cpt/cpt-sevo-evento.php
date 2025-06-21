@@ -1,217 +1,229 @@
 <?php
 /**
- * CPT Sevo Evento
+ * Classe para o Custom Post Type: Eventos.
+ * O post type original 'sevo-secoes' foi refatorado para 'sevo-evento'.
+ * Este CPT agora representa o evento final, que está ligado a um 'sevo-tipo-evento'.
  */
-
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sevo_Eventos_CPT {
+class Sevo_Eventos_CPT_Final {
+
+    private $post_type = 'sevo-evento';
+
     public function __construct() {
-        add_action('init', array($this, 'register_cpt'));
+        add_action('init', array($this, 'register_post_type'));
+        add_action('init', array($this, 'register_taxonomies'));
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
-        add_action('save_post', array($this, 'save_meta_boxes'));
+        add_action('save_post_' . $this->post_type, array($this, 'save_post_meta'));
+        
+        // Enqueue de scripts para o admin
+        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
     }
 
-    public function register_cpt() {
+    public function register_post_type() {
         $labels = array(
-            'name'                  => _x('Eventos', 'Post Type General Name', 'sevo-eventos'),
-            'singular_name'         => _x('Evento', 'Post Type Singular Name', 'sevo-eventos'),
-            'menu_name'             => __('Eventos', 'sevo-eventos'),
-            'name_admin_bar'        => __('Evento', 'sevo-eventos'),
-            'archives'              => __('Arquivos de eventos', 'sevo-eventos'),
-            'attributes'            => __('Atributos do evento', 'sevo-eventos'),
-            'parent_item_colon'     => __('Evento pai:', 'sevo-eventos'),
-            'all_items'             => __('Todos os eventos', 'sevo-eventos'),
-            'add_new_item'          => __('Adicionar novo evento', 'sevo-eventos'),
-            'add_new'               => __('Novo evento', 'sevo-eventos'),
-            'new_item'              => __('Novo evento', 'sevo-eventos'),
-            'edit_item'             => __('Editar evento', 'sevo-eventos'),
-            'update_item'           => __('Atualizar evento', 'sevo-eventos'),
-            'view_item'             => __('Ver evento', 'sevo-eventos'),
-            'view_items'            => __('Ver eventos', 'sevo-eventos'),
-            'search_items'          => __('Buscar eventos', 'sevo-eventos'),
-            'not_found'             => __('Não encontrado', 'sevo-eventos'),
-            'not_found_in_trash'    => __('Não encontrado na lixeira', 'sevo-eventos'),
-            'featured_image'        => __('Imagem destacada', 'sevo-eventos'),
-            'set_featured_image'    => __('Definir imagem destacada', 'sevo-eventos'),
-            'remove_featured_image' => __('Remover imagem destacada', 'sevo-eventos'),
-            'use_featured_image'    => __('Usar como imagem destacada', 'sevo-eventos'),
-            'insert_into_item'      => __('Inserir no evento', 'sevo-eventos'),
-            'uploaded_to_this_item' => __('Enviado para este evento', 'sevo-eventos'),
-            'items_list'            => __('Lista de eventos', 'sevo-eventos'),
-            'items_list_navigation' => __('Navegação da lista de eventos', 'sevo-eventos'),
-            'filter_items_list'     => __('Filtrar lista de eventos', 'sevo-eventos'),
+            'name'               => 'Eventos',
+            'singular_name'      => 'Evento',
+            'menu_name'          => 'Eventos',
+            'add_new'            => 'Adicionar Novo',
+            'add_new_item'       => 'Adicionar Novo Evento',
+            'edit_item'          => 'Editar Evento',
+            'new_item'           => 'Novo Evento',
+            'view_item'          => 'Ver Evento',
+            'search_items'       => 'Buscar Eventos',
+            'not_found'          => 'Nenhum evento encontrado',
+            'not_found_in_trash' => 'Nenhum evento encontrado na lixeira'
         );
 
         $args = array(
-            'label'                 => __('Evento', 'sevo-eventos'),
-            'description'           => __('CPT para Eventos', 'sevo-eventos'),
-            'labels'                => $labels,
-            'supports'              => array('title', 'editor', 'thumbnail'),
-            'taxonomies'            => array('sevo_org'),
-            'hierarchical'          => false,
-            'public'                => true,
-            'show_ui'               => true,
-            'show_in_menu'          => true,
-            'menu_position'         => 5,
-            'show_in_admin_bar'     => true,
-            'show_in_nav_menus'     => true,
-            'can_export'            => true,
-            'has_archive'           => true,
-            'exclude_from_search'   => false,
-            'publicly_queryable'    => true,
-            'capability_type'       => 'post',
+            'labels'              => $labels,
+            'public'              => true,
+            'publicly_queryable'  => true,
+            'show_ui'             => true,
+            'show_in_menu'        => true,
+            'query_var'           => true,
+            'rewrite'             => array('slug' => 'evento'),
+            'capability_type'     => 'post',
+            'has_archive'         => true,
+            'hierarchical'        => false,
+            'menu_position'       => 5,
+            'supports'            => array('title', 'editor', 'thumbnail', 'custom-fields'),
+            'menu_icon'           => 'dashicons-calendar-alt' // Ícone de calendário
         );
-        register_post_type('sevo_evento', $args);
+
+        register_post_type($this->post_type, $args);
+    }
+
+    public function register_taxonomies() {
+        $labels = array(
+            'name'              => 'Categorias de Eventos',
+            'singular_name'     => 'Categoria de Evento',
+            'search_items'      => 'Buscar Categorias',
+            'all_items'         => 'Todas as Categorias',
+            'parent_item'       => 'Categoria Pai',
+            'parent_item_colon' => 'Categoria Pai:',
+            'edit_item'         => 'Editar Categoria',
+            'update_item'       => 'Atualizar Categoria',
+            'add_new_item'      => 'Adicionar Nova Categoria',
+            'new_item_name'     => 'Nome da Nova Categoria',
+            'menu_name'         => 'Categorias',
+        );
+
+        $args = array(
+            'hierarchical'      => true,
+            'labels'            => $labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => array('slug' => 'evento-categoria'),
+        );
+
+        register_taxonomy('sevo_evento_categoria', array($this->post_type), $args);
+    }
+
+    public function admin_enqueue_scripts($hook) {
+        global $post;
+        if ($hook == 'post-new.php' || $hook == 'post.php') {
+            if ($post && $this->post_type === $post->post_type) {
+                wp_enqueue_script(
+                    'sevo-admin-evento-script',
+                    SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-sevo-evento.js',
+                    array('jquery'),
+                    SEVO_EVENTOS_VERSION,
+                    true
+                );
+                wp_localize_script('sevo-admin-evento-script', 'sevoEventoAdmin', array(
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce'    => wp_create_nonce('sevo_admin_nonce')
+                ));
+            }
+        }
     }
 
     public function add_meta_boxes() {
         add_meta_box(
-            'sevo_evento_info',
-            __('Informações do Evento', 'sevo-eventos'),
-            array($this, 'render_evento_info_meta_box'),
-            'sevo_evento',
-            'normal',
-            'high'
-        );
-
-        add_meta_box(
-            'sevo_evento_config',
-            __('Configurações do Evento', 'sevo-eventos'),
-            array($this, 'render_evento_config_meta_box'),
-            'sevo_evento',
-            'side'
-        );
-
-        add_meta_box(
-            'sevo_evento_secoes',
-            __('Seções do Evento', 'sevo-eventos'),
-            array($this, 'render_secoes_meta_box'),
-            'sevo_evento',
+            'sevo_evento_details_meta_box',
+            'Detalhes do Evento',
+            array($this, 'render_meta_box'),
+            $this->post_type,
             'normal',
             'high'
         );
     }
 
-    public function render_secoes_meta_box($post) {
-        $secoes = get_posts(array(
-            'post_type' => 'sevo_secao',
+    public function render_meta_box($post) {
+        wp_nonce_field('sevo_evento_meta_box_nonce', 'sevo_evento_meta_box_nonce');
+
+        // Campos de metadados
+        $tipo_evento_id = get_post_meta($post->ID, '_sevo_evento_tipo_evento_id', true);
+        $data_inicio_insc = get_post_meta($post->ID, '_sevo_evento_data_inicio_inscricoes', true);
+        $data_fim_insc = get_post_meta($post->ID, '_sevo_evento_data_fim_inscricoes', true);
+        $data_inicio_evento = get_post_meta($post->ID, '_sevo_evento_data_inicio_evento', true);
+        $data_fim_evento = get_post_meta($post->ID, '_sevo_evento_data_fim_evento', true);
+        $vagas = get_post_meta($post->ID, '_sevo_evento_vagas', true);
+
+        // Busca os Tipos de Evento
+        $tipos_de_evento = get_posts(array(
+            'post_type' => 'sevo-tipo-evento',
             'posts_per_page' => -1,
             'orderby' => 'title',
             'order' => 'ASC'
         ));
 
-        $selected_secoes = get_post_meta($post->ID, 'sevo_evento_secoes', true);
-        if (!is_array($selected_secoes)) {
-            $selected_secoes = array();
-        }
         ?>
-        <div class="sevo-meta-box">
-            <div class="sevo-meta-field">
-                <label><?php _e('Selecione as seções:', 'sevo-eventos'); ?></label>
-                <?php foreach ($secoes as $secao) : ?>
-                    <div>
-                        <input type="checkbox"
-                               name="sevo_evento_secoes[]"
-                               value="<?php echo $secao->ID; ?>"
-                               <?php checked(in_array($secao->ID, $selected_secoes)); ?>>
-                        <?php echo esc_html($secao->post_title); ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
+        <table class="form-table">
+            <tr id="sevo-tipo-evento-field">
+                <th><label for="sevo_evento_tipo_evento_id">Tipo de Evento</label></th>
+                <td>
+                    <select id="sevo_evento_tipo_evento_id" name="sevo_evento_tipo_evento_id" required>
+                        <option value="">Selecione um Tipo de Evento</option>
+                        <?php foreach ($tipos_de_evento as $tipo) : ?>
+                            <option value="<?php echo esc_attr($tipo->ID); ?>" data-max-vagas="<?php echo esc_attr(get_post_meta($tipo->ID, '_sevo_tipo_evento_max_vagas', true)); ?>" <?php selected($tipo_evento_id, $tipo->ID); ?>>
+                                <?php echo esc_html($tipo->post_title); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description">Selecione o tipo de evento ao qual este evento pertence.</p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="sevo_evento_vagas">Número de Vagas</label></th>
+                <td>
+                    <input type="number" id="sevo_evento_vagas" name="sevo_evento_vagas" value="<?php echo esc_attr($vagas); ?>" min="1" step="1">
+                    <p id="vagas-info" class="description">O número de vagas não pode exceder o limite definido no Tipo de Evento.</p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="sevo_evento_data_inicio_inscricoes">Início das Inscrições</label></th>
+                <td>
+                    <input type="date" id="sevo_evento_data_inicio_inscricoes" name="sevo_evento_data_inicio_inscricoes" value="<?php echo esc_attr($data_inicio_insc); ?>">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="sevo_evento_data_fim_inscricoes">Fim das Inscrições</label></th>
+                <td>
+                    <input type="date" id="sevo_evento_data_fim_inscricoes" name="sevo_evento_data_fim_inscricoes" value="<?php echo esc_attr($data_fim_insc); ?>">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="sevo_evento_data_inicio_evento">Início do Evento</label></th>
+                <td>
+                    <input type="date" id="sevo_evento_data_inicio_evento" name="sevo_evento_data_inicio_evento" value="<?php echo esc_attr($data_inicio_evento); ?>">
+                </td>
+            </tr>
+            <tr>
+                <th><label for="sevo_evento_data_fim_evento">Fim do Evento</label></th>
+                <td>
+                    <input type="date" id="sevo_evento_data_fim_evento" name="sevo_evento_data_fim_evento" value="<?php echo esc_attr($data_fim_evento); ?>">
+                </td>
+            </tr>
+        </table>
         <?php
     }
 
-    public function render_evento_info_meta_box($post) {
-        wp_nonce_field('sevo_evento_info_nonce', 'sevo_evento_info_nonce');
-        
-        $data_inicio = get_post_meta($post->ID, 'sevo_evento_data_inicio', true);
-        $data_fim = get_post_meta($post->ID, 'sevo_evento_data_fim', true);
-        $local = get_post_meta($post->ID, 'sevo_evento_local', true);
-        $organizador = get_post_meta($post->ID, 'sevo_evento_organizador', true);
-        ?>
-        <div class="sevo-meta-box">
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_data_inicio"><?php _e('Data de Início:', 'sevo-eventos'); ?></label>
-                <input type="date" name="sevo_evento_data_inicio" value="<?php echo esc_attr($data_inicio); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_data_fim"><?php _e('Data de Término:', 'sevo-eventos'); ?></label>
-                <input type="date" name="sevo_evento_data_fim" value="<?php echo esc_attr($data_fim); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_local"><?php _e('Local:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_evento_local" value="<?php echo esc_attr($local); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_organizador"><?php _e('Organizador:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_evento_organizador" value="<?php echo esc_attr($organizador); ?>">
-            </div>
-        </div>
-        <?php
-    }
-
-    public function render_evento_config_meta_box($post) {
-        $situacao = get_post_meta($post->ID, 'sevo_evento_situacao', true);
-        $estilo = get_post_meta($post->ID, 'sevo_evento_estilo', true);
-        $vagas = get_post_meta($post->ID, 'sevo_evento_vagas', true);
-        ?>
-        <div class="sevo-meta-box">
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_situacao"><?php _e('Situação:', 'sevo-eventos'); ?></label>
-                <select name="sevo_evento_situacao">
-                    <option value="ativo" <?php selected($situacao, 'ativo'); ?>>Ativo</option>
-                    <option value="inativo" <?php selected($situacao, 'inativo'); ?>>Inativo</option>
-                </select>
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_estilo"><?php _e('Estilo:', 'sevo-eventos'); ?></label>
-                <select name="sevo_evento_estilo">
-                    <option value="grupo" <?php selected($estilo, 'grupo'); ?>>Grupo</option>
-                    <option value="individual" <?php selected($estilo, 'individual'); ?>>Individual</option>
-                </select>
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_evento_vagas"><?php _e('Vagas Máximas:', 'sevo-eventos'); ?></label>
-                <input type="number" name="sevo_evento_vagas" value="<?php echo esc_attr($vagas); ?>" min="1">
-            </div>
-        </div>
-        <?php
-    }
-
-    public function save_meta_boxes($post_id) {
-        if (!isset($_POST['sevo_evento_info_nonce']) || 
-            !wp_verify_nonce($_POST['sevo_evento_info_nonce'], 'sevo_evento_info_nonce')) {
+    public function save_post_meta($post_id) {
+        if (!isset($_POST['sevo_evento_meta_box_nonce']) || !wp_verify_nonce($_POST['sevo_evento_meta_box_nonce'], 'sevo_evento_meta_box_nonce')) {
             return;
         }
 
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-        if (!current_user_can('edit_post', $post_id)) return;
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
 
-        $fields = array(
-            'sevo_evento_data_inicio',
-            'sevo_evento_data_fim',
-            'sevo_evento_local',
-            'sevo_evento_organizador',
-            'sevo_evento_situacao',
-            'sevo_evento_estilo',
-            'sevo_evento_vagas'
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+
+        $meta_fields = array(
+            '_sevo_evento_tipo_evento_id' => 'int',
+            '_sevo_evento_data_inicio_inscricoes' => 'text',
+            '_sevo_evento_data_fim_inscricoes' => 'text',
+            '_sevo_evento_data_inicio_evento' => 'text',
+            '_sevo_evento_data_fim_evento' => 'text',
+            '_sevo_evento_vagas' => 'int',
         );
 
-        foreach ($fields as $field) {
-            if (isset($_POST[$field])) {
-                update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
+        foreach ($meta_fields as $key => $type) {
+            $post_key = ltrim($key, '_');
+            if (isset($_POST[$post_key])) {
+                $value = sanitize_text_field($_POST[$post_key]);
+                if ($type === 'int') {
+                    $value = absint($value);
+                }
+                
+                // Validação de vagas
+                if($key === '_sevo_evento_vagas' && isset($_POST['sevo_evento_tipo_evento_id'])) {
+                    $tipo_evento_id = absint($_POST['sevo_evento_tipo_evento_id']);
+                    $max_vagas = get_post_meta($tipo_evento_id, '_sevo_tipo_evento_max_vagas', true);
+                    if ($max_vagas > 0 && $value > $max_vagas) {
+                        $value = $max_vagas; // Limita ao máximo permitido
+                    }
+                }
+                
+                update_post_meta($post_id, $key, $value);
             }
         }
     }
 }
-
-new Sevo_Eventos_CPT();

@@ -1,77 +1,52 @@
-/* Container principal */
+/* Container principal do Dashboard */
 .sevo-dashboard-container {
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
 }
 
 /* Cards de resumo */
 .sevo-summary-cards {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
 .summary-card {
-    padding: 10px 8px;
+    padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
     text-align: center;
     color: white;
 }
 
 .summary-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .summary-card h3 {
-    margin: 0;
-    font-size: 0.75em;
+    margin: 0 0 5px;
+    font-size: 0.8em;
     font-weight: 500;
     opacity: 0.9;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
 }
 
 .summary-card .count {
-    font-size: 1.3em;
+    font-size: 1.8em;
     font-weight: 700;
-    margin-top: 4px;
-    line-height: 1.2;
 }
 
 /* Cores dos cards de resumo */
-.summary-card.green-card {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
-}
-
-.summary-card.teal-card {
-    background: linear-gradient(135deg, #1abc9c, #16a085);
-}
-
-.summary-card.cyan-card {
-    background: linear-gradient(135deg, #00bcd4, #0097a7);
-}
-
-.summary-card.blue-card {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.summary-card.yellow-card {
-    background: linear-gradient(135deg, #f1c40f, #f39c12);
-}
-
-.summary-card.orange-card {
-    background: linear-gradient(135deg, #e67e22, #d35400);
-}
-
-.summary-card.red-card {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
+.summary-card.green-card { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.summary-card.teal-card { background: linear-gradient(135deg, #1abc9c, #16a085); }
+.summary-card.cyan-card { background: linear-gradient(135deg, #00bcd4, #0097a7); }
+.summary-card.blue-card { background: linear-gradient(135deg, #3498db, #2980b9); }
+.summary-card.yellow-card { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+.summary-card.orange-card { background: linear-gradient(135deg, #e67e22, #d35400); }
+.summary-card.red-card { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 
 /* Filtros */
 .sevo-filters {
@@ -80,177 +55,155 @@
     gap: 15px;
     margin-bottom: 30px;
     padding: 20px;
-    background: #f8f9fa;
+    background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.sevo-filter {
+.sevo-filter-group {
     flex: 1;
     min-width: 200px;
-    padding: 10px;
+}
+
+.sevo-filter {
+    width: 100%;
+    padding: 10px 12px;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     font-size: 14px;
     color: #4a5568;
-    background-color: white;
+    background-color: #f8fafc;
     transition: all 0.2s ease;
 }
 
 .sevo-filter:focus {
     outline: none;
     border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    background-color: #fff;
 }
 
-/* Cards de eventos */
-#eventos-container {
+/* Grid de cards de eventos */
+.sevo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 25px;
-    padding: 20px 0;
+    padding: 10px 0;
 }
 
-.evento-card {
-    background: linear-gradient(to top, #2196F3 0%, #ffffff 100%);
+.sevo-card.evento-card {
+    background: #ffffff;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
-.evento-card:hover {
+.sevo-card.evento-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
-.thumbnail-container {
+.sevo-card-images {
     position: relative;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 aspect ratio */
+    padding-top: 56.25%; /* 16:9 */
+    background-color: #e2e8f0;
+}
+
+.sevo-card-main-image {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+.sevo-card-parent-thumbnail {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     overflow: hidden;
 }
 
-.thumbnail-container img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.sevo-card-parent-thumbnail img {
+    width: 100%; height: 100%;
     object-fit: cover;
 }
 
-.tipo-participacao {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.tipo-tag {
-    display: inline-block;
-    padding: 5px 10px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #2196F3;
-}
-
-.card-content {
+.sevo-card-content {
     padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.card-content h3 {
-    margin: 0 0 15px 0;
+.sevo-card-header {
+    margin-bottom: 15px;
+}
+
+.sevo-card-title {
+    margin: 0 0 5px 0;
     font-size: 1.2em;
     color: #1a365d;
 }
 
-.evento-info {
-    display: grid;
-    gap: 10px;
-    font-size: 14px;
+.sevo-card-parent-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85em;
+    color: #718096;
+}
+
+.sevo-card-dates {
+    font-size: 0.9em;
+    color: #4a5568;
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+.sevo-card-dates .date-row {
+    line-height: 1.5;
+}
+
+.sevo-card-vagas {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.vagas-progress {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.vagas-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
     color: #4a5568;
 }
 
-.evento-info p {
-    margin: 0;
-}
-
-.evento-info strong {
+.vagas-info span:first-child {
+    font-weight: 600;
     color: #2d3748;
-}
-
-/* Responsividade */
-@media (max-width: 1200px) {
-    .sevo-summary-cards {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-    }
-    
-    .summary-card {
-        padding: 12px 10px;
-    }
-    
-    .summary-card h3 {
-        font-size: 0.8em;
-    }
-    
-    .summary-card .count {
-        font-size: 1.4em;
-    }
-}
-
-@media (max-width: 900px) {
-    .sevo-summary-cards {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .sevo-summary-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-    
-    .summary-card {
-        padding: 15px;
-    }
-    
-    .summary-card h3 {
-        font-size: 0.85em;
-    }
-    
-    .summary-card .count {
-        font-size: 1.5em;
-        margin-top: 6px;
-    }
-    
-    .sevo-filter {
-        min-width: 100%;
-    }
-    
-    #eventos-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .sevo-summary-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
-    
-    .summary-card {
-        padding: 10px 8px;
-    }
-    
-    .summary-card h3 {
-        font-size: 0.75em;
-    }
-    
-    .summary-card .count {
-        font-size: 1.3em;
-        margin-top: 4px;
-    }
 }
