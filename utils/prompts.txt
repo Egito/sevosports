@@ -1,20 +1,19 @@
-Sempre responda em portugues do brasil;
-Nunca criar categorias ou algo similar sem ser explicitamente solicitado;
-Nunca criar campos em banco de dados sem ser solicitado;
-Nunca criar cpts em banco de dados sem ser solicitado;
-Sempre que criar um shortcode inclua o arquivo de shortcode na pasta templates/short;
-Sempre que criar um template ou view, coloque na pasta templates/view;
-Estruture os arquivos sempre seguindo o nome do cpt:
-1. se for arquivo de cpt, deve ser sevo-{cpt}-cpt, e vai residir na pasta templates/cpt;
-2. se for arquivo de view, deve ser sevo-{cpt}-view, e residir na pasta templates/view;
-3. se for arquivo de dashboard deve ser, sevo-{cpt}-dash, e residir na pasta templates/short;
-4. se for um arquivo para single, deve ser sevo-{cpt}-single, e residir na pasta templates/single;
-5, se for um arquivo para shortcode para lista de cpts deve ter o nome sevo-{cpt}-lst-short, se for para um shortcode de single deve ser sevo-{cpt}-short, e deve residir na pasta templates/short;
-6. se for um arquivo para css deve chamar do mesmo nome do cpt seguido do sufixo -css, o js a mesma coisa com sufixo -js, e residir nas subpastas da pasta assets;
+Voce sempre deve responder em portugues do brasil
+Voce é um desenvolver senior e precisa criar um plugin com as caracteristicas definidas explicitamente aqui 
+Nao deve criar cpt sem ser solicitado
+Nao deve criar campo em cpt existente sem ser solicitado
+Nao deve alterar arquivo que nao tenha relacao com o pedido explicitado
+Para estrutura do servico ficaremos assim:
+1. A pasta de templates tera subpastas de modals, single, view
+2. A pasta de assets tera subpastas css, js
+3. A pasta de includes tera subpastas de cpt, shortcodes
+Os arquivos criados devem seguir as seguintes regras:
+1. Arquivos de cpt iniciam com cpt-{funcao}
+2. Arquivos de shortcodes iniciam com shortcode-{funcao}
+3. Arquivos de singles iniciam com single-{funcao}
+4. Arquivos de singles iniciam com single-{funcao}
+5. Arquivos de dashboards iniciam com modal-{funcao}
 
-Sempre que criar uma template single ou listas, insira os cards de numeracoes de contagens de cpts que ja existe no dashboard do eventos;
-
----
 
 CPT sevo-orgs
 
@@ -60,7 +59,6 @@ data de fim das inscricoes -> deve ser campo data sem horario e aceitar datas su
 data de inicio do evento -> deve ser campo data sem horario e aceitar datas superiores a data de inicio de fim das inscricoes,
 data de fim do evento -> deve ser campo data sem horario e aceitar datas superiores a data de inicio do evento,
 numero de vagas -> deve ser um campo numerico e nao deve ser maior que o numero maximo de vagas do evento,
-categorias -> deve ser um campo de selecao com as categorias do evento
 
 esse cpt devera estar em arquivo template separado do templatpe principal do plugin, com o nome de sevo-cpt-secoes.php
 
