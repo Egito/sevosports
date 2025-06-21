@@ -38,18 +38,19 @@ class Sevo_Eventos_Main {
 
     private function load_files() {
         // Carregar os arquivos dos Custom Post Types refatorados
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/sevo-orgs-cpt.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/sevo-tipo-evento-cpt.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/sevo-evento-cpt.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-org.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-tipo-evento.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-evento.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-inscr.php';
         // Carregar a integração com o Fórum
         if (class_exists('AsgarosForum')) {
             require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/sevo-forum-integration.php';
         }
 
         // Incluir handlers de shortcode unificados
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-tipo-evento-dashboard-shortcode.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-orgs-dashboard-shortcode.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-eventos-dashboard-shortcode.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos.php';
     }
 
     public function ajax_get_tipo_evento_max_vagas() {

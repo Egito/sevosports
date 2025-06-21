@@ -4,12 +4,15 @@ Nao deve criar cpt sem ser solicitado
 Nao deve criar campo em cpt existente sem ser solicitado
 Nao deve alterar arquivo que nao tenha relacao com o pedido explicitado
 Para estrutura do servico ficaremos assim:
-1. A pasta de templates tera subpastas de cpts, shortcodes, singles, dashboards
+1. A pasta de templates tera subpastas de modals, single, view
 2. A pasta de assets tera subpastas css, js
+3. A pasta de includes tera subpastas de cpt, shortcodes
 Os arquivos criados devem seguir as seguintes regras:
-1. Arquivos de cpt iniciam com cpt-sevo-{funcao}
-2. Arquivos de shortcodes iniciam com short-sevo-{funcao}
-3. Arquivos de singles iniciam com single-sevo-{funcao}
+1. Arquivos de cpt iniciam com cpt-{funcao}
+2. Arquivos de shortcodes iniciam com shortcode-{funcao}
+3. Arquivos de singles iniciam com single-{funcao}
+4. Arquivos de singles iniciam com single-{funcao}
+5. Arquivos de dashboards iniciam com modal-{funcao}
 
 
 CPT sevo-orgs
