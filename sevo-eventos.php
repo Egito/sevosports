@@ -51,6 +51,7 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos.php';
+
     }
 
     public function ajax_get_tipo_evento_max_vagas() {
@@ -67,7 +68,7 @@ class Sevo_Eventos_Main {
         // Estilo para o dashboard de Organizações
         wp_register_style(
             'sevo-orgs-dashboard-style',
-            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-sevo-orgs.css',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-orgs.css',
             array(),
             SEVO_EVENTOS_VERSION
         );
@@ -75,7 +76,7 @@ class Sevo_Eventos_Main {
         // Script para o dashboard de Organizações
         wp_register_script(
             'sevo-orgs-dashboard-script',
-            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-sevo-orgs.js',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-orgs.js',
             array('jquery'),
             SEVO_EVENTOS_VERSION,
             true
@@ -84,7 +85,7 @@ class Sevo_Eventos_Main {
         // Estilo para o dashboard de Eventos
         wp_register_style(
             'sevo-eventos-dashboard-style',
-            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-sevo-eventos.css',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-eventos.css',
             array(),
             SEVO_EVENTOS_VERSION
         );
@@ -92,7 +93,7 @@ class Sevo_Eventos_Main {
         // Script para o dashboard de Eventos
         wp_register_script(
             'sevo-eventos-dashboard-script',
-             SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-sevo-eventos.js',
+             SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-eventos.js',
             array('jquery'),
             SEVO_EVENTOS_VERSION,
             true

@@ -63,7 +63,7 @@ class Sevo_Orgs_CPT {
             'publicly_queryable'    => true,
             'capability_type'       => 'post',
         );
-        register_post_type('sevo_org', $args);
+        register_post_type('sevo-orgs', $args);
     }
 
     public function register_taxonomy() {

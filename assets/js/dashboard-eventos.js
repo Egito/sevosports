@@ -128,6 +128,61 @@ jQuery(document).ready(function($) {
         });
     });
 
+    /**
+     * Listener para os botões de inscrição/cancelamento.
+     */
+    container.on('click', '.sevo-inscription-button', function(e) {
+        e.preventDefault();
+        const button = $(this);
+        const eventId = button.data('event-id');
+        const currentAction = button.data('action');
+
+        if (button.is(':disabled')) {
+            return;
+        }
+
+        button.prop('disabled', true).text('Processando...');
+
+        $.post(sevoDashboard.ajax_url, {
+            action: 'sevo_handle_inscription',
+            nonce: sevoDashboard.nonce,
+            event_id: eventId,
+            inscription_action: currentAction
+        })
+        .done(function(response) {
+            if (response.success) {
+                alert(response.data.message);
+                // Atualiza o botão
+                if (response.data.newState === 'cancelar') {
+                    button.text('Cancelar Inscrição')
+                          .data('action', 'cancel')
+                          .removeClass('sevo-button-primary')
+                          .addClass('sevo-button-danger');
+                } else { // 'inscrever'
+                     button.text('Inscrever-se')
+                          .data('action', 'inscr')
+                          .removeClass('sevo-button-danger')
+                          .addClass('sevo-button-primary');
+                }
+                button.prop('disabled', false);
+
+            } else {
+                alert('Erro: ' + response.data.message);
+                // Lógica para estado desabilitado
+                if (response.data.newState === 'disabled') {
+                     button.text('Cancelada').prop('disabled', true);
+                } else {
+                    // Reverte para o estado anterior em caso de outros erros
+                     button.text(currentAction === 'inscr' ? 'Inscrever-se' : 'Cancelar Inscrição').prop('disabled', false);
+                }
+            }
+        })
+        .fail(function() {
+            alert('Ocorreu um erro de comunicação. Tente novamente.');
+            button.text(currentAction === 'inscr' ? 'Inscrever-se' : 'Cancelar Inscrição').prop('disabled', false);
+        });
+    });
+
     // Fechar o modal
     modal.on('click', '#sevo-evento-modal-close', () => modal.addClass('hidden'));
     modal.on('click', (e) => { if ($(e.target).is(modal)) modal.addClass('hidden'); });
