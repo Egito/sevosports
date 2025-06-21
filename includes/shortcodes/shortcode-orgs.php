@@ -31,7 +31,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         ));
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-sevo-orgs-view.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-orgs-view.php');
         return ob_get_clean();
     }
 

@@ -33,7 +33,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         ));
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-sevo-eventos-view.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-eventos-view.php');
         return ob_get_clean();
     }
     

@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 // Carrega a função dos cards de resumo, se ainda não tiver sido carregada.
 if (!function_exists('sevo_get_summary_cards')) {
     // Assumindo que o arquivo está em /templates/
-    require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/summary-cards.php';
+    require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/summary-cards.php';
 }
 
 // Busca os termos para os filtros
