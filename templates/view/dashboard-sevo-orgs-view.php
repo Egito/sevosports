@@ -1,82 +1,60 @@
 <?php
 /**
- * Dashboard de Organizações
+ * View para o Dashboard de Organizações.
+ * Este template é incluído pelo shortcode [sevo-orgs-dashboard].
  */
 
-// Verifica se o usuário tem permissão
-if (!current_user_can('edit_posts')) {
-    return;
+if (!defined('ABSPATH')) {
+    exit;
 }
 
-// Inclui o template de cards de resumo
-include plugin_dir_path(__FILE__) . '../templates/summary-cards.php';
-
-// Filtro de proprietários
-$proprietarios = get_terms(array(
-    'taxonomy' => 'sevo_org_proprietario',
-    'hide_empty' => false,
-));
-
-// Query das organizações
+// Busca todas as organizações publicadas para exibir no grid.
 $args = array(
-    'post_type' => 'sevo_org',
+    'post_type' => 'sevo-orgs',
     'posts_per_page' => -1,
+    'post_status' => 'publish',
+    'orderby' => 'title',
+    'order' => 'ASC',
 );
-
-if (isset($_GET['proprietario']) && !empty($_GET['proprietario'])) {
-    $args['tax_query'] = array(
-        array(
-            'taxonomy' => 'sevo_org_proprietario',
-            'field' => 'slug',
-            'terms' => sanitize_text_field($_GET['proprietario']),
-        ),
-    );
-}
-
 $organizacoes = new WP_Query($args);
 ?>
 
-<div class="sevo-dashboard-container">
-    <!-- Filtros -->
-    <div class="sevo-filters">
-        <form method="get" action="">
-            <select name="proprietario" id="proprietario-filter">
-                <option value="">Todos os Proprietários</option>
-                <?php foreach ($proprietarios as $proprietario): ?>
-                    <option value="<?php echo esc_attr($proprietario->slug); ?>"
-                        <?php selected($_GET['proprietario'] ?? '', $proprietario->slug); ?>>
-                        <?php echo esc_html($proprietario->name); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <button type="submit" class="sevo-filter-button">Filtrar</button>
-        </form>
-    </div>
-
-    <!-- Lista de Organizações -->
-    <div class="sevo-org-grid">
-        <?php if ($organizacoes->have_posts()): ?>
-            <?php while ($organizacoes->have_posts()): $organizacoes->the_post(); ?>
-                <div class="sevo-org-card">
-                    <!-- Conteúdo do card -->
-                    <div class="sevo-org-content">
-                        <h3><?php the_title(); ?></h3>
-                        <div class="sevo-org-meta">
-                            <?php
-                            $proprietario_terms = get_the_terms(get_the_ID(), 'sevo_org_proprietario');
-                            if ($proprietario_terms && !is_wp_error($proprietario_terms)) {
-                                echo '<span class="sevo-org-proprietario">' . esc_html($proprietario_terms[0]->name) . '</span>';
-                            }
-                            ?>
-                        </div>
+<div class="sevo-orgs-dashboard-container">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Nossas Organizações</h2>
+    
+    <?php if ($organizacoes->have_posts()) : ?>
+        <div class="sevo-grid">
+            <?php while ($organizacoes->have_posts()) : $organizacoes->the_post(); ?>
+                <div class="sevo-card org-card" data-org-id="<?php echo get_the_ID(); ?>">
+                    <div class="sevo-card-image" style="background-image: url('<?php echo get_the_post_thumbnail_url(get_the_ID(), 'medium_large'); ?>');">
+                        <div class="sevo-card-overlay"></div>
+                    </div>
+                    <div class="sevo-card-content">
+                        <h3 class="sevo-card-title"><?php the_title(); ?></h3>
+                        <p class="sevo-card-description">
+                           <?php
+                           $excerpt = get_the_excerpt();
+                           echo wp_trim_words($excerpt, 15, '...');
+                           ?>
+                        </p>
+                        <span class="sevo-card-link">Ver Detalhes <i class="fas fa-arrow-right ml-2"></i></span>
                     </div>
                 </div>
             <?php endwhile; ?>
-        <?php else: ?>
-            <p class="sevo-no-results">Nenhuma organização encontrada.</p>
-        <?php endif; ?>
+        </div>
+        <?php wp_reset_postdata(); ?>
+    <?php else : ?>
+        <p>Nenhuma organização encontrada.</p>
+    <?php endif; ?>
+
+    <!-- Estrutura do Modal (inicialmente oculta) -->
+    <div id="sevo-org-modal" class="sevo-modal-backdrop hidden">
+        <div class="sevo-modal-container">
+            <button id="sevo-modal-close" class="sevo-modal-close-button">&times;</button>
+            <div id="sevo-modal-content">
+                <!-- O conteúdo da organização será carregado aqui via AJAX -->
+                <div class="sevo-spinner"></div>
+            </div>
+        </div>
     </div>
 </div>
-
-<?php
-wp_reset_postdata();

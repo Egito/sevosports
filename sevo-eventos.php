@@ -3,7 +3,7 @@
 Plugin Name: Sevo Eventos
 Plugin URI: http://www.sevosports.com
 Description: Plugin para gerenciamento de organizações, tipos de eventos, eventos e inscrições, com integração a um fórum.
-Version: 2.0
+Version: 2.1
 Author: Egito Salvador
 Author URI: http://www.sevosports.com
 License: GPL2
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Definir constantes do plugin
-define('SEVO_EVENTOS_VERSION', '2.0');
+define('SEVO_EVENTOS_VERSION', '2.1');
 define('SEVO_EVENTOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SEVO_EVENTOS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -33,8 +33,8 @@ class Sevo_Eventos_Main {
         add_action('wp_ajax_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
         add_action('wp_ajax_nopriv_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
         
-        // Registrar scripts e estilos
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
+        // Registrar scripts e estilos de forma centralizada
+        add_action('wp_enqueue_scripts', array($this, 'register_all_assets'));
     }
 
     public static function get_instance() {
@@ -61,9 +61,8 @@ class Sevo_Eventos_Main {
         }
 
         // Incluir handlers de shortcode
-        // (Serão ajustados nos próximos passos)
-        // require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-secoes-shortcode.php';
-        // require_once SEVO_EVENTOS_PLUGIN_DIR . 'dashboard-sevo-eventos.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-orgs-dashboard-shortcode.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/sevo-eventos-dashboard-shortcode.php';
     }
 
     /**
@@ -82,18 +81,40 @@ class Sevo_Eventos_Main {
         wp_send_json_success(array('max_vagas' => $max_vagas ?: 0));
     }
     
-    public function enqueue_assets() {
-        // Estilos e scripts para os dashboards (serão ajustados)
+    /**
+     * Registra todos os scripts e estilos do plugin.
+     * Eles serão enfileirados (enqueued) apenas quando os shortcodes forem usados.
+     */
+    public function register_all_assets() {
+        // Estilo para o dashboard de Organizações
         wp_register_style(
-            'sevo-eventos-dashboard-style',
-            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-sevo-eventos.css',
+            'sevo-orgs-dashboard-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-sevo-orgs.css', // Caminho corrigido
             array(),
             SEVO_EVENTOS_VERSION
         );
 
+        // Script para o dashboard de Organizações
+        wp_register_script(
+            'sevo-orgs-dashboard-script',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-sevo-orgs.js', // Caminho corrigido
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
+
+        // Estilo para o dashboard de Eventos
+        wp_register_style(
+            'sevo-eventos-dashboard-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-sevo-eventos.css', // Caminho corrigido
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
+
+        // Script para o dashboard de Eventos
         wp_register_script(
             'sevo-eventos-dashboard-script',
-             SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-sevo-eventos.js',
+             SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-sevo-eventos.js', // Caminho corrigido
             array('jquery'),
             SEVO_EVENTOS_VERSION,
             true

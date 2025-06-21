@@ -1,209 +1,127 @@
-/* Container principal do Dashboard */
-.sevo-dashboard-container {
+/* --- Estilos Gerais do Dashboard --- */
+.sevo-eventos-dashboard-container {
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f0f2f5;
 }
 
-/* Cards de resumo */
-.sevo-summary-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.summary-card {
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    text-align: center;
-    color: white;
-}
-
-.summary-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-}
-
-.summary-card h3 {
-    margin: 0 0 5px;
-    font-size: 0.8em;
-    font-weight: 500;
-    opacity: 0.9;
-}
-
-.summary-card .count {
-    font-size: 1.8em;
-    font-weight: 700;
-}
-
-/* Cores dos cards de resumo */
-.summary-card.green-card { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-.summary-card.teal-card { background: linear-gradient(135deg, #1abc9c, #16a085); }
-.summary-card.cyan-card { background: linear-gradient(135deg, #00bcd4, #0097a7); }
-.summary-card.blue-card { background: linear-gradient(135deg, #3498db, #2980b9); }
-.summary-card.yellow-card { background: linear-gradient(135deg, #f1c40f, #f39c12); }
-.summary-card.orange-card { background: linear-gradient(135deg, #e67e22, #d35400); }
-.summary-card.red-card { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-
-/* Filtros */
-.sevo-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 30px;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.sevo-filter-group {
-    flex: 1;
-    min-width: 200px;
-}
-
-.sevo-filter {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #4a5568;
-    background-color: #f8fafc;
-    transition: all 0.2s ease;
-}
-
-.sevo-filter:focus {
-    outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-    background-color: #fff;
-}
-
-/* Grid de cards de eventos */
-.sevo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 25px;
-    padding: 10px 0;
-}
-
-.sevo-card.evento-card {
-    background: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-}
-
-.sevo-card.evento-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-.sevo-card-images {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 */
-    background-color: #e2e8f0;
-}
-
-.sevo-card-main-image {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-size: cover;
-    background-position: center;
-}
-
-.sevo-card-parent-thumbnail {
-    position: absolute;
-    bottom: 10px; right: 10px;
-    width: 50px; height: 50px;
-    border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    overflow: hidden;
-}
-
-.sevo-card-parent-thumbnail img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-}
-
-.sevo-card-content {
-    padding: 20px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.sevo-card-header {
-    margin-bottom: 15px;
-}
-
-.sevo-card-title {
-    margin: 0 0 5px 0;
-    font-size: 1.2em;
-    color: #1a365d;
-}
-
-.sevo-card-parent-title {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.85em;
-    color: #718096;
-}
-
-.sevo-card-dates {
-    font-size: 0.9em;
-    color: #4a5568;
-    background: #f8fafc;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-.sevo-card-dates .date-row {
-    line-height: 1.5;
-}
-
-.sevo-card-vagas {
-    margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid #e2e8f0;
-}
-
-.vagas-progress {
-    height: 8px;
-    background: #e2e8f0;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #3498db, #2980b9);
-    border-radius: 4px;
-    transition: width 0.5s ease;
-}
-
-.vagas-info {
+.sevo-dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9em;
-    color: #4a5568;
+    margin-bottom: 20px;
 }
 
-.vagas-info span:first-child {
-    font-weight: 600;
-    color: #2d3748;
+/* --- Estilos do Formulário no Modal --- */
+.sevo-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
+
+.sevo-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.sevo-form-group label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.sevo-form-group input[type="text"],
+.sevo-form-group input[type="number"],
+.sevo-form-group input[type="date"],
+.sevo-form-group select,
+.sevo-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #1f2937;
+    background-color: #f9fafb;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sevo-form-group input:focus,
+.sevo-form-group select:focus,
+.sevo-form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.sevo-modal-footer-form {
+    padding: 20px 30px;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+/* --- Botões --- */
+.sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+.sevo-button-primary { background-color: #3b82f6; color: #fff; }
+.sevo-button-primary:hover { background-color: #2563eb; }
+.sevo-button-secondary { background-color: #6b7280; color: #fff; }
+.sevo-button-secondary:hover { background-color: #4b5563; }
+.sevo-button-danger { background-color: #ef4444; color: #fff; }
+.sevo-button-danger:hover { background-color: #dc2626; }
+.sevo-button-primary:disabled { background-color: #93c5fd; cursor: not-allowed; }
+
+/* --- Estilos do Modal (genéricos) --- */
+.sevo-modal-backdrop {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+}
+.sevo-modal-container {
+    background-color: #fff; border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%; max-width: 700px;
+    max-height: 90vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.sevo-modal-close-button {
+    position: absolute; top: 15px; right: 20px;
+    background: none; border: none;
+    font-size: 2.5rem; color: #9ca3af;
+    cursor: pointer; line-height: 1;
+}
+.sevo-modal-body { padding: 25px 30px; overflow-y: auto; }
+.sevo-modal-title { font-size: 1.75rem; font-weight: 700; color: #111827; margin-bottom: 25px; }
+
+/* --- Estilos dos Cards (inalterados) --- */
+.sevo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+.sevo-card.evento-card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; display: flex; flex-direction: column; }
+.sevo-card.evento-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12); }
+.sevo-card-images { position: relative; width: 100%; padding-top: 56.25%; background-color: #e2e8f0; }
+.sevo-card-main-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; }
+.sevo-card-parent-thumbnail { position: absolute; bottom: 10px; right: 10px; width: 50px; height: 50px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); overflow: hidden; }
+.sevo-card-parent-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+.sevo-card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+.sevo-card-title { font-size: 1.2em; font-weight: 700; }
+.hidden { display: none; }
+.sevo-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s lin
