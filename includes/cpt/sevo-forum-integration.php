@@ -18,7 +18,7 @@ class Sevo_Forum_Integration {
         add_action('save_post_sevo-evento', array($this, 'handle_event_forum_creation_and_topics'), 10, 3);
     }
 
-    /**
+     /**
      * Cria uma categoria no Asgaros Forum para uma nova organização.
      */
     public function create_forum_category_for_organization($post_id, $post) {
@@ -31,10 +31,9 @@ class Sevo_Forum_Integration {
             return;
         }
 
-        $category_id = AsgarosForum::add_forum(array(
+        $category_id = AsgarosForum::add_category(array(
             'name' => $post->post_title,
             'description' => 'Fórum de discussão para a organização ' . $post->post_title,
-            'parent_id' => 0 // ID 0 cria uma categoria
         ));
 
         if ($category_id) {
