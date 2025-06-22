@@ -98,6 +98,22 @@ class Sevo_Eventos_Main {
             SEVO_EVENTOS_VERSION,
             true
         );
+         // Estilo para o dashboard de Tipos de Evento
+        wp_register_style(
+            'sevo-tipo-evento-dashboard-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css',
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
+
+        // Script para o dashboard de Tipos de Evento
+        wp_register_script(
+            'sevo-tipo-evento-dashboard-script',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
     }
 
     public function activate() {

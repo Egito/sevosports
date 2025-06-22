@@ -239,6 +239,61 @@ class Sevo_Eventos_Dashboard_Shortcode {
         return $query->have_posts() ? $query->posts[0] : null;
     }
 
-    private function get_filtered_query_args($page = 1) { /* ... Implementação existente ... */ return []; }
+    // Dentro do arquivo includes/shortcodes/shortcode-eventos.php
+
+    // Substitua a função private function get_filtered_query_args($page = 1) { /* ... */ return []; } por esta:
+
+    private function get_filtered_query_args($page = 1) {
+        $args = array(
+            'post_type'      => 'sevo-evento',
+            'posts_per_page' => 10, // Ou o número que preferir
+            'paged'          => $page,
+            'post_status'    => 'publish',
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        );
+
+        $meta_query = array('relation' => 'AND');
+        $tax_query = array('relation' => 'AND');
+
+        // Filtro por Tipo de Evento
+        if (!empty($_POST['tipo_evento']) && is_numeric($_POST['tipo_evento'])) {
+            $meta_query[] = array(
+                'key'     => '_sevo_evento_tipo_evento_id',
+                'value'   => intval($_POST['tipo_evento']),
+                'compare' => '=',
+            );
+        }
+
+        // Filtro por Categoria de Evento
+        if (!empty($_POST['categoria_evento']) && is_numeric($_POST['categoria_evento'])) {
+            $tax_query[] = array(
+                'taxonomy' => 'sevo_evento_categoria',
+                'field'    => 'term_id',
+                'terms'    => intval($_POST['categoria_evento']),
+            );
+        }
+
+        // Filtro por Ano do Evento
+        if (!empty($_POST['ano_evento']) && is_numeric($_POST['ano_evento'])) {
+            $year = intval($_POST['ano_evento']);
+            $meta_query[] = array(
+                'key'     => '_sevo_evento_data_inicio_evento',
+                'value'   => array($year . '-01-01', $year . '-12-31'),
+                'compare' => 'BETWEEN',
+                'type'    => 'DATE',
+            );
+        }
+
+        if (count($meta_query) > 1) {
+            $args['meta_query'] = $meta_query;
+        }
+
+        if (count($tax_query) > 1) {
+            $args['tax_query'] = $tax_query;
+        }
+
+        return $args;
+    }
 }
 new Sevo_Eventos_Dashboard_Shortcode();
