@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 class Sevo_Inscricoes_CPT {
 
-    private $post_type = 'sevo_inscr';
+    private $post_type = SEVO_INSCR_POST_TYPE;
 
     public function __construct() {
         add_action('init', array($this, 'register_post_type'));
@@ -38,7 +38,7 @@ class Sevo_Inscricoes_CPT {
             'public'        => false,
             'publicly_queryable' => false,
             'show_ui'       => true,
-            'show_in_menu'  => 'edit.php?post_type=sevo-evento', // Adiciona como submenu de Eventos
+            'show_in_menu'  => 'edit.php?post_type=' . SEVO_EVENTO_POST_TYPE, // Adiciona como submenu de Eventos
             'capability_type' => 'post',
             'has_archive'   => false,
             'hierarchical'  => false,

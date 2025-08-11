@@ -15,6 +15,8 @@ class Sevo_Orgs_CPT {
         add_action('save_post', array($this, 'save_meta_boxes'));
     }
 
+    private $post_type = SEVO_ORG_POST_TYPE;
+
     public function register_cpt() {
         $labels = array(
             'name'                  => _x('Organizações', 'Post Type General Name', 'sevo-eventos'),
@@ -63,7 +65,7 @@ class Sevo_Orgs_CPT {
             'publicly_queryable'    => true,
             'capability_type'       => 'post',
         );
-        register_post_type('sevo-orgs', $args);
+        register_post_type($this->post_type, $args);
     }
 
     public function register_taxonomy() {
@@ -89,7 +91,7 @@ class Sevo_Orgs_CPT {
             'query_var'             => true,
             'rewrite'               => array('slug' => 'organizacao-categoria'),
         );
-        register_taxonomy('sevo_org_categoria', array('sevo_org'), $args);
+        register_taxonomy('sevo_org_categoria', array($this->post_type), $args);
     }
 
     public function add_meta_boxes() {
@@ -97,7 +99,7 @@ class Sevo_Orgs_CPT {
             'sevo_org_info',
             __('Informações da Organização', 'sevo-eventos'),
             array($this, 'render_org_info_meta_box'),
-            'sevo_org',
+            $this->post_type,
             'normal',
             'high'
         );
@@ -106,7 +108,7 @@ class Sevo_Orgs_CPT {
             'sevo_org_contato',
             __('Informações de Contato', 'sevo-eventos'),
             array($this, 'render_contato_meta_box'),
-            'sevo_org',
+            $this->post_type,
             'side'
         );
 
@@ -114,7 +116,7 @@ class Sevo_Orgs_CPT {
             'sevo_org_eventos',
             __('Eventos Relacionados', 'sevo-eventos'),
             array($this, 'render_eventos_meta_box'),
-            'sevo_org',
+            $this->post_type,
             'normal',
             'high'
         );

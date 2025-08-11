@@ -20,7 +20,7 @@ $max_vagas = $is_editing ? get_post_meta($post_id, '_sevo_tipo_evento_max_vagas'
 $participacao = $is_editing ? get_post_meta($post_id, '_sevo_tipo_evento_participacao', true) : 'individual';
 
 // Busca organizações para o dropdown
-$organizacoes = get_posts(array('post_type' => 'sevo-orgs', 'posts_per_page' => -1, 'post_status' => 'publish', 'orderby' => 'title', 'order' => 'ASC'));
+$organizacoes = get_posts(array('post_type' => SEVO_ORG_POST_TYPE, 'posts_per_page' => -1, 'post_status' => 'publish', 'orderby' => 'title', 'order' => 'ASC'));
 ?>
 
 <form id="sevo-tipo-evento-form">

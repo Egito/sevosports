@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 // Busca todas as organizações publicadas para exibir no grid.
 $args = array(
-    'post_type' => 'sevo-orgs',
+    'post_type' => SEVO_ORG_POST_TYPE,
     'posts_per_page' => -1,
     'post_status' => 'publish',
     'orderby' => 'title',

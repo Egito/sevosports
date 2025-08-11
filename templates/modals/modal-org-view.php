@@ -16,7 +16,7 @@ $org_thumbnail_url = get_the_post_thumbnail_url($org_id, 'large');
 
 // Busca os "Tipos de Evento" associados a esta organização
 $tipos_de_evento = get_posts(array(
-    'post_type' => 'sevo-tipo-evento',
+    'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
     'posts_per_page' => -1,
     'meta_key' => '_sevo_tipo_evento_organizacao_id',
     'meta_value' => $org_id
@@ -24,7 +24,10 @@ $tipos_de_evento = get_posts(array(
 
 // Link para o fórum da organização
 $forum_category_id = get_post_meta($org_id, '_sevo_forum_category_id', true);
-$forum_url = $forum_category_id ? get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $forum_category_id . '/' : '#';
+$forum_url = '#';
+if ($forum_category_id && class_exists('AsgarosForum')) {
+    $forum_url = get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $forum_category_id . '/';
+}
 
 ?>
 

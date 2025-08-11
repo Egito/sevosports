@@ -18,6 +18,12 @@ define('SEVO_EVENTOS_VERSION', '3.0');
 define('SEVO_EVENTOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SEVO_EVENTOS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
+// Definir constantes para os post types
+define('SEVO_ORG_POST_TYPE', 'sevo-orgs');
+define('SEVO_TIPO_EVENTO_POST_TYPE', 'sevo-tipo-evento');
+define('SEVO_EVENTO_POST_TYPE', 'sevo-evento');
+define('SEVO_INSCR_POST_TYPE', 'sevo_inscr');
+
 class Sevo_Eventos_Main {
     private static $instance = null;
 
@@ -51,6 +57,7 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-landing-page.php';
 
     }
 
@@ -110,6 +117,23 @@ class Sevo_Eventos_Main {
         wp_register_script(
             'sevo-tipo-evento-dashboard-script',
             SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
+
+        // Estilo para a Landing Page
+        wp_register_style(
+            'sevo-landing-page-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/landing-page.css',
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
+
+        // Script para a Landing Page
+        wp_register_script(
+            'sevo-landing-page-script',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/landing-page.js',
             array('jquery'),
             SEVO_EVENTOS_VERSION,
             true

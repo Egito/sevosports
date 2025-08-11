@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
  */
 class Sevo_Tipos_Eventos_CPT {
 
-    private $post_type = 'sevo-tipo-evento';
+    private $post_type = SEVO_TIPO_EVENTO_POST_TYPE;
 
     public function __construct() {
         add_action('init', array($this, 'register_post_type'));
@@ -81,7 +81,7 @@ class Sevo_Tipos_Eventos_CPT {
 
         // Buscar organizações
         $organizacoes = get_posts(array(
-            'post_type' => 'sevo-orgs',
+            'post_type' => SEVO_ORG_POST_TYPE,
             'posts_per_page' => -1,
             'orderby' => 'title',
             'order' => 'ASC'

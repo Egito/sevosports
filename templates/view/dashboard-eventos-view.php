@@ -17,7 +17,7 @@ if (!function_exists('sevo_get_summary_cards')) {
 
 // Busca os termos para os filtros
 $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hide_empty' => false));
-$tipos_evento = get_posts(array('post_type' => 'sevo-tipo-evento', 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC'));
+$tipos_evento = get_posts(array('post_type' => SEVO_TIPO_EVENTO_POST_TYPE, 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC'));
 
 // Busca os anos disponíveis para o filtro
 global $wpdb;

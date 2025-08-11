@@ -110,7 +110,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
 
         if ($action === 'inscr') {
             $new_post_id = wp_insert_post(array(
-                'post_type'   => 'sevo_inscr',
+                'post_type'   => SEVO_INSCR_POST_TYPE,
                 'post_title'  => 'Inscrição de ' . wp_get_current_user()->display_name . ' em ' . $evento_title,
                 'post_status' => 'solicitada',
                 'post_author' => $user_id,
@@ -223,7 +223,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
      */
     private function get_user_inscription_for_event($user_id, $evento_id) {
         $args = array(
-            'post_type' => 'sevo_inscr',
+            'post_type' => SEVO_INSCR_POST_TYPE,
             'posts_per_page' => 1,
             'author' => $user_id,
             'meta_query' => array(
@@ -245,7 +245,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
 
     private function get_filtered_query_args($page = 1) {
         $args = array(
-            'post_type'      => 'sevo-evento',
+            'post_type'      => SEVO_EVENTO_POST_TYPE,
             'posts_per_page' => 10, // Ou o número que preferir
             'paged'          => $page,
             'post_status'    => 'publish',

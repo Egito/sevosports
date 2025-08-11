@@ -11,11 +11,15 @@ if (!defined('ABSPATH')) {
 
 class Sevo_Forum_Integration {
 
+    private $org_post_type = SEVO_ORG_POST_TYPE;
+    private $tipo_evento_post_type = SEVO_TIPO_EVENTO_POST_TYPE;
+    private $evento_post_type = SEVO_EVENTO_POST_TYPE;
+
     public function __construct() {
         // Hooks para criar as estruturas do fórum
-        add_action('save_post_sevo-orgs', array($this, 'create_forum_category_for_organization'), 10, 2);
-        add_action('save_post_sevo-tipo-evento', array($this, 'create_forum_for_event_type'), 10, 2);
-        add_action('save_post_sevo-evento', array($this, 'handle_event_forum_creation_and_topics'), 10, 3);
+        add_action('save_post_' . $this->org_post_type, array($this, 'create_forum_category_for_organization'), 10, 2);
+        add_action('save_post_' . $this->tipo_evento_post_type, array($this, 'create_forum_for_event_type'), 10, 2);
+        add_action('save_post_' . $this->evento_post_type, array($this, 'handle_event_forum_creation_and_topics'), 10, 3);
     }
 
      /**
@@ -31,10 +35,10 @@ class Sevo_Forum_Integration {
             return;
         }
 
-        $category_id = AsgarosForum::add_category(array(
+        $category_id = class_exists('AsgarosForum') ? AsgarosForum::add_category(array(
             'name' => $post->post_title,
             'description' => 'Fórum de discussão para a organização ' . $post->post_title,
-        ));
+        )) : 0;
 
         if ($category_id) {
             update_post_meta($post_id, '_sevo_forum_category_id', $category_id);
@@ -63,11 +67,11 @@ class Sevo_Forum_Integration {
             return; // Categoria da organização ainda não existe
         }
 
-        $forum_id = AsgarosForum::add_forum(array(
+        $forum_id = class_exists('AsgarosForum') ? AsgarosForum::add_forum(array(
             'name' => $post->post_title,
             'description' => 'Discussões sobre o tipo de evento: ' . $post->post_title,
             'parent_id' => $category_id
-        ));
+        )) : 0;
 
         if ($forum_id) {
             update_post_meta($post_id, '_sevo_forum_forum_id', $forum_id);
@@ -105,11 +109,11 @@ class Sevo_Forum_Integration {
             return;
         }
 
-        $sub_forum_id = AsgarosForum::add_forum(array(
+        $sub_forum_id = class_exists('AsgarosForum') ? AsgarosForum::add_forum(array(
             'name' => $post->post_title,
             'description' => 'Tópicos de discussão para o evento: ' . $post->post_title,
             'parent_id' => $forum_id
-        ));
+        )) : 0;
 
         if ($sub_forum_id) {
             update_post_meta($post_id, '_sevo_forum_subforum_id', $sub_forum_id);
@@ -125,7 +129,7 @@ class Sevo_Forum_Integration {
         $evento_url = get_permalink($post_id);
         $evento_title = get_the_title($post_id);
 
-        if (!$sub_forum_id || !$author_id) {
+        if (!$sub_forum_id || !$author_id || !class_exists('AsgarosForum')) {
             return;
         }
 

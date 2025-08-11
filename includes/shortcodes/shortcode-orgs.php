@@ -49,7 +49,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         $org_id = intval($_POST['org_id']);
         $organizacao = get_post($org_id);
 
-        if (!$organizacao || $organizacao->post_type !== 'sevo-orgs') {
+        if (!$organizacao || $organizacao->post_type !== SEVO_ORG_POST_TYPE) {
             wp_send_json_error('Organização não encontrada.');
         }
 

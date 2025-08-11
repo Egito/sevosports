@@ -26,7 +26,7 @@ $data_inicio_evento = $is_editing ? get_post_meta($post_id, '_sevo_evento_data_i
 $data_fim_evento = $is_editing ? get_post_meta($post_id, '_sevo_evento_data_fim_evento', true) : '';
 
 // Busca os "Tipos de Evento" e "Categorias" para os dropdowns
-$tipos_de_evento = get_posts(array('post_type' => 'sevo-tipo-evento', 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC'));
+$tipos_de_evento = get_posts(array('post_type' => SEVO_TIPO_EVENTO_POST_TYPE, 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC'));
 $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hide_empty' => false));
 ?>
 

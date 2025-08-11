@@ -33,7 +33,10 @@ $data_fim_evento = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true)
 
 // Link para o sub-fórum do evento
 $sub_forum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
-$forum_url = ($sub_forum_id && class_exists('AsgarosForum')) ? get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $sub_forum_id . '/' : '#';
+$forum_url = '#';
+if ($sub_forum_id && class_exists('AsgarosForum')) {
+    $forum_url = get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $sub_forum_id . '/';
+}
 
 // Lógica de status da inscrição
 $hoje = new DateTime();

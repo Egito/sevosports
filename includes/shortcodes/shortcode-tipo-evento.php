@@ -77,7 +77,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         $post_data = array(
             'post_title'   => sanitize_text_field($form_data['post_title']),
             'post_content' => wp_kses_post($form_data['post_content']),
-            'post_type'    => 'sevo-tipo-evento',
+            'post_type'    => SEVO_TIPO_EVENTO_POST_TYPE,
             'post_status'  => 'publish',
         );
 
@@ -136,7 +136,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     public function ajax_load_more_tipos_evento() {
         $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $args = array(
-            'post_type' => 'sevo-tipo-evento',
+            'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
             'posts_per_page' => 10,
             'paged' => $page,
             'post_status' => 'publish',

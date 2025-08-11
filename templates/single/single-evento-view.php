@@ -26,7 +26,7 @@ $data_fim_evento = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true)
 $thumbnail_url = get_the_post_thumbnail_url($post_id, 'full');
 
 $sub_forum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
-$forum_url = $sub_forum_id ? get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $sub_forum_id . '/' : '#';
+$forum_url = ($sub_forum_id && class_exists('AsgarosForum')) ? get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $sub_forum_id . '/' : '#';
 
 $hoje = new DateTime();
 $inicio_insc = new DateTime($data_inicio_insc);

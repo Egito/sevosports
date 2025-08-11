@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit;
 
 function sevo_get_summary_cards() {
     // Total de Organizações
-    $orgs_count = wp_count_posts('sevo-orgs')->publish;
+    $orgs_count = wp_count_posts(SEVO_ORG_POST_TYPE)->publish;
     
     // Total de Eventos
     $eventos_count = wp_count_posts('sevo-eventos')->publish;
