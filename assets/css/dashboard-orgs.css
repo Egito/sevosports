@@ -78,6 +78,27 @@
     background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
 }
 
+.sevo-card-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+}
+
+.sevo-status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-ativo { background-color: #22c55e; }
+.status-inativo { background-color: #ef4444; }
+
 .sevo-card-content {
     padding: 20px;
     flex-grow: 1;

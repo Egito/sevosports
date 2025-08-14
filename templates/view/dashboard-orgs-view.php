@@ -8,13 +8,35 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Busca todas as organizações publicadas para exibir no grid.
+// Verifica se o usuário tem permissão para ver organizações inativas
+$can_manage_orgs = current_user_can('manage_options');
+
+// Define meta_query baseado nas permissões
+$meta_query = array();
+if (!$can_manage_orgs) {
+    // Usuários sem permissão só veem organizações ativas ou sem status definido
+    $meta_query[] = array(
+        'relation' => 'OR',
+        array(
+            'key' => 'sevo_org_status',
+            'value' => 'ativo',
+            'compare' => '='
+        ),
+        array(
+            'key' => 'sevo_org_status',
+            'compare' => 'NOT EXISTS'
+        )
+    );
+}
+
+// Busca organizações baseado nas permissões
 $args = array(
     'post_type' => SEVO_ORG_POST_TYPE,
     'posts_per_page' => -1,
     'post_status' => 'publish',
     'orderby' => 'title',
     'order' => 'ASC',
+    'meta_query' => $meta_query,
 );
 $organizacoes = new WP_Query($args);
 ?>
@@ -31,10 +53,18 @@ $organizacoes = new WP_Query($args);
     
     <?php if ($organizacoes->have_posts()) : ?>
         <div class="sevo-grid">
-            <?php while ($organizacoes->have_posts()) : $organizacoes->the_post(); ?>
+            <?php while ($organizacoes->have_posts()) : $organizacoes->the_post(); 
+                $org_status = get_post_meta(get_the_ID(), 'sevo_org_status', true);
+                $org_status = !empty($org_status) ? $org_status : 'ativo';
+            ?>
                 <div class="sevo-card org-card" data-org-id="<?php echo get_the_ID(); ?>">
                     <div class="sevo-card-image" style="background-image: url('<?php echo get_the_post_thumbnail_url(get_the_ID(), 'medium_large'); ?>');">
                         <div class="sevo-card-overlay"></div>
+                        <div class="sevo-card-status">
+                            <span class="sevo-status-badge status-<?php echo esc_attr($org_status); ?>">
+                                <?php echo ucfirst($org_status); ?>
+                            </span>
+                        </div>
                     </div>
                     <div class="sevo-card-content">
                         <h3 class="sevo-card-title"><?php the_title(); ?></h3>

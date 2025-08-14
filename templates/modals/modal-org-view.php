@@ -54,57 +54,51 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
 <div class="sevo-modal-body">
     <h2 class="sevo-modal-title"><?php echo esc_html($org_title); ?></h2>
     
+    <!-- Container Superior: Informações e CPTs Relacionados -->
     <div class="sevo-modal-content-grid">
-        <!-- Coluna das Informações (Prioritária) -->
+        <!-- Coluna de Informações Básicas -->
         <div class="sevo-modal-info-column">
-            <h3 class="sevo-modal-section-title">Informações</h3>
-            <div class="sevo-modal-sections-compact">
-                <div class="sevo-modal-section">
-                    <h4 class="sevo-modal-subsection-title">Status da Organização</h4>
-                    <div class="sevo-modal-info-list">
-                        <div class="sevo-info-item-vertical">
-                            <div class="sevo-info-label">
-                                <i class="fas fa-toggle-<?php echo $org_status === 'ativo' ? 'on' : 'off'; ?>"></i>
-                                <span>Status</span>
-                            </div>
-                            <div class="sevo-info-value"><?php echo esc_html(ucfirst($org_status)); ?></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="sevo-modal-section">
-                    <h4 class="sevo-modal-subsection-title">Tipos de Evento Oferecidos</h4>
-                    <div class="sevo-modal-info-list">
-                        <?php if (!empty($tipos_de_evento)) : ?>
-                            <?php foreach ($tipos_de_evento as $tipo) : ?>
-                                <div class="sevo-info-item-vertical">
-                                    <div class="sevo-info-label">
-                                        <i class="fas fa-sitemap"></i>
-                                        <span>Tipo de Evento</span>
-                                    </div>
-                                    <div class="sevo-info-value"><?php echo esc_html($tipo->post_title); ?></div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else : ?>
-                            <div class="sevo-info-item-vertical">
-                                <div class="sevo-info-label">
-                                    <i class="fas fa-info-circle"></i>
-                                    <span>Status</span>
-                                </div>
-                                <div class="sevo-info-value">Esta organização ainda não possui tipos de evento definidos.</div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
+            <h4><i class="fas fa-info-circle"></i> Informações</h4>
+            
+            <!-- Status da Organização -->
+            <div class="sevo-info-item">
+                <strong><i class="fas fa-circle"></i> Status:</strong>
+                <span class="sevo-status-badge sevo-status-<?php echo esc_attr($org_status); ?>">
+                    <?php echo esc_html(ucfirst($org_status)); ?>
+                </span>
             </div>
         </div>
-        
-        <!-- Coluna da Descrição (Complementar) -->
-        <div class="sevo-modal-description-column">
-            <h3 class="sevo-modal-section-title">Descrição</h3>
-            <div class="sevo-modal-description-scrollable">
-                <?php echo $org_description; ?>
+
+        <!-- Coluna de CPTs Relacionados -->
+        <div class="sevo-modal-info-column">
+            <h4><i class="fas fa-calendar-alt"></i> Tipos de Evento Oferecidos</h4>
+            <div class="sevo-info-item" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
+                <?php if (!empty($tipos_de_evento)) : ?>
+                    <ul class="sevo-tipos-list">
+                        <?php foreach ($tipos_de_evento as $tipo) : ?>
+                            <li>
+                                <a href="#" class="sevo-tipo-link" data-tipo-id="<?php echo esc_attr($tipo->ID); ?>">
+                                    <?php echo esc_html($tipo->post_title); ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else : ?>
+                    <p class="sevo-no-items">Nenhum tipo de evento cadastrado.</p>
+                <?php endif; ?>
             </div>
+        </div>
+    </div>
+
+    <!-- Container Inferior: Descrição -->
+    <div class="sevo-modal-description-container" style="margin-top: 20px;">
+        <h4><i class="fas fa-align-left"></i> Descrição</h4>
+        <div class="sevo-modal-description-scrollable" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 4px; background-color: #f9f9f9;">
+            <?php if (!empty($org_description)) : ?>
+                <?php echo wp_kses_post($org_description); ?>
+            <?php else : ?>
+                <p class="sevo-no-description">Nenhuma descrição disponível.</p>
+            <?php endif; ?>
         </div>
     </div>
 
