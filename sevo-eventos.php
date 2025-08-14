@@ -183,28 +183,68 @@ class Sevo_Eventos_Main {
     }
 
     public function admin_page_callback() {
+        // Verificar permissões
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+        
+        // Obter contadores para cada CPT
+        $orgs_count = wp_count_posts(SEVO_ORG_POST_TYPE);
+        $tipos_count = wp_count_posts(SEVO_TIPO_EVENTO_POST_TYPE);
+        $eventos_count = wp_count_posts(SEVO_EVENTO_POST_TYPE);
+        $inscricoes_count = wp_count_posts(SEVO_INSCR_POST_TYPE);
+        
+        // Contar apenas posts publicados para CPTs normais (sem rascunhos)
+        $total_orgs = ($orgs_count->publish ?? 0);
+        $total_tipos = ($tipos_count->publish ?? 0);
+        $total_eventos = ($eventos_count->publish ?? 0);
+        
+        // Para inscrições, incluir apenas os status personalizados válidos (sem rascunhos)
+        $total_inscricoes = ($inscricoes_count->solicitada ?? 0) + 
+                           ($inscricoes_count->aceita ?? 0) + 
+                           ($inscricoes_count->rejeitada ?? 0) + 
+                           ($inscricoes_count->cancelada ?? 0);
         ?>
+        
         <div class="wrap">
             <h1>Sevo Eventos - Visão Geral</h1>
             <div class="sevo-admin-dashboard">
                 <div class="sevo-admin-cards">
                     <div class="sevo-admin-card">
                         <h3>Organizações</h3>
+                        <div class="sevo-card-count"><?php echo $total_orgs; ?></div>
                         <p>Gerencie as organizações cadastradas no sistema.</p>
                         <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_ORG_POST_TYPE); ?>" class="button button-primary">Ver Organizações</a>
                     </div>
                     <div class="sevo-admin-card">
                         <h3>Tipos de Evento</h3>
+                        <div class="sevo-card-count"><?php echo $total_tipos; ?></div>
                         <p>Configure os tipos de eventos disponíveis.</p>
                         <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_TIPO_EVENTO_POST_TYPE); ?>" class="button button-primary">Ver Tipos</a>
                     </div>
                     <div class="sevo-admin-card">
                         <h3>Eventos</h3>
+                        <div class="sevo-card-count"><?php echo $total_eventos; ?></div>
                         <p>Gerencie todos os eventos do sistema.</p>
                         <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_EVENTO_POST_TYPE); ?>" class="button button-primary">Ver Eventos</a>
                     </div>
                     <div class="sevo-admin-card">
                         <h3>Inscrições</h3>
+                        <div class="sevo-card-count"><?php echo $total_inscricoes; ?></div>
+                        <div class="sevo-card-details">
+                            <?php if (($inscricoes_count->aceita ?? 0) > 0): ?>
+                                <span class="status-aceita">Aceitas: <?php echo $inscricoes_count->aceita; ?></span>
+                            <?php endif; ?>
+                            <?php if (($inscricoes_count->solicitada ?? 0) > 0): ?>
+                                <span class="status-solicitada">Pendentes: <?php echo $inscricoes_count->solicitada; ?></span>
+                            <?php endif; ?>
+                            <?php if (($inscricoes_count->rejeitada ?? 0) > 0): ?>
+                                <span class="status-rejeitada">Rejeitadas: <?php echo $inscricoes_count->rejeitada; ?></span>
+                            <?php endif; ?>
+                            <?php if (($inscricoes_count->cancelada ?? 0) > 0): ?>
+                                <span class="status-cancelada">Canceladas: <?php echo $inscricoes_count->cancelada; ?></span>
+                            <?php endif; ?>
+                        </div>
                         <p>Acompanhe as inscrições nos eventos.</p>
                         <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_INSCR_POST_TYPE); ?>" class="button button-primary">Ver Inscrições</a>
                     </div>
@@ -226,14 +266,56 @@ class Sevo_Eventos_Main {
                 border-radius: 4px;
                 padding: 20px;
                 box-shadow: 0 1px 1px rgba(0,0,0,.04);
+                position: relative;
             }
             .sevo-admin-card h3 {
                 margin-top: 0;
                 color: #23282d;
+                margin-bottom: 10px;
+            }
+            .sevo-card-count {
+                font-size: 2.5em;
+                font-weight: bold;
+                color: #0073aa;
+                margin-bottom: 10px;
+                line-height: 1;
             }
             .sevo-admin-card p {
                 color: #666;
                 margin-bottom: 15px;
+                font-size: 14px;
+            }
+            .sevo-card-details {
+                margin-bottom: 15px;
+                font-size: 12px;
+            }
+            .sevo-card-details span {
+                display: inline-block;
+                margin-right: 10px;
+                margin-bottom: 5px;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-weight: 500;
+            }
+            .status-aceita {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            .status-solicitada {
+                background-color: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeaa7;
+            }
+            .status-rejeitada {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+            .status-cancelada {
+                background-color: #e2e3e5;
+                color: #383d41;
+                border: 1px solid #d6d8db;
             }
             </style>
         </div>

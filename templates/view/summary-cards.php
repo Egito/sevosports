@@ -7,22 +7,22 @@ function sevo_get_summary_cards() {
     $orgs_count = isset($orgs_posts->publish) ? $orgs_posts->publish : 0;
     
     // Total de Eventos
-    $eventos_posts = wp_count_posts('sevo-eventos');
+    $eventos_posts = wp_count_posts(SEVO_EVENTO_POST_TYPE);
     $eventos_count = isset($eventos_posts->publish) ? $eventos_posts->publish : 0;
     
     // Total de Seções
-    $secoes_posts = wp_count_posts('sevo-secoes');
+    $secoes_posts = wp_count_posts(SEVO_TIPO_EVENTO_POST_TYPE);
     $secoes_count = isset($secoes_posts->publish) ? $secoes_posts->publish : 0;
     
     // Total de Inscritos
     $total_inscritos = 0;
     $todas_secoes = get_posts(array(
-        'post_type' => 'sevo-secoes',
+        'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
         'posts_per_page' => -1,
         'fields' => 'ids'
     ));
     foreach ($todas_secoes as $secao_id) {
-        $inscritos = get_post_meta($secao_id, '_sevo_secao_inscritos', true);
+        $inscritos = get_post_meta($secao_id, '_sevo_evento_inscritos', true);
         if (!empty($inscritos) && is_array($inscritos)) {
             $total_inscritos += count($inscritos);
         }
@@ -30,18 +30,18 @@ function sevo_get_summary_cards() {
     
     // Seções com inscrições abertas
     $inscricoes_abertas = new WP_Query(array(
-        'post_type' => 'sevo-secoes',
+        'post_type' => SEVO_EVENTO_POST_TYPE,
         'posts_per_page' => -1,
         'meta_query' => array(
             'relation' => 'AND',
             array(
-                'key' => '_sevo_secao_data_inicio_inscricoes',
+                'key' => '_sevo_evento_data_inicio_inscricoes',
                 'value' => date('Y-m-d'),
                 'compare' => '<=',
                 'type' => 'DATE'
             ),
             array(
-                'key' => '_sevo_secao_data_fim_inscricoes',
+                'key' => '_sevo_evento_data_fim_inscricoes',
                 'value' => date('Y-m-d'),
                 'compare' => '>=',
                 'type' => 'DATE'
@@ -51,18 +51,18 @@ function sevo_get_summary_cards() {
     
     // Seções em andamento
     $em_andamento = new WP_Query(array(
-        'post_type' => 'sevo-secoes',
+        'post_type' => SEVO_EVENTO_POST_TYPE,
         'posts_per_page' => -1,
         'meta_query' => array(
             'relation' => 'AND',
             array(
-                'key' => '_sevo_secao_data_inicio_evento',
+                'key' => '_sevo_evento_data_inicio_evento',
                 'value' => date('Y-m-d'),
                 'compare' => '<=',
                 'type' => 'DATE'
             ),
             array(
-                'key' => '_sevo_secao_data_fim_evento',
+                'key' => '_sevo_evento_data_fim_evento',
                 'value' => date('Y-m-d'),
                 'compare' => '>=',
                 'type' => 'DATE'
@@ -72,11 +72,11 @@ function sevo_get_summary_cards() {
     
     // Seções futuras
     $eventos_futuros = new WP_Query(array(
-        'post_type' => 'sevo-secoes',
+        'post_type' => SEVO_EVENTO_POST_TYPE,
         'posts_per_page' => -1,
         'meta_query' => array(
             array(
-                'key' => '_sevo_secao_data_inicio_evento',
+                'key' => '_sevo_evento_data_inicio_evento',
                 'value' => date('Y-m-d'),
                 'compare' => '>',
                 'type' => 'DATE'

@@ -27,13 +27,13 @@
 
 <channel>
 	<title>SEVO IA</title>
-	<link>http://192.168.0.103:8080</link>
+	<link>http://127.0.0.1</link>
 	<description></description>
 	<pubDate>Sat, 21 Dec 2024 12:54:34 +0000</pubDate>
 	<language>pt-BR</language>
 	<wp:wxr_version>1.2</wp:wxr_version>
-	<wp:base_site_url>http://192.168.0.103:8080</wp:base_site_url>
-	<wp:base_blog_url>http://192.168.0.103:8080</wp:base_blog_url>
+	<wp:base_site_url>http://127.0.0.1</wp:base_site_url>
+	<wp:base_blog_url>http://127.0.0.1</wp:base_blog_url>
 
 		<wp:author><wp:author_id>1</wp:author_id><wp:author_login><![CDATA[egito]]></wp:author_login><wp:author_email><![CDATA[egito.salvador@gmail.com]]></wp:author_email><wp:author_display_name><![CDATA[egito]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
 
@@ -76,10 +76,10 @@
 
 		<item>
 		<title><![CDATA[cwc]]></title>
-		<link>http://192.168.0.103:8080/cwc/</link>
+		<link>http://127.0.0.1/cwc/</link>
 		<pubDate>Mon, 02 Dec 2024 13:58:45 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/cwc.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/cwc.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -97,7 +97,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/cwc.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/cwc.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/cwc.jpg]]></wp:meta_value>
@@ -109,10 +109,10 @@
 							</item>
 					<item>
 		<title><![CDATA[galera]]></title>
-		<link>http://192.168.0.103:8080/galera/</link>
+		<link>http://127.0.0.1/galera/</link>
 		<pubDate>Mon, 02 Dec 2024 13:58:58 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/galera.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/galera.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -130,7 +130,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/galera.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/galera.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/galera.png]]></wp:meta_value>
@@ -142,10 +142,10 @@
 							</item>
 					<item>
 		<title><![CDATA[ica]]></title>
-		<link>http://192.168.0.103:8080/ica/</link>
+		<link>http://127.0.0.1/ica/</link>
 		<pubDate>Mon, 02 Dec 2024 13:59:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/ica.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/ica.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -163,7 +163,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/ica.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/ica.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/ica.jpg]]></wp:meta_value>
@@ -175,10 +175,10 @@
 							</item>
 					<item>
 		<title><![CDATA[icl]]></title>
-		<link>http://192.168.0.103:8080/icl/</link>
+		<link>http://127.0.0.1/icl/</link>
 		<pubDate>Mon, 02 Dec 2024 13:59:14 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/icl.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/icl.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -196,7 +196,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/icl.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/icl.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/icl.jpg]]></wp:meta_value>
@@ -208,10 +208,10 @@
 							</item>
 					<item>
 		<title><![CDATA[lha]]></title>
-		<link>http://192.168.0.103:8080/lha/</link>
+		<link>http://127.0.0.1/lha/</link>
 		<pubDate>Mon, 02 Dec 2024 13:59:18 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/lha.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/lha.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -229,7 +229,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/lha.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/lha.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/lha.jpg]]></wp:meta_value>
@@ -241,10 +241,10 @@
 							</item>
 					<item>
 		<title><![CDATA[lnbg]]></title>
-		<link>http://192.168.0.103:8080/lnbg/</link>
+		<link>http://127.0.0.1/lnbg/</link>
 		<pubDate>Mon, 02 Dec 2024 13:59:24 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/lnbg.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/lnbg.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -262,7 +262,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/lnbg.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/lnbg.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/lnbg.jpg]]></wp:meta_value>
@@ -274,10 +274,10 @@
 							</item>
 					<item>
 		<title><![CDATA[lni]]></title>
-		<link>http://192.168.0.103:8080/lni/</link>
+		<link>http://127.0.0.1/lni/</link>
 		<pubDate>Mon, 02 Dec 2024 13:59:33 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/lni.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/lni.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -295,7 +295,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/lni.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/lni.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/lni.jpg]]></wp:meta_value>
@@ -307,10 +307,10 @@
 							</item>
 					<item>
 		<title><![CDATA[wcc]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/wcc/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/wcc/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:54 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/wcc-1.jpeg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/wcc-1.jpeg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -328,7 +328,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/wcc-1.jpeg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/wcc-1.jpeg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/wcc-1.jpeg]]></wp:meta_value>
@@ -340,10 +340,10 @@
 							</item>
 					<item>
 		<title><![CDATA[trabalhando]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/trabalhando/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/trabalhando/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:54 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/trabalhando-1.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/trabalhando-1.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -361,7 +361,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/trabalhando-1.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/trabalhando-1.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/trabalhando-1.jpg]]></wp:meta_value>
@@ -373,10 +373,10 @@
 							</item>
 					<item>
 		<title><![CDATA[tlg 2021]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/tlg-2021/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/tlg-2021/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:57 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/tlg-2021.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/tlg-2021.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -394,7 +394,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/tlg-2021.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/tlg-2021.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/tlg-2021.png]]></wp:meta_value>
@@ -406,10 +406,10 @@
 							</item>
 					<item>
 		<title><![CDATA[stadium 1280-1024x682]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/stadium-1280-1024x682/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/stadium-1280-1024x682/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:57 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/stadium-1280-1024x682-1.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/stadium-1280-1024x682-1.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -427,7 +427,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/stadium-1280-1024x682-1.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/stadium-1280-1024x682-1.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/stadium-1280-1024x682-1.jpg]]></wp:meta_value>
@@ -439,10 +439,10 @@
 							</item>
 					<item>
 		<title><![CDATA[Sevo-Sports-Logo-1]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/sevo-sports-logo-1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/sevo-sports-logo-1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:57 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/Sevo-Sports-Logo-1-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/Sevo-Sports-Logo-1-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -460,7 +460,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/Sevo-Sports-Logo-1-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/Sevo-Sports-Logo-1-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/Sevo-Sports-Logo-1-1.png]]></wp:meta_value>
@@ -472,10 +472,10 @@
 							</item>
 					<item>
 		<title><![CDATA[sevo-premier]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/sevo-premier-2/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/sevo-premier-2/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:58 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/sevo-premier-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/sevo-premier-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -493,7 +493,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/sevo-premier-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/sevo-premier-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/sevo-premier-1.png]]></wp:meta_value>
@@ -505,10 +505,10 @@
 							</item>
 					<item>
 		<title><![CDATA[Sevo-Logo (1)]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/sevo-logo-1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/sevo-logo-1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:58 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/Sevo-Logo-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/Sevo-Logo-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -526,7 +526,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/Sevo-Logo-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/Sevo-Logo-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/Sevo-Logo-1.png]]></wp:meta_value>
@@ -538,10 +538,10 @@
 							</item>
 					<item>
 		<title><![CDATA[Sevo-Logo]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/sevo-logo/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/sevo-logo/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:58 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/Sevo-Logo-2.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/Sevo-Logo-2.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -559,7 +559,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/Sevo-Logo-2.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/Sevo-Logo-2.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/Sevo-Logo-2.png]]></wp:meta_value>
@@ -571,10 +571,10 @@
 							</item>
 					<item>
 		<title><![CDATA[section-mulher-sorrindo]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/section-mulher-sorrindo/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/section-mulher-sorrindo/</link>
 		<pubDate>Thu, 05 Dec 2024 00:12:59 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/section-mulher-sorrindo-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/section-mulher-sorrindo-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -592,7 +592,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/section-mulher-sorrindo-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/section-mulher-sorrindo-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/section-mulher-sorrindo-1.png]]></wp:meta_value>
@@ -604,10 +604,10 @@
 							</item>
 					<item>
 		<title><![CDATA[Salao APP]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/salao-app/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/salao-app/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:00 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/Salao-APP.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/Salao-APP.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -625,7 +625,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/Salao-APP.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/Salao-APP.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/Salao-APP.jpg]]></wp:meta_value>
@@ -637,10 +637,10 @@
 							</item>
 					<item>
 		<title><![CDATA[parceiros-5]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/parceiros-5/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/parceiros-5/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:00 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-5-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/parceiros-5-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -658,7 +658,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-5-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/parceiros-5-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/parceiros-5-1.png]]></wp:meta_value>
@@ -670,10 +670,10 @@
 							</item>
 					<item>
 		<title><![CDATA[parceiros-4]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/parceiros-4/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/parceiros-4/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:00 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-4-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/parceiros-4-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -691,7 +691,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-4-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/parceiros-4-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/parceiros-4-1.png]]></wp:meta_value>
@@ -703,10 +703,10 @@
 							</item>
 					<item>
 		<title><![CDATA[parceiros-3]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/parceiros-3/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/parceiros-3/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:00 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-3-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/parceiros-3-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -724,7 +724,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-3-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/parceiros-3-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/parceiros-3-1.png]]></wp:meta_value>
@@ -736,10 +736,10 @@
 							</item>
 					<item>
 		<title><![CDATA[parceiros-2]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/parceiros-2/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/parceiros-2/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:00 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-2-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/parceiros-2-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -757,7 +757,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-2-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/parceiros-2-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/parceiros-2-1.png]]></wp:meta_value>
@@ -769,10 +769,10 @@
 							</item>
 					<item>
 		<title><![CDATA[parceiros-1]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/parceiros-1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/parceiros-1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:01 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-1-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/parceiros-1-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -790,7 +790,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/parceiros-1-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/parceiros-1-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/parceiros-1-1.png]]></wp:meta_value>
@@ -802,10 +802,10 @@
 							</item>
 					<item>
 		<title><![CDATA[osmca]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/osmca-2/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/osmca-2/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:01 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/osmca-1.webp</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/osmca-1.webp</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -823,7 +823,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/osmca-1.webp]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/osmca-1.webp]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/osmca-1.webp]]></wp:meta_value>
@@ -835,10 +835,10 @@
 							</item>
 					<item>
 		<title><![CDATA[logo-1]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/logo-1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/logo-1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:02 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/logo-1-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/logo-1-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -856,7 +856,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/logo-1-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/logo-1-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/logo-1-1.png]]></wp:meta_value>
@@ -868,10 +868,10 @@
 							</item>
 					<item>
 		<title><![CDATA[logo salao]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/logo-salao/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/logo-salao/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:02 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/logo-salao.jpeg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/logo-salao.jpeg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -889,7 +889,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/logo-salao.jpeg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/logo-salao.jpeg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/logo-salao.jpeg]]></wp:meta_value>
@@ -901,10 +901,10 @@
 							</item>
 					<item>
 		<title><![CDATA[lnb]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/lnb/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/lnb/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:03 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/lnb-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/lnb-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -922,7 +922,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/lnb-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/lnb-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/lnb-1.png]]></wp:meta_value>
@@ -934,10 +934,10 @@
 							</item>
 					<item>
 		<title><![CDATA[latin-american-league]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/latin-american-league/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/latin-american-league/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:03 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/latin-american-league-1.webp</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/latin-american-league-1.webp</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -955,7 +955,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/latin-american-league-1.webp]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/latin-american-league-1.webp]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/latin-american-league-1.webp]]></wp:meta_value>
@@ -967,10 +967,10 @@
 							</item>
 					<item>
 		<title><![CDATA[instagram logo]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/instagram-logo/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/instagram-logo/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:04 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/instagram-logo.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/instagram-logo.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -988,7 +988,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/instagram-logo.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/instagram-logo.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/instagram-logo.jpg]]></wp:meta_value>
@@ -1000,10 +1000,10 @@
 							</item>
 					<item>
 		<title><![CDATA[icl]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/icl-2/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/icl-2/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:04 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/icl-1.webp</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/icl-1.webp</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1021,7 +1021,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/icl-1.webp]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/icl-1.webp]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/icl-1.webp]]></wp:meta_value>
@@ -1033,10 +1033,10 @@
 							</item>
 					<item>
 		<title><![CDATA[icl]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/icl-3/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/icl-3/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:05 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/icl-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/icl-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1054,7 +1054,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/icl-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/icl-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/icl-1.png]]></wp:meta_value>
@@ -1066,10 +1066,10 @@
 							</item>
 					<item>
 		<title><![CDATA[icc]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/icc/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/icc/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:05 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/icc-1.webp</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/icc-1.webp</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1087,7 +1087,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/icc-1.webp]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/icc-1.webp]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/icc-1.webp]]></wp:meta_value>
@@ -1099,10 +1099,10 @@
 							</item>
 					<item>
 		<title><![CDATA[hero-prova-social]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/hero-prova-social/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/hero-prova-social/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:06 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/hero-prova-social-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/hero-prova-social-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1120,7 +1120,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/hero-prova-social-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/hero-prova-social-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/hero-prova-social-1.png]]></wp:meta_value>
@@ -1132,10 +1132,10 @@
 							</item>
 					<item>
 		<title><![CDATA[hero-line-subline]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/hero-line-subline/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/hero-line-subline/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:06 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/hero-line-subline-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/hero-line-subline-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1153,7 +1153,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/hero-line-subline-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/hero-line-subline-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/hero-line-subline-1.png]]></wp:meta_value>
@@ -1165,10 +1165,10 @@
 							</item>
 					<item>
 		<title><![CDATA[hero-left]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/hero-left/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/hero-left/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:06 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/hero-left-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/hero-left-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1186,7 +1186,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/hero-left-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/hero-left-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/hero-left-1.png]]></wp:meta_value>
@@ -1198,10 +1198,10 @@
 							</item>
 					<item>
 		<title><![CDATA[estadio 1]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/estadio-1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/estadio-1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/estadio-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/estadio-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1219,7 +1219,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/estadio-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/estadio-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/estadio-1.png]]></wp:meta_value>
@@ -1231,10 +1231,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-15]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-15/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-15/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-15-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-15-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1252,7 +1252,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-15-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-15-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-15-1.png]]></wp:meta_value>
@@ -1264,10 +1264,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-14]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-14/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-14/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-14-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-14-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1285,7 +1285,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-14-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-14-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-14-1.png]]></wp:meta_value>
@@ -1297,10 +1297,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-13]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-13/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-13/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-13-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-13-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1318,7 +1318,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-13-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-13-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-13-1.png]]></wp:meta_value>
@@ -1330,10 +1330,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-12]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-12/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-12/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-12-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-12-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1351,7 +1351,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-12-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-12-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-12-1.png]]></wp:meta_value>
@@ -1363,10 +1363,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-11]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-11/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-11/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:07 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-11-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-11-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1384,7 +1384,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-11-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-11-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-11-1.png]]></wp:meta_value>
@@ -1396,10 +1396,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-10]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-10/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-10/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:08 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-10-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-10-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1417,7 +1417,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-10-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-10-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-10-1.png]]></wp:meta_value>
@@ -1429,10 +1429,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-9]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-9/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-9/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:08 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-9-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-9-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1450,7 +1450,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-9-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-9-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-9-1.png]]></wp:meta_value>
@@ -1462,10 +1462,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-8]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-8/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-8/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:08 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-8-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-8-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1483,7 +1483,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-8-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-8-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-8-1.png]]></wp:meta_value>
@@ -1495,10 +1495,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-7]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-7/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-7/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:08 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-7-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-7-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1516,7 +1516,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-7-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-7-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-7-1.png]]></wp:meta_value>
@@ -1528,10 +1528,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-6]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-6/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-6/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:08 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-6-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-6-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1549,7 +1549,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-6-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-6-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-6-1.png]]></wp:meta_value>
@@ -1561,10 +1561,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-5]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-5/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-5/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:09 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-5-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-5-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1582,7 +1582,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-5-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-5-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-5-1.png]]></wp:meta_value>
@@ -1594,10 +1594,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-4]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-4/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-4/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:09 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-4-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-4-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1615,7 +1615,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-4-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-4-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-4-1.png]]></wp:meta_value>
@@ -1627,10 +1627,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-3]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-3/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-3/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:09 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-3-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-3-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1648,7 +1648,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-3-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-3-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-3-1.png]]></wp:meta_value>
@@ -1660,10 +1660,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-2]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-2/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-2/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:09 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-2-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-2-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1681,7 +1681,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-2-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-2-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-2-1.png]]></wp:meta_value>
@@ -1693,10 +1693,10 @@
 							</item>
 					<item>
 		<title><![CDATA[empresas-1]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/empresas-1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/empresas-1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:09 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-1-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/empresas-1-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1714,7 +1714,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/empresas-1-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/empresas-1-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/empresas-1-1.png]]></wp:meta_value>
@@ -1726,10 +1726,10 @@
 							</item>
 					<item>
 		<title><![CDATA[eald]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/eald/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/eald/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:09 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/eald-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/eald-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1747,7 +1747,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/eald-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/eald-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/eald-1.png]]></wp:meta_value>
@@ -1759,10 +1759,10 @@
 							</item>
 					<item>
 		<title><![CDATA[EAD - Foto Geral]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/ead-foto-geral/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/ead-foto-geral/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:10 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/EAD-Foto-Geral.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/EAD-Foto-Geral.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1780,7 +1780,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/EAD-Foto-Geral.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/EAD-Foto-Geral.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/EAD-Foto-Geral.png]]></wp:meta_value>
@@ -1792,10 +1792,10 @@
 							</item>
 					<item>
 		<title><![CDATA[depoimento]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/depoimento/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/depoimento/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:11 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/depoimento-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/depoimento-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1813,7 +1813,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/depoimento-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/depoimento-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/depoimento-1.png]]></wp:meta_value>
@@ -1825,10 +1825,10 @@
 							</item>
 					<item>
 		<title><![CDATA[course-online]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/course-online/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/course-online/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:11 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/course-online-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/course-online-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1846,7 +1846,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/course-online-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/course-online-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/course-online-1.png]]></wp:meta_value>
@@ -1858,10 +1858,10 @@
 							</item>
 					<item>
 		<title><![CDATA[contrato p3]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/contrato-p3/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/contrato-p3/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:12 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/contrato-p3.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/contrato-p3.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1879,7 +1879,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/contrato-p3.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/contrato-p3.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/contrato-p3.png]]></wp:meta_value>
@@ -1891,10 +1891,10 @@
 							</item>
 					<item>
 		<title><![CDATA[contrato p2]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/contrato-p2/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/contrato-p2/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:12 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/contrato-p2.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/contrato-p2.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1912,7 +1912,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/contrato-p2.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/contrato-p2.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/contrato-p2.png]]></wp:meta_value>
@@ -1924,10 +1924,10 @@
 							</item>
 					<item>
 		<title><![CDATA[contrato p1]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/contrato-p1/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/contrato-p1/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/contrato-p1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/contrato-p1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1945,7 +1945,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/contrato-p1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/contrato-p1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/contrato-p1.png]]></wp:meta_value>
@@ -1957,10 +1957,10 @@
 							</item>
 					<item>
 		<title><![CDATA[capa-card]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/capa-card/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/capa-card/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/capa-card-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/capa-card-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -1978,7 +1978,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/capa-card-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/capa-card-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/capa-card-1.png]]></wp:meta_value>
@@ -1990,10 +1990,10 @@
 							</item>
 					<item>
 		<title><![CDATA[boas vibracoes]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/boas-vibracoes/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/boas-vibracoes/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/boas-vibracoes.webp</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/boas-vibracoes.webp</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2011,7 +2011,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/boas-vibracoes.webp]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/boas-vibracoes.webp]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/boas-vibracoes.webp]]></wp:meta_value>
@@ -2023,10 +2023,10 @@
 							</item>
 					<item>
 		<title><![CDATA[Bela Hair - Salao APP]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/bela-hair-salao-app/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/bela-hair-salao-app/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:14 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/Bela-Hair-Salao-APP.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/Bela-Hair-Salao-APP.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2044,7 +2044,7 @@
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/Bela-Hair-Salao-APP.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/Bela-Hair-Salao-APP.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/Bela-Hair-Salao-APP.png]]></wp:meta_value>
@@ -2056,10 +2056,10 @@
 							</item>
 					<item>
 		<title><![CDATA[Olá, mundo!]]></title>
-		<link>http://192.168.0.103:8080/index.php/2024/12/02/ola-mundo/</link>
+		<link>http://127.0.0.1/index.php/2024/12/02/ola-mundo/</link>
 		<pubDate>Mon, 02 Dec 2024 13:46:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?p=1</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?p=1</guid>
 		<description></description>
 		<content:encoded><![CDATA[<!-- wp:paragraph -->
 <p>Boas-vindas ao WordPress. Esse é o seu primeiro post. Edite-o ou exclua-o, e então comece a escrever!</p>
@@ -2099,10 +2099,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 					</item>
 					<item>
 		<title><![CDATA[Eventos]]></title>
-		<link>http://192.168.0.103:8080/index.php/eventos/</link>
+		<link>http://127.0.0.1/index.php/eventos/</link>
 		<pubDate>Mon, 02 Dec 2024 13:46:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?page_id=2</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?page_id=2</guid>
 		<description></description>
 		<content:encoded><![CDATA[<!-- wp:paragraph -->
 <p>[sevo-eventos]</p>
@@ -2129,7 +2129,7 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 <!-- /wp:quote -->
 
 <!-- wp:paragraph -->
-<p>Como um novo usuário do WordPress, você deveria ir ao <a href="http://192.168.0.103:8080/wp-admin/">painel</a> para excluir essa página e criar novas páginas para o seu conteúdo. Divirta-se!</p>
+<p>Como um novo usuário do WordPress, você deveria ir ao <a href="http://127.0.0.1/wp-admin/">painel</a> para excluir essa página e criar novas páginas para o seu conteúdo. Divirta-se!</p>
 <!-- /wp:paragraph -->]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
 		<wp:post_id>2</wp:post_id>
@@ -2157,16 +2157,16 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[Política de privacidade]]></title>
-		<link>http://192.168.0.103:8080/?page_id=3</link>
+		<link>http://127.0.0.1/?page_id=3</link>
 		<pubDate>Mon, 02 Dec 2024 13:46:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?page_id=3</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?page_id=3</guid>
 		<description></description>
 		<content:encoded><![CDATA[<!-- wp:heading -->
 <h2 class="wp-block-heading">Quem somos</h2>
 <!-- /wp:heading -->
 <!-- wp:paragraph -->
-<p><strong class="privacy-policy-tutorial">Texto sugerido: </strong>O endereço do nosso site é: http://192.168.0.103:8080.</p>
+<p><strong class="privacy-policy-tutorial">Texto sugerido: </strong>O endereço do nosso site é: http://127.0.0.1.</p>
 <!-- /wp:paragraph -->
 <!-- wp:heading -->
 <h2 class="wp-block-heading">Comentários</h2>
@@ -2257,10 +2257,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[SEVO]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/sevo/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/sevo/</link>
 		<pubDate>Mon, 02 Dec 2024 15:48:29 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-orgs&#038;p=21</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-orgs&#038;p=21</guid>
 		<description></description>
 		<content:encoded><![CDATA[Sevosports - A melhor organizacao de eventos esportivos]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2293,10 +2293,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[OSMCA]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/</link>
 		<pubDate>Mon, 02 Dec 2024 15:49:16 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-orgs&#038;p=22</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-orgs&#038;p=22</guid>
 		<description></description>
 		<content:encoded><![CDATA[OSM CA - Nossa Equipe de Eventos]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2329,10 +2329,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[LNB - Liga Nacional Portuguesa]]></title>
-		<link>http://192.168.0.103:8080/index.php/eventos/lnb-liga-nacional-portuguesa/</link>
+		<link>http://127.0.0.1/index.php/eventos/lnb-liga-nacional-portuguesa/</link>
 		<pubDate>Mon, 02 Dec 2024 15:50:06 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-eventos&#038;p=23</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-eventos&#038;p=23</guid>
 		<description></description>
 		<content:encoded><![CDATA[LNB - Liga Nacional Portuguesa]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2381,10 +2381,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[SEVO PREMIER]]></title>
-		<link>http://192.168.0.103:8080/index.php/eventos/sevo-premier/</link>
+		<link>http://127.0.0.1/index.php/eventos/sevo-premier/</link>
 		<pubDate>Mon, 02 Dec 2024 15:50:41 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-eventos&#038;p=24</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-eventos&#038;p=24</guid>
 		<description></description>
 		<content:encoded><![CDATA[Sevo Premier]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2433,10 +2433,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[LHA - Liga Hispano Americana]]></title>
-		<link>http://192.168.0.103:8080/index.php/eventos/lha-liga-hispano-americana/</link>
+		<link>http://127.0.0.1/index.php/eventos/lha-liga-hispano-americana/</link>
 		<pubDate>Mon, 02 Dec 2024 15:51:23 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-eventos&#038;p=25</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-eventos&#038;p=25</guid>
 		<description></description>
 		<content:encoded><![CDATA[LHA - Liga Hispano Americana]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2485,10 +2485,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[TGA - Torneio de Grupos da Associacao]]></title>
-		<link>http://192.168.0.103:8080/index.php/eventos/tga-torneio-de-grupos-da-associacao/</link>
+		<link>http://127.0.0.1/index.php/eventos/tga-torneio-de-grupos-da-associacao/</link>
 		<pubDate>Mon, 02 Dec 2024 15:52:15 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-eventos&#038;p=26</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-eventos&#038;p=26</guid>
 		<description></description>
 		<content:encoded><![CDATA[TGA - Torneio de Grupos da Associacao]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2537,10 +2537,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[Custom Styles]]></title>
-		<link>http://192.168.0.103:8080/index.php/2024/12/02/wp-global-styles-twentytwentyfive/</link>
+		<link>http://127.0.0.1/index.php/2024/12/02/wp-global-styles-twentytwentyfive/</link>
 		<pubDate>Mon, 02 Dec 2024 15:52:36 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/index.php/2024/12/02/wp-global-styles-twentytwentyfive/</guid>
+		<guid isPermaLink="false">http://127.0.0.1/index.php/2024/12/02/wp-global-styles-twentytwentyfive/</guid>
 		<description></description>
 		<content:encoded><![CDATA[{"version": 3, "isGlobalStylesUserThemeJSON": true }]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2562,10 +2562,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 						</item>
 					<item>
 		<title><![CDATA[LHA - Secao de Verao]]></title>
-		<link>http://192.168.0.103:8080/index.php/secoes/lha-secao-de-verao/</link>
+		<link>http://127.0.0.1/index.php/secoes/lha-secao-de-verao/</link>
 		<pubDate>Tue, 03 Dec 2024 00:26:13 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=30</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-secoes&#038;p=30</guid>
 		<description></description>
 		<content:encoded><![CDATA[Regras]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2620,10 +2620,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[TGA - Torneio de Grupos da Associacao]]></title>
-		<link>http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=32</link>
+		<link>http://127.0.0.1/?post_type=sevo-secoes&#038;p=32</link>
 		<pubDate>Thu, 05 Dec 2024 00:18:51 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=32</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-secoes&#038;p=32</guid>
 		<description></description>
 		<content:encoded><![CDATA[TGA - Torneio de Grupos da Associacao]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2660,10 +2660,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[Aviso]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/aviso/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/aviso/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:14 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/Aviso-1.jpg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/Aviso-1.jpg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2681,7 +2681,7 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/Aviso-1.jpg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/Aviso-1.jpg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/Aviso-1.jpg]]></wp:meta_value>
@@ -2693,10 +2693,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[agg champ]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/agg-champ/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/agg-champ/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:14 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/agg-champ.jpeg</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/agg-champ.jpeg</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2714,7 +2714,7 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/agg-champ.jpeg]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/agg-champ.jpeg]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/agg-champ.jpeg]]></wp:meta_value>
@@ -2726,10 +2726,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[acm]]></title>
-		<link>http://192.168.0.103:8080/index.php/organizacoes/osmca/acm/</link>
+		<link>http://127.0.0.1/index.php/organizacoes/osmca/acm/</link>
 		<pubDate>Thu, 05 Dec 2024 00:13:14 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/acm-1.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/acm-1.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2747,7 +2747,7 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/acm-1.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/acm-1.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/acm-1.png]]></wp:meta_value>
@@ -2759,10 +2759,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[TLG - Taca Lusofona de Grupos]]></title>
-		<link>http://192.168.0.103:8080/index.php/eventos/tlg-taca-lusofona-de-grupos/</link>
+		<link>http://127.0.0.1/index.php/eventos/tlg-taca-lusofona-de-grupos/</link>
 		<pubDate>Thu, 05 Dec 2024 00:17:11 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-eventos&#038;p=90</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-eventos&#038;p=90</guid>
 		<description></description>
 		<content:encoded><![CDATA[TLG - Torneio Libertadores de Grupos]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2811,10 +2811,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[ACM - Association Crew Multiplayer]]></title>
-		<link>http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=91</link>
+		<link>http://127.0.0.1/?post_type=sevo-secoes&#038;p=91</link>
 		<pubDate></pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=91</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-secoes&#038;p=91</guid>
 		<description></description>
 		<content:encoded><![CDATA[ACM - Association Crew Multiplayer]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2839,10 +2839,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[ACM - Association Crew Multiplayer]]></title>
-		<link>http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=93</link>
+		<link>http://127.0.0.1/?post_type=sevo-secoes&#038;p=93</link>
 		<pubDate></pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/?post_type=sevo-secoes&#038;p=93</guid>
+		<guid isPermaLink="false">http://127.0.0.1/?post_type=sevo-secoes&#038;p=93</guid>
 		<description></description>
 		<content:encoded><![CDATA[ACM - Association Crew Multiplayer]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2867,10 +2867,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[thumbnail_image001]]></title>
-		<link>http://192.168.0.103:8080/thumbnail_image001/</link>
+		<link>http://127.0.0.1/thumbnail_image001/</link>
 		<pubDate>Sat, 21 Dec 2024 12:21:12 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/thumbnail_image001.png</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/thumbnail_image001.png</guid>
 		<description></description>
 		<content:encoded><![CDATA[]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
@@ -2888,7 +2888,7 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/thumbnail_image001.png]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/thumbnail_image001.png]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/thumbnail_image001.png]]></wp:meta_value>
@@ -2900,12 +2900,12 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[sevo-eventos.zip]]></title>
-		<link>http://192.168.0.103:8080/sevo-eventos-zip/</link>
+		<link>http://127.0.0.1/sevo-eventos-zip/</link>
 		<pubDate>Sat, 21 Dec 2024 12:24:38 +0000</pubDate>
 		<dc:creator><![CDATA[egito]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/wp-content/uploads/2024/12/sevo-eventos.zip</guid>
+		<guid isPermaLink="false">http://127.0.0.1/wp-content/uploads/2024/12/sevo-eventos.zip</guid>
 		<description></description>
-		<content:encoded><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/sevo-eventos.zip]]></content:encoded>
+		<content:encoded><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/sevo-eventos.zip]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
 		<wp:post_id>99</wp:post_id>
 		<wp:post_date><![CDATA[2024-12-21 09:24:38]]></wp:post_date>
@@ -2921,7 +2921,7 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 		<wp:post_type><![CDATA[attachment]]></wp:post_type>
 		<wp:post_password><![CDATA[]]></wp:post_password>
 		<wp:is_sticky>0</wp:is_sticky>
-						<wp:attachment_url><![CDATA[http://192.168.0.103:8080/wp-content/uploads/2024/12/sevo-eventos.zip]]></wp:attachment_url>
+						<wp:attachment_url><![CDATA[http://127.0.0.1/wp-content/uploads/2024/12/sevo-eventos.zip]]></wp:attachment_url>
 											<wp:postmeta>
 		<wp:meta_key><![CDATA[_wp_attached_file]]></wp:meta_key>
 		<wp:meta_value><![CDATA[2024/12/sevo-eventos.zip]]></wp:meta_value>
@@ -2933,10 +2933,10 @@ Os avatares dos comentaristas vêm do <a href="https://br.gravatar.com/">Gravata
 							</item>
 					<item>
 		<title><![CDATA[Navegação]]></title>
-		<link>http://192.168.0.103:8080/index.php/2024/12/02/navigation/</link>
+		<link>http://127.0.0.1/index.php/2024/12/02/navigation/</link>
 		<pubDate>Mon, 02 Dec 2024 13:46:37 +0000</pubDate>
 		<dc:creator><![CDATA[]]></dc:creator>
-		<guid isPermaLink="false">http://192.168.0.103:8080/2024/12/02/navigation/</guid>
+		<guid isPermaLink="false">http://127.0.0.1/2024/12/02/navigation/</guid>
 		<description></description>
 		<content:encoded><![CDATA[<!-- wp:page-list /-->]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>

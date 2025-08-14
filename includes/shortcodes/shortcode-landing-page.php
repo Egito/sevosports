@@ -81,7 +81,7 @@ class Sevo_Landing_Page_Shortcode {
         $today = date('Y-m-d');
         
         $base_args = array(
-            'post_type' => 'sevo-eventos',
+            'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => $per_page,
             'paged' => $page,
@@ -227,7 +227,7 @@ class Sevo_Landing_Page_Shortcode {
         
         // Eventos com inscrições abertas
         $inscricoes_abertas = new WP_Query(array(
-            'post_type' => 'sevo-eventos',
+            'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
@@ -250,7 +250,7 @@ class Sevo_Landing_Page_Shortcode {
         
         // Eventos em andamento
         $em_andamento = new WP_Query(array(
-            'post_type' => 'sevo-eventos',
+            'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
@@ -273,7 +273,7 @@ class Sevo_Landing_Page_Shortcode {
         
         // Eventos encerrados
         $encerrados = new WP_Query(array(
-            'post_type' => 'sevo-eventos',
+            'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
@@ -308,7 +308,7 @@ class Sevo_Landing_Page_Shortcode {
         
         $evento = get_post($event_id);
         
-        if (!$evento || $evento->post_type !== 'sevo-eventos' || $evento->post_status !== 'publish') {
+        if (!$evento || $evento->post_type !== SEVO_EVENTO_POST_TYPE || $evento->post_status !== 'publish') {
             wp_send_json_error('Evento não encontrado.');
         }
         
