@@ -14,6 +14,10 @@ $org_id = $is_editing ? $organizacao->ID : 0;
 $post_title = $is_editing ? $organizacao->post_title : '';
 $post_content = $is_editing ? $organizacao->post_content : '';
 
+// Recuperar valores dos meta fields
+$status = $is_editing ? get_post_meta($org_id, 'sevo_org_status', true) : 'ativo';
+$status = $status ?: 'ativo'; // Valor padrão caso esteja vazio
+
 ?>
 
 <form id="sevo-org-form">
@@ -40,6 +44,15 @@ $post_content = $is_editing ? $organizacao->post_content : '';
                         <img src="<?php echo get_the_post_thumbnail_url($org_id, 'thumbnail'); ?>" alt="Imagem atual" style="max-width: 100px; height: auto; border-radius: 4px;">
                     </div>
                 <?php endif; ?>
+            </div>
+            
+            <!-- Status da Organização -->
+            <div class="sevo-form-group">
+                <label for="sevo_org_status">Status</label>
+                <select name="sevo_org_status" id="sevo_org_status" required>
+                    <option value="ativo" <?php selected($status, 'ativo'); ?>>Ativo</option>
+                    <option value="inativo" <?php selected($status, 'inativo'); ?>>Inativo</option>
+                </select>
             </div>
             
             <!-- Descrição da Organização -->

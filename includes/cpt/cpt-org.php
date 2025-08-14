@@ -161,6 +161,10 @@ class Sevo_Orgs_CPT {
         $cidade = get_post_meta($post->ID, 'sevo_org_cidade', true);
         $estado = get_post_meta($post->ID, 'sevo_org_estado', true);
         $cep = get_post_meta($post->ID, 'sevo_org_cep', true);
+        $status = get_post_meta($post->ID, 'sevo_org_status', true);
+        if (empty($status)) {
+            $status = 'ativo'; // Valor padrão
+        }
         ?>
         <div class="sevo-meta-box">
             <div class="sevo-meta-field">
@@ -186,6 +190,14 @@ class Sevo_Orgs_CPT {
             <div class="sevo-meta-field">
                 <label for="sevo_org_cep"><?php _e('CEP:', 'sevo-eventos'); ?></label>
                 <input type="text" name="sevo_org_cep" value="<?php echo esc_attr($cep); ?>">
+            </div>
+            
+            <div class="sevo-meta-field">
+                <label for="sevo_org_status"><?php _e('Status:', 'sevo-eventos'); ?></label>
+                <select name="sevo_org_status" id="sevo_org_status">
+                    <option value="ativo" <?php selected($status, 'ativo'); ?>><?php _e('Ativo', 'sevo-eventos'); ?></option>
+                    <option value="inativo" <?php selected($status, 'inativo'); ?>><?php _e('Inativo', 'sevo-eventos'); ?></option>
+                </select>
             </div>
         </div>
         <?php
@@ -232,7 +244,8 @@ class Sevo_Orgs_CPT {
             'sevo_org_cep',
             'sevo_org_telefone',
             'sevo_org_email',
-            'sevo_org_site'
+            'sevo_org_site',
+            'sevo_org_status'
         );
 
         foreach ($fields as $field) {

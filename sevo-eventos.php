@@ -13,6 +13,40 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Verificar se o tema sevo-theme está ativo
+function sevo_check_theme_dependency() {
+    $current_theme = get_template();
+    if ($current_theme !== 'sevo-theme') {
+        add_action('admin_notices', 'sevo_theme_dependency_notice');
+        return false;
+    }
+    return true;
+}
+
+// Exibir aviso se o tema não estiver ativo
+function sevo_theme_dependency_notice() {
+    echo '<div class="notice notice-error"><p>';
+    echo '<strong>Sevo Eventos:</strong> Este plugin requer o tema "sevo-theme" para funcionar corretamente. ';
+    echo 'Por favor, ative o tema sevo-theme ou instale-o se ainda não estiver disponível.';
+    echo '</p></div>';
+}
+
+// Verificar dependência na ativação do plugin
+register_activation_hook(__FILE__, 'sevo_check_theme_on_activation');
+function sevo_check_theme_on_activation() {
+    if (!sevo_check_theme_dependency()) {
+        deactivate_plugins(plugin_basename(__FILE__));
+        wp_die(
+            'O plugin Sevo Eventos requer o tema "sevo-theme" para funcionar. Por favor, ative o tema sevo-theme antes de ativar este plugin.',
+            'Dependência de Tema Não Atendida',
+            array('back_link' => true)
+        );
+    }
+}
+
+// Verificar dependência durante o carregamento
+add_action('after_setup_theme', 'sevo_check_theme_dependency');
+
 // Definir constantes do plugin
 define('SEVO_EVENTOS_VERSION', '3.0');
 define('SEVO_EVENTOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -340,19 +374,16 @@ class Sevo_Eventos_Main {
                         <h3>Organizações</h3>
                         <div class="sevo-card-count"><?php echo $total_orgs; ?></div>
                         <p>Gerencie as organizações cadastradas no sistema.</p>
-                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_ORG_POST_TYPE); ?>" class="button button-primary">Ver Organizações</a>
                     </div>
                     <div class="sevo-admin-card">
                         <h3>Tipos de Evento</h3>
                         <div class="sevo-card-count"><?php echo $total_tipos; ?></div>
                         <p>Configure os tipos de eventos disponíveis.</p>
-                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_TIPO_EVENTO_POST_TYPE); ?>" class="button button-primary">Ver Tipos</a>
                     </div>
                     <div class="sevo-admin-card">
                         <h3>Eventos</h3>
                         <div class="sevo-card-count"><?php echo $total_eventos; ?></div>
                         <p>Gerencie todos os eventos do sistema.</p>
-                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_EVENTO_POST_TYPE); ?>" class="button button-primary">Ver Eventos</a>
                     </div>
                     <div class="sevo-admin-card">
                         <h3>Inscrições</h3>
@@ -372,7 +403,7 @@ class Sevo_Eventos_Main {
                             <?php endif; ?>
                         </div>
                         <p>Acompanhe as inscrições nos eventos.</p>
-                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_INSCR_POST_TYPE); ?>" class="button button-primary">Ver Inscrições</a>
+
                     </div>
                 </div>
             </div>

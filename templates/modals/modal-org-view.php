@@ -14,6 +14,10 @@ $org_title = $organizacao->post_title;
 $org_description = apply_filters('the_content', $organizacao->post_content);
 $org_thumbnail_url = get_the_post_thumbnail_url($org_id, 'large');
 
+// Recuperar o status da organização
+$org_status = get_post_meta($org_id, 'sevo_org_status', true);
+$org_status = $org_status ?: 'ativo'; // Valor padrão caso esteja vazio
+
 // Busca os "Tipos de Evento" associados a esta organização
 $tipos_de_evento = get_posts(array(
     'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
@@ -55,6 +59,19 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
         <div class="sevo-modal-info-column">
             <h3 class="sevo-modal-section-title">Informações</h3>
             <div class="sevo-modal-sections-compact">
+                <div class="sevo-modal-section">
+                    <h4 class="sevo-modal-subsection-title">Status da Organização</h4>
+                    <div class="sevo-modal-info-list">
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="fas fa-toggle-<?php echo $org_status === 'ativo' ? 'on' : 'off'; ?>"></i>
+                                <span>Status</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html(ucfirst($org_status)); ?></div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="sevo-modal-section">
                     <h4 class="sevo-modal-subsection-title">Tipos de Evento Oferecidos</h4>
                     <div class="sevo-modal-info-list">

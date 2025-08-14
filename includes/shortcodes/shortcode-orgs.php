@@ -131,6 +131,10 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
             wp_send_json_error('Erro ao salvar a organização: ' . $result->get_error_message());
         }
 
+        // Salvar o campo status
+        $status = isset($_POST['sevo_org_status']) ? sanitize_text_field($_POST['sevo_org_status']) : 'ativo';
+        update_post_meta($result, 'sevo_org_status', $status);
+
         // Processar upload de imagem se fornecida
         if (!empty($_FILES['org_image']['name'])) {
             $upload_result = $this->process_organization_image($_FILES['org_image'], $result);
