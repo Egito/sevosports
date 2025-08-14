@@ -109,6 +109,17 @@ class Sevo_Landing_Page_Shortcode {
                 );
                 break;
                 
+            case 'planejados':
+                $base_args['meta_query'] = array(
+                    array(
+                        'key' => '_sevo_evento_data_inicio_inscricoes',
+                        'value' => $today,
+                        'compare' => '>',
+                        'type' => 'DATE'
+                    )
+                );
+                break;
+                
             case 'em_andamento':
                 $base_args['meta_query'] = array(
                     'relation' => 'AND',
@@ -248,6 +259,22 @@ class Sevo_Landing_Page_Shortcode {
             )
         ));
         
+        // Eventos planejados
+        $planejados = new WP_Query(array(
+            'post_type' => SEVO_EVENTO_POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => '_sevo_evento_data_inicio_inscricoes',
+                    'value' => $today,
+                    'compare' => '>',
+                    'type' => 'DATE'
+                )
+            )
+        ));
+        
         // Eventos em andamento
         $em_andamento = new WP_Query(array(
             'post_type' => SEVO_EVENTO_POST_TYPE,
@@ -289,6 +316,7 @@ class Sevo_Landing_Page_Shortcode {
         
         return array(
             'inscricoes_abertas' => $inscricoes_abertas->found_posts,
+            'planejados' => $planejados->found_posts,
             'em_andamento' => $em_andamento->found_posts,
             'encerrados' => $encerrados->found_posts
         );
