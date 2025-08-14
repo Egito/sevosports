@@ -162,127 +162,37 @@ class Sevo_Forum_Integration {
     }
 
     /**
-     * Gerencia a criação de sub-fórum e tópicos automáticos para um evento.
+     * Gerencia a criação de tópicos automáticos para um evento.
      */
     public function handle_event_forum_creation_and_topics($post_id, $post, $update) {
         if (wp_is_post_revision($post_id) || $post->post_status !== 'publish' || !class_exists('AsgarosForum')) {
             return;
         }
-
-        // Etapa 1: Criar o sub-fórum se for um evento novo
-        if (!$update) {
-            $this->create_sub_forum_for_event($post_id, $post);
-        }
         
-        // Etapa 2: Verificar se datas foram alteradas e criar tópicos de notificação
+        // Verificar se datas foram alteradas e criar tópicos de notificação
         $this->create_notification_topics($post_id);
     }
 
     /**
-     * Cria ou atualiza o sub-fórum para um evento.
-     */
-    private function create_sub_forum_for_event($post_id, $post) {
-        $tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
-        if (!$tipo_evento_id) {
-            return;
-        }
-
-        $forum_id = get_post_meta($tipo_evento_id, '_sevo_forum_forum_id', true);
-        if (!$forum_id) {
-            return;
-        }
-
-        global $asgarosforum;
-        $existing_subforum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
-        $event_name = $post->post_title;
-        
-        // Se já existe um sub-fórum, verificar se precisa atualizar o nome
-        if ($existing_subforum_id && class_exists('AsgarosForum')) {
-            if ($asgarosforum && method_exists($asgarosforum->content, 'get_forum')) {
-                $subforum = $asgarosforum->content->get_forum($existing_subforum_id);
-                if ($subforum && is_object($subforum) && property_exists($subforum, 'name')) {
-                    // Verificar se o nome mudou
-                    if ($subforum->name !== $event_name) {
-                        // Atualizar o nome do sub-fórum usando consulta SQL direta
-                        // Buscar a categoria do fórum pai
-                        $forum_data = $asgarosforum->content->get_forum($forum_id);
-                        $category_id = ($forum_data && is_object($forum_data) && property_exists($forum_data, 'parent_id')) ? $forum_data->parent_id : 0;
-                        
-                        if ($category_id) {
-                            $asgarosforum->db->update(
-                                $asgarosforum->tables->forums,
-                                array(
-                                    'name'         => $event_name,
-                                    'description'  => 'Tópicos de discussão para o evento: ' . $event_name,
-                                    'icon'         => 'fas fa-calendar-alt',
-                                    'sort'         => 1,
-                                    'forum_status' => 'normal',
-                                    'parent_id'    => $category_id,
-                                    'parent_forum' => $forum_id,
-                                ),
-                                array('id' => $existing_subforum_id),
-                                array('%s', '%s', '%s', '%d', '%s', '%d', '%d'),
-                                array('%d')
-                            );
-                        }
-                    }
-                    return; // Sub-fórum existe e foi atualizado se necessário
-                } else {
-                    // Sub-fórum não existe mais, remover meta
-                    delete_post_meta($post_id, '_sevo_forum_subforum_id');
-                }
-            }
-        }
-
-        // Criar novo sub-fórum usando a instância do AsgarosForum
-        $sub_forum_id = 0;
-        if (class_exists('AsgarosForum')) {
-            if ($asgarosforum && method_exists($asgarosforum->content, 'insert_forum')) {
-                // Buscar a categoria do fórum pai
-                $forum_data = $asgarosforum->content->get_forum($forum_id);
-                $category_id = $forum_data ? $forum_data->parent_id : 0;
-                
-                if ($category_id) {
-                    $sub_forum_id = $asgarosforum->content->insert_forum(
-                        $category_id, // category_id
-                        $event_name,
-                        'Tópicos de discussão para o evento: ' . $event_name,
-                        $forum_id, // parent_forum
-                        'fas fa-calendar-alt', // icon
-                        1, // order
-                        'normal' // status
-                    );
-                }
-            }
-        }
-
-        if ($sub_forum_id) {
-            update_post_meta($post_id, '_sevo_forum_subforum_id', $sub_forum_id);
-        }
-    }
-
-    /**
-     * Cria tópicos de notificação quando datas importantes são alteradas.
+     * Cria posts de notificação no tópico do evento quando datas importantes são alteradas.
      */
     private function create_notification_topics($post_id) {
-        $sub_forum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
+        $topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
         $author_id = get_post_field('post_author', $post_id);
         $evento_url = get_permalink($post_id);
         $evento_title = get_the_title($post_id);
 
-        if (!$sub_forum_id || !$author_id || !class_exists('AsgarosForum')) {
+        if (!$topic_id || !$author_id || !class_exists('AsgarosForum')) {
             return;
         }
 
-        // Mapeamento de campos de data para títulos e conteúdos dos tópicos
+        // Mapeamento de campos de data para conteúdos dos posts de notificação
         $date_fields = array(
             '_sevo_evento_data_inicio_inscricoes' => array(
-                'title' => 'Período de Inscrição Definido!',
-                'content' => 'As inscrições para o evento "[evento_titulo]" estarão abertas de [data_inicio] até [data_fim]. <br><br>Para mais detalhes, acesse a página do evento: <a href="[evento_url]">clique aqui</a>.'
+                'content' => '<strong>Período de Inscrição Definido!</strong><br><br>As inscrições para o evento "[evento_titulo]" estarão abertas de [data_inicio] até [data_fim].<br><br>Para mais detalhes, acesse a página do evento: <a href="[evento_url]">clique aqui</a>.'
             ),
             '_sevo_evento_data_inicio_evento' => array(
-                'title' => 'Data do Evento Marcada!',
-                'content' => 'O evento "[evento_titulo]" está agendado para acontecer de [data_inicio] a [data_fim]. Prepare-se! <br><br>Para mais detalhes, acesse a página do evento: <a href="[evento_url]">clique aqui</a>.'
+                'content' => '<strong>Data do Evento Marcada!</strong><br><br>O evento "[evento_titulo]" está agendado para acontecer de [data_inicio] a [data_fim]. Prepare-se!<br><br>Para mais detalhes, acesse a página do evento: <a href="[evento_url]">clique aqui</a>.'
             )
         );
 
@@ -293,18 +203,17 @@ class Sevo_Forum_Integration {
         if ($data_inicio_insc && $data_inicio_insc !== $last_posted_inicio_insc) {
             $data_fim_insc = get_post_meta($post_id, '_sevo_evento_data_fim_inscricoes', true);
             $config = $date_fields['_sevo_evento_data_inicio_inscricoes'];
-            $topic_title = str_replace('[evento_titulo]', $evento_title, $config['title']);
-            $topic_content = str_replace(
+            $post_content = str_replace(
                 ['[evento_titulo]', '[data_inicio]', '[data_fim]', '[evento_url]'],
                 [$evento_title, date_i18n('d/m/Y', strtotime($data_inicio_insc)), date_i18n('d/m/Y', strtotime($data_fim_insc)), $evento_url],
                 $config['content']
             );
             
-            // Criar tópico usando a instância do AsgarosForum
+            // Criar post no tópico usando a instância do AsgarosForum
             if (class_exists('AsgarosForum')) {
                 global $asgarosforum;
-                if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
-                    $asgarosforum->content->insert_topic($sub_forum_id, $topic_title, $topic_content, $author_id);
+                if ($asgarosforum && method_exists($asgarosforum->content, 'insert_post')) {
+                    $asgarosforum->content->insert_post($topic_id, $post_content, $author_id);
                     update_post_meta($post_id, '_topic_posted_inicio_insc', $data_inicio_insc);
                 }
             }
@@ -317,18 +226,17 @@ class Sevo_Forum_Integration {
         if ($data_inicio_evento && $data_inicio_evento !== $last_posted_inicio_evento) {
             $data_fim_evento = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true);
             $config = $date_fields['_sevo_evento_data_inicio_evento'];
-            $topic_title = str_replace('[evento_titulo]', $evento_title, $config['title']);
-            $topic_content = str_replace(
+            $post_content = str_replace(
                 ['[evento_titulo]', '[data_inicio]', '[data_fim]', '[evento_url]'],
                 [$evento_title, date_i18n('d/m/Y', strtotime($data_inicio_evento)), date_i18n('d/m/Y', strtotime($data_fim_evento)), $evento_url],
                 $config['content']
             );
 
-            // Criar tópico usando a instância do AsgarosForum
+            // Criar post no tópico usando a instância do AsgarosForum
             if (class_exists('AsgarosForum')) {
                 global $asgarosforum;
-                if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
-                    $asgarosforum->content->insert_topic($sub_forum_id, $topic_title, $topic_content, $author_id);
+                if ($asgarosforum && method_exists($asgarosforum->content, 'insert_post')) {
+                    $asgarosforum->content->insert_post($topic_id, $post_content, $author_id);
                     update_post_meta($post_id, '_topic_posted_inicio_evento', $data_inicio_evento);
                 }
             }

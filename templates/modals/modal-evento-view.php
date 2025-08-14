@@ -22,6 +22,7 @@ $tipo_evento_title = $tipo_evento ? $tipo_evento->post_title : 'N/D';
 // Coleta dados da Organização pai
 $organizacao_id = $tipo_evento ? get_post_meta($tipo_evento->ID, '_sevo_tipo_evento_organizacao_id', true) : null;
 $organizacao_title = $organizacao_id ? get_the_title($organizacao_id) : 'N/D';
+$organizacao_thumbnail_url = $organizacao_id ? get_the_post_thumbnail_url($organizacao_id, 'large') : null;
 
 // Coleta dados de vagas e datas
 $vagas = get_post_meta($post_id, '_sevo_evento_vagas', true);
@@ -80,13 +81,13 @@ if ($user_id) {
     }
 }
 
-// Link para o sub-fórum do evento
-$sub_forum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
+// Link para o tópico do evento
+$topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
 $forum_url = '#';
-if ($sub_forum_id && class_exists('AsgarosForum')) {
+if ($topic_id && class_exists('AsgarosForum')) {
     global $asgarosforum;
     if ($asgarosforum && method_exists($asgarosforum->rewrite, 'get_link')) {
-        $forum_url = $asgarosforum->rewrite->get_link('forum', $sub_forum_id);
+        $forum_url = $asgarosforum->rewrite->get_link('topic', $topic_id);
     }
 }
 

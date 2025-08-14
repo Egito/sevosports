@@ -109,7 +109,7 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
+    display: none !important;
     align-items: center;
     justify-content: center;
     z-index: 1000;
@@ -142,14 +142,21 @@
 }
 
 .sevo-modal-header {
-    height: 250px;
+    height: 200px;
     flex-shrink: 0;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
 }
 
 .sevo-modal-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 70%;
+    max-height: 70%;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .sevo-modal-body {
@@ -248,9 +255,41 @@
     margin: 40px auto;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- Responsividade para dispositivos móveis --- */
+@media (max-width: 768px) {
+    .sevo-form-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .sevo-modal-footer-form,
+    .sevo-modal-footer {
+        flex-direction: column;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .sevo-modal-footer-form button,
+    .sevo-modal-footer button {
+        width: 100%;
+        margin: 2px 0;
+    }
+    
+    .sevo-modal-body {
+        padding: 15px 20px;
+    }
+    
+    .sevo-form-group {
+        margin-bottom: 8px;
+    }
+    
+    .sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
+        padding: 8px 12px;
+        font-size: 14px;
+        justify-content: center;
+    }
 }
 
 .hidden {
@@ -261,12 +300,13 @@
 .sevo-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 15px;
 }
 
 .sevo-form-group {
     display: flex;
     flex-direction: column;
+    margin-bottom: 5px;
 }
 
 .sevo-form-group-full {
@@ -276,37 +316,39 @@
 .sevo-form-group label {
     font-weight: 600;
     color: #374151;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     font-size: 0.9em;
 }
 
 .sevo-form-group input[type="text"],
 .sevo-form-group textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 1em;
+    border-radius: 6px;
+    font-size: 0.95em;
     color: #1f2937;
     background-color: #f9fafb;
     transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 5px;
 }
 
 .sevo-form-group input:focus,
 .sevo-form-group textarea:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .sevo-modal-footer-form {
-    padding: 20px 30px;
+    padding: 10px 20px;
     background-color: #f9fafb;
     border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .sevo-button-secondary {

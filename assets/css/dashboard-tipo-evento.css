@@ -117,7 +117,7 @@
 .sevo-modal-backdrop {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0,0,0,0.6);
-    display: flex; align-items: center; justify-content: center;
+    display: none !important; align-items: center; justify-content: center;
     z-index: 1000;
     padding: 20px;
 }
@@ -145,37 +145,115 @@
 }
 .sevo-modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
 .sevo-modal-footer-form {
-    padding: 15px 25px;
+    padding: 10px 15px;
     background-color: #f1f1f1;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
     border-top: 1px solid #e5e7eb;
+    gap: 5px;
+    flex-wrap: wrap;
 }
 
 .sevo-modal-footer {
-    padding: 20px 25px;
+    padding: 10px 15px;
     background-color: #f9fafb;
     border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 5px;
     flex-shrink: 0;
 }
 
 /* --- Formulário --- */
-.sevo-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.sevo-form-group { display: flex; flex-direction: column; }
+.sevo-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sevo-form-group { display: flex; flex-direction: column; margin-bottom: 5px; }
 .sevo-form-group-full { grid-column: 1 / -1; }
 .sevo-form-group label { font-weight: 500; margin-bottom: 5px; font-size: 14px; }
 .sevo-form-group input, .sevo-form-group select, .sevo-form-group textarea {
     width: 100%;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+/* --- Estilos específicos do modal de tipo de eventos --- */
+.sevo-modal-header {
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    min-height: 200px;
+}
+
+.sevo-modal-image {
+    max-width: 70%;
+    max-height: 70%;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Estilos específicos do modal de tipo de eventos --- */
+.sevo-modal-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+.sevo-modal-section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sevo-modal-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sevo-modal-list li {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+    color: #4b5563;
+}
+
+.sevo-modal-list li:last-child {
+    border-bottom: none;
+}
+
+.sevo-modal-list i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.sevo-modal-list strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.sevo-modal-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
 }
 
 /* --- Botões --- */
@@ -184,8 +262,9 @@
 .sevo-button-danger { background-color: #d63638; color: #fff; }
 
 .sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
-    padding: 8px 15px; border-radius: 4px; cursor: pointer; border: none;
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; border: none;
     text-decoration: none; display: inline-flex; align-items: center;
+    margin: 2px; font-size: 14px;
 }
 .sevo-button-primary:hover { background-color: #1e6297; }
 .sevo-button-secondary:hover { background-color: #e9eaec; border-color: #c4c5c7; }
@@ -201,3 +280,38 @@
     margin: 20px auto;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- Responsividade para dispositivos móveis --- */
+@media (max-width: 768px) {
+    .sevo-form-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .sevo-modal-footer-form,
+    .sevo-modal-footer {
+        flex-direction: column;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .sevo-modal-footer-form button,
+    .sevo-modal-footer button {
+        width: 100%;
+        margin: 2px 0;
+    }
+    
+    .sevo-modal-body {
+        padding: 15px 20px;
+    }
+    
+    .sevo-form-group {
+        margin-bottom: 8px;
+    }
+    
+    .sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
+        padding: 8px 12px;
+        font-size: 14px;
+        justify-content: center;
+    }
+}

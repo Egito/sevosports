@@ -29,7 +29,9 @@ class Sevo_Landing_Page_Shortcode {
         
         // AJAX para gerenciar inscrições
         add_action('wp_ajax_sevo_inscribe_evento', array($this, 'ajax_inscribe_evento'));
+        add_action('wp_ajax_nopriv_sevo_inscribe_evento', array($this, 'ajax_inscribe_evento'));
         add_action('wp_ajax_sevo_cancel_inscricao', array($this, 'ajax_cancel_inscricao'));
+        add_action('wp_ajax_nopriv_sevo_cancel_inscricao', array($this, 'ajax_cancel_inscricao'));
     }
 
     /**
@@ -559,7 +561,7 @@ class Sevo_Landing_Page_Shortcode {
 
         // Verifica se o evento existe
         $evento = get_post($event_id);
-        if (!$evento || $evento->post_type !== 'sevo_evento') {
+        if (!$evento || $evento->post_type !== SEVO_EVENTO_POST_TYPE) {
             wp_send_json_error('Evento não encontrado');
         }
 
@@ -578,7 +580,7 @@ class Sevo_Landing_Page_Shortcode {
 
         // Verifica se o usuário já está inscrito
         $existing_inscricao = get_posts(array(
-            'post_type' => 'sevo_inscricao',
+            'post_type' => SEVO_INSCR_POST_TYPE,
             'meta_query' => array(
                 array(
                     'key' => '_sevo_inscricao_evento_id',
@@ -603,7 +605,7 @@ class Sevo_Landing_Page_Shortcode {
         $vagas = get_post_meta($event_id, '_sevo_evento_vagas', true);
         if ($vagas) {
             $total_inscricoes = get_posts(array(
-                'post_type' => 'sevo_inscricao',
+                'post_type' => SEVO_INSCR_POST_TYPE,
                 'meta_query' => array(
                     array(
                         'key' => '_sevo_inscricao_evento_id',
@@ -628,7 +630,7 @@ class Sevo_Landing_Page_Shortcode {
         // Cria a inscrição
         $inscricao_data = array(
             'post_title' => 'Inscrição de ' . wp_get_current_user()->display_name . ' em ' . $evento->post_title,
-            'post_type' => 'sevo_inscricao',
+            'post_type' => SEVO_INSCR_POST_TYPE,
             'post_status' => 'publish',
             'post_author' => $user_id
         );
@@ -644,6 +646,16 @@ class Sevo_Landing_Page_Shortcode {
         update_post_meta($inscricao_id, '_sevo_inscricao_user_id', $user_id);
         update_post_meta($inscricao_id, '_sevo_inscricao_status', 'solicitada');
         update_post_meta($inscricao_id, '_sevo_inscricao_data', current_time('Y-m-d H:i:s'));
+
+        // Adiciona comentário no fórum do evento
+        $user = wp_get_current_user();
+        $data_hora = current_time('d/m/Y H:i:s');
+        $message = sprintf(
+            'Nova inscrição solicitada por %s em %s',
+            $user->display_name,
+            $data_hora
+        );
+        sevo_add_inscription_log_comment($event_id, $message);
 
         wp_send_json_success(array(
             'message' => 'Inscrição realizada com sucesso',
@@ -674,7 +686,7 @@ class Sevo_Landing_Page_Shortcode {
 
         // Verifica se a inscrição existe
         $inscricao = get_post($inscricao_id);
-        if (!$inscricao || $inscricao->post_type !== 'sevo_inscricao') {
+        if (!$inscricao || $inscricao->post_type !== SEVO_INSCR_POST_TYPE) {
             wp_send_json_error('Inscrição não encontrada');
         }
 
@@ -684,12 +696,36 @@ class Sevo_Landing_Page_Shortcode {
             wp_send_json_error('Sem permissão para cancelar esta inscrição');
         }
 
+        // Verifica se a inscrição não está aceita (não pode cancelar inscrição aceita)
+        $status_atual = get_post_meta($inscricao_id, '_sevo_inscricao_status', true);
+        if ($status_atual === 'aceita') {
+            wp_send_json_error('Não é possível cancelar uma inscrição já aceita');
+        }
+
         // Obtém o ID do evento para retornar
         $event_id = get_post_meta($inscricao_id, '_sevo_inscricao_evento_id', true);
+
+        // Incrementa o contador de cancelamentos
+        $cancelamentos = get_post_meta($inscricao_id, '_sevo_inscricao_cancelamentos', true);
+        $cancelamentos = intval($cancelamentos) + 1;
+        update_post_meta($inscricao_id, '_sevo_inscricao_cancelamentos', $cancelamentos);
 
         // Atualiza o status para cancelada
         update_post_meta($inscricao_id, '_sevo_inscricao_status', 'cancelada');
         update_post_meta($inscricao_id, '_sevo_inscricao_data_cancelamento', current_time('Y-m-d H:i:s'));
+
+        // Adiciona comentário no fórum do evento
+        $user = wp_get_current_user();
+        $data_hora = current_time('d/m/Y H:i:s');
+        $motivo = isset($_POST['motivo']) ? sanitize_text_field($_POST['motivo']) : 'Não informado';
+        $message = sprintf(
+            'Inscrição cancelada por %s em %s. Motivo: %s. Total de cancelamentos: %d',
+            $user->display_name,
+            $data_hora,
+            $motivo,
+            $cancelamentos
+        );
+        sevo_add_inscription_log_comment($event_id, $message);
 
         wp_send_json_success(array(
             'message' => 'Inscrição cancelada com sucesso',

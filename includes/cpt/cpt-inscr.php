@@ -173,7 +173,7 @@ class Sevo_Inscricoes_CPT {
 }
 
 /**
- * Adiciona um comentário de log no post do evento.
+ * Adiciona um post de log no tópico do fórum do evento.
  *
  * @param int    $evento_id ID do post do evento.
  * @param string $message   A mensagem a ser registrada.
@@ -183,19 +183,31 @@ function sevo_add_inscription_log_comment($evento_id, $message) {
         return;
     }
 
-    $user = wp_get_current_user();
-    $user_name = $user->exists() ? $user->display_name : 'Sistema';
+    // Verificar se o Asgaros Forum está ativo
+    if (!class_exists('AsgarosForum')) {
+        return;
+    }
 
-    $commentdata = array(
-        'comment_post_ID'      => $evento_id,
-        'comment_author'       => $user_name,
-        'comment_author_email' => $user->exists() ? $user->user_email : 'sistema@sevosports.com',
-        'comment_content'      => $message,
-        'comment_type'         => 'inscription_log',
-        'comment_agent'        => 'SevoSports Plugin',
-        'comment_date'         => current_time('mysql'),
-        'comment_approved'     => 1,
+    // Obter o ID do tópico do fórum associado ao evento
+    $topic_id = get_post_meta($evento_id, '_sevo_forum_topic_id', true);
+    if (!$topic_id) {
+        return;
+    }
+
+    global $asgarosforum;
+    if (!$asgarosforum || !method_exists($asgarosforum->content, 'insert_post')) {
+        return;
+    }
+
+    $user = wp_get_current_user();
+    $author_id = $user->exists() ? $user->ID : 1; // ID 1 geralmente é o admin
+
+    // Inserir post no tópico do fórum
+    $post_id = $asgarosforum->content->insert_post(
+        $topic_id,  // topic_id
+        $message,   // post content
+        $author_id  // author_id
     );
 
-    wp_insert_comment($commentdata);
+    return $post_id;
 }

@@ -71,17 +71,3 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
     </div>
 
 </div>
-
-<div class="sevo-modal-footer">
-    <a href="<?php echo esc_url($forum_url); ?>" target="_blank" class="sevo-modal-button">
-        <i class="fas fa-comments mr-2"></i>
-        Visitar Fórum da Organização
-    </a>
-    
-    <?php if (sevo_check_user_permission('edit_org')): ?>
-        <a href="<?php echo admin_url('post.php?post=' . $org_id . '&action=edit'); ?>" class="sevo-modal-button sevo-button-edit">
-            <i class="fas fa-edit mr-2"></i>
-            Editar Organização
-        </a>
-    <?php endif; ?>
-</div>
