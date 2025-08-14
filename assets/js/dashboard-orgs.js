@@ -12,7 +12,7 @@ jQuery(document).ready(function($) {
     });
 
     // Abre o modal ao clicar num cartão de organização (visualização)
-    dashboardContainer.on('click', '.org-card', function() {
+    $(document).on('click', '.org-card', function(e) {
         const orgId = $(this).data('org-id');
         openOrgViewModal(orgId);
     });
@@ -72,7 +72,7 @@ jQuery(document).ready(function($) {
     // Event listener para o botão de editar no modal de visualização
     modal.on('click', '.sevo-button-edit', function(e) {
         e.preventDefault();
-        const orgId = $(this).attr('href').match(/post=(\d+)/)[1];
+        const orgId = $(this).data('org-id');
         openOrgFormModal(orgId);
     });
 
@@ -100,6 +100,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     closeModal();
+                    showSuccessToaster('Organização alterada com sucesso!');
                     location.reload(); // Recarrega a página para mostrar as alterações
                 } else {
                     alert('Erro: ' + response.data);
@@ -140,4 +141,33 @@ jQuery(document).ready(function($) {
             closeModal();
         }
     });
+
+    // Função para mostrar toaster de sucesso
+    function showSuccessToaster(message) {
+        // Remove toaster existente se houver
+        $('.sevo-toaster').remove();
+        
+        // Cria o toaster
+        const toaster = $('<div class="sevo-toaster sevo-toaster-success">' + 
+            '<i class="dashicons dashicons-yes-alt"></i>' + 
+            '<span>' + message + '</span>' + 
+            '</div>');
+        
+        // Adiciona o toaster ao body
+        $('body').append(toaster);
+        
+        // Mostra o toaster com animação
+        setTimeout(function() {
+            toaster.addClass('sevo-toaster-show');
+        }, 100);
+        
+        // Remove o toaster após 10 segundos
+        setTimeout(function() {
+            toaster.removeClass('sevo-toaster-show');
+            setTimeout(function() {
+                toaster.remove();
+            }, 300);
+        }, 10000);
+    }
+
 });

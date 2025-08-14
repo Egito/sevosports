@@ -92,3 +92,12 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
     </div>
 
 </div>
+
+<div class="sevo-modal-footer">
+    <?php if (current_user_can('manage_options')): ?>
+        <button class="sevo-modal-button sevo-button-edit" data-org-id="<?php echo esc_attr($org_id); ?>">
+            <i class="fas fa-edit mr-2"></i>
+            Editar Organização
+        </button>
+    <?php endif; ?>
+</div>

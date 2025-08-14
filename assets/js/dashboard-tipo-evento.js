@@ -77,7 +77,7 @@ jQuery(document).ready(function($) {
     });
 
     // Event listener para clicar nos cards de tipo de evento (visualização)
-    container.on('click', '.tipo-evento-card', function() {
+    $(document).on('click', '.tipo-evento-card', function(e) {
         const tipoEventoId = $(this).data('tipo-evento-id') || $(this).data('id');
         openViewModal(tipoEventoId);
     });
