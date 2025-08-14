@@ -134,20 +134,15 @@ jQuery(document).ready(function($) {
             });
 
             // Event listener para fechar modal de edição
-            $(document).on('click', '#sevo-evento-form-modal-close', () => {
-                const modalContainer = document.getElementById('sevo-evento-form-modal-container');
-                if (modalContainer) {
-                    modalContainer.style.display = 'none';
-                    document.body.classList.remove('sevo-modal-open');
-                }
-            });
+            $(document).on('click', '#sevo-evento-form-modal-close', this.closeEventFormModal.bind(this));
 
             // Event listener para cancelar edição
-            $(document).on('click', '#sevo-cancel-evento-button', () => {
-                const modalContainer = document.getElementById('sevo-evento-form-modal-container');
-                if (modalContainer) {
-                    modalContainer.style.display = 'none';
-                    document.body.classList.remove('sevo-modal-open');
+            $(document).on('click', '#sevo-cancel-evento-button', this.closeEventFormModal.bind(this));
+
+            // Event listener para fechar modal clicando no backdrop
+            $(document).on('click', '#sevo-evento-form-modal-container', function(e) {
+                if (e.target === e.currentTarget) {
+                    SevoLandingPage.closeEventFormModal();
                 }
             });
 
@@ -483,6 +478,7 @@ jQuery(document).ready(function($) {
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
                 alert('Erro: Dados de configuração não encontrados');
+                this.showLoading(false);
                 return;
             }
             
@@ -501,6 +497,7 @@ jQuery(document).ready(function($) {
             })
             .then(response => response.json())
             .then(data => {
+                this.showLoading(false);
                 if (data.success) {
                     // Fechar modal de visualização
                     this.closeEventModal();
@@ -512,7 +509,7 @@ jQuery(document).ready(function($) {
                 }
             })
             .catch(error => {
-                console.error('Erro:', error);
+                console.error('Erro na requisição:', error);
                 alert('Erro ao carregar formulário de edição.');
             })
             .finally(() => {
@@ -527,6 +524,15 @@ jQuery(document).ready(function($) {
                 modalContainer.innerHTML = html;
                 modalContainer.style.display = 'flex';
                 document.body.classList.add('sevo-modal-open');
+            }
+        },
+
+        // Fechar modal de formulário de evento
+        closeEventFormModal: function() {
+            const modalContainer = document.getElementById('sevo-evento-form-modal-container');
+            if (modalContainer) {
+                modalContainer.style.display = 'none';
+                document.body.classList.remove('sevo-modal-open');
             }
         },
 

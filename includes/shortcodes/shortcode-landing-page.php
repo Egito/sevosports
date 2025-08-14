@@ -395,18 +395,25 @@ class Sevo_Landing_Page_Shortcode {
      */
     public function ajax_get_evento_form() {
         check_ajax_referer('sevo_landing_page_nonce', 'nonce');
-        sevo_check_permission_or_die('edit_evento');
+        
+        // Verifica permissão usando a função centralizada
+        if (!sevo_check_user_permission('edit_evento')) {
+            wp_send_json_error('Você não tem permissão para editar eventos.');
+            return;
+        }
         
         $event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : 0;
         
         if (!$event_id) {
             wp_send_json_error('ID do evento não fornecido.');
+            return;
         }
         
         $evento = get_post($event_id);
         
         if (!$evento || $evento->post_type !== SEVO_EVENTO_POST_TYPE) {
             wp_send_json_error('Evento não encontrado.');
+            return;
         }
         
         ob_start();
