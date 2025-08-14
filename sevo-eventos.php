@@ -33,7 +33,7 @@ class Sevo_Eventos_Main {
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
         add_action('wp_enqueue_scripts', array($this, 'register_all_assets'));
         add_action('wp_ajax_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
-        add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('admin_menu', array($this, 'add_admin_menu'), 20);
     }
 
     public static function get_instance() {
@@ -162,11 +162,11 @@ class Sevo_Eventos_Main {
     public function add_admin_menu() {
         // Adicionar menu principal do plugin
         add_menu_page(
-            'Sevo Eventos',           // Page title
-            'Sevo Eventos',           // Menu title
-            'manage_options',         // Capability
-            'sevo-eventos',           // Menu slug
-            array($this, 'admin_page_callback'), // Callback
+            'Sevo Eventos',       // Page title
+            'Sevo Eventos',       // Menu title
+            'manage_options',     // Capability
+            'sevo-eventos',       // Menu slug
+            array($this, 'admin_page_callback'), // Callback function
             'dashicons-calendar-alt', // Icon
             25                        // Position
         );
@@ -183,7 +183,7 @@ class Sevo_Eventos_Main {
     }
 
     public function admin_page_callback() {
-        // Verificar permissões
+        // Verificar se o usuário tem permissão de administrador
         if (!current_user_can('manage_options')) {
             wp_die(__('Você não tem permissão para acessar esta página.'));
         }

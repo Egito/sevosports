@@ -43,12 +43,6 @@ class Sevo_Inscricoes_CPT {
             'capability_type' => 'post',
             'capabilities' => array(
                 'create_posts'       => 'do_not_allow',
-                'edit_post'          => 'edit_posts',
-                'read_post'          => 'read_posts',
-                'delete_post'        => 'delete_posts',
-                'edit_posts'         => 'edit_posts',
-                'edit_others_posts'  => 'edit_others_posts',
-                'read_private_posts' => 'read_private_posts',
             ),
             'map_meta_cap'  => true,
             'has_archive'   => false,

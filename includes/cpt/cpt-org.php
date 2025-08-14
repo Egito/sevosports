@@ -64,15 +64,7 @@ class Sevo_Orgs_CPT {
             'exclude_from_search'   => false,
             'publicly_queryable'    => true,
             'capability_type'       => 'post',
-            'capabilities' => array(
-                'edit_post'          => 'edit_posts',
-                'read_post'          => 'read_posts',
-                'delete_post'        => 'delete_posts',
-                'edit_posts'         => 'edit_posts',
-                'edit_others_posts'  => 'edit_others_posts',
-                'publish_posts'      => 'publish_posts',
-                'read_private_posts' => 'read_private_posts',
-            ),
+            'map_meta_cap'        => true,
         );
         register_post_type($this->post_type, $args);
     }
