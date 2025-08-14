@@ -32,6 +32,8 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         wp_enqueue_style('dashicons');
         wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css', array(), '6.0.0');
         wp_enqueue_style('sevo-modal-responsive', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-responsive.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-toaster-style');
+        wp_enqueue_script('sevo-toaster-script');
         
         wp_localize_script('sevo-tipo-evento-dashboard-script', 'sevoTipoEventoDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),

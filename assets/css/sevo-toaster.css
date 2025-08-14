@@ -1,0 +1,135 @@
+/**
+ * Estilos para o sistema de Toaster reutilizável do plugin Sevo
+ */
+
+/* Estilos base do toaster */
+.sevo-toaster {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    min-width: 300px;
+    color: white;
+}
+
+.sevo-toaster.sevo-toaster-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.sevo-toaster .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.sevo-toaster span {
+    flex: 1;
+    line-height: 1.4;
+}
+
+/* Botão de fechar */
+.sevo-toaster-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sevo-toaster-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sevo-toaster-close .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Variações de tipo */
+.sevo-toaster-success {
+    background-color: #28a745;
+    border-left: 4px solid #1e7e34;
+}
+
+.sevo-toaster-error {
+    background-color: #dc3545;
+    border-left: 4px solid #c82333;
+}
+
+.sevo-toaster-info {
+    background-color: #17a2b8;
+    border-left: 4px solid #138496;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-toaster {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        min-width: auto;
+        transform: translateY(-100%);
+    }
+    
+    .sevo-toaster.sevo-toaster-show {
+        transform: translateY(0);
+    }
+}
+
+/* Múltiplos toasters */
+.sevo-toaster:nth-child(n+2) {
+    top: calc(20px + (70px * var(--toaster-index, 0)));
+}
+
+@media (max-width: 768px) {
+    .sevo-toaster:nth-child(n+2) {
+        top: calc(20px + (80px * var(--toaster-index, 0)));
+    }
+}
+
+/* Animações adicionais */
+@keyframes sevo-toaster-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.sevo-toaster-error.sevo-toaster-show {
+    animation: sevo-toaster-shake 0.5s ease-in-out;
+}
+
+/* Estados de hover */
+.sevo-toaster:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Acessibilidade */
+.sevo-toaster:focus-within {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Tema escuro (se necessário) */
+@media (prefers-color-scheme: dark) {
+    .sevo-toaster {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}

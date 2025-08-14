@@ -100,10 +100,10 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     closeModal();
-                    showSuccessToaster('Organização alterada com sucesso!');
+                    SevoToaster.showSuccess('Organização alterada com sucesso!');
                     location.reload(); // Recarrega a página para mostrar as alterações
                 } else {
-                    alert('Erro: ' + response.data);
+                    SevoToaster.showError('Erro: ' + response.data);
                     saveButton.text(originalText).prop('disabled', false);
                 }
             },
@@ -141,33 +141,5 @@ jQuery(document).ready(function($) {
             closeModal();
         }
     });
-
-    // Função para mostrar toaster de sucesso
-    function showSuccessToaster(message) {
-        // Remove toaster existente se houver
-        $('.sevo-toaster').remove();
-        
-        // Cria o toaster
-        const toaster = $('<div class="sevo-toaster sevo-toaster-success">' + 
-            '<i class="dashicons dashicons-yes-alt"></i>' + 
-            '<span>' + message + '</span>' + 
-            '</div>');
-        
-        // Adiciona o toaster ao body
-        $('body').append(toaster);
-        
-        // Mostra o toaster com animação
-        setTimeout(function() {
-            toaster.addClass('sevo-toaster-show');
-        }, 100);
-        
-        // Remove o toaster após 10 segundos
-        setTimeout(function() {
-            toaster.removeClass('sevo-toaster-show');
-            setTimeout(function() {
-                toaster.remove();
-            }, 300);
-        }, 10000);
-    }
 
 });

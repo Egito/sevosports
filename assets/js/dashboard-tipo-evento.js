@@ -140,14 +140,15 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     modal.addClass('hidden');
+                    SevoToaster.showSuccess('Tipo de evento salvo com sucesso!');
                     loadTiposEvento(true); // Recarrega a lista
                 } else {
-                    alert('Erro: ' + response.data);
+                    SevoToaster.showError('Erro: ' + response.data);
                     saveButton.text(originalText).prop('disabled', false);
                 }
             },
             error: function() {
-                alert('Erro de comunicação. Por favor, tente novamente.');
+                SevoToaster.showError('Erro de comunicação. Por favor, tente novamente.');
                 saveButton.text(originalText).prop('disabled', false);
             }
         });
@@ -167,9 +168,10 @@ jQuery(document).ready(function($) {
         }).done(function(response) {
             if (response.success) {
                 modal.addClass('hidden');
+                SevoToaster.showSuccess('Status alterado com sucesso!');
                 loadTiposEvento(true);
             } else {
-                alert('Erro: ' + response.data);
+                SevoToaster.showError('Erro: ' + response.data);
             }
         });
     });

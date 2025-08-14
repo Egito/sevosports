@@ -258,6 +258,23 @@ class Sevo_Eventos_Main {
             SEVO_EVENTOS_VERSION,
             true
         );
+
+        // Estilo para o sistema de Toaster
+        wp_register_style(
+            'sevo-toaster-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/sevo-toaster.css',
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
+
+        // Script para o sistema de Toaster
+        wp_register_script(
+            'sevo-toaster-script',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/sevo-toaster.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
     }
 
     public function activate() {

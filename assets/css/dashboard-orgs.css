@@ -372,56 +372,5 @@
 }
 
 .sevo-button-secondary:hover {
-    background-color: #4b5563;
-}
-
-/* Estilos para o toaster de sucesso */
-.sevo-toaster {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #28a745;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    transform: translateX(100%);
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 350px;
-}
-
-.sevo-toaster.sevo-toaster-show {
-    transform: translateX(0);
-    opacity: 1;
-}
-
-.sevo-toaster .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-}
-
-.sevo-toaster-success {
-    background-color: #28a745;
-    border-left: 4px solid #1e7e34;
-}
-
-@media (max-width: 768px) {
-    .sevo-toaster {
-        right: 10px;
-        left: 10px;
-        max-width: none;
-        transform: translateY(-100%);
-    }
-    
-    .sevo-toaster.sevo-toaster-show {
-        transform: translateY(0);
-    }
+    background-color: #5a6268;
 }

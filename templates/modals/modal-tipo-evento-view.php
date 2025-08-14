@@ -146,13 +146,6 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
 </div>
 
 <div class="sevo-modal-footer">
-    <?php if ($forum_url && $forum_url !== '#') : ?>
-        <a href="<?php echo esc_url($forum_url); ?>" target="_blank" class="sevo-modal-button">
-            <i class="fas fa-comments mr-2"></i>
-            Visitar Fórum da Categoria
-        </a>
-    <?php endif; ?>
-    
     <?php if (sevo_check_user_permission('edit_tipo_evento')): ?>
         <button class="sevo-modal-button sevo-button-edit" data-tipo-evento-id="<?php echo esc_attr($tipo_id); ?>">
             <i class="fas fa-edit mr-2"></i>
