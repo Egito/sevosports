@@ -133,8 +133,11 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         update_post_meta($tipo_evento_id, '_sevo_tipo_evento_max_vagas', intval($_POST['_sevo_tipo_evento_max_vagas']));
         update_post_meta($tipo_evento_id, '_sevo_tipo_evento_participacao', sanitize_text_field($_POST['_sevo_tipo_evento_participacao']));
         
-        // Define o status como 'ativo' por padrão ao salvar/criar
-        if (!get_post_meta($tipo_evento_id, '_sevo_tipo_evento_status', true)) {
+        // Salva o status enviado pelo formulário ou define 'ativo' como padrão
+        $status = isset($_POST['_sevo_tipo_evento_status']) ? sanitize_text_field($_POST['_sevo_tipo_evento_status']) : 'ativo';
+        if (in_array($status, array('ativo', 'inativo'))) {
+            update_post_meta($tipo_evento_id, '_sevo_tipo_evento_status', $status);
+        } else {
             update_post_meta($tipo_evento_id, '_sevo_tipo_evento_status', 'ativo');
         }
 
@@ -254,6 +257,18 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
             'orderby' => 'title',
             'order' => 'ASC',
         );
+        
+        // Filtrar tipos de eventos inativos para usuários sem permissão de atualização
+        $user_can_update = current_user_can('manage_options') || current_user_can('edit_posts');
+        if (!$user_can_update) {
+            $args['meta_query'] = array(
+                array(
+                    'key' => '_sevo_tipo_evento_status',
+                    'value' => 'ativo',
+                    'compare' => '='
+                )
+            );
+        }
         
         $query = new WP_Query($args);
         $items_html = '';

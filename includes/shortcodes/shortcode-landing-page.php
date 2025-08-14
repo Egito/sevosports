@@ -168,6 +168,50 @@ class Sevo_Landing_Page_Shortcode {
                 break;
         }
 
+        // Filtrar eventos de tipos de eventos inativos para usuários sem permissão de atualização
+        $user_can_update = current_user_can('manage_options') || current_user_can('edit_posts');
+        if (!$user_can_update) {
+            // Buscar IDs de tipos de eventos ativos
+            $tipos_ativos = get_posts(array(
+                'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+                'meta_query' => array(
+                    array(
+                        'key' => '_sevo_tipo_evento_status',
+                        'value' => 'ativo',
+                        'compare' => '='
+                    )
+                )
+            ));
+            
+            if (!empty($tipos_ativos)) {
+                // Adicionar filtro para mostrar apenas eventos de tipos ativos
+                $tipo_evento_filter = array(
+                    'key' => '_sevo_evento_tipo_evento_id',
+                    'value' => $tipos_ativos,
+                    'compare' => 'IN'
+                );
+                
+                if (isset($base_args['meta_query'])) {
+                    if (isset($base_args['meta_query']['relation'])) {
+                        $base_args['meta_query'][] = $tipo_evento_filter;
+                    } else {
+                        $base_args['meta_query'] = array(
+                            'relation' => 'AND',
+                            $base_args['meta_query'],
+                            $tipo_evento_filter
+                        );
+                    }
+                } else {
+                    $base_args['meta_query'] = array($tipo_evento_filter);
+                }
+            } else {
+                // Se não há tipos de eventos ativos, não mostrar nenhum evento
+                $base_args['post__in'] = array(0);
+            }
+        }
+
         return $base_args;
     }
 
@@ -282,82 +326,142 @@ class Sevo_Landing_Page_Shortcode {
     public function get_section_counts() {
         $today = date('Y-m-d');
         
+        // Filtrar eventos de tipos de eventos inativos para usuários sem permissão de atualização
+        $user_can_update = current_user_can('manage_options') || current_user_can('edit_posts');
+        $tipo_evento_filter = null;
+        
+        if (!$user_can_update) {
+            // Buscar IDs de tipos de eventos ativos
+            $tipos_ativos = get_posts(array(
+                'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+                'meta_query' => array(
+                    array(
+                        'key' => '_sevo_tipo_evento_status',
+                        'value' => 'ativo',
+                        'compare' => '='
+                    )
+                )
+            ));
+            
+            if (!empty($tipos_ativos)) {
+                $tipo_evento_filter = array(
+                    'key' => '_sevo_evento_tipo_evento_id',
+                    'value' => $tipos_ativos,
+                    'compare' => 'IN'
+                );
+            }
+        }
+        
         // Eventos com inscrições abertas
+        $inscricoes_abertas_meta = array(
+            'relation' => 'AND',
+            array(
+                'key' => '_sevo_evento_data_inicio_inscricoes',
+                'value' => $today,
+                'compare' => '<=',
+                'type' => 'DATE'
+            ),
+            array(
+                'key' => '_sevo_evento_data_fim_inscricoes',
+                'value' => $today,
+                'compare' => '>=',
+                'type' => 'DATE'
+            )
+        );
+        if ($tipo_evento_filter) {
+            $inscricoes_abertas_meta[] = $tipo_evento_filter;
+        }
+        
         $inscricoes_abertas = new WP_Query(array(
             'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key' => '_sevo_evento_data_inicio_inscricoes',
-                    'value' => $today,
-                    'compare' => '<=',
-                    'type' => 'DATE'
-                ),
-                array(
-                    'key' => '_sevo_evento_data_fim_inscricoes',
-                    'value' => $today,
-                    'compare' => '>=',
-                    'type' => 'DATE'
-                )
-            )
+            'meta_query' => $inscricoes_abertas_meta,
+            'post__in' => (!$user_can_update && empty($tipos_ativos)) ? array(0) : null
         ));
         
         // Eventos planejados
+        $planejados_meta = array(
+            array(
+                'key' => '_sevo_evento_data_inicio_inscricoes',
+                'value' => $today,
+                'compare' => '>',
+                'type' => 'DATE'
+            )
+        );
+        if ($tipo_evento_filter) {
+            $planejados_meta = array(
+                'relation' => 'AND',
+                $planejados_meta[0],
+                $tipo_evento_filter
+            );
+        }
+        
         $planejados = new WP_Query(array(
             'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
-            'meta_query' => array(
-                array(
-                    'key' => '_sevo_evento_data_inicio_inscricoes',
-                    'value' => $today,
-                    'compare' => '>',
-                    'type' => 'DATE'
-                )
-            )
+            'meta_query' => $planejados_meta,
+            'post__in' => (!$user_can_update && empty($tipos_ativos)) ? array(0) : null
         ));
         
         // Eventos em andamento
+        $em_andamento_meta = array(
+            'relation' => 'AND',
+            array(
+                'key' => '_sevo_evento_data_inicio_evento',
+                'value' => $today,
+                'compare' => '<=',
+                'type' => 'DATE'
+            ),
+            array(
+                'key' => '_sevo_evento_data_fim_evento',
+                'value' => $today,
+                'compare' => '>=',
+                'type' => 'DATE'
+            )
+        );
+        if ($tipo_evento_filter) {
+            $em_andamento_meta[] = $tipo_evento_filter;
+        }
+        
         $em_andamento = new WP_Query(array(
             'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key' => '_sevo_evento_data_inicio_evento',
-                    'value' => $today,
-                    'compare' => '<=',
-                    'type' => 'DATE'
-                ),
-                array(
-                    'key' => '_sevo_evento_data_fim_evento',
-                    'value' => $today,
-                    'compare' => '>=',
-                    'type' => 'DATE'
-                )
-            )
+            'meta_query' => $em_andamento_meta,
+            'post__in' => (!$user_can_update && empty($tipos_ativos)) ? array(0) : null
         ));
         
         // Eventos encerrados
+        $encerrados_meta = array(
+            array(
+                'key' => '_sevo_evento_data_fim_evento',
+                'value' => $today,
+                'compare' => '<',
+                'type' => 'DATE'
+            )
+        );
+        if ($tipo_evento_filter) {
+            $encerrados_meta = array(
+                'relation' => 'AND',
+                $encerrados_meta[0],
+                $tipo_evento_filter
+            );
+        }
+        
         $encerrados = new WP_Query(array(
             'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
-            'meta_query' => array(
-                array(
-                    'key' => '_sevo_evento_data_fim_evento',
-                    'value' => $today,
-                    'compare' => '<',
-                    'type' => 'DATE'
-                )
-            )
+            'meta_query' => $encerrados_meta,
+            'post__in' => (!$user_can_update && empty($tipos_ativos)) ? array(0) : null
         ));
         
         return array(
