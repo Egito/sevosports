@@ -26,6 +26,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         wp_enqueue_style('sevo-orgs-dashboard-style');
         wp_enqueue_script('sevo-orgs-dashboard-script');
         wp_enqueue_style('dashicons');
+        wp_enqueue_style('sevo-modal-responsive', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-responsive.css', array(), SEVO_EVENTOS_VERSION);
         
         wp_localize_script('sevo-orgs-dashboard-script', 'sevoOrgsDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),

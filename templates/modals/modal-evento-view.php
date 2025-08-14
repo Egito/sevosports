@@ -103,71 +103,84 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
 ?>
 
 <div class="sevo-modal-compact">
-    <div class="sevo-modal-header-compact">
-        <?php if ($evento_thumbnail_url) : ?>
-            <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image-compact">
-        <?php endif; ?>
-        <div class="sevo-modal-title-section">
-            <h2 class="sevo-modal-title-compact"><?php echo esc_html($evento_title); ?></h2>
-            <div class="sevo-modal-status-bar-compact">
-                <?php if ($status_inscricao === 'abertas'): ?>
-                    <span class="sevo-status-badge status-ativo">Inscrições Abertas</span>
-                <?php else: ?>
-                    <span class="sevo-status-badge status-inativo">Inscrições Fechadas</span>
-                <?php endif; ?>
-                
-                <?php if ($user_inscricao_status): ?>
-                    <span class="sevo-user-status status-<?php echo esc_attr($user_inscricao_status); ?>">
-                        <?php 
-                        switch($user_inscricao_status) {
-                            case 'aceita': echo 'Inscrito'; break;
-                            case 'solicitada': echo 'Aguardando Aprovação'; break;
-                            case 'rejeitada': echo 'Inscrição Rejeitada'; break;
-                            case 'cancelada': echo 'Inscrição Cancelada'; break;
-                            default: echo 'Status: ' . $user_inscricao_status;
-                        }
-                        ?>
-                    </span>
-                <?php endif; ?>
+        <div class="sevo-modal-header-compact">
+            <?php if ($evento_thumbnail_url) : ?>
+                <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image-compact">
+            <?php endif; ?>
+            <div class="sevo-modal-title-section">
+                <h2 class="sevo-modal-title-compact"><?php echo esc_html($evento_title); ?></h2>
+                <div class="sevo-modal-status-bar-compact">
+                    <?php if ($status_inscricao === 'abertas'): ?>
+                        <span class="sevo-status-badge status-ativo">Inscrições Abertas</span>
+                    <?php else: ?>
+                        <span class="sevo-status-badge status-inativo">Inscrições Fechadas</span>
+                    <?php endif; ?>
+                    
+                    <?php if ($user_inscricao_status): ?>
+                        <span class="sevo-user-status status-<?php echo esc_attr($user_inscricao_status); ?>">
+                            <?php 
+                            switch($user_inscricao_status) {
+                                case 'aceita': echo 'Inscrito'; break;
+                                case 'solicitada': echo 'Aguardando Aprovação'; break;
+                                case 'rejeitada': echo 'Inscrição Rejeitada'; break;
+                                case 'cancelada': echo 'Inscrição Cancelada'; break;
+                                default: echo 'Status: ' . $user_inscricao_status;
+                            }
+                            ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
 
     <div class="sevo-modal-body-compact">
-        <?php if ($evento_description): ?>
-            <div class="sevo-modal-description-compact">
-                <?php echo wp_trim_words($evento_description, 30, '...'); ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="sevo-modal-sections-compact">
-            <div class="sevo-modal-section-compact">
+        <div class="sevo-modal-content-grid">
+            <!-- Coluna das Informações (Prioritária) -->
+            <div class="sevo-modal-info-column">
                 <h4 class="sevo-modal-section-title-compact">Informações</h4>
-                <div class="sevo-modal-info-grid">
-                    <div class="sevo-info-item">
-                        <i class="dashicons dashicons-building"></i>
-                        <span><?php echo esc_html($organizacao_title); ?></span>
+                <div class="sevo-modal-sections-compact">
+            <div class="sevo-modal-section-compact">
+                <h5 class="sevo-modal-subsection-title-compact">Dados do Evento</h5>
+                <div class="sevo-modal-info-list">
+                    <div class="sevo-info-item-vertical">
+                        <div class="sevo-info-label">
+                            <i class="dashicons dashicons-building"></i>
+                            <span>Organização</span>
+                        </div>
+                        <div class="sevo-info-value"><?php echo esc_html($organizacao_title); ?></div>
                     </div>
-                    <div class="sevo-info-item">
-                        <i class="dashicons dashicons-groups"></i>
-                        <span><?php echo esc_html($total_inscricoes); ?> / <?php echo $vagas ? esc_html($vagas) : '∞'; ?></span>
+                    <div class="sevo-info-item-vertical">
+                        <div class="sevo-info-label">
+                            <i class="dashicons dashicons-groups"></i>
+                            <span>Inscrições</span>
+                        </div>
+                        <div class="sevo-info-value"><?php echo esc_html($total_inscricoes); ?> / <?php echo $vagas ? esc_html($vagas) : '∞'; ?></div>
                     </div>
                     <?php if ($local): ?>
-                        <div class="sevo-info-item">
-                            <i class="dashicons dashicons-location"></i>
-                            <span><?php echo esc_html($local); ?></span>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="dashicons dashicons-location"></i>
+                                <span>Local</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html($local); ?></div>
                         </div>
                     <?php endif; ?>
                     <?php if ($data_inicio_insc && $data_fim_insc): ?>
-                        <div class="sevo-info-item">
-                            <i class="dashicons dashicons-calendar-alt"></i>
-                            <span>Inscrições: <?php echo date_i18n('d/m/Y', strtotime($data_inicio_insc)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_insc)); ?></span>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="dashicons dashicons-calendar-alt"></i>
+                                <span>Período de Inscrições</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo date_i18n('d/m/Y', strtotime($data_inicio_insc)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_insc)); ?></div>
                         </div>
                     <?php endif; ?>
                     <?php if ($data_inicio_evento && $data_fim_evento): ?>
-                        <div class="sevo-info-item">
-                            <i class="dashicons dashicons-flag"></i>
-                            <span>Evento: <?php echo date_i18n('d/m/Y', strtotime($data_inicio_evento)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_evento)); ?></span>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="dashicons dashicons-flag"></i>
+                                <span>Período do Evento</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo date_i18n('d/m/Y', strtotime($data_inicio_evento)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_evento)); ?></div>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -175,12 +188,24 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
 
             <?php if ($evento_regras): ?>
                 <div class="sevo-modal-section-compact">
-                    <h4 class="sevo-modal-section-title-compact">Regras e Detalhes</h4>
+                    <h5 class="sevo-modal-subsection-title-compact">Regras e Detalhes</h5>
                     <div class="sevo-modal-regras-scrollable">
                         <?php echo wp_kses_post($evento_regras); ?>
                     </div>
                 </div>
             <?php endif; ?>
+                </div>
+            </div>
+            
+            <!-- Coluna da Descrição (Complementar) -->
+            <div class="sevo-modal-description-column">
+                <?php if ($evento_description): ?>
+                    <h4 class="sevo-modal-section-title-compact">Descrição</h4>
+                    <div class="sevo-modal-description-scrollable">
+                        <?php echo wp_kses_post($evento_description); ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
@@ -214,13 +239,14 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 <p class="sevo-login-message">Faça login para se inscrever neste evento.</p>
             <?php endif; ?>
             
-            <?php if ($sub_forum_id): ?>
+            <?php if ($topic_id): ?>
                 <a href="<?php echo esc_url($forum_url); ?>" target="_blank" class="sevo-button-secondary">
                     <i class="dashicons dashicons-format-chat"></i>
                     Fórum
                 </a>
             <?php endif; ?>
         </div>
+    </div>
     </div>
 </div>
 

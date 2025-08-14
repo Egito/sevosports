@@ -177,6 +177,9 @@
     color: #374151;
     line-height: 1.6;
     margin-bottom: 25px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
 }
 
 .sevo-modal-section {

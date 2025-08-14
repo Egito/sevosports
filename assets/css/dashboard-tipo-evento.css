@@ -254,6 +254,9 @@
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 25px;
 }
 
 /* --- Botões --- */

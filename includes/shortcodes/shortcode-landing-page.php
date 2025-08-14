@@ -40,6 +40,7 @@ class Sevo_Landing_Page_Shortcode {
     public function render_landing_page($atts) {
         // Enqueue dos estilos e scripts
         wp_enqueue_style('sevo-landing-page-style');
+        wp_enqueue_style('sevo-modal-responsive');
         wp_enqueue_script('sevo-landing-page-script');
         wp_enqueue_style('dashicons');
         

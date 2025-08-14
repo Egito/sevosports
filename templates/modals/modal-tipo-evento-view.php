@@ -61,50 +61,86 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
 <div class="sevo-modal-body">
     <h2 class="sevo-modal-title"><?php echo esc_html($tipo_title); ?></h2>
     
-    <div class="sevo-modal-description prose max-w-none">
-        <?php echo $tipo_description; ?>
-    </div>
+    <div class="sevo-modal-content-grid">
+        <!-- Coluna das Informações (Prioritária) -->
+        <div class="sevo-modal-info-column">
+            <h3 class="sevo-modal-section-title">Informações</h3>
+            <div class="sevo-modal-sections-compact">
+                <div class="sevo-modal-section">
+                    <h4 class="sevo-modal-subsection-title">Dados do Tipo de Evento</h4>
+                    <div class="sevo-modal-info-list">
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="fas fa-building"></i>
+                                <span>Organização</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html($organizacao_title); ?></div>
+                        </div>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="fas fa-user"></i>
+                                <span>Autor</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html($autor_name); ?></div>
+                        </div>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="fas fa-users"></i>
+                                <span>Máximo de Vagas</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html($max_vagas ?: 'Não definido'); ?></div>
+                        </div>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="fas fa-toggle-<?php echo $status === 'ativo' ? 'on' : 'off'; ?>"></i>
+                                <span>Status</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html(ucfirst($status ?: 'ativo')); ?></div>
+                        </div>
+                        <div class="sevo-info-item-vertical">
+                            <div class="sevo-info-label">
+                                <i class="fas fa-sitemap"></i>
+                                <span>Tipo de Participação</span>
+                            </div>
+                            <div class="sevo-info-value"><?php echo esc_html(ucfirst($tipo_participacao ?: 'individual')); ?></div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="sevo-modal-section">
-        <h3 class="sevo-modal-section-title">Informações do Tipo de Evento</h3>
-        <ul class="sevo-modal-list">
-            <li>
-                <i class="fas fa-building text-blue-500"></i>
-                <span><strong>Organização:</strong> <?php echo esc_html($organizacao_title); ?></span>
-            </li>
-            <li>
-                <i class="fas fa-user text-blue-500"></i>
-                <span><strong>Autor:</strong> <?php echo esc_html($autor_name); ?></span>
-            </li>
-            <li>
-                <i class="fas fa-users text-blue-500"></i>
-                <span><strong>Máximo de Vagas:</strong> <?php echo esc_html($max_vagas ?: 'Não definido'); ?></span>
-            </li>
-            <li>
-                <i class="fas fa-toggle-<?php echo $status === 'ativo' ? 'on text-green-500' : 'off text-red-500'; ?>"></i>
-                <span><strong>Status:</strong> <?php echo esc_html(ucfirst($status ?: 'ativo')); ?></span>
-            </li>
-            <li>
-                <i class="fas fa-sitemap text-blue-500"></i>
-                <span><strong>Tipo de Participação:</strong> <?php echo esc_html(ucfirst($tipo_participacao ?: 'individual')); ?></span>
-            </li>
-        </ul>
-    </div>
-
-    <div class="sevo-modal-section">
-        <h3 class="sevo-modal-section-title">Eventos Criados</h3>
-        <?php if (!empty($eventos)) : ?>
-            <ul class="sevo-modal-list">
-                <?php foreach ($eventos as $evento) : ?>
-                    <li>
-                        <i class="fas fa-calendar text-green-500"></i>
-                        <span><?php echo esc_html($evento->post_title); ?></span>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php else : ?>
-            <p class="text-gray-500">Nenhum evento foi criado ainda para este tipo.</p>
-        <?php endif; ?>
+                <div class="sevo-modal-section">
+                    <h4 class="sevo-modal-subsection-title">Eventos Criados</h4>
+                    <div class="sevo-modal-info-list">
+                        <?php if (!empty($eventos)) : ?>
+                            <?php foreach ($eventos as $evento) : ?>
+                                <div class="sevo-info-item-vertical">
+                                    <div class="sevo-info-label">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>Evento</span>
+                                    </div>
+                                    <div class="sevo-info-value"><?php echo esc_html($evento->post_title); ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <div class="sevo-info-item-vertical">
+                                <div class="sevo-info-label">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Status</span>
+                                </div>
+                                <div class="sevo-info-value">Nenhum evento foi criado ainda para este tipo.</div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coluna da Descrição (Complementar) -->
+        <div class="sevo-modal-description-column">
+            <h3 class="sevo-modal-section-title">Descrição</h3>
+            <div class="sevo-modal-description-scrollable">
+                <?php echo $tipo_description; ?>
+            </div>
+        </div>
     </div>
 
 </div>

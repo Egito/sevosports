@@ -15,6 +15,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         // Ações AJAX para o CRUD
         add_action('wp_ajax_sevo_get_tipo_evento_form', array($this, 'ajax_get_tipo_evento_form'));
         add_action('wp_ajax_sevo_get_tipo_evento_details', array($this, 'ajax_get_tipo_evento_details'));
+        add_action('wp_ajax_nopriv_sevo_get_tipo_evento_details', array($this, 'ajax_get_tipo_evento_details'));
         add_action('wp_ajax_sevo_save_tipo_evento', array($this, 'ajax_save_tipo_evento'));
         add_action('wp_ajax_sevo_toggle_tipo_evento_status', array($this, 'ajax_toggle_tipo_evento_status'));
         
@@ -30,6 +31,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         wp_enqueue_script('sevo-tipo-evento-dashboard-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js', array('jquery'), SEVO_EVENTOS_VERSION, true);
         wp_enqueue_style('dashicons');
         wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css', array(), '6.0.0');
+        wp_enqueue_style('sevo-modal-responsive', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-responsive.css', array(), SEVO_EVENTOS_VERSION);
         
         wp_localize_script('sevo-tipo-evento-dashboard-script', 'sevoTipoEventoDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -64,8 +66,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     public function ajax_get_tipo_evento_details() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
         
-        // Verificação de permissão usando sistema centralizado
-        sevo_check_permission_or_die('view_tipo_evento');
+        // Removida verificação de permissão para permitir visualização por visitantes
 
         if (!isset($_POST['tipo_evento_id']) || empty($_POST['tipo_evento_id'])) {
             wp_send_json_error('ID do tipo de evento não fornecido.');
