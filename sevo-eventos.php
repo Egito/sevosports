@@ -24,6 +24,116 @@ define('SEVO_TIPO_EVENTO_POST_TYPE', 'sevo-tipo-evento');
 define('SEVO_EVENTO_POST_TYPE', 'sevo-evento');
 define('SEVO_INSCR_POST_TYPE', 'sevo_inscr');
 
+/**
+ * Sistema centralizado de verificação de permissões do plugin Sevo Eventos
+ * 
+ * Esta função centraliza todas as verificações de permissão do plugin,
+ * garantindo consistência e facilitando manutenção.
+ * 
+ * @param string $action A ação que está sendo verificada
+ * @param int $user_id ID do usuário (opcional, padrão é o usuário atual)
+ * @param int $post_id ID do post relacionado (opcional)
+ * @return bool True se o usuário tem permissão, false caso contrário
+ */
+function sevo_check_user_permission($action, $user_id = null, $post_id = null) {
+    // Se não especificado, usar o usuário atual
+    if ($user_id === null) {
+        $user_id = get_current_user_id();
+    }
+    
+    // Se não há usuário logado, negar acesso para ações que requerem login
+    if (!$user_id) {
+        $public_actions = array('view_evento', 'view_org', 'view_tipo_evento');
+        return in_array($action, $public_actions);
+    }
+    
+    // Verificar permissões baseadas na ação
+    switch ($action) {
+        // Ações de administração total - apenas administradores
+        case 'manage_orgs':
+        case 'create_org':
+        case 'edit_org':
+        case 'delete_org': // Na verdade muda status para inativo
+        case 'deactivate_org': // Mudança de status ativo/inativo
+            return user_can($user_id, 'manage_options');
+            
+        // Ações de gerenciamento de tipos de evento - administradores e editores
+        case 'manage_tipos_evento':
+        case 'create_tipo_evento':
+        case 'edit_tipo_evento':
+        case 'delete_tipo_evento': // Na verdade muda status para inativo
+        case 'toggle_tipo_evento_status': // Alternar entre ativo/inativo
+        case 'deactivate_tipo_evento': // Mudança de status ativo/inativo
+            return user_can($user_id, 'manage_options') || user_can($user_id, 'edit_posts');
+            
+        // Ações de gerenciamento de eventos - administradores, editores e autores
+        case 'manage_eventos':
+        case 'create_evento':
+        case 'edit_evento':
+        case 'delete_evento': // Na verdade muda status para inativo
+        case 'deactivate_evento': // Mudança de status ativo/inativo
+        case 'toggle_evento_status': // Alternar entre ativo/inativo
+            return user_can($user_id, 'manage_options') || user_can($user_id, 'edit_posts') || user_can($user_id, 'edit_published_posts');
+            
+        // Ações de inscrição - usuários logados
+        case 'create_inscricao':
+        case 'cancel_inscricao': // Cancelar própria inscrição
+        case 'request_inscricao': // Solicitar inscrição
+            return user_can($user_id, 'read');
+            
+        // Ações de gerenciamento de inscrições - administradores e editores
+        case 'manage_inscricoes':
+        case 'approve_inscricao': // Aprovar inscrição
+        case 'reject_inscricao': // Rejeitar inscrição
+        case 'change_inscricao_status': // Mudar status da inscrição
+            return user_can($user_id, 'manage_options') || user_can($user_id, 'edit_posts');
+            
+        // Ações de gerenciamento limitado de inscrições - autores (apenas dos próprios eventos)
+        case 'manage_own_event_inscricoes':
+        case 'approve_own_event_inscricao':
+        case 'reject_own_event_inscricao':
+            return user_can($user_id, 'edit_published_posts');
+            
+        // Ações de visualização - públicas
+        case 'view_evento':
+        case 'view_org':
+        case 'view_tipo_evento':
+            return true;
+            
+        // Ações de visualização de dados administrativos
+        case 'view_admin_data':
+        case 'view_inscricoes':
+        case 'view_all_inscricoes': // Ver todas as inscrições
+            return user_can($user_id, 'manage_options') || user_can($user_id, 'edit_posts');
+            
+        // Visualização de inscrições próprias - usuários logados
+        case 'view_own_inscricoes':
+            return user_can($user_id, 'read');
+            
+        // Ação padrão - negar acesso
+        default:
+            return false;
+    }
+}
+
+/**
+ * Função auxiliar para verificar permissões e retornar erro AJAX se necessário
+ * 
+ * @param string $action A ação que está sendo verificada
+ * @param int $user_id ID do usuário (opcional)
+ * @param int $post_id ID do post relacionado (opcional)
+ * @param string $error_message Mensagem de erro personalizada (opcional)
+ * @return bool True se tem permissão, false e envia erro AJAX se não tem
+ */
+function sevo_check_permission_or_die($action, $user_id = null, $post_id = null, $error_message = null) {
+    if (!sevo_check_user_permission($action, $user_id, $post_id)) {
+        $message = $error_message ?: 'Você não tem permissão para realizar esta ação.';
+        wp_send_json_error($message);
+        return false;
+    }
+    return true;
+}
+
 class Sevo_Eventos_Main {
     private static $instance = null;
 

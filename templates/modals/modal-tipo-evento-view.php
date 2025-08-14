@@ -117,7 +117,7 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
         </a>
     <?php endif; ?>
     
-    <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
+    <?php if (sevo_check_user_permission('edit_tipo_evento')): ?>
         <button class="sevo-modal-button sevo-button-edit" data-tipo-evento-id="<?php echo esc_attr($tipo_id); ?>">
             <i class="fas fa-edit mr-2"></i>
             Editar Tipo de Evento

@@ -72,9 +72,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
     {
         check_ajax_referer('sevo_org_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Você não tem permissão para esta ação.');
-        }
+        sevo_check_permission_or_die('edit_org');
 
         $org_id = isset($_POST['org_id']) ? intval($_POST['org_id']) : 0;
         $organizacao = null;
@@ -100,9 +98,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
     {
         check_ajax_referer('sevo_org_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Você não tem permissão para esta ação.');
-        }
+        sevo_check_permission_or_die('create_org');
 
         $org_id = isset($_POST['org_id']) ? intval($_POST['org_id']) : 0;
         $post_title = sanitize_text_field($_POST['post_title']);

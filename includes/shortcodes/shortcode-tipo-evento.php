@@ -46,9 +46,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_get_tipo_evento_form() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
-            wp_send_json_error('Acesso negado.');
-        }
+        sevo_check_permission_or_die('edit_tipo_evento');
 
         $tipo_evento_id = isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0;
         $tipo_evento = ($tipo_evento_id > 0) ? get_post($tipo_evento_id) : null;
@@ -66,10 +64,8 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     public function ajax_get_tipo_evento_details() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
         
-        // Verificação de permissão para garantir que o contexto do usuário seja preservado
-        if (!is_user_logged_in()) {
-            wp_send_json_error('Acesso negado.');
-        }
+        // Verificação de permissão usando sistema centralizado
+        sevo_check_permission_or_die('view_tipo_evento');
 
         if (!isset($_POST['tipo_evento_id']) || empty($_POST['tipo_evento_id'])) {
             wp_send_json_error('ID do tipo de evento não fornecido.');
@@ -94,9 +90,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_save_tipo_evento() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
-            wp_send_json_error('Acesso negado.');
-        }
+        sevo_check_permission_or_die('create_tipo_evento');
 
         $tipo_evento_id = isset($_POST['tipo_id']) ? intval($_POST['tipo_id']) : 0;
         
@@ -227,9 +221,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_toggle_tipo_evento_status() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
-            wp_send_json_error('Acesso negado.');
-        }
+        sevo_check_permission_or_die('toggle_tipo_evento_status');
         
         $tipo_evento_id = isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0;
 
