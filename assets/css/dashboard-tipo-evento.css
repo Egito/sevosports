@@ -21,61 +21,92 @@
 /* --- Grid e Cards --- */
 .sevo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
 }
 
+/* Card do Tipo de Evento */
 .sevo-card.tipo-evento-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     background-color: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    transition: box-shadow 0.2s;
     display: flex;
     flex-direction: column;
 }
 
 .sevo-card.tipo-evento-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.sevo-card-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.sevo-card-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
 }
 
-.sevo-card-title {
-    font-size: 1.1em;
-    font-weight: 600;
-    margin: 0;
+.sevo-card-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
 }
 
-.sevo-card-body {
+.sevo-card-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+}
+
+.sevo-card-content {
     padding: 20px;
     flex-grow: 1;
 }
 
-.sevo-card-body p {
+.sevo-card-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #1a202c;
     margin: 0 0 10px;
-    color: #475569;
 }
 
-.sevo-card-footer {
-    padding: 15px 20px;
-    background-color: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    text-align: right;
+.sevo-card-description {
+    font-size: 0.9em;
+    color: #4a5568;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.sevo-card-meta {
+    margin-bottom: 15px;
+}
+
+.sevo-card-meta p {
+    margin: 0 0 5px;
+    color: #475569;
+    font-size: 0.85em;
+}
+
+.sevo-card-link {
+    font-weight: 600;
+    color: #3b82f6;
+    transition: color 0.2s;
 }
 
 .sevo-status-badge {
-    padding: 4px 10px;
-    border-radius: 9999px;
-    font-size: 0.8em;
-    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
     color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .status-ativo { background-color: #22c55e; }

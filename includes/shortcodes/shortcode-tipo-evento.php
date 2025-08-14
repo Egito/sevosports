@@ -275,22 +275,41 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         $org_name = $org_id ? get_the_title($org_id) : 'N/A';
         $vagas = get_post_meta($post_id, '_sevo_tipo_evento_max_vagas', true);
         $participacao = get_post_meta($post_id, '_sevo_tipo_evento_participacao', true);
+        
+        // Busca a imagem destacada ou usa uma imagem padrão
+        $image_url = get_the_post_thumbnail_url($post_id, 'medium_large');
+        if (!$image_url) {
+            $image_url = SEVO_EVENTOS_PLUGIN_URL . 'assets/images/default-tipo-evento.svg';
+        }
 
         ob_start();
         ?>
         <div class="sevo-card tipo-evento-card" data-tipo-evento-id="<?php echo esc_attr($post_id); ?>">
-            <div class="sevo-card-header">
-                <h3 class="sevo-card-title"><?php the_title(); ?></h3>
-                <span class="sevo-status-badge <?php echo esc_attr($status === 'ativo' ? 'status-ativo' : 'status-inativo'); ?>">
-                    <?php echo esc_html(ucfirst($status)); ?>
-                </span>
+            <div class="sevo-card-image" style="background-image: url('<?php echo esc_url($image_url); ?>');">
+                <div class="sevo-card-overlay"></div>
+                <div class="sevo-card-status">
+                    <span class="sevo-status-badge <?php echo esc_attr($status === 'ativo' ? 'status-ativo' : 'status-inativo'); ?>">
+                        <?php echo esc_html(ucfirst($status)); ?>
+                    </span>
+                </div>
             </div>
-            <div class="sevo-card-body">
-                <p><strong>Organização:</strong> <?php echo esc_html($org_name); ?></p>
-                <p><strong>Vagas:</strong> <?php echo esc_html($vagas); ?></p>
-                <p><strong>Participação:</strong> <?php echo esc_html(ucfirst($participacao)); ?></p>
-            </div>
-            <div class="sevo-card-footer">
+            <div class="sevo-card-content">
+                <h3 class="sevo-card-title"><?php echo esc_html(get_the_title($post_id)); ?></h3>
+                <p class="sevo-card-description">
+                    <?php
+                    $excerpt = get_the_excerpt($post_id);
+                    if (empty($excerpt)) {
+                        $excerpt = get_the_content(null, false, $post_id);
+                        $excerpt = wp_strip_all_tags($excerpt);
+                    }
+                    echo wp_trim_words($excerpt, 15, '...');
+                    ?>
+                </p>
+                <div class="sevo-card-meta">
+                    <p><strong>Organização:</strong> <?php echo esc_html($org_name); ?></p>
+                    <p><strong>Vagas:</strong> <?php echo esc_html($vagas ?: 'Ilimitadas'); ?></p>
+                    <p><strong>Participação:</strong> <?php echo esc_html(ucfirst($participacao ?: 'Não definida')); ?></p>
+                </div>
                 <span class="sevo-card-link">Ver Detalhes <i class="fas fa-arrow-right ml-2"></i></span>
             </div>
         </div>

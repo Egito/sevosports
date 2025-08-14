@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bgGradient)"/>
+  
+  <!-- Calendar Icon -->
+  <g transform="translate(200, 150)">
+    <!-- Calendar Base -->
+    <rect x="-40" y="-30" width="80" height="60" rx="8" fill="white" opacity="0.9"/>
+    
+    <!-- Calendar Header -->
+    <rect x="-40" y="-30" width="80" height="15" rx="8" fill="white"/>
+    
+    <!-- Calendar Rings -->
+    <circle cx="-25" cy="-37" r="3" fill="#667eea"/>
+    <circle cx="25" cy="-37" r="3" fill="#667eea"/>
+    
+    <!-- Calendar Grid -->
+    <g fill="#667eea" opacity="0.7">
+      <rect x="-30" y="-10" width="8" height="6" rx="1"/>
+      <rect x="-15" y="-10" width="8" height="6" rx="1"/>
+      <rect x="0" y="-10" width="8" height="6" rx="1"/>
+      <rect x="15" y="-10" width="8" height="6" rx="1"/>
+      
+      <rect x="-30" y="0" width="8" height="6" rx="1"/>
+      <rect x="-15" y="0" width="8" height="6" rx="1"/>
+      <rect x="0" y="0" width="8" height="6" rx="1"/>
+      <rect x="15" y="0" width="8" height="6" rx="1"/>
+      
+      <rect x="-30" y="10" width="8" height="6" rx="1"/>
+      <rect x="-15" y="10" width="8" height="6" rx="1"/>
+      <rect x="0" y="10" width="8" height="6" rx="1"/>
+      <rect x="15" y="10" width="8" height="6" rx="1"/>
+    </g>
+  </g>
+  
+  <!-- Event Text -->
+  <text x="200" y="220" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="18" font-weight="600" opacity="0.9">EVENTO</text>
+</svg>

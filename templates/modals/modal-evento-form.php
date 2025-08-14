@@ -24,17 +24,25 @@ $data_inicio_insc = $is_editing ? get_post_meta($post_id, '_sevo_evento_data_ini
 $data_fim_insc = $is_editing ? get_post_meta($post_id, '_sevo_evento_data_fim_inscricoes', true) : '';
 $data_inicio_evento = $is_editing ? get_post_meta($post_id, '_sevo_evento_data_inicio_evento', true) : '';
 $data_fim_evento = $is_editing ? get_post_meta($post_id, '_sevo_evento_data_fim_evento', true) : '';
+$local = $is_editing ? get_post_meta($post_id, '_sevo_evento_local', true) : '';
+$evento_regras = $is_editing ? get_post_meta($post_id, '_sevo_evento_regras', true) : '';
 
 // Busca os "Tipos de Evento" e "Categorias" para os dropdowns
 $tipos_de_evento = get_posts(array('post_type' => SEVO_TIPO_EVENTO_POST_TYPE, 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC'));
 $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hide_empty' => false));
 ?>
 
-<form id="sevo-evento-form">
-    <input type="hidden" name="event_id" value="<?php echo esc_attr($post_id); ?>">
-    
-    <div class="sevo-modal-body">
-        <h2 class="sevo-modal-title"><?php echo $is_editing ? 'Editar Evento' : 'Criar Novo Evento'; ?></h2>
+<div class="sevo-modal-overlay">
+    <div class="sevo-modal-container">
+        <div class="sevo-modal-header">
+            <h2 class="sevo-modal-title"><?php echo $is_editing ? 'Editar Evento' : 'Criar Novo Evento'; ?></h2>
+            <button type="button" id="sevo-evento-form-modal-close" class="sevo-modal-close">&times;</button>
+        </div>
+        
+        <form id="sevo-evento-form">
+            <input type="hidden" name="evento_id" value="<?php echo esc_attr($post_id); ?>">
+            
+            <div class="sevo-modal-body">
         
         <div class="sevo-form-grid">
             <!-- Título do Evento -->
@@ -75,10 +83,22 @@ $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hid
                 <input type="number" id="_sevo_evento_vagas" name="_sevo_evento_vagas" value="<?php echo esc_attr($vagas); ?>" min="1">
             </div>
 
+            <!-- Local -->
+            <div class="sevo-form-group">
+                <label for="_sevo_evento_local">Local do Evento</label>
+                <input type="text" id="_sevo_evento_local" name="_sevo_evento_local" value="<?php echo esc_attr($local); ?>" placeholder="Ex: Auditório Principal">
+            </div>
+
              <!-- Descrição -->
             <div class="sevo-form-group-full">
                 <label for="post_content">Descrição do Evento</label>
                 <textarea id="post_content" name="post_content" rows="4"><?php echo esc_textarea($post_content); ?></textarea>
+            </div>
+
+            <!-- Regras e Detalhes -->
+            <div class="sevo-form-group-full">
+                <label for="_sevo_evento_regras">Regras e Detalhes</label>
+                <textarea id="_sevo_evento_regras" name="_sevo_evento_regras" rows="6" placeholder="Descreva as regras, requisitos e detalhes importantes do evento..."><?php echo esc_textarea($evento_regras); ?></textarea>
             </div>
 
             <hr class="sevo-form-group-full">
@@ -114,8 +134,11 @@ $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hid
                 <?php echo $button_text; ?>
             </button>
         <?php endif; ?>
+        <button type="button" id="sevo-cancel-evento-button" class="sevo-button-secondary">Cancelar</button>
         <button type="submit" id="sevo-save-evento-button" class="sevo-button-primary">
             <?php echo $is_editing ? 'Salvar Alterações' : 'Criar Evento'; ?>
         </button>
     </div>
 </form>
+    </div>
+</div>
