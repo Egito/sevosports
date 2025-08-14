@@ -902,6 +902,32 @@
     color: #383d41;
 }
 
+/* Estilos para lista de inscritos no modal */
+.sevo-inscricao-status.status-aceita {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.sevo-inscricao-status.status-solicitada {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.sevo-inscricao-status.status-rejeitada {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.sevo-inscricao-status.status-cancelada {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.sevo-inscricao-status.status-indefinido {
+    background-color: #f1f3f4;
+    color: #5f6368;
+}
+
 .sevo-status-tag {
     padding: 8px 16px;
     border-radius: 20px;

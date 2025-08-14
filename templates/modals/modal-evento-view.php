@@ -177,20 +177,66 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 <?php endif; ?>
             </div>
 
-            <!-- Coluna de Regras e Detalhes -->
-            <div class="sevo-modal-info-column">
-                <?php if ($evento_regras): ?>
-                <h4><i class="fas fa-list-ul"></i> Regras e Detalhes</h4>
-                <div class="sevo-info-item" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
-                    <?php echo wp_kses_post($evento_regras); ?>
-                </div>
-                <?php else: ?>
-                <h4><i class="fas fa-info-circle"></i> Informações Adicionais</h4>
-                <div class="sevo-info-item">
-                    <p class="sevo-no-items">Nenhuma regra ou detalhe adicional definido.</p>
-                </div>
-                <?php endif; ?>
-            </div>
+            <!-- Coluna de Lista de Inscritos -->
+             <div class="sevo-modal-info-column">
+                 <h4><i class="fas fa-users"></i> Lista de Inscritos</h4>
+                 <div class="sevo-info-item" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
+                     <?php if ($inscricoes_query->have_posts()) : ?>
+                         <div class="sevo-inscricoes-list">
+                             <?php while ($inscricoes_query->have_posts()) : $inscricoes_query->the_post(); ?>
+                                 <?php 
+                                 $inscricao_id = get_the_ID();
+                                 $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscricao_user_id', true);
+                                 $inscricao_status = get_post_meta($inscricao_id, '_sevo_inscricao_status', true);
+                                 $user_data = get_userdata($inscricao_user_id);
+                                 $user_name = $user_data ? $user_data->display_name : 'Usuário não encontrado';
+                                 
+                                 // Define a classe CSS baseada no status
+                                 $status_class = '';
+                                 $status_text = '';
+                                 switch($inscricao_status) {
+                                     case 'aceita':
+                                         $status_class = 'status-aceita';
+                                         $status_text = 'Aceita';
+                                         break;
+                                     case 'solicitada':
+                                         $status_class = 'status-solicitada';
+                                         $status_text = 'Pendente';
+                                         break;
+                                     case 'rejeitada':
+                                         $status_class = 'status-rejeitada';
+                                         $status_text = 'Rejeitada';
+                                         break;
+                                     case 'cancelada':
+                                         $status_class = 'status-cancelada';
+                                         $status_text = 'Cancelada';
+                                         break;
+                                     default:
+                                         $status_class = 'status-indefinido';
+                                         $status_text = ucfirst($inscricao_status ?: 'Indefinido');
+                                 }
+                                 ?>
+                                 <div class="sevo-inscricao-item" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #eee;">
+                                     <span class="sevo-inscricao-nome" style="flex: 1; font-weight: 500;"><?php echo esc_html($user_name); ?></span>
+                                     <span class="sevo-inscricao-status <?php echo esc_attr($status_class); ?>" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;"><?php echo esc_html($status_text); ?></span>
+                                 </div>
+                             <?php endwhile; ?>
+                         </div>
+                         <?php wp_reset_postdata(); ?>
+                     <?php else : ?>
+                         <p class="sevo-no-items">Nenhuma inscrição encontrada para este evento.</p>
+                     <?php endif; ?>
+                 </div>
+                 
+                 <?php if ($evento_regras): ?>
+                 <div style="margin-top: 15px;">
+                     <h5><i class="fas fa-list-ul"></i> Regras e Detalhes</h5>
+                     <div class="sevo-info-item" style="max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; border-radius: 4px; font-size: 13px;">
+                         <?php echo wp_kses_post($evento_regras); ?>
+                     </div>
+                 </div>
+                 <?php endif; ?>
+             </div>
         </div>
 
         <!-- Container Inferior: Descrição -->
