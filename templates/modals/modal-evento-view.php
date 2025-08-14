@@ -35,7 +35,10 @@ $data_fim_evento = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true)
 $sub_forum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
 $forum_url = '#';
 if ($sub_forum_id && class_exists('AsgarosForum')) {
-    $forum_url = get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $sub_forum_id . '/';
+    global $asgarosforum;
+    if ($asgarosforum && method_exists($asgarosforum->rewrite, 'get_link')) {
+        $forum_url = $asgarosforum->rewrite->get_link('forum', $sub_forum_id);
+    }
 }
 
 // Lógica de status da inscrição
@@ -46,16 +49,14 @@ $status_inscricao = ($inicio_insc && $fim_insc && $hoje >= $inicio_insc && $hoje
 $cor_status = ($status_inscricao === 'abertas') ? 'bg-green-500' : 'bg-red-500';
 ?>
 
-<div class="sevo-modal-header">
-    <?php if ($evento_thumbnail_url) : ?>
-        <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image">
-    <?php endif; ?>
-</div>
+<?php if ($evento_thumbnail_url) : ?>
+    <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image">
+<?php endif; ?>
 
 <div class="sevo-modal-body">
     <h2 class="sevo-modal-title"><?php echo esc_html($evento_title); ?></h2>
     
-    <div class="sevo-modal-description prose max-w-none">
+    <div class="sevo-modal-description">
         <?php echo $evento_description; ?>
     </div>
 

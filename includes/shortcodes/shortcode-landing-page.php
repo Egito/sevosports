@@ -34,10 +34,17 @@ class Sevo_Landing_Page_Shortcode {
         wp_enqueue_script('sevo-landing-page-script');
         wp_enqueue_style('dashicons');
         
+        // Localiza o script com dados necessários para AJAX
         wp_localize_script('sevo-landing-page-script', 'sevoLandingPage', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sevo_landing_page_nonce'),
         ));
+        
+        // Adiciona script inline para garantir que o objeto esteja disponível
+        wp_add_inline_script('sevo-landing-page-script', '
+            // Garante que o objeto sevoLandingPage esteja disponível globalmente
+            window.sevoLandingPageData = window.sevoLandingPage || {};
+        ', 'after');
 
         ob_start();
         include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/landing-page-view.php');

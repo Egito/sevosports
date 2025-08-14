@@ -106,15 +106,22 @@ jQuery(document).ready(function($) {
             const carousel = this.carousels[section];
             if (!carousel || carousel.isLoading) return;
 
+            // Verifica se os dados AJAX estão disponíveis
+            const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
+            if (!ajaxData) {
+                console.error('Dados AJAX não disponíveis para carrossel');
+                return;
+            }
+
             carousel.isLoading = true;
             this.showLoading(true);
 
             $.ajax({
-                url: sevoLandingPage.ajax_url,
+                url: ajaxData.ajax_url,
                 type: 'POST',
                 data: {
                     action: 'sevo_load_carousel_eventos',
-                    nonce: sevoLandingPage.nonce,
+                    nonce: ajaxData.nonce,
                     section_type: section,
                     page: page
                 },
@@ -132,10 +139,16 @@ jQuery(document).ready(function($) {
                         this.updateCarouselControls(section);
                         this.updateIndicators(section);
                         this.updateCarouselPosition(section);
+                    } else {
+                        console.error('Erro ao carregar eventos do carrossel:', response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    console.error('Erro ao carregar eventos:', error);
+                    console.error('Erro ao carregar eventos:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
                 },
                 complete: () => {
                     carousel.isLoading = false;
@@ -205,9 +218,31 @@ jQuery(document).ready(function($) {
 
         // Abre o modal do evento
         openEventModal: function(eventId) {
+            console.log('SevoLandingPage.openEventModal chamado com ID:', eventId);
+            
             const modal = document.getElementById('sevo-event-modal');
+            if (!modal) {
+                console.error('Modal #sevo-event-modal não encontrado');
+                return;
+            }
+            
             const modalContent = modal.querySelector('.sevo-modal-content');
             const loadingIndicator = modal.querySelector('.sevo-modal-loading');
+            
+            if (!modalContent || !loadingIndicator) {
+                console.error('Elementos do modal não encontrados');
+                return;
+            }
+            
+            // Verifica se os dados AJAX estão disponíveis
+            const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
+            if (!ajaxData) {
+                console.error('Dados AJAX não disponíveis (sevoLandingPage)');
+                alert('Erro: Dados de configuração não encontrados');
+                return;
+            }
+            
+            console.log('Dados AJAX:', ajaxData);
             
             // Mostra o modal e o loading
             modal.style.display = 'flex';
@@ -216,25 +251,41 @@ jQuery(document).ready(function($) {
             
             // Faz a requisição AJAX
             $.ajax({
-                url: sevoLandingPage.ajax_url,
+                url: ajaxData.ajax_url,
                 type: 'POST',
                 data: {
                     action: 'sevo_get_evento_view',
                     event_id: eventId,
-                    nonce: sevoLandingPage.nonce
+                    nonce: ajaxData.nonce
+                },
+                beforeSend: function() {
+                    console.log('Enviando requisição AJAX para:', ajaxData.ajax_url);
+                    console.log('Dados:', {
+                        action: 'sevo_get_evento_view',
+                        event_id: eventId,
+                        nonce: ajaxData.nonce
+                    });
                 },
                 success: function(response) {
+                    console.log('Resposta AJAX recebida:', response);
                     if (response.success) {
                         modalContent.innerHTML = response.data.html;
                         loadingIndicator.style.display = 'none';
                         modalContent.style.display = 'block';
                     } else {
                         console.error('Erro ao carregar evento:', response.data);
+                        alert('Erro ao carregar evento: ' + (response.data || 'Erro desconhecido'));
                         this.closeEventModal();
                     }
                 }.bind(this),
-                error: function() {
-                    console.error('Erro na requisição AJAX');
+                error: function(xhr, status, error) {
+                    console.error('Erro na requisição AJAX:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        xhr: xhr
+                    });
+                    alert('Erro na requisição AJAX: ' + error);
                     this.closeEventModal();
                 }.bind(this)
             });
