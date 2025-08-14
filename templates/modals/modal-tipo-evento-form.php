@@ -3,7 +3,7 @@
  * View para o formulário de criação/edição de Tipos de Evento.
  */
 
-if (!defined('ABSPATH') || !current_user_can('edit_posts')) {
+if (!defined('ABSPATH') || (!current_user_can('edit_posts') && !current_user_can('manage_options'))) {
     exit;
 }
 

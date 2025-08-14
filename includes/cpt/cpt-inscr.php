@@ -18,6 +18,7 @@ class Sevo_Inscricoes_CPT {
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
         add_action('save_post_' . $this->post_type, array($this, 'save_meta_data'));
         add_filter('display_post_states', array($this, 'add_custom_post_states'), 10, 2);
+        add_action('admin_head', array($this, 'hide_add_new_button'));
     }
 
     /**
@@ -38,8 +39,18 @@ class Sevo_Inscricoes_CPT {
             'public'        => false,
             'publicly_queryable' => false,
             'show_ui'       => true,
-            'show_in_menu'  => 'edit.php?post_type=' . SEVO_EVENTO_POST_TYPE, // Adiciona como submenu de Eventos
+            'show_in_menu'  => 'sevo-eventos', // Adiciona como submenu do plugin principal
             'capability_type' => 'post',
+            'capabilities' => array(
+                'create_posts'       => 'do_not_allow',
+                'edit_post'          => 'edit_posts',
+                'read_post'          => 'read_posts',
+                'delete_post'        => 'delete_posts',
+                'edit_posts'         => 'edit_posts',
+                'edit_others_posts'  => 'edit_others_posts',
+                'read_private_posts' => 'read_private_posts',
+            ),
+            'map_meta_cap'  => true,
             'has_archive'   => false,
             'hierarchical'  => false,
             'supports'      => array('title'),
@@ -129,7 +140,11 @@ class Sevo_Inscricoes_CPT {
             </tr>
              <tr>
                 <th><label>Usuário</label></th>
-                <td><?php $user_info = get_userdata($user_id); echo esc_html($user_info->display_name); ?> (ID: <?php echo esc_html($user_id); ?>)</td>
+                <td><?php 
+                    $user_info = get_userdata($user_id); 
+                    $user_name = ($user_info && isset($user_info->display_name)) ? $user_info->display_name : 'Usuário não encontrado';
+                    echo esc_html($user_name); 
+                ?> (ID: <?php echo esc_html($user_id); ?>)</td>
             </tr>
              <tr>
                 <th><label>Contador de Cancelamentos</label></th>
@@ -147,6 +162,19 @@ class Sevo_Inscricoes_CPT {
             return;
         }
         // A lógica de salvamento será feita principalmente via AJAX.
+    }
+    /**
+     * Oculta o botão "Adicionar Nova" na interface administrativa.
+     */
+    public function hide_add_new_button() {
+        global $pagenow, $post_type;
+        
+        if ($pagenow === 'edit.php' && $post_type === $this->post_type) {
+            echo '<style>
+                .page-title-action { display: none !important; }
+                .wrap .add-new-h2 { display: none !important; }
+            </style>';
+        }
     }
 }
 
@@ -177,5 +205,3 @@ function sevo_add_inscription_log_comment($evento_id, $message) {
 
     wp_insert_comment($commentdata);
 }
-
-new Sevo_Inscricoes_CPT();

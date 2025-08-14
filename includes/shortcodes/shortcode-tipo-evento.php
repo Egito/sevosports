@@ -43,7 +43,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_get_tipo_evento_form() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('edit_posts')) {
+        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
             wp_send_json_error('Acesso negado.');
         }
 
@@ -62,7 +62,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_save_tipo_evento() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('edit_posts')) {
+        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
             wp_send_json_error('Acesso negado.');
         }
 
@@ -111,7 +111,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_toggle_tipo_evento_status() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('edit_posts')) {
+        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
             wp_send_json_error('Acesso negado.');
         }
         

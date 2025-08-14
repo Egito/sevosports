@@ -42,13 +42,23 @@ class Sevo_Eventos_CPT_Final {
             'public'              => true,
             'publicly_queryable'  => true,
             'show_ui'             => true,
-            'show_in_menu'        => true,
+            'show_in_menu'        => 'sevo-eventos',
+            'show_in_admin_bar'   => true,
+            'show_in_nav_menus'   => true,
             'query_var'           => true,
             'rewrite'             => array('slug' => 'evento'),
             'capability_type'     => 'post',
+            'capabilities' => array(
+                'edit_post'          => 'edit_posts',
+                'read_post'          => 'read_posts',
+                'delete_post'        => 'delete_posts',
+                'edit_posts'         => 'edit_posts',
+                'edit_others_posts'  => 'edit_others_posts',
+                'publish_posts'      => 'publish_posts',
+                'read_private_posts' => 'read_private_posts',
+            ),
             'has_archive'         => true,
             'hierarchical'        => false,
-            'menu_position'       => 5,
             'supports'            => array('title', 'editor', 'thumbnail', 'custom-fields'),
             'menu_icon'           => 'dashicons-calendar-alt' // Ícone de calendário
         );
@@ -224,6 +234,105 @@ class Sevo_Eventos_CPT_Final {
                 
                 update_post_meta($post_id, $key, $value);
             }
+        }
+
+        // Integração com fórum - criar/atualizar sub-fórum para o evento
+        $this->handle_forum_integration($post_id);
+    }
+
+    /**
+     * Gerencia a integração com o fórum para eventos.
+     */
+    private function handle_forum_integration($post_id) {
+        $post = get_post($post_id);
+        if (!$post || $post->post_status !== 'publish') {
+            return;
+        }
+
+        // Criar/atualizar sub-fórum para este evento
+        $this->create_or_update_event_subforum($post_id, $post);
+    }
+
+    /**
+     * Cria ou atualiza sub-fórum para o evento.
+     */
+    private function create_or_update_event_subforum($post_id, $post) {
+        $tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
+        if (!$tipo_evento_id) {
+            return;
+        }
+
+        $forum_id = get_post_meta($tipo_evento_id, '_sevo_forum_forum_id', true);
+        if (!$forum_id) {
+            return;
+        }
+
+        global $asgarosforum;
+        $existing_subforum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
+        $event_name = $post->post_title;
+        
+        // Se já existe um sub-fórum, verificar se precisa atualizar o nome
+        if ($existing_subforum_id && class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'get_forum')) {
+                $subforum = $asgarosforum->content->get_forum($existing_subforum_id);
+                if ($subforum && is_object($subforum) && property_exists($subforum, 'name')) {
+                    // Verificar se o nome mudou
+                    if ($subforum->name !== $event_name) {
+                        // Atualizar o nome do sub-fórum usando consulta SQL direta
+                        // Buscar a categoria do fórum pai
+                        $forum_data = $asgarosforum->content->get_forum($forum_id);
+                        $category_id = ($forum_data && is_object($forum_data) && property_exists($forum_data, 'parent_id')) ? $forum_data->parent_id : 0;
+                        
+                        if ($category_id) {
+                            $asgarosforum->db->update(
+                                $asgarosforum->tables->forums,
+                                array(
+                                    'name'         => $event_name,
+                                    'description'  => 'Tópicos de discussão para o evento: ' . $event_name,
+                                    'icon'         => 'fas fa-calendar-alt',
+                                    'sort'         => 1,
+                                    'forum_status' => 'normal',
+                                    'parent_id'    => $category_id,
+                                    'parent_forum' => $forum_id,
+                                ),
+                                array('id' => $existing_subforum_id),
+                                array('%s', '%s', '%s', '%d', '%s', '%d', '%d'),
+                                array('%d')
+                            );
+                        }
+                    }
+                    return; // Sub-fórum existe e foi atualizado se necessário
+                } else {
+                    // Sub-fórum não existe mais, remover meta
+                    delete_post_meta($post_id, '_sevo_forum_subforum_id');
+                }
+            }
+        }
+
+        // Criar novo sub-fórum usando a instância do AsgarosForum
+        $sub_forum_id = 0;
+        if (class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'insert_forum')) {
+                // Buscar a categoria do fórum pai
+                $forum_data = $asgarosforum->content->get_forum($forum_id);
+                $category_id = $forum_data ? $forum_data->parent_id : 0;
+                
+                if ($category_id) {
+                    $sub_forum_id = $asgarosforum->content->insert_forum(
+                        $category_id, // category_id
+                        $event_name,
+                        'Tópicos de discussão para o evento: ' . $event_name,
+                        $forum_id, // parent_forum
+                        'fas fa-calendar-alt', // icon
+                        1, // order
+                        'normal' // status
+                    );
+                }
+            }
+        }
+
+        if ($sub_forum_id) {
+            update_post_meta($post_id, '_sevo_forum_subforum_id', $sub_forum_id);
         }
     }
 }

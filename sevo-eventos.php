@@ -33,6 +33,7 @@ class Sevo_Eventos_Main {
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
         add_action('wp_enqueue_scripts', array($this, 'register_all_assets'));
         add_action('wp_ajax_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
+        add_action('admin_menu', array($this, 'add_admin_menu'));
     }
 
     public static function get_instance() {
@@ -59,6 +60,16 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-landing-page.php';
 
+        // Inicializar as classes CPT
+        new Sevo_Orgs_CPT();
+        new Sevo_Tipo_Evento_CPT();
+        new Sevo_Eventos_CPT_Final();
+        new Sevo_Inscricoes_CPT();
+        
+        // Inicializar integração com fórum se disponível
+        if (class_exists('AsgarosForum')) {
+            new Sevo_Forum_Integration();
+        }
     }
 
     public function ajax_get_tipo_evento_max_vagas() {
@@ -146,6 +157,87 @@ class Sevo_Eventos_Main {
 
     public function deactivate() {
         flush_rewrite_rules();
+    }
+
+    public function add_admin_menu() {
+        // Adicionar menu principal do plugin
+        add_menu_page(
+            'Sevo Eventos',           // Page title
+            'Sevo Eventos',           // Menu title
+            'manage_options',         // Capability
+            'sevo-eventos',           // Menu slug
+            array($this, 'admin_page_callback'), // Callback
+            'dashicons-calendar-alt', // Icon
+            25                        // Position
+        );
+
+        // Adicionar página de visão geral como primeiro submenu
+        add_submenu_page(
+            'sevo-eventos',
+            'Visão Geral',
+            'Visão Geral',
+            'manage_options',
+            'sevo-eventos',
+            array($this, 'admin_page_callback')
+        );
+    }
+
+    public function admin_page_callback() {
+        ?>
+        <div class="wrap">
+            <h1>Sevo Eventos - Visão Geral</h1>
+            <div class="sevo-admin-dashboard">
+                <div class="sevo-admin-cards">
+                    <div class="sevo-admin-card">
+                        <h3>Organizações</h3>
+                        <p>Gerencie as organizações cadastradas no sistema.</p>
+                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_ORG_POST_TYPE); ?>" class="button button-primary">Ver Organizações</a>
+                    </div>
+                    <div class="sevo-admin-card">
+                        <h3>Tipos de Evento</h3>
+                        <p>Configure os tipos de eventos disponíveis.</p>
+                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_TIPO_EVENTO_POST_TYPE); ?>" class="button button-primary">Ver Tipos</a>
+                    </div>
+                    <div class="sevo-admin-card">
+                        <h3>Eventos</h3>
+                        <p>Gerencie todos os eventos do sistema.</p>
+                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_EVENTO_POST_TYPE); ?>" class="button button-primary">Ver Eventos</a>
+                    </div>
+                    <div class="sevo-admin-card">
+                        <h3>Inscrições</h3>
+                        <p>Acompanhe as inscrições nos eventos.</p>
+                        <a href="<?php echo admin_url('edit.php?post_type=' . SEVO_INSCR_POST_TYPE); ?>" class="button button-primary">Ver Inscrições</a>
+                    </div>
+                </div>
+            </div>
+            <style>
+            .sevo-admin-dashboard {
+                margin-top: 20px;
+            }
+            .sevo-admin-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }
+            .sevo-admin-card {
+                background: #fff;
+                border: 1px solid #ccd0d4;
+                border-radius: 4px;
+                padding: 20px;
+                box-shadow: 0 1px 1px rgba(0,0,0,.04);
+            }
+            .sevo-admin-card h3 {
+                margin-top: 0;
+                color: #23282d;
+            }
+            .sevo-admin-card p {
+                color: #666;
+                margin-bottom: 15px;
+            }
+            </style>
+        </div>
+        <?php
     }
 }
 

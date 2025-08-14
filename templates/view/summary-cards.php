@@ -3,13 +3,16 @@ if (!defined('ABSPATH')) exit;
 
 function sevo_get_summary_cards() {
     // Total de Organizações
-    $orgs_count = wp_count_posts(SEVO_ORG_POST_TYPE)->publish;
+    $orgs_posts = wp_count_posts(SEVO_ORG_POST_TYPE);
+    $orgs_count = isset($orgs_posts->publish) ? $orgs_posts->publish : 0;
     
     // Total de Eventos
-    $eventos_count = wp_count_posts('sevo-eventos')->publish;
+    $eventos_posts = wp_count_posts('sevo-eventos');
+    $eventos_count = isset($eventos_posts->publish) ? $eventos_posts->publish : 0;
     
     // Total de Seções
-    $secoes_count = wp_count_posts('sevo-secoes')->publish;
+    $secoes_posts = wp_count_posts('sevo-secoes');
+    $secoes_count = isset($secoes_posts->publish) ? $secoes_posts->publish : 0;
     
     // Total de Inscritos
     $total_inscritos = 0;

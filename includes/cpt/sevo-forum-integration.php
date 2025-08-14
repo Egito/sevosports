@@ -23,22 +23,63 @@ class Sevo_Forum_Integration {
     }
 
      /**
-     * Cria uma categoria no Asgaros Forum para uma nova organização.
+     * Cria ou atualiza uma categoria no Asgaros Forum para uma organização.
      */
     public function create_forum_category_for_organization($post_id, $post) {
         if (wp_is_post_revision($post_id) || $post->post_status !== 'publish' || !class_exists('AsgarosForum')) {
             return;
         }
 
-        // Verifica se a categoria já foi criada para evitar duplicatas
-        if (get_post_meta($post_id, '_sevo_forum_category_id', true)) {
+        global $asgarosforum;
+        $existing_category_id = get_post_meta($post_id, '_sevo_forum_category_id', true);
+        $organization_name = $post->post_title;
+        
+        // Se já existe uma categoria, verificar se precisa atualizar o nome
+        if ($existing_category_id) {
+            $category = get_term($existing_category_id, 'asgarosforum-category');
+            if ($category && !is_wp_error($category)) {
+                if ($category && is_object($category) && property_exists($category, 'name')) {
+                    // Verificar se o nome mudou
+                    if ($category->name !== $organization_name) {
+                        // Atualizar o nome da categoria
+                        wp_update_term($existing_category_id, 'asgarosforum-category', array(
+                            'name' => $organization_name,
+                            'description' => 'Categoria para discussões da organização: ' . $organization_name,
+                            'slug' => sanitize_title($organization_name)
+                        ));
+                    }
+                    return; // Categoria existe e foi atualizada se necessário
+                } else {
+                    // Categoria não existe mais, remover meta
+                    delete_post_meta($post_id, '_sevo_forum_category_id');
+                }
+            }
+        }
+
+        // Verificar se já existe uma categoria com este nome (evitar duplicatas)
+        $existing_term = get_term_by('name', $organization_name, 'asgarosforum-category');
+        if ($existing_term) {
+            update_post_meta($post_id, '_sevo_forum_category_id', $existing_term->term_id);
             return;
         }
 
-        $category_id = class_exists('AsgarosForum') ? AsgarosForum::add_category(array(
-            'name' => $post->post_title,
-            'description' => 'Fórum de discussão para a organização ' . $post->post_title,
-        )) : 0;
+        // Criar nova categoria
+        $category_result = wp_insert_term(
+            $organization_name,
+            'asgarosforum-category',
+            array(
+                'description' => 'Categoria para discussões da organização: ' . $organization_name,
+                'slug' => sanitize_title($organization_name)
+            )
+        );
+        
+        $category_id = 0;
+        if (!is_wp_error($category_result)) {
+            $category_id = $category_result['term_id'];
+            // Adicionar metadados da categoria
+            update_term_meta($category_id, 'category_access', 'everyone');
+            update_term_meta($category_id, 'order', 1);
+        }
 
         if ($category_id) {
             update_post_meta($post_id, '_sevo_forum_category_id', $category_id);
@@ -46,14 +87,10 @@ class Sevo_Forum_Integration {
     }
 
     /**
-     * Cria um fórum no Asgaros para um novo tipo de evento.
+     * Cria ou atualiza um fórum no Asgaros para um tipo de evento.
      */
     public function create_forum_for_event_type($post_id, $post) {
         if (wp_is_post_revision($post_id) || $post->post_status !== 'publish' || !class_exists('AsgarosForum')) {
-            return;
-        }
-
-        if (get_post_meta($post_id, '_sevo_forum_forum_id', true)) {
             return;
         }
 
@@ -67,11 +104,57 @@ class Sevo_Forum_Integration {
             return; // Categoria da organização ainda não existe
         }
 
-        $forum_id = class_exists('AsgarosForum') ? AsgarosForum::add_forum(array(
-            'name' => $post->post_title,
-            'description' => 'Discussões sobre o tipo de evento: ' . $post->post_title,
-            'parent_id' => $category_id
-        )) : 0;
+        global $asgarosforum;
+        $existing_forum_id = get_post_meta($post_id, '_sevo_forum_forum_id', true);
+        $event_type_name = $post->post_title;
+        
+        // Se já existe um fórum, verificar se precisa atualizar o nome
+        if ($existing_forum_id && class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'get_forum')) {
+                $forum = $asgarosforum->content->get_forum($existing_forum_id);
+                if ($forum && is_object($forum) && property_exists($forum, 'name')) {
+                    // Verificar se o nome mudou
+                    if ($forum->name !== $event_type_name) {
+                        // Atualizar o nome do fórum usando consulta SQL direta
+                        $asgarosforum->db->update(
+                            $asgarosforum->tables->forums,
+                            array(
+                                'name'         => $event_type_name,
+                                'description'  => 'Discussões sobre o tipo de evento: ' . $event_type_name,
+                                'icon'         => 'fas fa-calendar',
+                                'sort'         => 1,
+                                'forum_status' => 'normal',
+                                'parent_id'    => $category_id,
+                                'parent_forum' => 0,
+                            ),
+                            array('id' => $existing_forum_id),
+                            array('%s', '%s', '%s', '%d', '%s', '%d', '%d'),
+                            array('%d')
+                        );
+                    }
+                    return; // Fórum existe e foi atualizado se necessário
+                } else {
+                    // Fórum não existe mais, remover meta
+                    delete_post_meta($post_id, '_sevo_forum_forum_id');
+                }
+            }
+        }
+
+        // Criar novo fórum usando a instância do AsgarosForum
+        $forum_id = 0;
+        if (class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'insert_forum')) {
+                $forum_id = $asgarosforum->content->insert_forum(
+                    $category_id,
+                    $event_type_name,
+                    'Discussões sobre o tipo de evento: ' . $event_type_name,
+                    0, // parent_forum
+                    'fas fa-calendar', // icon
+                    1, // order
+                    'normal' // status
+                );
+            }
+        }
 
         if ($forum_id) {
             update_post_meta($post_id, '_sevo_forum_forum_id', $forum_id);
@@ -96,7 +179,7 @@ class Sevo_Forum_Integration {
     }
 
     /**
-     * Cria o sub-fórum para um novo evento.
+     * Cria ou atualiza o sub-fórum para um evento.
      */
     private function create_sub_forum_for_event($post_id, $post) {
         $tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
@@ -109,11 +192,69 @@ class Sevo_Forum_Integration {
             return;
         }
 
-        $sub_forum_id = class_exists('AsgarosForum') ? AsgarosForum::add_forum(array(
-            'name' => $post->post_title,
-            'description' => 'Tópicos de discussão para o evento: ' . $post->post_title,
-            'parent_id' => $forum_id
-        )) : 0;
+        global $asgarosforum;
+        $existing_subforum_id = get_post_meta($post_id, '_sevo_forum_subforum_id', true);
+        $event_name = $post->post_title;
+        
+        // Se já existe um sub-fórum, verificar se precisa atualizar o nome
+        if ($existing_subforum_id && class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'get_forum')) {
+                $subforum = $asgarosforum->content->get_forum($existing_subforum_id);
+                if ($subforum && is_object($subforum) && property_exists($subforum, 'name')) {
+                    // Verificar se o nome mudou
+                    if ($subforum->name !== $event_name) {
+                        // Atualizar o nome do sub-fórum usando consulta SQL direta
+                        // Buscar a categoria do fórum pai
+                        $forum_data = $asgarosforum->content->get_forum($forum_id);
+                        $category_id = ($forum_data && is_object($forum_data) && property_exists($forum_data, 'parent_id')) ? $forum_data->parent_id : 0;
+                        
+                        if ($category_id) {
+                            $asgarosforum->db->update(
+                                $asgarosforum->tables->forums,
+                                array(
+                                    'name'         => $event_name,
+                                    'description'  => 'Tópicos de discussão para o evento: ' . $event_name,
+                                    'icon'         => 'fas fa-calendar-alt',
+                                    'sort'         => 1,
+                                    'forum_status' => 'normal',
+                                    'parent_id'    => $category_id,
+                                    'parent_forum' => $forum_id,
+                                ),
+                                array('id' => $existing_subforum_id),
+                                array('%s', '%s', '%s', '%d', '%s', '%d', '%d'),
+                                array('%d')
+                            );
+                        }
+                    }
+                    return; // Sub-fórum existe e foi atualizado se necessário
+                } else {
+                    // Sub-fórum não existe mais, remover meta
+                    delete_post_meta($post_id, '_sevo_forum_subforum_id');
+                }
+            }
+        }
+
+        // Criar novo sub-fórum usando a instância do AsgarosForum
+        $sub_forum_id = 0;
+        if (class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'insert_forum')) {
+                // Buscar a categoria do fórum pai
+                $forum_data = $asgarosforum->content->get_forum($forum_id);
+                $category_id = $forum_data ? $forum_data->parent_id : 0;
+                
+                if ($category_id) {
+                    $sub_forum_id = $asgarosforum->content->insert_forum(
+                        $category_id, // category_id
+                        $event_name,
+                        'Tópicos de discussão para o evento: ' . $event_name,
+                        $forum_id, // parent_forum
+                        'fas fa-calendar-alt', // icon
+                        1, // order
+                        'normal' // status
+                    );
+                }
+            }
+        }
 
         if ($sub_forum_id) {
             update_post_meta($post_id, '_sevo_forum_subforum_id', $sub_forum_id);
@@ -159,8 +300,14 @@ class Sevo_Forum_Integration {
                 $config['content']
             );
             
-            AsgarosForum::add_topic($sub_forum_id, $author_id, $topic_title, $topic_content);
-            update_post_meta($post_id, '_topic_posted_inicio_insc', $data_inicio_insc);
+            // Criar tópico usando a instância do AsgarosForum
+            if (class_exists('AsgarosForum')) {
+                global $asgarosforum;
+                if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
+                    $asgarosforum->content->insert_topic($sub_forum_id, $topic_title, $topic_content, $author_id);
+                    update_post_meta($post_id, '_topic_posted_inicio_insc', $data_inicio_insc);
+                }
+            }
         }
 
         // Tratamento para datas do evento
@@ -177,10 +324,14 @@ class Sevo_Forum_Integration {
                 $config['content']
             );
 
-            AsgarosForum::add_topic($sub_forum_id, $author_id, $topic_title, $topic_content);
-            update_post_meta($post_id, '_topic_posted_inicio_evento', $data_inicio_evento);
+            // Criar tópico usando a instância do AsgarosForum
+            if (class_exists('AsgarosForum')) {
+                global $asgarosforum;
+                if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
+                    $asgarosforum->content->insert_topic($sub_forum_id, $topic_title, $topic_content, $author_id);
+                    update_post_meta($post_id, '_topic_posted_inicio_evento', $data_inicio_evento);
+                }
+            }
         }
     }
 }
-
-new Sevo_Forum_Integration();

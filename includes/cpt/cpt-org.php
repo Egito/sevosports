@@ -55,8 +55,8 @@ class Sevo_Orgs_CPT {
             'supports'              => array('title', 'editor', 'thumbnail'),
             'public'                => true,
             'show_ui'               => true,
-            'show_in_menu'          => true,
-            'menu_position'         => 5,
+            'show_in_menu'          => 'sevo-eventos',
+            'menu_icon'             => 'dashicons-building',
             'show_in_admin_bar'     => true,
             'show_in_nav_menus'     => true,
             'can_export'            => true,
@@ -64,6 +64,15 @@ class Sevo_Orgs_CPT {
             'exclude_from_search'   => false,
             'publicly_queryable'    => true,
             'capability_type'       => 'post',
+            'capabilities' => array(
+                'edit_post'          => 'edit_posts',
+                'read_post'          => 'read_posts',
+                'delete_post'        => 'delete_posts',
+                'edit_posts'         => 'edit_posts',
+                'edit_others_posts'  => 'edit_others_posts',
+                'publish_posts'      => 'publish_posts',
+                'read_private_posts' => 'read_private_posts',
+            ),
         );
         register_post_type($this->post_type, $args);
     }
@@ -239,7 +248,77 @@ class Sevo_Orgs_CPT {
                 update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
             }
         }
+
+        // Integração com fórum - criar/atualizar categoria para a organização
+        $this->handle_forum_integration($post_id);
+    }
+
+    /**
+     * Gerencia a integração com o fórum para organizações.
+     */
+    private function handle_forum_integration($post_id) {
+        $post = get_post($post_id);
+        if (!$post || $post->post_status !== 'publish') {
+            return;
+        }
+
+        // Criar/atualizar categoria de fórum para esta organização
+        $this->create_or_update_organization_forum_category($post_id, $post);
+    }
+
+    /**
+     * Cria ou atualiza categoria de fórum para a organização.
+     */
+    private function create_or_update_organization_forum_category($post_id, $post) {
+        if (!class_exists('AsgarosForum')) {
+            return;
+        }
+
+        global $asgarosforum;
+        $existing_category_id = get_post_meta($post_id, '_sevo_forum_category_id', true);
+        $organization_name = $post->post_title;
+        
+        // Se já existe uma categoria, verificar se precisa atualizar o nome
+        if ($existing_category_id) {
+            $category = get_term($existing_category_id, 'asgarosforum-category');
+            if ($category && !is_wp_error($category)) {
+                if ($category && is_object($category) && property_exists($category, 'name')) {
+                    // Verificar se o nome mudou
+                    if ($category->name !== $organization_name) {
+                        // Atualizar o nome da categoria
+                        wp_update_term($existing_category_id, 'asgarosforum-category', array(
+                            'name' => $organization_name,
+                            'description' => 'Categoria para discussões da organização: ' . $organization_name,
+                            'slug' => sanitize_title($organization_name)
+                        ));
+                    }
+                    return; // Categoria existe e foi atualizada se necessário
+                } else {
+                    // Categoria não existe mais, remover meta
+                    delete_post_meta($post_id, '_sevo_forum_category_id');
+                }
+            }
+        }
+
+        // Verificar se já existe uma categoria com este nome (evitar duplicatas)
+        $existing_term = get_term_by('name', $organization_name, 'asgarosforum-category');
+        if ($existing_term) {
+            update_post_meta($post_id, '_sevo_forum_category_id', $existing_term->term_id);
+            return;
+        }
+
+        // Criar nova categoria
+        $category_id = wp_insert_term(
+            $organization_name,
+            'asgarosforum-category',
+            array(
+                'description' => 'Categoria para discussões da organização: ' . $organization_name,
+                'slug' => sanitize_title($organization_name)
+            )
+        );
+
+        if (!is_wp_error($category_id)) {
+            update_post_meta($post_id, '_sevo_forum_category_id', $category_id['term_id']);
+        }
     }
 }
-
-new Sevo_Orgs_CPT();
