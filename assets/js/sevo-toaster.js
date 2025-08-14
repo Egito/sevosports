@@ -101,6 +101,18 @@
             setTimeout(function() {
                 $('.sevo-toaster').remove();
             }, 300);
+        },
+        
+        /**
+         * Armazena uma mensagem para ser exibida após reload da página
+         * @param {string} message - Mensagem a ser exibida
+         * @param {string} type - Tipo do toaster (success, error, info)
+         */
+        storeForReload: function(message, type = 'success') {
+            sessionStorage.setItem('sevo_toaster_message', JSON.stringify({
+                type: type,
+                message: message
+            }));
         }
     };
     

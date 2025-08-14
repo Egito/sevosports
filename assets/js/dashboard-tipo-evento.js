@@ -1,6 +1,29 @@
 jQuery(document).ready(function($) {
     'use strict';
 
+    // Verifica se há mensagem de toaster armazenada após reload
+    const storedMessage = sessionStorage.getItem('sevo_toaster_message');
+    if (storedMessage) {
+        try {
+            const messageData = JSON.parse(storedMessage);
+            // Remove a mensagem do storage
+            sessionStorage.removeItem('sevo_toaster_message');
+            // Mostra o toaster após um pequeno delay para garantir que a página carregou
+            setTimeout(function() {
+                if (messageData.type === 'success') {
+                    SevoToaster.showSuccess(messageData.message);
+                } else if (messageData.type === 'error') {
+                    SevoToaster.showError(messageData.message);
+                } else if (messageData.type === 'info') {
+                    SevoToaster.showInfo(messageData.message);
+                }
+            }, 500);
+        } catch (e) {
+            // Remove mensagem corrompida
+            sessionStorage.removeItem('sevo_toaster_message');
+        }
+    }
+
     const dashboard = $('#sevo-tipo-evento-dashboard');
     if (dashboard.length === 0) return;
 

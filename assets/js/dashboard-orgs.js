@@ -1,6 +1,29 @@
 jQuery(document).ready(function($) {
     'use strict';
 
+    // Verifica se há mensagem de toaster armazenada após reload
+    const storedMessage = sessionStorage.getItem('sevo_toaster_message');
+    if (storedMessage) {
+        try {
+            const messageData = JSON.parse(storedMessage);
+            // Remove a mensagem do storage
+            sessionStorage.removeItem('sevo_toaster_message');
+            // Mostra o toaster após um pequeno delay para garantir que a página carregou
+            setTimeout(function() {
+                if (messageData.type === 'success') {
+                    SevoToaster.showSuccess(messageData.message);
+                } else if (messageData.type === 'error') {
+                    SevoToaster.showError(messageData.message);
+                } else if (messageData.type === 'info') {
+                    SevoToaster.showInfo(messageData.message);
+                }
+            }, 500);
+        } catch (e) {
+            // Remove mensagem corrompida
+            sessionStorage.removeItem('sevo_toaster_message');
+        }
+    }
+
     const modal = $('#sevo-org-modal');
     const modalContent = $('#sevo-modal-content');
     const closeButton = $('#sevo-modal-close');
@@ -100,7 +123,8 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     closeModal();
-                    SevoToaster.showSuccess('Organização alterada com sucesso!');
+                    // Armazena a mensagem de sucesso para mostrar após o reload
+                    SevoToaster.storeForReload('Organização alterada com sucesso!', 'success');
                     location.reload(); // Recarrega a página para mostrar as alterações
                 } else {
                     SevoToaster.showError('Erro: ' + response.data);
