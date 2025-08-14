@@ -76,7 +76,7 @@ jQuery(document).ready(function($) {
         openFormModal();
     });
 
-    // Abrir modal para visualizar detalhes
+    // Event listener para clicar nos cards de tipo de evento (visualização)
     container.on('click', '.tipo-evento-card', function() {
         const tipoEventoId = $(this).data('tipo-evento-id') || $(this).data('id');
         openViewModal(tipoEventoId);
@@ -110,8 +110,10 @@ jQuery(document).ready(function($) {
     // Event listener para o botão de editar no modal de visualização
     modal.on('click', '.sevo-button-edit', function(e) {
         e.preventDefault();
-        const tipoEventoId = $(this).attr('href').match(/post=(\d+)/)[1];
-        openFormModal(tipoEventoId);
+        const tipoEventoId = $(this).data('tipo-evento-id');
+        if (tipoEventoId) {
+            openFormModal(tipoEventoId);
+        }
     });
 
     // Submeter formulário

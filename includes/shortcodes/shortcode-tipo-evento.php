@@ -46,7 +46,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_get_tipo_evento_form() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
+        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
             wp_send_json_error('Acesso negado.');
         }
 
@@ -65,6 +65,11 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_get_tipo_evento_details() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
+        
+        // Verificação de permissão para garantir que o contexto do usuário seja preservado
+        if (!is_user_logged_in()) {
+            wp_send_json_error('Acesso negado.');
+        }
 
         if (!isset($_POST['tipo_evento_id']) || empty($_POST['tipo_evento_id'])) {
             wp_send_json_error('ID do tipo de evento não fornecido.');
@@ -89,7 +94,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_save_tipo_evento() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
+        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
             wp_send_json_error('Acesso negado.');
         }
 
@@ -222,7 +227,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      */
     public function ajax_toggle_tipo_evento_status() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
+        if (!current_user_can('manage_options') && !current_user_can('edit_posts')) {
             wp_send_json_error('Acesso negado.');
         }
         
@@ -294,7 +299,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
                 <p><strong>Participação:</strong> <?php echo esc_html(ucfirst($participacao)); ?></p>
             </div>
             <div class="sevo-card-footer">
-                <button class="sevo-button-secondary">Editar</button>
+                <span class="sevo-card-link">Ver Detalhes <i class="fas fa-arrow-right ml-2"></i></span>
             </div>
         </div>
         <?php

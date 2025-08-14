@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     
     <div class="sevo-dashboard-header">
         <h2>Tipos de Evento</h2>
-        <?php if (current_user_can('edit_posts') || current_user_can('manage_options')): ?>
+        <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
             <button id="sevo-create-tipo-evento-button" class="sevo-button-primary">
                 <i class="dashicons dashicons-plus-alt"></i> Criar Novo Tipo de Evento
             </button>

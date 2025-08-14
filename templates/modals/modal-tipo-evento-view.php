@@ -110,17 +110,17 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
 </div>
 
 <div class="sevo-modal-footer">
-    <?php if ($forum_url !== '#') : ?>
+    <?php if ($forum_url && $forum_url !== '#') : ?>
         <a href="<?php echo esc_url($forum_url); ?>" target="_blank" class="sevo-modal-button">
             <i class="fas fa-comments mr-2"></i>
-            Visitar Fórum do Tipo de Evento
+            Visitar Fórum da Categoria
         </a>
     <?php endif; ?>
     
-    <?php if (current_user_can('manage_options')): ?>
-        <a href="<?php echo admin_url('post.php?post=' . $tipo_id . '&action=edit'); ?>" class="sevo-modal-button sevo-button-edit">
+    <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
+        <button class="sevo-modal-button sevo-button-edit" data-tipo-evento-id="<?php echo esc_attr($tipo_id); ?>">
             <i class="fas fa-edit mr-2"></i>
             Editar Tipo de Evento
-        </a>
+        </button>
     <?php endif; ?>
 </div>
