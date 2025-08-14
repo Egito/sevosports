@@ -76,28 +76,77 @@ jQuery(document).ready(function($) {
         openFormModal();
     });
 
-    // Abrir modal para editar
+    // Abrir modal para visualizar detalhes
     container.on('click', '.tipo-evento-card', function() {
-        openFormModal($(this).data('id'));
+        const tipoEventoId = $(this).data('tipo-evento-id') || $(this).data('id');
+        openViewModal(tipoEventoId);
+    });
+
+    function openViewModal(tipoEventoId) {
+        modalContent.html('<div class="sevo-spinner"></div>');
+        modal.removeClass('hidden');
+
+        $.ajax({
+            url: sevoTipoEventoDashboard.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'sevo_get_tipo_evento_details',
+                nonce: sevoTipoEventoDashboard.nonce,
+                tipo_evento_id: tipoEventoId,
+            },
+            success: function(response) {
+                if (response.success) {
+                    modalContent.html(response.data.html);
+                } else {
+                    modalContent.html('<p class="text-red-500 text-center">Ocorreu um erro ao carregar os detalhes do tipo de evento.</p>');
+                }
+            },
+            error: function() {
+                modalContent.html('<p class="text-red-500 text-center">Erro de comunicação. Por favor, tente novamente.</p>');
+            }
+        });
+    }
+
+    // Event listener para o botão de editar no modal de visualização
+    modal.on('click', '.sevo-button-edit', function(e) {
+        e.preventDefault();
+        const tipoEventoId = $(this).attr('href').match(/post=(\d+)/)[1];
+        openFormModal(tipoEventoId);
     });
 
     // Submeter formulário
     modal.on('submit', '#sevo-tipo-evento-form', function(e) {
         e.preventDefault();
-        const button = $(this).find('#sevo-save-button');
-        button.text('Salvando...').prop('disabled', true);
+        
+        const form = this;
+        const formData = new FormData(form);
+        const saveButton = $(this).find('#sevo-save-tipo-evento-button, #sevo-save-button');
+        const originalText = saveButton.text();
+        
+        // Adiciona os dados AJAX necessários
+        formData.append('action', 'sevo_save_tipo_evento');
+        formData.append('nonce', sevoTipoEventoDashboard.nonce);
+        
+        saveButton.text('A guardar...').prop('disabled', true);
 
-        $.post(sevoTipoEventoDashboard.ajax_url, {
-            action: 'sevo_save_tipo_evento',
-            nonce: sevoTipoEventoDashboard.nonce,
-            form_data: $(this).serialize()
-        }).done(function(response) {
-            if (response.success) {
-                modal.addClass('hidden');
-                loadTiposEvento(true); // Recarrega a lista
-            } else {
-                alert('Erro: ' + response.data);
-                button.text('Salvar Alterações').prop('disabled', false);
+        $.ajax({
+            url: sevoTipoEventoDashboard.ajax_url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    modal.addClass('hidden');
+                    loadTiposEvento(true); // Recarrega a lista
+                } else {
+                    alert('Erro: ' + response.data);
+                    saveButton.text(originalText).prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('Erro de comunicação. Por favor, tente novamente.');
+                saveButton.text(originalText).prop('disabled', false);
             }
         });
     });
@@ -121,6 +170,11 @@ jQuery(document).ready(function($) {
                 alert('Erro: ' + response.data);
             }
         });
+    });
+
+    // Event listener para o botão cancelar no formulário
+    modal.on('click', '#sevo-cancel-button', function() {
+        modal.addClass('hidden');
     });
 
     // Fechar o modal

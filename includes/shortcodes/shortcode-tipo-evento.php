@@ -14,6 +14,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         
         // Ações AJAX para o CRUD
         add_action('wp_ajax_sevo_get_tipo_evento_form', array($this, 'ajax_get_tipo_evento_form'));
+        add_action('wp_ajax_sevo_get_tipo_evento_details', array($this, 'ajax_get_tipo_evento_details'));
         add_action('wp_ajax_sevo_save_tipo_evento', array($this, 'ajax_save_tipo_evento'));
         add_action('wp_ajax_sevo_toggle_tipo_evento_status', array($this, 'ajax_toggle_tipo_evento_status'));
         
@@ -25,8 +26,10 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     public function render_dashboard() {
         // Enfileira os assets específicos para este dashboard
         wp_enqueue_style('sevo-tipo-evento-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-orgs-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-orgs.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_script('sevo-tipo-evento-dashboard-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js', array('jquery'), SEVO_EVENTOS_VERSION, true);
         wp_enqueue_style('dashicons');
+        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css', array(), '6.0.0');
         
         wp_localize_script('sevo-tipo-evento-dashboard-script', 'sevoTipoEventoDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -58,6 +61,30 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     }
 
     /**
+     * AJAX: Retorna o HTML da visualização de um tipo de evento.
+     */
+    public function ajax_get_tipo_evento_details() {
+        check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
+
+        if (!isset($_POST['tipo_evento_id']) || empty($_POST['tipo_evento_id'])) {
+            wp_send_json_error('ID do tipo de evento não fornecido.');
+        }
+
+        $tipo_evento_id = intval($_POST['tipo_evento_id']);
+        $tipo_evento = get_post($tipo_evento_id);
+
+        if (!$tipo_evento || $tipo_evento->post_type !== SEVO_TIPO_EVENTO_POST_TYPE) {
+            wp_send_json_error('Tipo de evento não encontrado.');
+        }
+
+        ob_start();
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-tipo-evento-view.php');
+        $html = ob_get_clean();
+        
+        wp_send_json_success(array('html' => $html));
+    }
+
+    /**
      * AJAX: Salva (cria ou atualiza) um tipo de evento.
      */
     public function ajax_save_tipo_evento() {
@@ -66,17 +93,15 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
             wp_send_json_error('Acesso negado.');
         }
 
-        parse_str($_POST['form_data'], $form_data);
+        $tipo_evento_id = isset($_POST['tipo_id']) ? intval($_POST['tipo_id']) : 0;
         
-        $tipo_evento_id = isset($form_data['tipo_evento_id']) ? intval($form_data['tipo_evento_id']) : 0;
-        
-        if (empty($form_data['post_title']) || empty($form_data['_sevo_tipo_evento_organizacao_id'])) {
+        if (empty($_POST['post_title']) || empty($_POST['_sevo_tipo_evento_organizacao_id'])) {
             wp_send_json_error('Título e Organização são obrigatórios.');
         }
 
         $post_data = array(
-            'post_title'   => sanitize_text_field($form_data['post_title']),
-            'post_content' => wp_kses_post($form_data['post_content']),
+            'post_title'   => sanitize_text_field($_POST['post_title']),
+            'post_content' => wp_kses_post($_POST['post_content']),
             'post_type'    => SEVO_TIPO_EVENTO_POST_TYPE,
             'post_status'  => 'publish',
         );
@@ -92,11 +117,19 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
             wp_send_json_error('Erro ao salvar o tipo de evento.');
         }
 
+        // Processar upload de imagem se fornecida
+        if (isset($_FILES['tipo_image']) && $_FILES['tipo_image']['error'] === UPLOAD_ERR_OK) {
+            $attachment_id = $this->process_tipo_evento_image($_FILES['tipo_image']);
+            if ($attachment_id) {
+                set_post_thumbnail($tipo_evento_id, $attachment_id);
+            }
+        }
+
         // Salva os metadados
-        update_post_meta($tipo_evento_id, '_sevo_tipo_evento_organizacao_id', intval($form_data['_sevo_tipo_evento_organizacao_id']));
+        update_post_meta($tipo_evento_id, '_sevo_tipo_evento_organizacao_id', intval($_POST['_sevo_tipo_evento_organizacao_id']));
         update_post_meta($tipo_evento_id, '_sevo_tipo_evento_autor_id', get_current_user_id());
-        update_post_meta($tipo_evento_id, '_sevo_tipo_evento_max_vagas', intval($form_data['_sevo_tipo_evento_max_vagas']));
-        update_post_meta($tipo_evento_id, '_sevo_tipo_evento_participacao', sanitize_text_field($form_data['_sevo_tipo_evento_participacao']));
+        update_post_meta($tipo_evento_id, '_sevo_tipo_evento_max_vagas', intval($_POST['_sevo_tipo_evento_max_vagas']));
+        update_post_meta($tipo_evento_id, '_sevo_tipo_evento_participacao', sanitize_text_field($_POST['_sevo_tipo_evento_participacao']));
         
         // Define o status como 'ativo' por padrão ao salvar/criar
         if (!get_post_meta($tipo_evento_id, '_sevo_tipo_evento_status', true)) {
@@ -104,6 +137,84 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         }
 
         wp_send_json_success(array('message' => 'Tipo de evento salvo com sucesso!', 'tipo_evento_id' => $tipo_evento_id));
+    }
+
+    /**
+     * Processa o upload e redimensionamento da imagem do tipo de evento.
+     */
+    private function process_tipo_evento_image($file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+        }
+
+        // Validar tipo de arquivo
+        $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif');
+        if (!in_array($file['type'], $allowed_types)) {
+            return false;
+        }
+
+        // Upload do arquivo
+        $upload_overrides = array('test_form' => false);
+        $uploaded_file = wp_handle_upload($file, $upload_overrides);
+
+        if (isset($uploaded_file['error'])) {
+            return false;
+        }
+
+        $image_path = $uploaded_file['file'];
+        $image_url = $uploaded_file['url'];
+
+        // Usar o WordPress Image Editor para redimensionar
+        $image_editor = wp_get_image_editor($image_path);
+        if (is_wp_error($image_editor)) {
+            return false;
+        }
+
+        // Redimensionar para 300x300 com fundo branco
+        $resize_result = $image_editor->resize(300, 300, false);
+        if (is_wp_error($resize_result)) {
+            // Fallback: tentar crop se resize falhar
+            $crop_result = $image_editor->crop(0, 0, 300, 300, 300, 300);
+            if (is_wp_error($crop_result)) {
+                return false;
+            }
+        }
+
+        // Salvar a imagem processada
+        $final_filepath = $image_editor->save();
+        if (is_wp_error($final_filepath)) {
+            return false;
+        }
+
+        $final_filepath = $final_filepath['path'];
+
+        // Criar attachment no WordPress
+        $attachment = array(
+            'guid'           => $image_url,
+            'post_mime_type' => $file['type'],
+            'post_title'     => preg_replace('/\.[^.]+$/', '', basename($file['name'])),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
+
+        $attachment_id = wp_insert_attachment($attachment, $final_filepath);
+        if (!$attachment_id) {
+            return false;
+        }
+
+        // Gerar metadados do attachment
+        $attachment_data = wp_generate_attachment_metadata($attachment_id, $final_filepath);
+        wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+        // Remover arquivo original se diferente do processado
+        if ($image_path !== $final_filepath && file_exists($image_path)) {
+            unlink($image_path);
+        }
+
+        return $attachment_id;
     }
     
     /**
@@ -170,7 +281,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
 
         ob_start();
         ?>
-        <div class="sevo-card tipo-evento-card" data-id="<?php echo esc_attr($post_id); ?>">
+        <div class="sevo-card tipo-evento-card" data-tipo-evento-id="<?php echo esc_attr($post_id); ?>">
             <div class="sevo-card-header">
                 <h3 class="sevo-card-title"><?php the_title(); ?></h3>
                 <span class="sevo-status-badge <?php echo esc_attr($status === 'ativo' ? 'status-ativo' : 'status-inativo'); ?>">
