@@ -20,7 +20,14 @@ $organizacoes = new WP_Query($args);
 ?>
 
 <div class="sevo-orgs-dashboard-container">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">Nossas Organizações</h2>
+    <div class="sevo-dashboard-header">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Nossas Organizações</h2>
+        <?php if (current_user_can('manage_options')): ?>
+            <button id="sevo-create-org-button" class="sevo-button-primary">
+                <i class="dashicons dashicons-plus-alt"></i> Criar Nova Organização
+            </button>
+        <?php endif; ?>
+    </div>
     
     <?php if ($organizacoes->have_posts()) : ?>
         <div class="sevo-grid">

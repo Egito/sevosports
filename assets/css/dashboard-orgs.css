@@ -3,6 +3,44 @@
     padding: 20px;
 }
 
+.sevo-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.sevo-button-primary {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.sevo-button-primary:hover {
+    background-color: #2563eb;
+}
+
+.sevo-button-primary:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.sevo-button-primary .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
 .sevo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -178,10 +216,20 @@
     border-radius: 8px;
     text-decoration: none;
     transition: background-color 0.2s;
+    margin-left: 10px;
 }
 
 .sevo-modal-button:hover {
     background-color: #2563eb;
+}
+
+.sevo-button-edit {
+    background-color: #f59e0b;
+    color: #fff;
+}
+
+.sevo-button-edit:hover {
+    background-color: #d97706;
 }
 
 /* Spinner de Carregamento */
@@ -202,4 +250,73 @@
 
 .hidden {
     display: none;
+}
+
+/* --- Estilos do Formulário --- */
+.sevo-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.sevo-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.sevo-form-group label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.sevo-form-group input[type="text"],
+.sevo-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #1f2937;
+    background-color: #f9fafb;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sevo-form-group input:focus,
+.sevo-form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.sevo-modal-footer-form {
+    padding: 20px 30px;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.sevo-button-secondary {
+    background-color: #6b7280;
+    color: #fff;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.sevo-button-secondary:hover {
+    background-color: #4b5563;
 }

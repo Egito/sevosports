@@ -101,12 +101,14 @@ Organização (Categoria)
 - `[sevo-booking-dashboard]` - Dashboard de booking pessoal (todos os usuários logados) *[A ser implementado]*
 
 ### 4.2 Summary Cards Interativos
-- **Card "Total de Organizações"**: Clicável, direciona para Dashboard de Organizações `[sevo-orgs-dashboard]`
-- **Card "Total de Tipos de Evento"**: Clicável, direciona para Dashboard de Tipos de Evento `[sevo-tipo-evento-dashboard]`
-- **Card "Total de Eventos"**: Clicável, direciona para Landing Page Inicial `[sevo-landing-page]`
-- **Card "Total de Inscrições"**: Clicável, direciona para Dashboard de Inscrições `[sevo-inscricoes-dashboard]`
+- **Card "Total de Organizações"**: Clicável, direciona para **Página de Organizações** (que contém `[sevo-orgs-dashboard]`)
+- **Card "Total de Tipos de Evento"**: Clicável, direciona para **Página de Tipos de Evento** (que contém `[sevo-tipo-evento-dashboard]`)
+- **Card "Total de Eventos"**: Clicável, direciona para **Página de Landing Page** (que contém `[sevo-landing-page]`)
+- **Card "Total de Inscrições"**: Clicável, direciona para **Página de Inscrições** (que contém `[sevo-inscricoes-dashboard]`)
+- **Passagem de Contexto**: Cada card passa parâmetros específicos para a página de destino
+- **Filtros Automáticos**: As páginas filtram o conteúdo baseado no contexto do card clicado
 - **Permissões**: Cards visíveis apenas para usuários com permissões adequadas
-- **Funcionalidade**: Navegação rápida entre seções do sistema através de cliques nos cards
+- **Funcionalidade**: Navegação contextual entre seções do sistema
 
 ### 4.3 Dashboards
 - **Design**: Interface moderna com modais
@@ -308,46 +310,88 @@ $is_owner = ($post_author_id == $current_user_id);
 #### 7.4.1 Funcionalidades dos Cards
 - **Card "Total de Organizações"**: 
   - Exibe contagem total de organizações cadastradas
-  - **Clicável**: Direciona para Dashboard de Organizações `[sevo-orgs-dashboard]`
+  - **Clicável**: Direciona para **Página de Organizações** (contém `[sevo-orgs-dashboard]`)
+  - **Contexto**: Não requer filtros específicos
   - Visível apenas para administradores
 - **Card "Total de Tipos de Evento"**:
   - Exibe contagem total de tipos de evento cadastrados
-  - **Clicável**: Direciona para Dashboard de Tipos de Evento `[sevo-tipo-evento-dashboard]`
+  - **Clicável**: Direciona para **Página de Tipos de Evento** (contém `[sevo-tipo-evento-dashboard]`)
+  - **Contexto**: Não requer filtros específicos
   - Visível para administradores e editores
 - **Card "Total de Eventos"**:
   - Exibe contagem total de eventos cadastrados
-  - **Clicável**: Direciona para Landing Page Inicial `[sevo-landing-page]`
+  - **Clicável**: Direciona para **Página de Landing Page** (contém `[sevo-landing-page]`)
+  - **Contexto**: Pode passar filtros de categoria, data ou status
   - Visível para todos os usuários
 - **Card "Total de Inscrições"**:
   - Exibe contagem total de inscrições (separadas por status: aceitas, pendentes, rejeitadas)
-  - **Clicável**: Qualquer card de inscrição direciona para Dashboard de Inscrições `[sevo-inscricoes-dashboard]`
+  - **Clicável**: Direciona para **Página de Inscrições** (contém `[sevo-inscricoes-dashboard]`)
+  - **Contexto**: Passa o status da inscrição como filtro (aceitas/pendentes/rejeitadas)
   - Visível para administradores, editores e autores
 
 #### 7.4.2 Implementação Técnica
-- **JavaScript**: Eventos de clique nos cards
-- **Redirecionamento**: Via `window.location` ou AJAX para carregar conteúdo
+- **JavaScript**: Eventos de clique nos cards com passagem de parâmetros
+- **Redirecionamento**: Via `window.location` com query parameters ou POST data
+- **Passagem de Contexto**: 
+  - URL Parameters: `?card_type=organizacoes&filter=ativo`
+  - POST Data: Para informações mais complexas
+  - Session Storage: Para manter estado entre páginas
+- **Filtros Automáticos**: As páginas de destino interpretam os parâmetros e aplicam filtros
 - **Permissões**: Verificação de capacidades antes de exibir cards
 - **Responsividade**: Cards adaptáveis para mobile e desktop
 - **Feedback Visual**: Hover effects e estados de loading
+- **Tratamento de Erros**: Fallback para página sem filtros se parâmetros inválidos
 
-### 7.5 Dashboard de Inscrições (`[sevo-inscricoes-dashboard]`)
+### 7.5 Arquitetura de Páginas e Filtros Contextuais
 
-#### 7.5.1 Funcionalidades Requeridas
+#### 7.5.1 Estrutura das Páginas
+- **Página de Organizações**: Contém shortcode `[sevo-orgs-dashboard]`
+  - **URL**: `/organizacoes/`
+  - **Parâmetros**: Não requer filtros específicos
+  - **Funcionalidade**: Exibe dashboard completo de organizações
+
+- **Página de Tipos de Evento**: Contém shortcode `[sevo-tipo-evento-dashboard]`
+  - **URL**: `/tipos-evento/`
+  - **Parâmetros**: Não requer filtros específicos
+  - **Funcionalidade**: Exibe dashboard completo de tipos de evento
+
+- **Página de Landing Page**: Contém shortcode `[sevo-landing-page]`
+  - **URL**: `/eventos/` ou página inicial
+  - **Parâmetros**: `?categoria=X&data=Y&status=Z`
+  - **Funcionalidade**: Filtra eventos baseado no contexto do card
+
+- **Página de Inscrições**: Contém shortcode `[sevo-inscricoes-dashboard]`
+  - **URL**: `/inscricoes/`
+  - **Parâmetros**: `?status=aceitas|pendentes|rejeitadas`
+  - **Funcionalidade**: Filtra inscrições por status específico
+
+#### 7.5.2 Processamento de Parâmetros
+- **Detecção de Contexto**: Shortcodes verificam `$_GET`, `$_POST` ou session storage
+- **Aplicação de Filtros**: 
+  - Modificação de queries WP_Query
+  - Filtros JavaScript no frontend
+  - Estados iniciais de modais e formulários
+- **Fallback**: Se parâmetros inválidos, exibe conteúdo padrão sem filtros
+- **Histórico de Navegação**: Manutenção do estado para botão "voltar"
+
+### 7.6 Dashboard de Inscrições (`[sevo-inscricoes-dashboard]`)
+
+#### 7.6.1 Funcionalidades Requeridas
 - **Listagem de Inscrições**: Todas as inscrições do sistema (filtradas por permissão)
 - **Filtros**: Por status, evento, usuário, data
 - **Ações de Validação**: Aprovar, rejeitar, adicionar comentários
 - **Permissões**: Administradores veem todas, editores veem todas, autores apenas dos próprios eventos
 - **Estatísticas**: Resumo de inscrições por status
 
-#### 7.5.2 Interface
+#### 7.6.2 Interface
 - **Layout**: Tabela responsiva com ações inline
 - **Modais**: Para detalhes da inscrição e ações de validação
 - **Cores de Status**: Verde (aceita), amarelo (solicitada), vermelho (rejeitada)
 - **Paginação**: Sistema de paginação para grandes volumes
 
-### 7.6 Log de Ações
+### 7.7 Log de Ações
 
-#### 7.6.1 Eventos Logados
+#### 7.7.1 Eventos Logados
 - Aprovação de inscrição
 - Rejeição de inscrição
 - Cancelamento de inscrição pelo usuário
@@ -355,7 +399,7 @@ $is_owner = ($post_author_id == $current_user_id);
 - Criação/edição de eventos
 - Navegação via summary cards
 
-#### 7.6.2 Estrutura do Log
+#### 7.7.2 Estrutura do Log
 - **Timestamp**: Data e hora da ação
 - **Usuário**: ID e nome do usuário que executou a ação
 - **Ação**: Tipo de ação executada

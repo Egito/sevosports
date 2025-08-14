@@ -26,14 +26,24 @@ $tipos_de_evento = get_posts(array(
 $forum_category_id = get_post_meta($org_id, '_sevo_forum_category_id', true);
 $forum_url = '#';
 if ($forum_category_id && class_exists('AsgarosForum')) {
-    $forum_url = get_permalink(AsgarosForum::get_forum_page()) . 'viewforum/' . $forum_category_id . '/';
+    // Método mais seguro para obter a página do fórum
+    global $asgarosforum;
+    if ($asgarosforum && method_exists($asgarosforum, 'get_link')) {
+        $forum_url = $asgarosforum->get_link('forum', $forum_category_id);
+    } else {
+        // Fallback: tentar obter a página do fórum de forma alternativa
+        $forum_page_id = get_option('asgarosforum_pageid');
+        if ($forum_page_id) {
+            $forum_url = get_permalink($forum_page_id) . 'viewforum/' . $forum_category_id . '/';
+        }
+    }
 }
 
 ?>
 
 <div class="sevo-modal-header">
     <?php if ($org_thumbnail_url) : ?>
-        <img src="<?php echo esc_url($org_thumbnail_url); ?>" alt="<?php echo esc_attr($org_title); ?>" class="sevo-modal-image">
+        <img src="<?php echo esc_url($org_thumbnail_url); ?>" alt="<?php echo esc_attr($org_title); ?>" class="sevo-modal-image" style="max-width: 300px; max-height: 300px; border: 1px solid #ddd; border-radius: 8px; display: block; margin: 0 auto;">
     <?php endif; ?>
 </div>
 
@@ -67,4 +77,11 @@ if ($forum_category_id && class_exists('AsgarosForum')) {
         <i class="fas fa-comments mr-2"></i>
         Visitar Fórum da Organização
     </a>
+    
+    <?php if (current_user_can('manage_options')): ?>
+        <a href="<?php echo admin_url('post.php?post=' . $org_id . '&action=edit'); ?>" class="sevo-modal-button sevo-button-edit">
+            <i class="fas fa-edit mr-2"></i>
+            Editar Organização
+        </a>
+    <?php endif; ?>
 </div>
