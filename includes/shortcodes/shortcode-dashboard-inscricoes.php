@@ -13,9 +13,12 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         add_shortcode('sevo_dashboard_inscricoes', array($this, 'render_dashboard'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_ajax_sevo_dashboard_get_inscricoes', array($this, 'ajax_get_inscricoes'));
+        add_action('wp_ajax_nopriv_sevo_dashboard_get_inscricoes', array($this, 'ajax_get_inscricoes'));
         add_action('wp_ajax_sevo_dashboard_update_inscricao', array($this, 'ajax_update_inscricao'));
         add_action('wp_ajax_sevo_dashboard_get_filter_options', array($this, 'ajax_get_filter_options'));
+        add_action('wp_ajax_nopriv_sevo_dashboard_get_filter_options', array($this, 'ajax_get_filter_options'));
         add_action('wp_ajax_sevo_dashboard_get_stats', array($this, 'ajax_get_stats'));
+        add_action('wp_ajax_nopriv_sevo_dashboard_get_stats', array($this, 'ajax_get_stats'));
         add_action('wp_ajax_sevo_dashboard_export_inscricoes', array($this, 'ajax_export_inscricoes'));
     }
     

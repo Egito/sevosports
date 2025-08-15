@@ -117,6 +117,7 @@
 
         // Carregar dados iniciais
         loadInitialData: function() {
+            console.log('loadInitialData chamada');
             this.loadStats();
             this.loadInscricoes();
         },
@@ -278,22 +279,35 @@
 
         // Carregar inscrições
         loadInscricoes: function() {
-            if (this.config.isLoading) return;
+            console.log('loadInscricoes chamada');
+            if (this.config.isLoading) {
+                console.log('Já está carregando, retornando...');
+                return;
+            }
 
+            console.log('Iniciando carregamento de inscrições...');
             this.config.isLoading = true;
             this.showLoading();
 
+            const ajaxData = {
+                action: 'sevo_dashboard_get_inscricoes',
+                nonce: sevoDashboardInscricoes.nonce,
+                page: this.config.currentPage,
+                per_page: this.config.itemsPerPage,
+                sort_by: this.config.sortBy,
+                sort_order: this.config.sortOrder,
+                filters: this.config.filters
+            };
+            
+            console.log('Dados da requisição AJAX:', ajaxData);
+            console.log('URL AJAX:', sevoDashboardInscricoes.ajaxUrl);
+            
             $.ajax({
                 url: sevoDashboardInscricoes.ajaxUrl,
                 type: 'POST',
-                data: {
-                    action: 'sevo_dashboard_get_inscricoes',
-                    nonce: sevoDashboardInscricoes.nonce,
-                    page: this.config.currentPage,
-                    per_page: this.config.itemsPerPage,
-                    sort_by: this.config.sortBy,
-                    sort_order: this.config.sortOrder,
-                    filters: this.config.filters
+                data: ajaxData,
+                beforeSend: function() {
+                    console.log('Iniciando requisição AJAX...');
                 },
                 success: (response) => {
                     this.config.isLoading = false;
@@ -313,8 +327,13 @@
                 error: (xhr, status, error) => {
                     this.config.isLoading = false;
                     this.hideLoading();
-                    console.error('AJAX Error:', xhr, status, error);
-                    this.showError('Erro de conexão ao carregar inscrições');
+                    console.error('AJAX Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        statusCode: xhr.status
+                    });
+                    this.showError('Erro de conexão ao carregar inscrições: ' + error + ' (Status: ' + xhr.status + ')');
                 }
             });
         },
@@ -701,8 +720,15 @@
 
     // Inicializar quando o documento estiver pronto
     $(document).ready(function() {
+        console.log('Dashboard JS carregado');
+        console.log('sevoDashboardInscricoes:', typeof sevoDashboardInscricoes !== 'undefined' ? sevoDashboardInscricoes : 'UNDEFINED');
+        console.log('Elementos encontrados:', $('.sevo-dashboard-inscricoes').length);
+        
         if ($('.sevo-dashboard-inscricoes').length) {
+            console.log('Inicializando SevoDashboard...');
             SevoDashboard.init();
+        } else {
+            console.log('Elemento .sevo-dashboard-inscricoes não encontrado');
         }
     });
 
