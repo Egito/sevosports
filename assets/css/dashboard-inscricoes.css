@@ -1,0 +1,824 @@
+/**
+ * Estilos para o Dashboard de Inscrições
+ * Plugin Sevo Eventos
+ */
+
+/* Reset e Base */
+.sevo-dashboard-inscricoes {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* Cabeçalho */
+.sevo-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sevo-dashboard-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.sevo-dashboard-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.sevo-user-welcome {
+    font-size: 16px;
+    color: #555;
+}
+
+.sevo-user-role {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #3498db;
+    color: white;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* Cards de Estatísticas */
+.sevo-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.sevo-stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sevo-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.sevo-stat-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f8f9fa;
+}
+
+.sevo-stat-total .sevo-stat-icon { background: #e3f2fd; }
+.sevo-stat-pending .sevo-stat-icon { background: #fff3e0; }
+.sevo-stat-approved .sevo-stat-icon { background: #e8f5e8; }
+.sevo-stat-rejected .sevo-stat-icon { background: #ffebee; }
+
+.sevo-stat-content {
+    flex: 1;
+}
+
+.sevo-stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.sevo-stat-total .sevo-stat-number { color: #2196f3; }
+.sevo-stat-pending .sevo-stat-number { color: #ff9800; }
+.sevo-stat-approved .sevo-stat-number { color: #4caf50; }
+.sevo-stat-rejected .sevo-stat-number { color: #f44336; }
+
+.sevo-stat-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Filtros */
+.sevo-dashboard-filters {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.sevo-filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.sevo-filters-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.sevo-filters-toggle {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #3498db;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.sevo-filters-toggle:hover {
+    color: #2980b9;
+}
+
+.sevo-toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.sevo-filters-toggle.active .sevo-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.sevo-filters-content {
+    padding: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sevo-filters-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sevo-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sevo-filter-group label {
+    font-weight: 500;
+    color: #555;
+    font-size: 14px;
+}
+
+.sevo-filter-group select,
+.sevo-filter-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.sevo-filter-group select:focus,
+.sevo-filter-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.sevo-filters-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* Botões */
+.sevo-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.sevo-btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.sevo-btn-primary:hover {
+    background: #2980b9;
+}
+
+.sevo-btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.sevo-btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.sevo-btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.sevo-btn-success:hover {
+    background: #229954;
+}
+
+.sevo-btn-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.sevo-btn-danger:hover {
+    background: #c0392b;
+}
+
+.sevo-btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.sevo-btn-warning:hover {
+    background: #e67e22;
+}
+
+.sevo-btn-info {
+    background: #3498db;
+    color: white;
+}
+
+.sevo-btn-info:hover {
+    background: #2980b9;
+}
+
+.sevo-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Controles da Tabela */
+.sevo-table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sevo-table-info {
+    font-size: 14px;
+    color: #666;
+}
+
+.sevo-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.sevo-table-actions label {
+    font-size: 14px;
+    color: #555;
+    font-weight: 500;
+}
+
+.sevo-table-actions select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Container da Tabela */
+.sevo-table-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.sevo-table-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.sevo-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Tabela */
+.sevo-inscricoes-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.sevo-inscricoes-table th {
+    background: #f8f9fa;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #dee2e6;
+    position: relative;
+}
+
+.sevo-inscricoes-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.sevo-inscricoes-table th.sortable:hover {
+    background: #e9ecef;
+}
+
+.sevo-inscricoes-table th.sortable::after {
+    content: '↕';
+    position: absolute;
+    right: 8px;
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+.sevo-inscricoes-table th.sort-asc::after {
+    content: '↑';
+    opacity: 1;
+}
+
+.sevo-inscricoes-table th.sort-desc::after {
+    content: '↓';
+    opacity: 1;
+}
+
+.sevo-inscricoes-table td {
+    padding: 12px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.sevo-inscricoes-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-solicitada {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.status-aceita {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-rejeitada {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Ações */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+/* Sem Resultados */
+.sevo-no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.sevo-no-results p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Paginação */
+.sevo-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sevo-pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sevo-pagination button:hover:not(:disabled) {
+    background: #f8f9fa;
+    border-color: #3498db;
+}
+
+.sevo-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sevo-pagination button.active {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.sevo-pagination .page-info {
+    margin: 0 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Modal */
+.sevo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sevo-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+}
+
+.sevo-modal-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.sevo-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.sevo-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.sevo-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.sevo-modal-close:hover {
+    background: #e9ecef;
+    color: #666;
+}
+
+.sevo-modal-content {
+    padding: 20px;
+}
+
+.sevo-modal-input {
+    margin-top: 15px;
+}
+
+.sevo-modal-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.sevo-modal-input textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.sevo-modal-input textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.sevo-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+/* Toast */
+.sevo-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10001;
+    max-width: 400px;
+    animation: toastSlideIn 0.3s ease;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sevo-toast.success {
+    border-left: 4px solid #27ae60;
+}
+
+.sevo-toast.error {
+    border-left: 4px solid #e74c3c;
+}
+
+.sevo-toast.warning {
+    border-left: 4px solid #f39c12;
+}
+
+.sevo-toast.info {
+    border-left: 4px solid #3498db;
+}
+
+.sevo-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.sevo-toast-icon {
+    font-size: 18px;
+}
+
+.sevo-toast.success .sevo-toast-icon::before { content: '✓'; color: #27ae60; }
+.sevo-toast.error .sevo-toast-icon::before { content: '✗'; color: #e74c3c; }
+.sevo-toast.warning .sevo-toast-icon::before { content: '⚠'; color: #f39c12; }
+.sevo-toast.info .sevo-toast-icon::before { content: 'ℹ'; color: #3498db; }
+
+.sevo-toast-message {
+    font-size: 14px;
+    color: #333;
+}
+
+.sevo-toast-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sevo-toast-close:hover {
+    color: #666;
+}
+
+/* Erro de Dashboard */
+.sevo-dashboard-error {
+    background: #fff;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    color: #721c24;
+}
+
+.sevo-dashboard-error p {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+}
+
+.sevo-dashboard-error a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sevo-dashboard-error a:hover {
+    text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-dashboard-inscricoes {
+        padding: 10px;
+    }
+    
+    .sevo-dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .sevo-dashboard-user-info {
+        align-items: center;
+    }
+    
+    .sevo-dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .sevo-filters-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .sevo-table-controls {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .sevo-table-actions {
+        justify-content: space-between;
+    }
+    
+    .sevo-inscricoes-table {
+        font-size: 12px;
+    }
+    
+    .sevo-inscricoes-table th,
+    .sevo-inscricoes-table td {
+        padding: 8px 6px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .sevo-modal-container {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .sevo-toast {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-dashboard-title {
+        font-size: 24px;
+    }
+    
+    .sevo-stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .sevo-inscricoes-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

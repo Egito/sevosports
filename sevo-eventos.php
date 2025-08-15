@@ -202,6 +202,7 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-landing-page.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-dashboard-inscricoes.php';
 
         // Inicializar as classes CPT
         new Sevo_Orgs_CPT();

@@ -14,19 +14,13 @@ function sevo_get_summary_cards() {
     $secoes_posts = wp_count_posts(SEVO_TIPO_EVENTO_POST_TYPE);
     $secoes_count = isset($secoes_posts->publish) ? $secoes_posts->publish : 0;
     
-    // Total de Inscritos
-    $total_inscritos = 0;
-    $todas_secoes = get_posts(array(
-        'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
-        'posts_per_page' => -1,
-        'fields' => 'ids'
-    ));
-    foreach ($todas_secoes as $secao_id) {
-        $inscritos = get_post_meta($secao_id, '_sevo_evento_inscritos', true);
-        if (!empty($inscritos) && is_array($inscritos)) {
-            $total_inscritos += count($inscritos);
-        }
-    }
+    // Total de Inscrições (CPT sevo_inscr)
+    $inscricoes_posts = wp_count_posts('sevo_inscr');
+    $total_inscritos = isset($inscricoes_posts->publish) ? $inscricoes_posts->publish : 0;
+    // Incluir também inscrições com outros status se necessário
+    if (isset($inscricoes_posts->pending)) $total_inscritos += $inscricoes_posts->pending;
+    if (isset($inscricoes_posts->draft)) $total_inscritos += $inscricoes_posts->draft;
+    if (isset($inscricoes_posts->private)) $total_inscritos += $inscricoes_posts->private;
     
     // Seções com inscrições abertas
     $inscricoes_abertas = new WP_Query(array(
@@ -91,34 +85,34 @@ function sevo_get_summary_cards() {
             'class' => 'green-card'
         ),
         array(
-            'title' => 'Eventos',
+            'title' => 'Tipos',
             'count' => $eventos_count,
             'class' => 'teal-card'
         ),
         array(
-            'title' => 'Seções',
+            'title' => 'Eventos Totais',
             'count' => $secoes_count,
             'class' => 'cyan-card'
         ),
         array(
-            'title' => 'Inscritos Totais',
-            'count' => $total_inscritos,
-            'class' => 'blue-card'
-        ),
-        array(
-            'title' => 'Inscrições Abertas',
-            'count' => $inscricoes_abertas->found_posts,
-            'class' => 'yellow-card'
-        ),
-        array(
-            'title' => 'Acontecendo',
+            'title' => 'Eventos Acontecendo',
             'count' => $em_andamento->found_posts,
             'class' => 'orange-card'
         ),
         array(
-            'title' => 'Aguardando',
+            'title' => 'Eventos Aguardando',
             'count' => $eventos_futuros->found_posts,
             'class' => 'red-card'
+        ),
+        array(
+            'title' => 'Eventos Inscrições Abertas',
+            'count' => $inscricoes_abertas->found_posts,
+            'class' => 'yellow-card'
+        ),
+        array(
+            'title' => 'Eventos Inscritos Totais',
+            'count' => $total_inscritos,
+            'class' => 'blue-card'
         )
     );
     

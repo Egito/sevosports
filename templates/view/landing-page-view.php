@@ -23,14 +23,48 @@ $section_counts = $shortcode_instance->get_section_counts();
 
 <div class="sevo-landing-page-container">
     
-    <!-- 1. Header da Landing Page -->
-    <div class="sevo-landing-header">
-        <h1 class="sevo-landing-title">Eventos SEVO</h1>
-        <p class="sevo-landing-subtitle">Descubra e participe dos melhores eventos da nossa plataforma</p>
-    </div>
-
-    <!-- 2. Cards de Resumo -->
+    <!-- 1. Cards de Resumo -->
     <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
+
+    <!-- 2. Linha de Filtros -->
+    <div class="sevo-filters-container">
+        <div class="sevo-filters-row">
+            <div class="sevo-filter-group">
+                <label for="filter-organizacao">Organização:</label>
+                <select id="filter-organizacao" class="sevo-filter-select">
+                    <option value="">Todas as organizações</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <label for="filter-tipo">Tipo de Evento:</label>
+                <select id="filter-tipo" class="sevo-filter-select">
+                    <option value="">Todos os tipos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <label for="filter-inscricao-periodo">Período de Inscrição:</label>
+                <select id="filter-inscricao-periodo" class="sevo-filter-select">
+                    <option value="">Todos os períodos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <label for="filter-evento-periodo">Período do Evento:</label>
+                <select id="filter-evento-periodo" class="sevo-filter-select">
+                    <option value="">Todos os períodos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <button id="clear-filters" class="sevo-clear-filters-btn">
+                    <i class="dashicons dashicons-dismiss"></i>
+                    Limpar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- 3. Seção: Eventos com Inscrições Abertas -->
     <?php if ($section_counts['inscricoes_abertas'] > 0): ?>
@@ -202,4 +236,9 @@ $section_counts = $shortcode_instance->get_section_counts();
         </div>
         <div class="sevo-modal-content"></div>
     </div>
+</div>
+
+<!-- Container para o modal de formulário de edição -->
+<div id="sevo-evento-form-modal-container" class="sevo-modal-backdrop" style="display: none;">
+    <!-- O conteúdo do formulário será carregado aqui via AJAX -->
 </div>

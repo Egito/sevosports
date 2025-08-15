@@ -6,6 +6,29 @@
 jQuery(document).ready(function($) {
     'use strict';
 
+    // Verifica se há mensagem de toaster armazenada após reload
+    const storedMessage = sessionStorage.getItem('sevo_toaster_message');
+    if (storedMessage) {
+        try {
+            const messageData = JSON.parse(storedMessage);
+            // Remove a mensagem do storage
+            sessionStorage.removeItem('sevo_toaster_message');
+            // Mostra o toaster após um pequeno delay para garantir que a página carregou
+            setTimeout(function() {
+                if (messageData.type === 'success') {
+                    SevoToaster.showSuccess(messageData.message);
+                } else if (messageData.type === 'error') {
+                    SevoToaster.showError(messageData.message);
+                } else if (messageData.type === 'info') {
+                    SevoToaster.showInfo(messageData.message);
+                }
+            }, 500);
+        } catch (e) {
+            // Remove mensagem corrompida
+            sessionStorage.removeItem('sevo_toaster_message');
+        }
+    }
+
     // Objeto principal da Landing Page
     const SevoLandingPage = {
         carousels: {},
@@ -48,96 +71,111 @@ jQuery(document).ready(function($) {
         // Vincula eventos
         bindEvents: function() {
             // Botões de navegação do carrossel
-            $(document).on('click', '.sevo-carousel-prev', (e) => {
+            $(document).on('click', '.sevo-carousel-prev', function(e) {
                 const section = $(e.currentTarget).closest('.sevo-carousel-container').data('section');
-                this.navigateCarousel(section, 'prev');
+                SevoLandingPage.navigateCarousel(section, 'prev');
             });
 
-            $(document).on('click', '.sevo-carousel-next', (e) => {
+            $(document).on('click', '.sevo-carousel-next', function(e) {
                 const section = $(e.currentTarget).closest('.sevo-carousel-container').data('section');
-                this.navigateCarousel(section, 'next');
+                SevoLandingPage.navigateCarousel(section, 'next');
             });
 
             // Clique nos cards para abrir o modal
-            $(document).on('click', '.sevo-card.evento-card', (e) => {
+            $(document).on('click', '.sevo-card.evento-card', function(e) {
                 // Previne a abertura do modal se clicou em um botão
                 if ($(e.target).closest('.sevo-card-actions').length > 0) {
                     return;
                 }
                 const eventId = $(e.currentTarget).data('event-id');
-                this.openEventModal(eventId);
+                SevoLandingPage.openEventModal(eventId);
             });
 
             // Botão de visualizar evento
-            $(document).on('click', '.sevo-view-evento', (e) => {
+            $(document).on('click', '.sevo-view-evento', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 const eventId = $(e.currentTarget).data('event-id');
-                this.openEventModal(eventId);
+                SevoLandingPage.openEventModal(eventId);
             });
 
             // Botão de editar evento no card (redireciona)
-            $(document).on('click', '.sevo-edit-evento', (e) => {
+            $(document).on('click', '.sevo-edit-evento', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 const eventId = $(e.currentTarget).data('event-id');
-                this.editEvent(eventId);
+                SevoLandingPage.editEvent(eventId);
             });
 
             // Fechar modal
-            $(document).on('click', '#sevo-evento-view-modal-close, .sevo-modal-backdrop', (e) => {
+            $(document).on('click', '#sevo-evento-view-modal-close, .sevo-modal-backdrop', function(e) {
                 if (e.target === e.currentTarget) {
-                    this.closeEventModal();
+                    SevoLandingPage.closeEventModal();
                 }
             });
 
             // Indicadores do carrossel
-            $(document).on('click', '.sevo-carousel-indicator', (e) => {
+            $(document).on('click', '.sevo-carousel-indicator', function(e) {
                 const $indicator = $(e.currentTarget);
                 const section = $indicator.closest('.sevo-carousel-indicators').data('section');
                 const page = $indicator.data('page');
-                this.goToPage(section, page);
+                SevoLandingPage.goToPage(section, page);
             });
 
             // Redimensionamento da janela
-            $(window).on('resize', () => {
-                this.handleResize();
+            $(window).on('resize', function() {
+                SevoLandingPage.handleResize();
             });
 
             // Navegação por teclado
-            $(document).on('keydown', (e) => {
+            $(document).on('keydown', function(e) {
                 if ($('#sevo-evento-view-modal').hasClass('hidden')) return;
                 
                 if (e.key === 'Escape') {
-                    this.closeEventModal();
+                    SevoLandingPage.closeEventModal();
                 }
             });
 
             // Botão de inscrição
-            $(document).on('click', '.sevo-inscribe-evento', (e) => {
+            $(document).on('click', '.sevo-inscribe-evento', function(e) {
                 e.preventDefault();
                 const eventId = $(e.currentTarget).data('event-id');
-                this.inscribeToEvent(eventId);
+                SevoLandingPage.inscribeToEvent(eventId);
             });
 
             // Botão de cancelar inscrição
-            $(document).on('click', '.sevo-cancel-inscricao', (e) => {
+            $(document).on('click', '.sevo-cancel-inscricao', function(e) {
                 e.preventDefault();
                 const inscricaoId = $(e.currentTarget).data('inscricao-id');
-                this.cancelInscricao(inscricaoId);
+                SevoLandingPage.cancelInscricao(inscricaoId);
             });
 
             // Event listener para submeter formulário de evento
-            $(document).on('submit', '#sevo-evento-form', (e) => {
+            $(document).on('submit', '#sevo-evento-form', function(e) {
                 e.preventDefault();
-                this.submitEventForm(e.target);
+                SevoLandingPage.submitEventForm(e.target);
             });
 
-            // Event listener para fechar modal de edição
-            $(document).on('click', '#sevo-evento-form-modal-close', this.closeEventFormModal.bind(this));
+            // Event listeners para filtros
+            $(document).on('change', '.sevo-filter-select', function() {
+                SevoLandingPage.applyFilters();
+            });
+
+            $(document).on('click', '.sevo-clear-filters-btn', function(e) {
+                e.preventDefault();
+                SevoLandingPage.clearFilters();
+            });
+
+            // Event listener para fechar modal de formulário
+            $(document).on('click', '#sevo-evento-form-modal-close', function(e) {
+                e.preventDefault();
+                SevoLandingPage.closeEventFormModal();
+            });
 
             // Event listener para cancelar edição
-            $(document).on('click', '#sevo-cancel-evento-button', this.closeEventFormModal.bind(this));
+            $(document).on('click', '#sevo-cancel-evento-button', function() {
+                SevoLandingPage.closeEventFormModal();
+            });
 
             // Event listener para fechar modal clicando no backdrop
             $(document).on('click', '#sevo-evento-form-modal-container', function(e) {
@@ -147,16 +185,16 @@ jQuery(document).ready(function($) {
             });
 
             // Botão de editar evento
-            $(document).on('click', '.sevo-edit-evento-modal', (e) => {
+            $(document).on('click', '.sevo-edit-evento-modal, .sevo-modal-button[data-event-id]', function(e) {
                 e.preventDefault();
                 const eventId = $(e.currentTarget).data('event-id');
-                this.editEvent(eventId);
+                SevoLandingPage.editEvent(eventId);
             });
 
             // Event listener para submeter formulário de evento
-            $(document).on('submit', '#sevo-evento-form', (e) => {
+            $(document).on('submit', '#sevo-evento-form', function(e) {
                 e.preventDefault();
-                this.submitEventForm(e.target);
+                SevoLandingPage.submitEventForm(e.target);
             });
         },
 
@@ -165,6 +203,7 @@ jQuery(document).ready(function($) {
             Object.keys(this.carousels).forEach(section => {
                 this.loadCarouselContent(section, 1);
             });
+            this.loadFilterOptions();
         },
 
         // Carrega conteúdo do carrossel via AJAX
@@ -477,7 +516,7 @@ jQuery(document).ready(function($) {
             
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
-                alert('Erro: Dados de configuração não encontrados');
+                SevoToaster.showError('Erro: Dados de configuração não encontrados');
                 this.showLoading(false);
                 return;
             }
@@ -505,12 +544,12 @@ jQuery(document).ready(function($) {
                     // Abrir modal de edição
                     this.openEventFormModal(eventId, data.data.html);
                 } else {
-                    alert('Erro ao carregar formulário: ' + (data.data || 'Erro desconhecido'));
+                    SevoToaster.showError('Erro ao carregar formulário: ' + (data.data || 'Erro desconhecido'));
                 }
             })
             .catch(error => {
                 console.error('Erro na requisição:', error);
-                alert('Erro ao carregar formulário de edição.');
+                SevoToaster.showError('Erro ao carregar formulário de edição.');
             })
             .finally(() => {
                 this.showLoading(false);
@@ -544,7 +583,7 @@ jQuery(document).ready(function($) {
             
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
-                alert('Erro: Dados de configuração não encontrados');
+                SevoToaster.showError('Erro: Dados de configuração não encontrados');
                 return;
             }
             
@@ -565,17 +604,18 @@ jQuery(document).ready(function($) {
                 contentType: false,
                 success: function(response) {
                     if (response.success) {
-                        alert('Evento salvo com sucesso!');
                         // Fechar modal de edição
                         const modalContainer = document.getElementById('sevo-evento-form-modal-container');
                         if (modalContainer) {
                             modalContainer.style.display = 'none';
                             document.body.classList.remove('sevo-modal-open');
                         }
+                        // Armazena a mensagem de sucesso para mostrar após o reload
+                        SevoToaster.storeForReload('Evento salvo com sucesso!', 'success');
                         // Recarregar a página para mostrar as alterações
                         location.reload();
                     } else {
-                        alert('Erro: ' + response.data);
+                        SevoToaster.showError('Erro: ' + response.data);
                         if (saveButton) {
                             saveButton.textContent = originalText;
                             saveButton.disabled = false;
@@ -583,13 +623,143 @@ jQuery(document).ready(function($) {
                     }
                 },
                 error: function() {
-                    alert('Erro de comunicação. Por favor, tente novamente.');
+                    SevoToaster.showError('Erro de comunicação. Por favor, tente novamente.');
                     if (saveButton) {
                         saveButton.textContent = originalText;
                         saveButton.disabled = false;
                     }
                 }
             });
+        },
+
+        // Carrega opções dos filtros
+        loadFilterOptions: function() {
+            const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
+            if (!ajaxData) {
+                console.error('Dados AJAX não disponíveis para filtros');
+                return;
+            }
+
+            $.ajax({
+                url: ajaxData.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'sevo_get_filter_options',
+                    nonce: ajaxData.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        this.populateFilterOptions(response.data);
+                    } else {
+                        console.error('Erro ao carregar opções dos filtros:', response.data);
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('Erro ao carregar opções dos filtros:', error);
+                }
+            });
+        },
+
+        // Popula as opções dos filtros
+        populateFilterOptions: function(data) {
+            // Organizações
+            const $orgSelect = $('#sevo-filter-organizacao');
+            if ($orgSelect.length && data.organizacoes) {
+                $orgSelect.empty().append('<option value="">Todas as organizações</option>');
+                data.organizacoes.forEach(org => {
+                    $orgSelect.append(`<option value="${org.id}">${org.nome}</option>`);
+                });
+            }
+
+            // Tipos de evento
+            const $tipoSelect = $('#sevo-filter-tipo');
+            if ($tipoSelect.length && data.tipos_evento) {
+                $tipoSelect.empty().append('<option value="">Todos os tipos</option>');
+                data.tipos_evento.forEach(tipo => {
+                    $tipoSelect.append(`<option value="${tipo.id}">${tipo.nome}</option>`);
+                });
+            }
+
+            // Anos para inscrições
+            const $inscricaoSelect = $('#sevo-filter-inscricao');
+            if ($inscricaoSelect.length && data.anos_inscricao) {
+                $inscricaoSelect.empty().append('<option value="">Qualquer período</option>');
+                data.anos_inscricao.forEach(ano => {
+                    $inscricaoSelect.append(`<option value="${ano}">${ano}</option>`);
+                });
+            }
+
+            // Anos para eventos
+            const $eventoSelect = $('#sevo-filter-evento');
+            if ($eventoSelect.length && data.anos_evento) {
+                $eventoSelect.empty().append('<option value="">Qualquer período</option>');
+                data.anos_evento.forEach(ano => {
+                    $eventoSelect.append(`<option value="${ano}">${ano}</option>`);
+                });
+            }
+        },
+
+        // Aplica os filtros
+        applyFilters: function() {
+            const filters = {
+                organizacao: $('#sevo-filter-organizacao').val() || '',
+                tipo: $('#sevo-filter-tipo').val() || '',
+                inscricao: $('#sevo-filter-inscricao').val() || '',
+                evento: $('#sevo-filter-evento').val() || ''
+            };
+
+            const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
+            if (!ajaxData) {
+                console.error('Dados AJAX não disponíveis para filtros');
+                return;
+            }
+
+            this.showLoading(true);
+
+            $.ajax({
+                url: ajaxData.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'sevo_filter_eventos',
+                    nonce: ajaxData.nonce,
+                    filters: filters
+                },
+                success: (response) => {
+                    if (response.success) {
+                        this.updateFilteredContent(response.data);
+                    } else {
+                        console.error('Erro ao aplicar filtros:', response.data);
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('Erro ao aplicar filtros:', error);
+                },
+                complete: () => {
+                    this.showLoading(false);
+                }
+            });
+        },
+
+        // Atualiza o conteúdo filtrado
+        updateFilteredContent: function(data) {
+            // Atualiza cada seção com os eventos filtrados
+            Object.keys(this.carousels).forEach(section => {
+                const carousel = this.carousels[section];
+                if (data[section]) {
+                    carousel.track.html(data[section].items);
+                    carousel.currentPage = data[section].currentPage || 1;
+                    carousel.totalPages = data[section].totalPages || 1;
+                    this.updateCarouselControls(section);
+                    this.updateIndicators(section);
+                    this.updateCarouselPosition(section);
+                }
+            });
+        },
+
+        // Limpa todos os filtros
+        clearFilters: function() {
+            $('.sevo-filter-select').val('');
+            this.loadInitialContent();
         }
     };
 

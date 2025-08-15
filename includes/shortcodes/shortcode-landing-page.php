@@ -25,6 +25,7 @@ class Sevo_Landing_Page_Shortcode {
         add_action('wp_ajax_nopriv_sevo_get_evento_view', array($this, 'ajax_get_evento_view'));
         
         add_action('wp_ajax_sevo_get_evento_form', array($this, 'ajax_get_evento_form'));
+        add_action('wp_ajax_nopriv_sevo_get_evento_form', array($this, 'ajax_get_evento_form'));
         add_action('wp_ajax_sevo_save_evento', array($this, 'ajax_save_evento'));
         
         // AJAX para gerenciar inscrições
@@ -32,6 +33,12 @@ class Sevo_Landing_Page_Shortcode {
         add_action('wp_ajax_nopriv_sevo_inscribe_evento', array($this, 'ajax_inscribe_evento'));
         add_action('wp_ajax_sevo_cancel_inscricao', array($this, 'ajax_cancel_inscricao'));
         add_action('wp_ajax_nopriv_sevo_cancel_inscricao', array($this, 'ajax_cancel_inscricao'));
+        
+        // AJAX para filtros da landing page
+        add_action('wp_ajax_sevo_get_filter_options', array($this, 'ajax_get_filter_options'));
+        add_action('wp_ajax_nopriv_sevo_get_filter_options', array($this, 'ajax_get_filter_options'));
+        add_action('wp_ajax_sevo_filter_eventos', array($this, 'ajax_filter_eventos'));
+        add_action('wp_ajax_nopriv_sevo_filter_eventos', array($this, 'ajax_filter_eventos'));
     }
 
     /**
@@ -43,6 +50,8 @@ class Sevo_Landing_Page_Shortcode {
         wp_enqueue_style('sevo-modal-responsive');
         wp_enqueue_script('sevo-landing-page-script');
         wp_enqueue_style('dashicons');
+        wp_enqueue_style('sevo-toaster-style');
+        wp_enqueue_script('sevo-toaster-script');
         
         // Localiza o script com dados necessários para AJAX
         wp_localize_script('sevo-landing-page-script', 'sevoLandingPage', array(
@@ -836,6 +845,264 @@ class Sevo_Landing_Page_Shortcode {
             'message' => 'Inscrição cancelada com sucesso',
             'event_id' => $event_id
         ));
+    }
+
+    /**
+     * AJAX para buscar opções dos filtros
+     */
+    public function ajax_get_filter_options() {
+        check_ajax_referer('sevo_landing_page_nonce', 'nonce');
+
+        $filter_type = sanitize_text_field($_POST['filter_type']);
+        $options = array();
+
+        switch ($filter_type) {
+            case 'organizacao':
+                $orgs = get_posts(array(
+                    'post_type' => SEVO_ORG_POST_TYPE,
+                    'post_status' => 'publish',
+                    'posts_per_page' => -1,
+                    'orderby' => 'title',
+                    'order' => 'ASC'
+                ));
+                foreach ($orgs as $org) {
+                    $options[] = array(
+                        'value' => $org->ID,
+                        'label' => $org->post_title
+                    );
+                }
+                break;
+
+            case 'tipo_evento':
+                $tipos = get_posts(array(
+                    'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
+                    'post_status' => 'publish',
+                    'posts_per_page' => -1,
+                    'orderby' => 'title',
+                    'order' => 'ASC'
+                ));
+                foreach ($tipos as $tipo) {
+                    $options[] = array(
+                        'value' => $tipo->ID,
+                        'label' => $tipo->post_title
+                    );
+                }
+                break;
+
+            case 'ano_inscricao':
+            case 'ano_evento':
+                global $wpdb;
+                $meta_key = ($filter_type === 'ano_inscricao') ? '_sevo_evento_data_inicio_inscricoes' : '_sevo_evento_data_inicio_evento';
+                
+                $anos = $wpdb->get_col($wpdb->prepare(
+                    "SELECT DISTINCT YEAR(meta_value) as ano 
+                     FROM {$wpdb->postmeta} pm 
+                     INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
+                     WHERE pm.meta_key = %s 
+                     AND p.post_type = %s 
+                     AND p.post_status = 'publish' 
+                     AND meta_value != '' 
+                     ORDER BY ano DESC",
+                    $meta_key,
+                    SEVO_EVENTO_POST_TYPE
+                ));
+                
+                foreach ($anos as $ano) {
+                    if ($ano) {
+                        $options[] = array(
+                            'value' => $ano,
+                            'label' => $ano
+                        );
+                    }
+                }
+                break;
+        }
+
+        wp_send_json_success($options);
+    }
+
+    /**
+     * AJAX para aplicar filtros nos eventos
+     */
+    public function ajax_filter_eventos() {
+        check_ajax_referer('sevo_landing_page_nonce', 'nonce');
+
+        $filters = array(
+            'organizacao' => sanitize_text_field($_POST['organizacao'] ?? ''),
+            'tipo_evento' => sanitize_text_field($_POST['tipo_evento'] ?? ''),
+            'ano_inscricao' => sanitize_text_field($_POST['ano_inscricao'] ?? ''),
+            'mes_inscricao' => sanitize_text_field($_POST['mes_inscricao'] ?? ''),
+            'ano_evento' => sanitize_text_field($_POST['ano_evento'] ?? ''),
+            'mes_evento' => sanitize_text_field($_POST['mes_evento'] ?? '')
+        );
+
+        // Remove filtros vazios
+        $filters = array_filter($filters);
+
+        // Busca eventos filtrados para cada seção
+        $sections = array('inscricoes_abertas', 'em_andamento', 'encerrados');
+        $results = array();
+
+        foreach ($sections as $section) {
+            $eventos = $this->get_filtered_eventos($section, $filters);
+            $results[$section] = array(
+                'count' => count($eventos),
+                'eventos' => array_slice($eventos, 0, 8) // Primeiros 8 para o carrossel
+            );
+        }
+
+        wp_send_json_success($results);
+    }
+
+    /**
+     * Busca eventos filtrados para uma seção específica
+     */
+    private function get_filtered_eventos($section, $filters) {
+        $today = date('Y-m-d');
+        $meta_query = array('relation' => 'AND');
+
+        // Filtros de seção
+        switch ($section) {
+            case 'inscricoes_abertas':
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_inscricoes',
+                    'value' => $today,
+                    'compare' => '<=',
+                    'type' => 'DATE'
+                );
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_fim_inscricoes',
+                    'value' => $today,
+                    'compare' => '>=',
+                    'type' => 'DATE'
+                );
+                break;
+
+            case 'em_andamento':
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_evento',
+                    'value' => $today,
+                    'compare' => '<=',
+                    'type' => 'DATE'
+                );
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_fim_evento',
+                    'value' => $today,
+                    'compare' => '>=',
+                    'type' => 'DATE'
+                );
+                break;
+
+            case 'encerrados':
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_fim_evento',
+                    'value' => $today,
+                    'compare' => '<',
+                    'type' => 'DATE'
+                );
+                break;
+        }
+
+        // Filtros personalizados
+        if (!empty($filters['tipo_evento'])) {
+            $meta_query[] = array(
+                'key' => '_sevo_evento_tipo_evento_id',
+                'value' => $filters['tipo_evento'],
+                'compare' => '='
+            );
+        }
+
+        if (!empty($filters['organizacao'])) {
+            // Buscar tipos de evento da organização
+            $tipos_org = get_posts(array(
+                'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
+                'meta_key' => '_sevo_tipo_evento_organizacao_id',
+                'meta_value' => $filters['organizacao'],
+                'posts_per_page' => -1,
+                'fields' => 'ids'
+            ));
+            
+            if (!empty($tipos_org)) {
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_tipo_evento_id',
+                    'value' => $tipos_org,
+                    'compare' => 'IN'
+                );
+            } else {
+                // Se não há tipos para a organização, retorna vazio
+                return array();
+            }
+        }
+
+        // Filtros de data de inscrição
+        if (!empty($filters['ano_inscricao'])) {
+            $ano = $filters['ano_inscricao'];
+            $mes = !empty($filters['mes_inscricao']) ? str_pad($filters['mes_inscricao'], 2, '0', STR_PAD_LEFT) : '';
+            
+            if ($mes) {
+                $data_inicio = $ano . '-' . $mes . '-01';
+                $data_fim = $ano . '-' . $mes . '-31';
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_inscricoes',
+                    'value' => array($data_inicio, $data_fim),
+                    'compare' => 'BETWEEN',
+                    'type' => 'DATE'
+                );
+            } else {
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_inscricoes',
+                    'value' => $ano,
+                    'compare' => 'LIKE'
+                );
+            }
+        }
+
+        // Filtros de data do evento
+        if (!empty($filters['ano_evento'])) {
+            $ano = $filters['ano_evento'];
+            $mes = !empty($filters['mes_evento']) ? str_pad($filters['mes_evento'], 2, '0', STR_PAD_LEFT) : '';
+            
+            if ($mes) {
+                $data_inicio = $ano . '-' . $mes . '-01';
+                $data_fim = $ano . '-' . $mes . '-31';
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_evento',
+                    'value' => array($data_inicio, $data_fim),
+                    'compare' => 'BETWEEN',
+                    'type' => 'DATE'
+                );
+            } else {
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_evento',
+                    'value' => $ano,
+                    'compare' => 'LIKE'
+                );
+            }
+        }
+
+        $query = new WP_Query(array(
+            'post_type' => SEVO_EVENTO_POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'meta_query' => $meta_query,
+            'orderby' => 'meta_value',
+            'meta_key' => '_sevo_evento_data_inicio_evento',
+            'order' => ($section === 'encerrados') ? 'DESC' : 'ASC'
+        ));
+
+        $eventos = array();
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $eventos[] = array(
+                    'id' => get_the_ID(),
+                    'html' => $this->render_evento_carousel_card(get_the_ID())
+                );
+            }
+            wp_reset_postdata();
+        }
+
+        return $eventos;
     }
 }
 

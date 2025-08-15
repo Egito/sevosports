@@ -1,35 +1,108 @@
 /* === LANDING PAGE STYLES === */
 
 .sevo-landing-page-container {
-    padding: 20px;
+    padding: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8fafc;
+    background-color: #f6f6f6;
     min-height: 100vh;
 }
 
 /* === HEADER === */
 .sevo-landing-header {
     text-align: center;
-    margin-bottom: 40px;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    color: white;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    margin-bottom: 15px;
+    padding: 10px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+    border-radius: 12px;
+    color: #333333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .sevo-landing-title {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 700;
-    margin: 0 0 10px 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 0 0 5px 0;
+    color: #1a1a1a;
+    text-shadow: none;
 }
 
 .sevo-landing-subtitle {
-    font-size: 1.2rem;
+    font-size: 1rem;
     margin: 0;
-    opacity: 0.9;
-    font-weight: 300;
+    color: #333333;
+    font-weight: 400;
+    text-shadow: none;
+}
+
+/* === FILTERS === */
+.sevo-filters-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e1e5e9;
+}
+
+.sevo-filters-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.sevo-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sevo-filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 2px;
+}
+
+.sevo-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: white;
+    color: #374151;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sevo-filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.sevo-clear-filters-btn {
+    padding: 8px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sevo-clear-filters-btn:hover {
+    background: #dc2626;
+}
+
+.sevo-clear-filters-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
 }
 
 /* === SUMMARY CARDS === */
@@ -37,18 +110,16 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 15px;
-    margin-bottom: 40px;
+    margin-bottom: 25px;
 }
 
 .summary-card {
-    background: white;
     border-radius: 10px;
-    padding: 15px 10px;
+    padding: 12px 20px;
     text-align: center;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    box-shadow: 0 3px 10px rgba(36, 32, 32, 0.06);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-left: 3px solid;
-    min-height: 80px;
+    min-height: 70px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -56,43 +127,45 @@
 
 .summary-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.12);
 }
 
 .summary-card h3 {
-    margin: 0 0 5px 0;
-    font-size: 0.75rem;
+    margin: 0 0 4px 0;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #64748b;
+    color: white;
     line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .summary-card .count {
     font-size: 1.8rem;
     font-weight: 700;
     margin: 0;
-    color: #1e293b;
+    color: white;
     line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Cores dos cards */
-.green-card { border-left-color: #10b981; }
-.teal-card { border-left-color: #14b8a6; }
-.cyan-card { border-left-color: #06b6d4; }
-.blue-card { border-left-color: #3b82f6; }
-.yellow-card { border-left-color: #f59e0b; }
-.orange-card { border-left-color: #f97316; }
-.red-card { border-left-color: #ef4444; }
+.green-card { background: linear-gradient(135deg, #10b981, #059669); }
+.teal-card { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+.cyan-card { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.blue-card { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.yellow-card { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.orange-card { background: linear-gradient(135deg, #f97316, #ea580c); }
+.red-card { background: linear-gradient(135deg, #ef4444, #dc2626); }
 
 /* === SEÇÕES === */
 .sevo-landing-section {
-    margin-bottom: 60px;
+    margin-bottom: 20px;
 }
 
 .sevo-section-header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-align: center;
 }
 
@@ -1018,8 +1091,21 @@
     text-decoration: none;
 }
 
-.sevo-modal-button i {
+.sevo-modal-button i,
+.mr-2 {
     margin-right: 8px;
+}
+
+.sevo-button-edit {
+    background: #f59e0b !important;
+    color: #fff !important;
+}
+
+.sevo-button-edit:hover {
+    background: #d97706 !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 /* === RESPONSIVIDADE === */

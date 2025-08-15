@@ -252,13 +252,6 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
 
     <div class="sevo-modal-footer-compact">
         <div class="sevo-modal-actions-compact">
-            <?php if ($can_edit): ?>
-                <button class="sevo-button-primary sevo-edit-evento-modal" data-event-id="<?php echo esc_attr($post_id); ?>">
-                    <i class="dashicons dashicons-edit"></i>
-                    Editar Evento
-                </button>
-            <?php endif; ?>
-            
             <?php if ($can_inscribe): ?>
                 <?php if (!$user_inscricao): ?>
                     <button class="sevo-button-success sevo-inscribe-evento" data-event-id="<?php echo esc_attr($post_id); ?>">
@@ -279,16 +272,19 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
             <?php elseif (!is_user_logged_in()): ?>
                 <p class="sevo-login-message">Faça login para se inscrever neste evento.</p>
             <?php endif; ?>
-            
-            <?php if ($topic_id): ?>
-                <a href="<?php echo esc_url($forum_url); ?>" target="_blank" class="sevo-button-secondary">
-                    <i class="dashicons dashicons-format-chat"></i>
-                    Fórum
-                </a>
-            <?php endif; ?>
         </div>
     </div>
-    </div>
+
+</div>
+
+<div class="sevo-modal-footer">
+    <?php if ($can_edit): ?>
+        <button class="sevo-modal-button sevo-button-edit sevo-edit-evento-modal" data-event-id="<?php echo esc_attr($post_id); ?>">
+            <i class="fas fa-edit mr-2"></i>
+            Editar Evento
+        </button>
+    <?php endif; ?>
+</div>
 </div>
 
 <!-- Container para o modal de formulário de edição -->
