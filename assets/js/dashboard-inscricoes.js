@@ -11,12 +11,14 @@
         // Configurações
         config: {
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 25,
             totalItems: 0,
-            totalPages: 0,
+            hasMoreItems: true,
             sortBy: 'data_inscricao',
             sortOrder: 'desc',
             isLoading: false,
+            isLoadingMore: false,
+            allInscricoes: [],
             filters: {
                 evento: '',
                 status: '',
@@ -51,10 +53,9 @@
                 tableBody: $('#inscricoes-tbody'),
                 tableLoading: $('#table-loading'),
                 noResults: $('#no-results'),
-                pagination: $('#pagination-container'),
-                itemsPerPageSelect: $('#per-page-select'),
+                infiniteLoading: $('#infinite-loading'),
+                endOfList: $('#end-of-list'),
                 refreshBtn: $('#refresh-table'),
-                tableInfo: $('#results-info'),
                 modal: $('#confirmation-modal'),
                 toast: $('#notification-toast'),
                 stats: {
@@ -76,9 +77,6 @@
             $('#apply-filters').on('click', this.applyFilters.bind(this));
             $('#clear-filters').on('click', this.resetFilters.bind(this));
 
-            // Itens por página
-            this.elements.itemsPerPageSelect.on('change', this.changeItemsPerPage.bind(this));
-
             // Refresh
             this.elements.refreshBtn.on('click', this.refreshData.bind(this));
 
@@ -92,8 +90,8 @@
             $(document).on('click', '.view-btn', this.handleView.bind(this));
             $(document).on('click', '.view-event-btn', this.handleViewEvent.bind(this));
 
-            // Paginação
-            $(document).on('click', '#pagination-container button[data-page]', this.changePage.bind(this));
+            // Scroll infinito
+            $(window).on('scroll', this.handleScroll.bind(this));
 
             // Modal
             this.elements.modalConfirm.on('click', this.confirmAction.bind(this));
@@ -163,11 +161,13 @@
 
             console.log('Filtros aplicados:', this.config.filters); // Debug
 
-            // Resetar para primeira página
+            // Resetar scroll infinito
             this.config.currentPage = 1;
+            this.config.hasMoreItems = true;
+            this.config.allInscricoes = [];
 
             // Recarregar dados
-            this.loadInscricoes();
+            this.loadInscricoes(true);
             this.loadStats();
         },
 
@@ -203,16 +203,14 @@
             this.loadStats();
         },
 
-        // Alterar itens por página
-        changeItemsPerPage: function() {
-            this.config.itemsPerPage = parseInt(this.elements.itemsPerPageSelect.val());
-            this.config.currentPage = 1;
-            this.loadInscricoes();
-        },
+
 
         // Refresh dos dados
         refreshData: function() {
-            this.loadInscricoes();
+            this.config.currentPage = 1;
+            this.config.hasMoreItems = true;
+            this.config.allInscricoes = [];
+            this.loadInscricoes(true);
             this.loadStats();
             this.showToast('Dados atualizados com sucesso!', 'success');
         },
@@ -235,20 +233,14 @@
             $('#inscricoes-table th').removeClass('sort-asc sort-desc');
             $th.addClass('sort-' + this.config.sortOrder);
 
-            // Recarregar dados
+            // Recarregar dados com scroll infinito
             this.config.currentPage = 1;
-            this.loadInscricoes();
+            this.config.hasMoreItems = true;
+            this.config.allInscricoes = [];
+            this.loadInscricoes(true);
         },
 
-        // Mudar página
-        changePage: function(e) {
-            e.preventDefault();
-            const page = parseInt($(e.currentTarget).data('page'));
-            if (page !== this.config.currentPage && page >= 1 && page <= this.config.totalPages) {
-                this.config.currentPage = page;
-                this.loadInscricoes();
-            }
-        },
+
 
         // Carregar estatísticas
         loadStats: function() {
@@ -280,15 +272,19 @@
             this.elements.stats.canceladas.text(stats.canceladas || 0);
         },
 
-        // Carregar inscrições
-        loadInscricoes: function() {
-            console.log('loadInscricoes chamada');
+        // Carregar inscrições (inicial)
+        loadInscricoes: function(reset = true) {
             if (this.config.isLoading) {
-                console.log('Já está carregando, retornando...');
                 return;
             }
 
-            console.log('Iniciando carregamento de inscrições...');
+            if (reset) {
+                this.config.currentPage = 1;
+                this.config.allInscricoes = [];
+                this.config.hasMoreItems = true;
+                this.elements.endOfList.hide();
+            }
+
             this.config.isLoading = true;
             this.showLoading();
 
@@ -302,64 +298,146 @@
                 filters: this.config.filters
             };
             
-            console.log('Dados da requisição AJAX:', ajaxData);
-            console.log('URL AJAX:', sevoDashboardInscricoes.ajaxUrl);
-            
             $.ajax({
                 url: sevoDashboardInscricoes.ajaxUrl,
                 type: 'POST',
                 data: ajaxData,
-                beforeSend: function() {
-                    console.log('Iniciando requisição AJAX...');
-                },
                 success: (response) => {
                     this.config.isLoading = false;
                     this.hideLoading();
 
-                    console.log('Response:', response); // Debug
-
                     if (response.success) {
-                        this.renderInscricoes(response.data.inscricoes);
-                        this.updatePagination(response.data);
-                        this.updateTableInfo(response.data);
+                        const inscricoes = response.data.inscricoes || [];
+                        
+                        if (reset) {
+                            this.config.allInscricoes = inscricoes;
+                        } else {
+                            this.config.allInscricoes = this.config.allInscricoes.concat(inscricoes);
+                        }
+                        
+                        // Verificar se há mais itens
+                        this.config.hasMoreItems = inscricoes.length === this.config.itemsPerPage;
+                        
+                        this.renderInscricoes(this.config.allInscricoes, reset);
+                        
+                        if (!this.config.hasMoreItems) {
+                            this.elements.endOfList.show();
+                        }
                     } else {
-                        console.error('Error response:', response);
                         this.showError(response.data || 'Erro ao carregar inscrições');
                     }
                 },
                 error: (xhr, status, error) => {
                     this.config.isLoading = false;
                     this.hideLoading();
-                    console.error('AJAX Error:', {
-                        status: status,
-                        error: error,
-                        responseText: xhr.responseText,
-                        statusCode: xhr.status
-                    });
-                    this.showError('Erro de conexão ao carregar inscrições: ' + error + ' (Status: ' + xhr.status + ')');
+                    this.showError('Erro de conexão ao carregar inscrições: ' + error);
+                }
+            });
+        },
+
+        // Carregar mais inscrições (scroll infinito)
+        loadMoreInscricoes: function() {
+            if (this.config.isLoadingMore || !this.config.hasMoreItems) {
+                return;
+            }
+
+            this.config.isLoadingMore = true;
+            this.config.currentPage++;
+            this.elements.infiniteLoading.show();
+
+            const ajaxData = {
+                action: 'sevo_dashboard_get_inscricoes',
+                nonce: sevoDashboardInscricoes.nonce,
+                page: this.config.currentPage,
+                per_page: this.config.itemsPerPage,
+                sort_by: this.config.sortBy,
+                sort_order: this.config.sortOrder,
+                filters: this.config.filters
+            };
+            
+            $.ajax({
+                url: sevoDashboardInscricoes.ajaxUrl,
+                type: 'POST',
+                data: ajaxData,
+                success: (response) => {
+                    this.config.isLoadingMore = false;
+                    this.elements.infiniteLoading.hide();
+
+                    if (response.success) {
+                        const inscricoes = response.data.inscricoes || [];
+                        
+                        if (inscricoes.length > 0) {
+                            this.config.allInscricoes = this.config.allInscricoes.concat(inscricoes);
+                            this.appendInscricoes(inscricoes);
+                        }
+                        
+                        // Verificar se há mais itens
+                        this.config.hasMoreItems = inscricoes.length === this.config.itemsPerPage;
+                        
+                        if (!this.config.hasMoreItems) {
+                            this.elements.endOfList.show();
+                        }
+                    }
+                },
+                error: () => {
+                    this.config.isLoadingMore = false;
+                    this.elements.infiniteLoading.hide();
+                    this.config.currentPage--; // Reverter página em caso de erro
                 }
             });
         },
 
         // Renderizar inscrições
-        renderInscricoes: function(inscricoes) {
+        renderInscricoes: function(inscricoes, reset = true) {
             const $tbody = this.elements.tableBody;
             const template = $('#inscricao-row-template').html();
 
             if (!inscricoes || inscricoes.length === 0) {
-                this.showNoResults();
+                if (reset) {
+                    this.showNoResults();
+                }
                 return;
             }
 
             this.hideNoResults();
-            this.elements.pagination.show();
+            this.elements.table.show();
+
+            if (reset) {
+                let html = '';
+                inscricoes.forEach(inscricao => {
+                    html += this.renderInscricaoRow(inscricao, template);
+                });
+                $tbody.html(html);
+            }
+        },
+
+        // Adicionar inscrições ao final da lista (scroll infinito)
+        appendInscricoes: function(inscricoes) {
+            const $tbody = this.elements.tableBody;
+            const template = $('#inscricao-row-template').html();
 
             let html = '';
             inscricoes.forEach(inscricao => {
                 html += this.renderInscricaoRow(inscricao, template);
             });
 
-            $tbody.html(html);
+            $tbody.append(html);
+        },
+
+        // Função para detectar scroll infinito
+        handleScroll: function() {
+            if (this.config.isLoadingMore || !this.config.hasMoreItems) {
+                return;
+            }
+
+            const scrollTop = $(window).scrollTop();
+            const windowHeight = $(window).height();
+            const documentHeight = $(document).height();
+            const threshold = 200; // Pixels antes do fim da página
+
+            if (scrollTop + windowHeight >= documentHeight - threshold) {
+                this.loadMoreInscricoes();
+            }
         },
 
         // Renderizar linha de inscrição
@@ -579,71 +657,38 @@
             this.currentAction = null;
         },
 
-        // Atualizar paginação
-        updatePagination: function(pagination) {
-            this.config.totalItems = pagination.total;
-            this.config.totalPages = pagination.pages;
-            this.config.currentPage = pagination.current;
 
-            const $pagination = this.elements.pagination;
-            let html = '';
 
-            // Botão anterior
-            const prevDisabled = pagination.current <= 1 ? 'disabled' : '';
-            html += `<button ${prevDisabled} data-page="${pagination.current - 1}">‹ Anterior</button>`;
-
-            // Páginas
-            const startPage = Math.max(1, pagination.current - 2);
-            const endPage = Math.min(pagination.pages, pagination.current + 2);
-
-            if (startPage > 1) {
-                html += `<button data-page="1">1</button>`;
-                if (startPage > 2) {
-                    html += `<span class="page-ellipsis">...</span>`;
-                }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                const active = i === pagination.current ? 'active' : '';
-                html += `<button class="${active}" data-page="${i}">${i}</button>`;
-            }
-
-            if (endPage < pagination.pages) {
-                if (endPage < pagination.pages - 1) {
-                    html += `<span class="page-ellipsis">...</span>`;
-                }
-                html += `<button data-page="${pagination.pages}">${pagination.pages}</button>`;
-            }
-
-            // Botão próximo
-            const nextDisabled = pagination.current >= pagination.pages ? 'disabled' : '';
-            html += `<button ${nextDisabled} data-page="${pagination.current + 1}">Próximo ›</button>`;
-
-            $pagination.html(html);
-        },
-
-        // Atualizar informações da tabela
-        updateTableInfo: function(data) {
-            const start = ((data.current - 1) * this.config.itemsPerPage) + 1;
-            const end = Math.min(start + this.config.itemsPerPage - 1, data.total);
-            
-            this.elements.tableInfo.text(
-                `Mostrando ${start} a ${end} de ${data.total} inscrições`
-            );
-        },
-
-        // Mostrar loading
+        // Mostrar loading inicial
         showLoading: function() {
             this.elements.tableLoading.show();
             this.elements.tableBody.parent().hide();
             this.elements.noResults.hide();
-            this.elements.pagination.hide();
+            this.elements.infiniteLoading.hide();
+            this.elements.endOfList.hide();
         },
 
-        // Esconder loading
+        // Esconder loading inicial
         hideLoading: function() {
             this.elements.tableLoading.hide();
             this.elements.tableBody.parent().show();
+        },
+
+        // Mostrar loading do scroll infinito
+        showInfiniteLoading: function() {
+            this.elements.infiniteLoading.show();
+            this.elements.endOfList.hide();
+        },
+
+        // Esconder loading do scroll infinito
+        hideInfiniteLoading: function() {
+            this.elements.infiniteLoading.hide();
+        },
+
+        // Mostrar indicador de fim da lista
+        showEndOfList: function() {
+            this.elements.endOfList.show();
+            this.elements.infiniteLoading.hide();
         },
 
         // Mostrar sem resultados

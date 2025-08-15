@@ -149,19 +149,7 @@ $current_user = wp_get_current_user();
 
     <!-- Controles da Tabela -->
     <div class="sevo-table-controls">
-        <div class="sevo-table-info">
-            <span id="results-info">Carregando...</span>
-        </div>
-        
         <div class="sevo-table-actions">
-            <label for="per-page-select">Itens por página:</label>
-            <select id="per-page-select">
-                <option value="10">10</option>
-                <option value="25" selected>25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-            
             <button type="button" class="sevo-btn sevo-btn-secondary" id="refresh-table">
                 🔄 Atualizar
             </button>
@@ -201,9 +189,15 @@ $current_user = wp_get_current_user();
         </div>
     </div>
 
-    <!-- Paginação -->
-    <div class="sevo-pagination" id="pagination-container" style="display: none;">
-        <!-- Paginação será gerada via JavaScript -->
+    <!-- Indicador de carregamento para scroll infinito -->
+    <div class="sevo-infinite-loading" id="infinite-loading" style="display: none;">
+        <div class="sevo-spinner"></div>
+        <p>Carregando mais inscrições...</p>
+    </div>
+    
+    <!-- Indicador de fim da lista -->
+    <div class="sevo-end-of-list" id="end-of-list" style="display: none;">
+        <p>Todas as inscrições foram carregadas.</p>
     </div>
 </div>
 

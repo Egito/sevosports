@@ -281,11 +281,19 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 inscr.post_status as status,
                 evento_meta.meta_value as evento_id,
                 evento.post_title as evento_nome,
-                evento_data.meta_value as evento_data
+                evento_data.meta_value as evento_data,
+                tipo_evento_meta.meta_value as tipo_evento_id,
+                tipo_evento.post_title as tipo_evento_nome,
+                org_meta.meta_value as organizacao_id,
+                org.post_title as organizacao_nome
             FROM {$wpdb->posts} inscr
             LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
             LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID
             LEFT JOIN {$wpdb->postmeta} evento_data ON evento.ID = evento_data.post_id AND evento_data.meta_key = '_sevo_evento_data'
+            LEFT JOIN {$wpdb->postmeta} tipo_evento_meta ON evento.ID = tipo_evento_meta.post_id AND tipo_evento_meta.meta_key = '_sevo_evento_tipo_evento_id'
+            LEFT JOIN {$wpdb->posts} tipo_evento ON tipo_evento_meta.meta_value = tipo_evento.ID
+            LEFT JOIN {$wpdb->postmeta} org_meta ON tipo_evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'
+            LEFT JOIN {$wpdb->posts} org ON org_meta.meta_value = org.ID
             {$joins}
             WHERE inscr.post_type = 'sevo_inscr' AND {$where}
             ORDER BY inscr.post_date DESC
@@ -312,32 +320,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             $inscricao->usuario_nome = $user ? $user->display_name : 'Usuário não encontrado';
             $inscricao->usuario_email = $user ? $user->user_email : '';
             
-            // Buscar dados adicionais do evento
-            $evento_id = $inscricao->evento_id;
-            $inscricao->organizacao_nome = '';
-            $inscricao->tipo_evento_nome = '';
-            
-            if ($evento_id) {
-                $tipo_evento_id = get_post_meta($evento_id, '_sevo_evento_tipo_evento_id', true);
-                if ($tipo_evento_id) {
-                    $tipo_evento = get_post($tipo_evento_id);
-                    $inscricao->tipo_evento_nome = $tipo_evento ? $tipo_evento->post_title : 'Tipo não encontrado';
-                    
-                    $org_id = get_post_meta($tipo_evento_id, '_sevo_tipo_evento_organizacao_id', true);
-                    if ($org_id) {
-                        $org = get_post($org_id);
-                        $inscricao->organizacao_nome = $org ? $org->post_title : 'Organização não encontrada';
-                    } else {
-                        $inscricao->organizacao_nome = 'Organização não definida';
-                    }
-                } else {
-                    $inscricao->tipo_evento_nome = 'Tipo de evento não definido';
-                    $inscricao->organizacao_nome = 'Organização não definida';
-                }
-            } else {
-                $inscricao->tipo_evento_nome = 'Evento não encontrado';
-                $inscricao->organizacao_nome = 'Evento não encontrado';
-            }
+            // Os nomes já vêm da consulta SQL, mas vamos garantir valores padrão
+            $inscricao->evento_nome = $inscricao->evento_nome ?: 'Evento não encontrado';
+            $inscricao->tipo_evento_nome = $inscricao->tipo_evento_nome ?: 'Tipo não definido';
+            $inscricao->organizacao_nome = $inscricao->organizacao_nome ?: 'Organização não definida';
         }
         
         return array(
