@@ -59,9 +59,10 @@
                 toast: $('#notification-toast'),
                 stats: {
                     total: $('#stat-total'),
-                    pending: $('#stat-pending'),
+                    solicitadas: $('#stat-solicitadas'),
                     approved: $('#stat-approved'),
-                    rejected: $('#stat-rejected')
+                    rejected: $('#stat-rejected'),
+                    canceladas: $('#stat-canceladas')
                 }
             };
         },
@@ -85,10 +86,11 @@
             $(document).on('click', '#inscricoes-table th.sortable', this.handleSort.bind(this));
 
             // Ações da tabela
-            $(document).on('click', '.action-approve', this.handleApprove.bind(this));
-            $(document).on('click', '.action-reject', this.handleReject.bind(this));
-            $(document).on('click', '.action-revert', this.handleRevert.bind(this));
-            $(document).on('click', '.action-view', this.handleView.bind(this));
+            $(document).on('click', '.approve-btn', this.handleApprove.bind(this));
+            $(document).on('click', '.reject-btn', this.handleReject.bind(this));
+            $(document).on('click', '.revert-btn', this.handleRevert.bind(this));
+            $(document).on('click', '.view-btn', this.handleView.bind(this));
+            $(document).on('click', '.view-event-btn', this.handleViewEvent.bind(this));
 
             // Paginação
             $(document).on('click', '#pagination-container button[data-page]', this.changePage.bind(this));
@@ -272,9 +274,10 @@
         // Atualizar estatísticas
         updateStats: function(stats) {
             this.elements.stats.total.text(stats.total || 0);
-            this.elements.stats.pending.text(stats.pending || 0);
+            this.elements.stats.solicitadas.text(stats.solicitadas || 0);
             this.elements.stats.approved.text(stats.approved || 0);
             this.elements.stats.rejected.text(stats.rejected || 0);
+            this.elements.stats.canceladas.text(stats.canceladas || 0);
         },
 
         // Carregar inscrições
@@ -476,23 +479,30 @@
         // Ações de aprovação/reprovação
         handleApprove: function(e) {
             e.preventDefault();
-            const inscricaoId = $(e.currentTarget).data('id');
+            const inscricaoId = $(e.currentTarget).data('inscricao-id');
             this.showActionModal('aprovar', inscricaoId, 'Aprovar Inscrição', 'Tem certeza que deseja aprovar esta inscrição?');
         },
 
         handleReject: function(e) {
             e.preventDefault();
-            const inscricaoId = $(e.currentTarget).data('id');
+            const inscricaoId = $(e.currentTarget).data('inscricao-id');
             this.showActionModal('rejeitar', inscricaoId, 'Rejeitar Inscrição', 'Tem certeza que deseja rejeitar esta inscrição?', true);
         },
 
         handleRevert: function(e) {
             e.preventDefault();
-            const inscricaoId = $(e.currentTarget).data('id');
+            const inscricaoId = $(e.currentTarget).data('inscricao-id');
             this.showActionModal('reverter', inscricaoId, 'Reverter Status', 'Tem certeza que deseja reverter o status desta inscrição para "Solicitada"?');
         },
 
         handleView: function(e) {
+            e.preventDefault();
+            const inscricaoId = $(e.currentTarget).data('inscricao-id');
+            // Implementar visualização dos detalhes da inscrição
+            console.log('Ver detalhes da inscrição:', inscricaoId);
+        },
+
+        handleViewEvent: function(e) {
             e.preventDefault();
             const eventoId = $(e.currentTarget).data('evento-id');
             // Implementar visualização do evento

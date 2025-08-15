@@ -23,11 +23,11 @@ $current_user = wp_get_current_user();
             </div>
         </div>
         
-        <div class="sevo-stat-card sevo-stat-pending">
-            <div class="sevo-stat-icon">⏳</div>
+        <div class="sevo-stat-card sevo-stat-solicitadas">
+            <div class="sevo-stat-icon">📝</div>
             <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-pending">-</div>
-                <div class="sevo-stat-label">Pendentes</div>
+                <div class="sevo-stat-number" id="stat-solicitadas">-</div>
+                <div class="sevo-stat-label">Solicitadas</div>
             </div>
         </div>
         
@@ -44,6 +44,14 @@ $current_user = wp_get_current_user();
             <div class="sevo-stat-content">
                 <div class="sevo-stat-number" id="stat-rejected">-</div>
                 <div class="sevo-stat-label">Reprovadas</div>
+            </div>
+        </div>
+        
+        <div class="sevo-stat-card sevo-stat-canceladas">
+            <div class="sevo-stat-icon">🚫</div>
+            <div class="sevo-stat-content">
+                <div class="sevo-stat-number" id="stat-canceladas">-</div>
+                <div class="sevo-stat-label">Canceladas</div>
             </div>
         </div>
     </div>
@@ -71,9 +79,10 @@ $current_user = wp_get_current_user();
                     <label for="filter-status">Status:</label>
                     <select id="filter-status" name="status">
                         <option value="">Todos os status</option>
-                        <option value="solicitada">Pendente</option>
+                        <option value="solicitada">Solicitada</option>
                         <option value="aceita">Aprovada</option>
                         <option value="rejeitada">Reprovada</option>
+                        <option value="cancelada">Cancelada</option>
                     </select>
                 </div>
                 
@@ -249,18 +258,22 @@ $current_user = wp_get_current_user();
                     {{#if_status_solicitada}}
                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" 
                                 data-inscricao-id="{{inscricao_id}}" title="Aprovar">
+                            ✓
                         </button>
                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" 
                                 data-inscricao-id="{{inscricao_id}}" title="Reprovar">
+                            ✗
                         </button>
                     {{/if_status_solicitada}}
                     {{#if_status_not_solicitada}}
                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning revert-btn" 
                                 data-inscricao-id="{{inscricao_id}}" title="Reverter para Pendente">
+                            ↶
                         </button>
                     {{/if_status_not_solicitada}}
                     <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-btn" 
                             data-inscricao-id="{{inscricao_id}}" title="Ver Detalhes">
+                        👁
                     </button>
                 </div>
             <?php else: ?>

@@ -339,26 +339,7 @@
     font-size: 16px;
 }
 
-/* Melhorar aparência dos ícones */
-.approve-btn::before {
-    content: '✓';
-    color: white;
-}
-
-.reject-btn::before {
-    content: '✗';
-    color: white;
-}
-
-.revert-btn::before {
-    content: '↶';
-    color: white;
-}
-
-.view-btn::before {
-    content: '👁';
-    color: white;
-}
+/* Ícones dos botões já estão no HTML */
 
 /* Controles da Tabela */
 .sevo-table-controls {

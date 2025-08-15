@@ -133,7 +133,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $new_status = sanitize_text_field($_POST['new_status']);
         $reason = sanitize_textarea_field($_POST['reason'] ?? '');
         
-        if (!$inscricao_id || !in_array($new_status, array('solicitada', 'aceita', 'rejeitada'))) {
+        if (!$inscricao_id || !in_array($new_status, array('solicitada', 'aceita', 'rejeitada', 'cancelada'))) {
             wp_send_json_error('Dados inválidos.');
         }
         
@@ -321,14 +321,22 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 $tipo_evento_id = get_post_meta($evento_id, '_sevo_evento_tipo_evento_id', true);
                 if ($tipo_evento_id) {
                     $tipo_evento = get_post($tipo_evento_id);
-                    $inscricao->tipo_evento_nome = $tipo_evento ? $tipo_evento->post_title : '';
+                    $inscricao->tipo_evento_nome = $tipo_evento ? $tipo_evento->post_title : 'Tipo não encontrado';
                     
                     $org_id = get_post_meta($tipo_evento_id, '_sevo_tipo_evento_organizacao_id', true);
                     if ($org_id) {
                         $org = get_post($org_id);
-                        $inscricao->organizacao_nome = $org ? $org->post_title : '';
+                        $inscricao->organizacao_nome = $org ? $org->post_title : 'Organização não encontrada';
+                    } else {
+                        $inscricao->organizacao_nome = 'Organização não definida';
                     }
+                } else {
+                    $inscricao->tipo_evento_nome = 'Tipo de evento não definido';
+                    $inscricao->organizacao_nome = 'Organização não definida';
                 }
+            } else {
+                $inscricao->tipo_evento_nome = 'Evento não encontrado';
+                $inscricao->organizacao_nome = 'Evento não encontrado';
             }
         }
         
@@ -383,9 +391,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $admin_user = wp_get_current_user();
         
         $status_labels = array(
-            'solicitada' => 'Pendente',
+            'solicitada' => 'Solicitada',
             'aceita' => 'Aprovada',
-            'rejeitada' => 'Reprovada'
+            'rejeitada' => 'Reprovada',
+            'cancelada' => 'Cancelada'
         );
         
         $old_label = $status_labels[$old_status] ?? $old_status;
@@ -394,7 +403,8 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $action_labels = array(
             'aceita' => 'aprovada',
             'rejeitada' => 'reprovada',
-            'solicitada' => 'revertida para pendente'
+            'solicitada' => 'revertida para solicitada',
+            'cancelada' => 'cancelada'
         );
         
         $action = $action_labels[$new_status] ?? 'alterada';
@@ -531,9 +541,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $sql = "
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN inscr.post_status = 'solicitada' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN inscr.post_status = 'solicitada' THEN 1 ELSE 0 END) as solicitadas,
                 SUM(CASE WHEN inscr.post_status = 'aceita' THEN 1 ELSE 0 END) as approved,
-                SUM(CASE WHEN inscr.post_status = 'rejeitada' THEN 1 ELSE 0 END) as rejected
+                SUM(CASE WHEN inscr.post_status = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
+                SUM(CASE WHEN inscr.post_status = 'cancelada' THEN 1 ELSE 0 END) as canceladas
             FROM {$wpdb->posts} inscr
             LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
             {$joins}
@@ -544,9 +555,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         return array(
             'total' => intval($stats['total']),
-            'pending' => intval($stats['pending']),
+            'solicitadas' => intval($stats['solicitadas']),
             'approved' => intval($stats['approved']),
-            'rejected' => intval($stats['rejected'])
+            'rejected' => intval($stats['rejected']),
+            'canceladas' => intval($stats['canceladas'])
         );
     }
     
