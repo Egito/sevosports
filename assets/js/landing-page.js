@@ -158,6 +158,11 @@ jQuery(document).ready(function($) {
 
             // Event listeners para filtros
             $(document).on('change', '.sevo-filter-select', function() {
+                // Limpa outros filtros quando um for selecionado
+                const currentFilter = $(this);
+                if (currentFilter.val() !== '') {
+                    $('.sevo-filter-select').not(currentFilter).val('');
+                }
                 SevoLandingPage.applyFilters();
             });
 
@@ -663,7 +668,7 @@ jQuery(document).ready(function($) {
         // Popula as opções dos filtros
         populateFilterOptions: function(data) {
             // Organizações
-            const $orgSelect = $('#sevo-filter-organizacao');
+            const $orgSelect = $('#filter-organizacao');
             if ($orgSelect.length && data.organizacoes) {
                 $orgSelect.empty().append('<option value="">Todas as organizações</option>');
                 data.organizacoes.forEach(org => {
@@ -672,7 +677,7 @@ jQuery(document).ready(function($) {
             }
 
             // Tipos de evento
-            const $tipoSelect = $('#sevo-filter-tipo');
+            const $tipoSelect = $('#filter-tipo');
             if ($tipoSelect.length && data.tipos_evento) {
                 $tipoSelect.empty().append('<option value="">Todos os tipos</option>');
                 data.tipos_evento.forEach(tipo => {
@@ -681,18 +686,18 @@ jQuery(document).ready(function($) {
             }
 
             // Anos para inscrições
-            const $inscricaoSelect = $('#sevo-filter-inscricao');
+            const $inscricaoSelect = $('#filter-inscricao-periodo');
             if ($inscricaoSelect.length && data.anos_inscricao) {
-                $inscricaoSelect.empty().append('<option value="">Qualquer período</option>');
+                $inscricaoSelect.empty().append('<option value="">Todos os períodos</option>');
                 data.anos_inscricao.forEach(ano => {
                     $inscricaoSelect.append(`<option value="${ano}">${ano}</option>`);
                 });
             }
 
             // Anos para eventos
-            const $eventoSelect = $('#sevo-filter-evento');
+            const $eventoSelect = $('#filter-evento-periodo');
             if ($eventoSelect.length && data.anos_evento) {
-                $eventoSelect.empty().append('<option value="">Qualquer período</option>');
+                $eventoSelect.empty().append('<option value="">Todos os períodos</option>');
                 data.anos_evento.forEach(ano => {
                     $eventoSelect.append(`<option value="${ano}">${ano}</option>`);
                 });
@@ -701,13 +706,6 @@ jQuery(document).ready(function($) {
 
         // Aplica os filtros
         applyFilters: function() {
-            const filters = {
-                organizacao: $('#sevo-filter-organizacao').val() || '',
-                tipo: $('#sevo-filter-tipo').val() || '',
-                inscricao: $('#sevo-filter-inscricao').val() || '',
-                evento: $('#sevo-filter-evento').val() || ''
-            };
-
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
                 console.error('Dados AJAX não disponíveis para filtros');
@@ -722,7 +720,10 @@ jQuery(document).ready(function($) {
                 data: {
                     action: 'sevo_filter_eventos',
                     nonce: ajaxData.nonce,
-                    filters: filters
+                    organizacao: $('#filter-organizacao').val() || '',
+                    tipo_evento: $('#filter-tipo').val() || '',
+                    ano_inscricao: $('#filter-inscricao-periodo').val() || '',
+                    ano_evento: $('#filter-evento-periodo').val() || ''
                 },
                 success: (response) => {
                     if (response.success) {
@@ -730,9 +731,11 @@ jQuery(document).ready(function($) {
                     } else {
                         console.error('Erro ao aplicar filtros:', response.data);
                     }
+                    this.showLoading(false);
                 },
                 error: (xhr, status, error) => {
                     console.error('Erro ao aplicar filtros:', error);
+                    this.showLoading(false);
                 },
                 complete: () => {
                     this.showLoading(false);
@@ -745,21 +748,75 @@ jQuery(document).ready(function($) {
             // Atualiza cada seção com os eventos filtrados
             Object.keys(this.carousels).forEach(section => {
                 const carousel = this.carousels[section];
+                const sectionElement = $(`.sevo-landing-section:has([data-section="${section}"])`);
+                const countElement = sectionElement.find('.sevo-section-count');
+                
                 if (data[section]) {
-                    carousel.track.html(data[section].items);
-                    carousel.currentPage = data[section].currentPage || 1;
-                    carousel.totalPages = data[section].totalPages || 1;
-                    this.updateCarouselControls(section);
-                    this.updateIndicators(section);
-                    this.updateCarouselPosition(section);
+                    const count = data[section].count || 0;
+                    
+                    // Atualiza o contador da seção
+                    countElement.text(`(${count})`);
+                    
+                    // Mostra ou oculta a seção baseado no contador
+                    if (count > 0) {
+                        sectionElement.show();
+                        
+                        // Gera o HTML dos eventos
+                        let eventosHtml = '';
+                        if (data[section].eventos) {
+                            data[section].eventos.forEach(evento => {
+                                eventosHtml += evento.html;
+                            });
+                        }
+                        
+                        carousel.track.html(eventosHtml);
+                        
+                        // Recalcula páginas baseado no número de eventos
+                        carousel.totalPages = Math.ceil(count / 4) || 1;
+                    } else {
+                        // Oculta a seção se não há eventos
+                        sectionElement.hide();
+                    }
+                } else {
+                    // Se não há dados para a seção, oculta ela
+                    sectionElement.hide();
                 }
+                
+                carousel.currentPage = 1;
+                this.updateCarouselControls(section);
+                this.updateIndicators(section);
+                this.updateCarouselPosition(section);
             });
+            
+            // Atualiza contadores das seções
+            if (data.section_counts) {
+                Object.keys(data.section_counts).forEach(section => {
+                    const count = data.section_counts[section];
+                    const $counter = $(`.summary-card[data-section="${section}"] .count`);
+                    if ($counter.length) {
+                        $counter.text(count);
+                    }
+                });
+            }
         },
 
         // Limpa todos os filtros
         clearFilters: function() {
             $('.sevo-filter-select').val('');
-            this.loadInitialContent();
+            
+            // Garante que todas as seções sejam mostradas novamente
+            Object.keys(this.carousels).forEach(section => {
+                const sectionElement = $(`.eventos-section[data-section="${section}"]`);
+                sectionElement.show();
+            });
+            
+            // Aplica filtros vazios para recarregar todos os eventos
+            this.applyFilters();
+            
+            // Garante que o loading seja ocultado após limpar filtros
+            setTimeout(() => {
+                this.showLoading(false);
+            }, 100);
         }
     };
 

@@ -853,70 +853,70 @@ class Sevo_Landing_Page_Shortcode {
     public function ajax_get_filter_options() {
         check_ajax_referer('sevo_landing_page_nonce', 'nonce');
 
-        $filter_type = sanitize_text_field($_POST['filter_type']);
         $options = array();
 
-        switch ($filter_type) {
-            case 'organizacao':
-                $orgs = get_posts(array(
-                    'post_type' => SEVO_ORG_POST_TYPE,
-                    'post_status' => 'publish',
-                    'posts_per_page' => -1,
-                    'orderby' => 'title',
-                    'order' => 'ASC'
-                ));
-                foreach ($orgs as $org) {
-                    $options[] = array(
-                        'value' => $org->ID,
-                        'label' => $org->post_title
-                    );
-                }
-                break;
-
-            case 'tipo_evento':
-                $tipos = get_posts(array(
-                    'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
-                    'post_status' => 'publish',
-                    'posts_per_page' => -1,
-                    'orderby' => 'title',
-                    'order' => 'ASC'
-                ));
-                foreach ($tipos as $tipo) {
-                    $options[] = array(
-                        'value' => $tipo->ID,
-                        'label' => $tipo->post_title
-                    );
-                }
-                break;
-
-            case 'ano_inscricao':
-            case 'ano_evento':
-                global $wpdb;
-                $meta_key = ($filter_type === 'ano_inscricao') ? '_sevo_evento_data_inicio_inscricoes' : '_sevo_evento_data_inicio_evento';
-                
-                $anos = $wpdb->get_col($wpdb->prepare(
-                    "SELECT DISTINCT YEAR(meta_value) as ano 
-                     FROM {$wpdb->postmeta} pm 
-                     INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
-                     WHERE pm.meta_key = %s 
-                     AND p.post_type = %s 
-                     AND p.post_status = 'publish' 
-                     AND meta_value != '' 
-                     ORDER BY ano DESC",
-                    $meta_key,
-                    SEVO_EVENTO_POST_TYPE
-                ));
-                
-                foreach ($anos as $ano) {
-                    if ($ano) {
-                        $options[] = array(
-                            'value' => $ano,
-                            'label' => $ano
-                        );
-                    }
-                }
-                break;
+        // Organizações
+        $orgs = get_posts(array(
+            'post_type' => SEVO_ORG_POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ));
+        $options['organizacoes'] = array();
+        foreach ($orgs as $org) {
+            $options['organizacoes'][] = array(
+                'id' => $org->ID,
+                'nome' => $org->post_title
+            );
         }
+
+        // Tipos de evento
+        $tipos = get_posts(array(
+            'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ));
+        $options['tipos_evento'] = array();
+        foreach ($tipos as $tipo) {
+            $options['tipos_evento'][] = array(
+                'id' => $tipo->ID,
+                'nome' => $tipo->post_title
+            );
+        }
+
+        // Anos de inscrição
+        global $wpdb;
+        $anos_inscricao = $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT YEAR(meta_value) as ano 
+             FROM {$wpdb->postmeta} pm 
+             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
+             WHERE pm.meta_key = %s 
+             AND p.post_type = %s 
+             AND p.post_status = 'publish' 
+             AND meta_value != '' 
+             ORDER BY ano DESC",
+            '_sevo_evento_data_inicio_inscricoes',
+            SEVO_EVENTO_POST_TYPE
+        ));
+        $options['anos_inscricao'] = array_filter($anos_inscricao);
+
+        // Anos de evento
+        $anos_evento = $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT YEAR(meta_value) as ano 
+             FROM {$wpdb->postmeta} pm 
+             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
+             WHERE pm.meta_key = %s 
+             AND p.post_type = %s 
+             AND p.post_status = 'publish' 
+             AND meta_value != '' 
+             ORDER BY ano DESC",
+            '_sevo_evento_data_inicio_evento',
+            SEVO_EVENTO_POST_TYPE
+        ));
+        $options['anos_evento'] = array_filter($anos_evento);
 
         wp_send_json_success($options);
     }
@@ -940,7 +940,7 @@ class Sevo_Landing_Page_Shortcode {
         $filters = array_filter($filters);
 
         // Busca eventos filtrados para cada seção
-        $sections = array('inscricoes_abertas', 'em_andamento', 'encerrados');
+        $sections = array('inscricoes_abertas', 'planejados', 'em_andamento', 'encerrados');
         $results = array();
 
         foreach ($sections as $section) {
@@ -974,6 +974,15 @@ class Sevo_Landing_Page_Shortcode {
                     'key' => '_sevo_evento_data_fim_inscricoes',
                     'value' => $today,
                     'compare' => '>=',
+                    'type' => 'DATE'
+                );
+                break;
+
+            case 'planejados':
+                $meta_query[] = array(
+                    'key' => '_sevo_evento_data_inicio_inscricoes',
+                    'value' => $today,
+                    'compare' => '>',
                     'type' => 'DATE'
                 );
                 break;
