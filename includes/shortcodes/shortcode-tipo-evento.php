@@ -28,12 +28,16 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         // Enfileira os assets específicos para este dashboard
         wp_enqueue_style('sevo-tipo-evento-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-orgs-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-orgs.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_script('sevo-tipo-evento-dashboard-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js', array('jquery'), SEVO_EVENTOS_VERSION, true);
+        wp_enqueue_script('sevo-tipo-evento-dashboard-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js', array('jquery', 'sevo-toaster-script'), SEVO_EVENTOS_VERSION, true);
         wp_enqueue_style('dashicons');
         wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css', array(), '6.0.0');
         wp_enqueue_style('sevo-modal-responsive', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-responsive.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-toaster-style');
         wp_enqueue_script('sevo-toaster-script');
+        
+        // Enfileirar o sistema de popup
+        wp_enqueue_style('sevo-popup-style');
+        wp_enqueue_script('sevo-popup-script');
         
         wp_localize_script('sevo-tipo-evento-dashboard-script', 'sevoTipoEventoDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),

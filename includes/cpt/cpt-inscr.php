@@ -125,6 +125,8 @@ class Sevo_Inscricoes_CPT {
         wp_nonce_field('sevo_inscr_nonce', 'sevo_inscr_nonce');
         $evento_id = get_post_meta($post->ID, '_sevo_inscr_evento_id', true);
         $user_id = get_post_meta($post->ID, '_sevo_inscr_user_id', true);
+        $status = get_post_meta($post->ID, '_sevo_inscr_status', true);
+        $data_inscricao = get_post_meta($post->ID, '_sevo_inscr_data', true);
         $cancel_count = get_post_meta($post->ID, '_sevo_inscr_cancel_count', true);
         ?>
         <table class="form-table">
@@ -139,6 +141,14 @@ class Sevo_Inscricoes_CPT {
                     $user_name = ($user_info && isset($user_info->display_name)) ? $user_info->display_name : 'Usuário não encontrado';
                     echo esc_html($user_name); 
                 ?> (ID: <?php echo esc_html($user_id); ?>)</td>
+            </tr>
+            <tr>
+                <th><label>Status</label></th>
+                <td><?php echo esc_html($status ?: 'solicitada'); ?></td>
+            </tr>
+            <tr>
+                <th><label>Data da Inscrição</label></th>
+                <td><?php echo esc_html($data_inscricao ?: $post->post_date); ?></td>
             </tr>
              <tr>
                 <th><label>Contador de Cancelamentos</label></th>

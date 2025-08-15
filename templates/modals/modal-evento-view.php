@@ -121,9 +121,9 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                             <?php 
                             switch($user_inscricao_status) {
                                 case 'aceita': echo 'Inscrito'; break;
-                                case 'solicitada': echo 'Aguardando Aprovação'; break;
-                                case 'rejeitada': echo 'Inscrição Rejeitada'; break;
-                                case 'cancelada': echo 'Inscrição Cancelada'; break;
+                        case 'solicitada': echo 'Aguardando Aprovação'; break;
+                        case 'rejeitada': echo 'Inscrição Rejeitada'; break;
+                        case 'cancelada': echo 'Inscrição Cancelada'; break;
                                 default: echo 'Status: ' . $user_inscricao_status;
                             }
                             ?>

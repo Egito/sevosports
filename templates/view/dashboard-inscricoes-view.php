@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 $can_manage_all = sevo_check_user_permission('manage_inscricoes');
+$is_super_admin = is_super_admin();
 $current_user = wp_get_current_user();
 ?>
 
@@ -23,10 +24,10 @@ $current_user = wp_get_current_user();
             </div>
         </div>
         
-        <div class="sevo-stat-card sevo-stat-solicitadas">
+        <div class="sevo-stat-card sevo-stat-solicitada">
             <div class="sevo-stat-icon">📝</div>
             <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-solicitadas">-</div>
+                <div class="sevo-stat-number" id="stat-solicitada">-</div>
                 <div class="sevo-stat-label">Solicitadas</div>
             </div>
         </div>
@@ -47,7 +48,7 @@ $current_user = wp_get_current_user();
             </div>
         </div>
         
-        <div class="sevo-stat-card sevo-stat-canceladas">
+        <div class="sevo-stat-card sevo-stat-cancelada">
             <div class="sevo-stat-icon">🚫</div>
             <div class="sevo-stat-content">
                 <div class="sevo-stat-number" id="stat-canceladas">-</div>
@@ -80,8 +81,8 @@ $current_user = wp_get_current_user();
                     <select id="filter-status" name="status">
                         <option value="">Todos os status</option>
                         <option value="solicitada">Solicitada</option>
-                        <option value="aceita">Aprovada</option>
-                        <option value="rejeitada">Reprovada</option>
+                        <option value="aceita">Aceita</option>
+                        <option value="rejeitada">Rejeitada</option>
                         <option value="cancelada">Cancelada</option>
                     </select>
                 </div>
@@ -147,15 +148,6 @@ $current_user = wp_get_current_user();
         </div>
     </div>
 
-    <!-- Controles da Tabela -->
-    <div class="sevo-table-controls">
-        <div class="sevo-table-actions">
-            <button type="button" class="sevo-btn sevo-btn-secondary" id="refresh-table">
-                🔄 Atualizar
-            </button>
-        </div>
-    </div>
-
     <!-- Tabela de Inscrições -->
     <div class="sevo-table-container">
         <div class="sevo-table-loading" id="table-loading">
@@ -163,18 +155,16 @@ $current_user = wp_get_current_user();
             <p>Carregando inscrições...</p>
         </div>
         
-        <table class="sevo-inscricoes-table" id="inscricoes-table" style="display: none;">
+        <table class="sevo-inscricoes-table" id="inscricoes-table">
             <thead>
                 <tr>
+                    <th class="sortable" data-sort="inscricao_id">ID</th>
                     <?php if ($can_manage_all): ?>
                         <th class="sortable" data-sort="usuario_nome">Usuário</th>
-                        <th class="sortable" data-sort="usuario_email">Email</th>
                     <?php endif; ?>
                     <th class="sortable" data-sort="evento_nome">Evento</th>
                     <th class="sortable" data-sort="evento_data">Data do Evento</th>
                     <th class="sortable" data-sort="organizacao_nome">Organização</th>
-                    <th class="sortable" data-sort="tipo_evento_nome">Tipo</th>
-                    <th class="sortable" data-sort="status">Status</th>
                     <th class="sortable" data-sort="data_inscricao">Data da Inscrição</th>
                     <th class="no-sort">Ações</th>
                 </tr>
@@ -223,28 +213,17 @@ $current_user = wp_get_current_user();
     </div>
 </div>
 
-<!-- Toast de Notificação -->
-<div class="sevo-toast" id="notification-toast" style="display: none;">
-    <div class="sevo-toast-content">
-        <span class="sevo-toast-icon" id="toast-icon"></span>
-        <span class="sevo-toast-message" id="toast-message"></span>
-    </div>
-    <button type="button" class="sevo-toast-close" id="toast-close">×</button>
-</div>
+
 
 <script type="text/template" id="inscricao-row-template">
     <tr data-inscricao-id="{{inscricao_id}}">
+        <td class="inscricao-id">{{inscricao_id}}</td>
         <?php if ($can_manage_all): ?>
             <td class="usuario-nome">{{usuario_nome}}</td>
-            <td class="usuario-email">{{usuario_email}}</td>
         <?php endif; ?>
         <td class="evento-nome">{{evento_nome}}</td>
         <td class="evento-data">{{evento_data_formatted}}</td>
         <td class="organizacao-nome">{{organizacao_nome}}</td>
-        <td class="tipo-evento-nome">{{tipo_evento_nome}}</td>
-        <td class="status">
-            <span class="status-badge status-{{status}}">{{status_label}}</span>
-        </td>
         <td class="data-inscricao">{{data_inscricao_formatted}}</td>
         <td class="acoes">
             <?php if ($can_manage_all): ?>
@@ -259,16 +238,16 @@ $current_user = wp_get_current_user();
                             ✗
                         </button>
                     {{/if_status_solicitada}}
-                    {{#if_status_not_solicitada}}
-                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning revert-btn" 
-                                data-inscricao-id="{{inscricao_id}}" title="Reverter para Pendente">
-                            ↶
-                        </button>
-                    {{/if_status_not_solicitada}}
-                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-btn" 
-                            data-inscricao-id="{{inscricao_id}}" title="Ver Detalhes">
+                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
+                            data-evento-id="{{evento_id}}" title="Ver Detalhes do Evento">
                         👁
                     </button>
+                    <?php if ($is_super_admin): ?>
+                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" 
+                                data-inscricao-id="{{inscricao_id}}" title="Editar Inscrição">
+                            ✏️
+                        </button>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
                 <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
@@ -279,3 +258,33 @@ $current_user = wp_get_current_user();
         </td>
     </tr>
 </script>
+
+<!-- Modal do Evento -->
+<div id="sevo-event-modal" class="sevo-modal" style="display: none;">
+    <div class="sevo-modal-overlay"></div>
+    <div class="sevo-modal-container">
+        <div class="sevo-modal-header">
+            <h2>Detalhes do Evento</h2>
+            <button type="button" class="sevo-modal-close" onclick="SevoDashboard.closeEventModal()">&times;</button>
+        </div>
+        <div class="sevo-modal-loading" style="display: none;">
+            <div class="sevo-loading-spinner"></div>
+            <p>Carregando...</p>
+        </div>
+        <div class="sevo-modal-content"></div>
+    </div>
+</div>
+
+<!-- Modal de Edição de Inscrição -->
+<?php if ($is_super_admin): ?>
+<div id="sevo-edit-inscricao-modal" class="sevo-modal" style="display: none;">
+    <div class="sevo-modal-backdrop" onclick="SevoDashboard.closeEditModal()"></div>
+    <div class="sevo-modal-dialog">
+        <div class="sevo-loading" id="sevo-edit-loading">
+            <div class="sevo-spinner"></div>
+            <p>Carregando dados da inscrição...</p>
+        </div>
+        <div class="sevo-modal-content-area" id="sevo-edit-content" style="display: none;"></div>
+    </div>
+</div>
+<?php endif; ?>

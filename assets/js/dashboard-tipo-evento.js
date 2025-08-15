@@ -179,10 +179,15 @@ jQuery(document).ready(function($) {
 
     // Ativar/Inativar
     modal.on('click', '#sevo-toggle-status-button', function() {
-        if (!confirm('Tem certeza que deseja alterar o status?')) return;
-        
         const button = $(this);
         const id = button.data('id');
+        
+        SevoPopup.confirm('Tem certeza que deseja alterar o status?', {
+            title: 'Confirmar Alteração',
+            confirmText: 'Sim, alterar',
+            cancelText: 'Cancelar'
+        }).then(confirmed => {
+            if (!confirmed) return;
         
         $.post(sevoTipoEventoDashboard.ajax_url, {
             action: 'sevo_toggle_tipo_evento_status',
@@ -196,6 +201,7 @@ jQuery(document).ready(function($) {
             } else {
                 SevoToaster.showError('Erro: ' + response.data);
             }
+        });
         });
     });
 

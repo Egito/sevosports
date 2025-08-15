@@ -377,7 +377,7 @@
     font-size: 14px;
 }
 
-/* Container da Tabela */
+/* Tabela */
 .sevo-table-container {
     background: #fff;
     border-radius: 8px;
@@ -385,6 +385,20 @@
     overflow: hidden;
     margin-bottom: 20px;
     position: relative;
+}
+
+/* Coluna ID */
+.sevo-inscricoes-table .inscricao-id {
+    width: 60px;
+    text-align: center;
+    font-weight: 600;
+    color: #666;
+    font-size: 12px;
+}
+
+.sevo-inscricoes-table th[data-sort="inscricao_id"] {
+    width: 60px;
+    text-align: center;
 }
 
 .sevo-table-loading {
@@ -492,6 +506,12 @@
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}
+
+.status-cancelada {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
 }
 
 /* Ações */

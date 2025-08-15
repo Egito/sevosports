@@ -55,9 +55,9 @@
                 noResults: $('#no-results'),
                 infiniteLoading: $('#infinite-loading'),
                 endOfList: $('#end-of-list'),
-                refreshBtn: $('#refresh-table'),
+
                 modal: $('#confirmation-modal'),
-                toast: $('#notification-toast'),
+
                 stats: {
                     total: $('#stat-total'),
                     solicitadas: $('#stat-solicitadas'),
@@ -77,8 +77,7 @@
             $('#apply-filters').on('click', this.applyFilters.bind(this));
             $('#clear-filters').on('click', this.resetFilters.bind(this));
 
-            // Refresh
-            this.elements.refreshBtn.on('click', this.refreshData.bind(this));
+
 
             // Ordenação da tabela
             $(document).on('click', '#inscricoes-table th.sortable', this.handleSort.bind(this));
@@ -86,9 +85,8 @@
             // Ações da tabela
             $(document).on('click', '.approve-btn', this.handleApprove.bind(this));
             $(document).on('click', '.reject-btn', this.handleReject.bind(this));
-            $(document).on('click', '.revert-btn', this.handleRevert.bind(this));
-            $(document).on('click', '.view-btn', this.handleView.bind(this));
             $(document).on('click', '.view-event-btn', this.handleViewEvent.bind(this));
+            $(document).on('click', '.edit-inscricao-btn', this.handleEdit.bind(this));
 
             // Scroll infinito
             $(window).on('scroll', this.handleScroll.bind(this));
@@ -98,6 +96,12 @@
             this.elements.modalCancel.on('click', this.closeModal.bind(this));
             $('.sevo-modal-close').on('click', this.closeModal.bind(this));
             $(document).on('click', '.sevo-modal-overlay', this.closeModal.bind(this));
+
+            // Modal de edição
+            $(document).on('click', '#save-edit-btn', this.saveEdit.bind(this));
+            $(document).on('click', '#cancel-edit-btn', this.closeEditModal.bind(this));
+            $(document).on('click', '.sevo-modal-close', this.closeEditModal.bind(this));
+            $(document).on('click', '.sevo-modal-backdrop', this.closeEditModal.bind(this));
 
             // Toast
             $(document).on('click', '.sevo-toast-close', this.closeToast.bind(this));
@@ -212,7 +216,7 @@
             this.config.allInscricoes = [];
             this.loadInscricoes(true);
             this.loadStats();
-            this.showToast('Dados atualizados com sucesso!', 'success');
+            SevoToaster.showSuccess('Dados atualizados com sucesso!');
         },
 
         // Manipular ordenação
@@ -286,7 +290,9 @@
             }
 
             this.config.isLoading = true;
-            this.showLoading();
+            // Forçar apresentação da tabela
+            this.elements.tableLoading.hide();
+            this.elements.table.show();
 
             const ajaxData = {
                 action: 'sevo_dashboard_get_inscricoes',
@@ -311,14 +317,14 @@
                         
                         if (reset) {
                             this.config.allInscricoes = inscricoes;
+                            this.renderInscricoes(inscricoes, true);
                         } else {
                             this.config.allInscricoes = this.config.allInscricoes.concat(inscricoes);
+                            this.appendInscricoes(inscricoes);
                         }
                         
                         // Verificar se há mais itens
                         this.config.hasMoreItems = inscricoes.length === this.config.itemsPerPage;
-                        
-                        this.renderInscricoes(this.config.allInscricoes, reset);
                         
                         if (!this.config.hasMoreItems) {
                             this.elements.endOfList.show();
@@ -461,36 +467,36 @@
             const isStatusSolicitada = inscricao.status === 'solicitada';
             
             // Processar if_status_solicitada
-            const startTagSolicitada = '{{#if_status_solicitada}}';
-            const endTagSolicitada = '{{/if_status_solicitada}}';
-            let startIndex = html.indexOf(startTagSolicitada);
-            while (startIndex !== -1) {
-                const endIndex = html.indexOf(endTagSolicitada, startIndex);
-                if (endIndex !== -1) {
-                    const fullMatch = html.substring(startIndex, endIndex + endTagSolicitada.length);
-                    const content = html.substring(startIndex + startTagSolicitada.length, endIndex);
-                    html = html.replace(fullMatch, isStatusSolicitada ? content : '');
-                    startIndex = html.indexOf(startTagSolicitada, startIndex);
-                } else {
-                    break;
-                }
+        const startTagSolicitada = '{{#if_status_solicitada}}';
+        const endTagSolicitada = '{{/if_status_solicitada}}';
+        let startIndex = html.indexOf(startTagSolicitada);
+        while (startIndex !== -1) {
+            const endIndex = html.indexOf(endTagSolicitada, startIndex);
+            if (endIndex !== -1) {
+                const fullMatch = html.substring(startIndex, endIndex + endTagSolicitada.length);
+                const content = html.substring(startIndex + startTagSolicitada.length, endIndex);
+                html = html.replace(fullMatch, isStatusSolicitada ? content : '');
+                startIndex = html.indexOf(startTagSolicitada, startIndex);
+            } else {
+                break;
             }
+        }
             
             // Processar if_status_not_solicitada
-            const startTagNotSolicitada = '{{#if_status_not_solicitada}}';
-            const endTagNotSolicitada = '{{/if_status_not_solicitada}}';
-            startIndex = html.indexOf(startTagNotSolicitada);
-            while (startIndex !== -1) {
-                const endIndex = html.indexOf(endTagNotSolicitada, startIndex);
-                if (endIndex !== -1) {
-                    const fullMatch = html.substring(startIndex, endIndex + endTagNotSolicitada.length);
-                    const content = html.substring(startIndex + startTagNotSolicitada.length, endIndex);
-                    html = html.replace(fullMatch, !isStatusSolicitada ? content : '');
-                    startIndex = html.indexOf(startTagNotSolicitada, startIndex);
-                } else {
-                    break;
-                }
+        const startTagNotSolicitada = '{{#if_status_not_solicitada}}';
+        const endTagNotSolicitada = '{{/if_status_not_solicitada}}';
+        startIndex = html.indexOf(startTagNotSolicitada);
+        while (startIndex !== -1) {
+            const endIndex = html.indexOf(endTagNotSolicitada, startIndex);
+            if (endIndex !== -1) {
+                const fullMatch = html.substring(startIndex, endIndex + endTagNotSolicitada.length);
+                const content = html.substring(startIndex + startTagNotSolicitada.length, endIndex);
+                html = html.replace(fullMatch, !isStatusSolicitada ? content : '');
+                startIndex = html.indexOf(startTagNotSolicitada, startIndex);
+            } else {
+                break;
             }
+        }
 
             return html;
         },
@@ -567,24 +573,101 @@
             this.showActionModal('rejeitar', inscricaoId, 'Rejeitar Inscrição', 'Tem certeza que deseja rejeitar esta inscrição?', true);
         },
 
-        handleRevert: function(e) {
-            e.preventDefault();
-            const inscricaoId = $(e.currentTarget).data('inscricao-id');
-            this.showActionModal('reverter', inscricaoId, 'Reverter Status', 'Tem certeza que deseja reverter o status desta inscrição para "Solicitada"?');
-        },
-
-        handleView: function(e) {
-            e.preventDefault();
-            const inscricaoId = $(e.currentTarget).data('inscricao-id');
-            // Implementar visualização dos detalhes da inscrição
-            console.log('Ver detalhes da inscrição:', inscricaoId);
-        },
-
         handleViewEvent: function(e) {
             e.preventDefault();
             const eventoId = $(e.currentTarget).data('evento-id');
-            // Implementar visualização do evento
-            window.open(`/evento/${eventoId}`, '_blank');
+            console.log('handleViewEvent - eventoId capturado:', eventoId);
+            console.log('handleViewEvent - elemento clicado:', e.currentTarget);
+            console.log('handleViewEvent - data attributes:', $(e.currentTarget).data());
+            this.openEventModal(eventoId);
+        },
+
+        handleEdit: function(e) {
+            e.preventDefault();
+            const inscricaoId = $(e.currentTarget).data('inscricao-id');
+            this.openEditModal(inscricaoId);
+        },
+
+        // Abre o modal do evento
+        openEventModal: function(eventId) {
+            console.log('openEventModal - eventId recebido:', eventId);
+            console.log('openEventModal - tipo do eventId:', typeof eventId);
+            console.log('openEventModal - eventId é válido?', eventId && eventId !== '' && eventId !== 'undefined');
+            
+            const modal = document.getElementById('sevo-event-modal');
+            if (!modal) {
+                console.error('Modal #sevo-event-modal não encontrado');
+                return;
+            }
+            
+            const modalContent = modal.querySelector('.sevo-modal-content');
+            const loadingIndicator = modal.querySelector('.sevo-modal-loading');
+            
+            if (!modalContent || !loadingIndicator) {
+                console.error('Elementos do modal não encontrados');
+                return;
+            }
+            
+            // Verifica se os dados AJAX estão disponíveis
+            const ajaxData = window.sevoDashboardInscricoes;
+            if (!ajaxData) {
+                console.error('Dados AJAX não disponíveis (sevoDashboardInscricoes)');
+                SevoToaster.showError('Erro: Dados de configuração não encontrados');
+                return;
+            }
+            
+            // Mostra o modal e o loading
+            modal.style.display = 'flex';
+            loadingIndicator.style.display = 'block';
+            modalContent.style.display = 'none';
+            
+            // Validar eventId antes da requisição
+            if (!eventId || eventId === '' || eventId === 'undefined' || eventId === 'null') {
+                console.error('eventId inválido:', eventId);
+                SevoToaster.showError('Erro: ID do evento não fornecido.');
+                modal.style.display = 'none';
+                return;
+            }
+            
+            // Faz a requisição AJAX
+            $.ajax({
+                url: ajaxData.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sevo_get_evento_view',
+                    event_id: eventId,
+                    nonce: ajaxData.eventViewNonce || ajaxData.nonce
+                },
+                success: function(response) {
+                    console.log('Resposta AJAX recebida:', response);
+                    if (response.success) {
+                        modalContent.innerHTML = response.data.html;
+                        loadingIndicator.style.display = 'none';
+                        modalContent.style.display = 'block';
+                    } else {
+                        console.error('Erro ao carregar evento:', response.data);
+                SevoToaster.showError('Erro ao carregar evento: ' + (response.data || 'Erro desconhecido'));
+                        this.closeEventModal();
+                    }
+                }.bind(this),
+                error: function(xhr, status, error) {
+                    console.error('Erro na requisição AJAX:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
+                    SevoToaster.showError('Erro na requisição AJAX: ' + error);
+                    this.closeEventModal();
+                }.bind(this)
+            });
+        },
+
+        // Fecha o modal do evento
+        closeEventModal: function() {
+            const modal = document.getElementById('sevo-event-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         },
 
         // Mostrar modal de ação
@@ -628,15 +711,15 @@
                 },
                 success: (response) => {
                     if (response.success) {
-                        this.showToast(response.data.message, 'success');
+                        SevoToaster.showSuccess(response.data.message);
                         this.loadInscricoes();
                         this.loadStats();
                     } else {
-                        this.showToast(response.data || 'Erro ao atualizar inscrição', 'error');
+                        SevoToaster.showError(response.data || 'Erro ao atualizar inscrição');
                     }
                 },
                 error: () => {
-                    this.showToast('Erro de conexão ao atualizar inscrição', 'error');
+                    SevoToaster.showError('Erro de conexão ao atualizar inscrição');
                 }
             });
         },
@@ -645,8 +728,7 @@
         getNewStatus: function(action) {
             const statusMap = {
                 'aprovar': 'aceita',
-                'rejeitar': 'rejeitada',
-                'reverter': 'solicitada'
+                'rejeitar': 'rejeitada'
             };
             return statusMap[action] || 'solicitada';
         },
@@ -655,6 +737,188 @@
         closeModal: function() {
             this.elements.modal.hide();
             this.currentAction = null;
+        },
+
+        // Abrir modal de edição
+        openEditModal: function(inscricaoId) {
+            const modal = document.getElementById('sevo-edit-inscricao-modal');
+            if (!modal) {
+                console.error('Modal de edição não encontrado');
+                return;
+            }
+
+            const modalContent = modal.querySelector('#sevo-edit-content');
+            const loadingIndicator = modal.querySelector('#sevo-edit-loading');
+
+            if (!modalContent || !loadingIndicator) {
+                console.error('Elementos do modal de edição não encontrados');
+                return;
+            }
+
+            // Mostra o modal e o loading
+            modal.style.display = 'flex';
+            loadingIndicator.style.display = 'block';
+            modalContent.style.display = 'none';
+
+            // Faz a requisição AJAX para carregar os dados da inscrição
+            $.ajax({
+                url: sevoDashboardInscricoes.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sevo_dashboard_get_inscricao_edit',
+                    inscricao_id: inscricaoId,
+                    nonce: sevoDashboardInscricoes.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        modalContent.innerHTML = response.data.html;
+                        loadingIndicator.style.display = 'none';
+                        modalContent.style.display = 'block';
+                        this.currentEditId = inscricaoId;
+                    } else {
+                        console.error('Erro ao carregar dados da inscrição:', response.data);
+                        SevoToaster.showError('Erro ao carregar dados da inscrição: ' + (response.data || 'Erro desconhecido'));
+                        this.closeEditModal();
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('Erro na requisição AJAX:', error);
+                    SevoToaster.showError('Erro na requisição: ' + error);
+                    this.closeEditModal();
+                }
+            });
+        },
+
+        // Fechar modal de edição
+        closeEditModal: function() {
+            const modal = document.getElementById('sevo-edit-inscricao-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            this.currentEditId = null;
+        },
+
+        // Salvar edição
+        saveEdit: function() {
+            if (!this.currentEditId) {
+                console.error('ID da inscrição não encontrado');
+                return;
+            }
+
+            const form = document.getElementById('edit-inscricao-form');
+            if (!form) {
+                console.error('Formulário de edição não encontrado');
+                return;
+            }
+
+            // Validar formulário
+            if (!this.validateEditForm(form)) {
+                return;
+            }
+
+            // Coletar dados do formulário
+            const formData = new FormData(form);
+            const data = {
+                action: 'sevo_dashboard_save_inscricao_edit',
+                inscricao_id: this.currentEditId,
+                nonce: sevoDashboardInscricoes.nonce
+            };
+
+            // Adicionar dados do formulário
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Mostrar loading no botão
+            const saveBtn = document.getElementById('save-edit-btn');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = 'Salvando...';
+            saveBtn.disabled = true;
+
+            // Fazer requisição AJAX
+            $.ajax({
+                url: sevoDashboardInscricoes.ajaxUrl,
+                type: 'POST',
+                data: data,
+                success: (response) => {
+                    if (response.success) {
+                        SevoToaster.showSuccess('Inscrição atualizada com sucesso!');
+                        this.closeEditModal();
+                        this.loadInscricoes();
+                        this.loadStats();
+                    } else {
+                        SevoToaster.showError('Erro ao atualizar inscrição: ' + (response.data || 'Erro desconhecido'));
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('Erro na requisição AJAX:', error);
+                    SevoToaster.showError('Erro na requisição: ' + error);
+                },
+                complete: () => {
+                    // Restaurar botão
+                    saveBtn.textContent = originalText;
+                    saveBtn.disabled = false;
+                }
+            });
+        },
+
+        // Validar formulário de edição
+        validateEditForm: function(form) {
+            let isValid = true;
+            const errors = [];
+
+            // Limpar erros anteriores
+            form.querySelectorAll('.sevo-field-error').forEach(error => {
+                error.remove();
+            });
+            form.querySelectorAll('.sevo-field.error').forEach(field => {
+                field.classList.remove('error');
+            });
+
+            // Validar campos obrigatórios
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    this.showFieldError(field, 'Este campo é obrigatório');
+                    isValid = false;
+                }
+            });
+
+            // Validar email
+            const emailField = form.querySelector('input[type="email"]');
+            if (emailField && emailField.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailField.value.trim())) {
+                    this.showFieldError(emailField, 'Email inválido');
+                    isValid = false;
+                }
+            }
+
+            // Validar telefone (se presente)
+            const phoneField = form.querySelector('input[name="telefone"]');
+            if (phoneField && phoneField.value.trim()) {
+                const phoneRegex = /^\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}$/;
+                if (!phoneRegex.test(phoneField.value.trim())) {
+                    this.showFieldError(phoneField, 'Telefone inválido');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        },
+
+        // Mostrar erro em campo específico
+        showFieldError: function(field, message) {
+            const fieldContainer = field.closest('.sevo-field');
+            if (fieldContainer) {
+                fieldContainer.classList.add('error');
+                
+                const errorElement = document.createElement('div');
+                errorElement.className = 'sevo-field-error';
+                errorElement.textContent = message;
+                
+                fieldContainer.appendChild(errorElement);
+            }
         },
 
 
@@ -705,34 +969,18 @@
 
         // Mostrar erro
         showError: function(message) {
-            this.showToast(message, 'error');
+            SevoToaster.showError(message);
             this.showNoResults();
         },
 
-        // Mostrar toast
-        showToast: function(message, type = 'info') {
-            const $toast = this.elements.toast;
-            
-            $toast.removeClass('success error warning info').addClass(type);
-            $toast.find('.sevo-toast-message').text(message);
-            $toast.show();
 
-            // Auto-hide após 5 segundos
-            setTimeout(() => {
-                this.closeToast();
-            }, 5000);
-        },
-
-        // Fechar toast
-        closeToast: function() {
-            this.elements.toast.hide();
-        },
 
         // Manipular teclado
         handleKeyboard: function(e) {
             // ESC para fechar modal
             if (e.keyCode === 27) {
                 this.closeModal();
+                this.closeEditModal();
                 this.closeToast();
             }
 
@@ -740,6 +988,12 @@
             if (e.keyCode === 13 && this.elements.modal.is(':visible')) {
                 e.preventDefault();
                 this.confirmAction();
+            }
+
+            // Ctrl+S para salvar edição
+            if (e.ctrlKey && e.keyCode === 83 && document.getElementById('sevo-edit-inscricao-modal').style.display === 'flex') {
+                e.preventDefault();
+                this.saveEdit();
             }
         },
 
@@ -765,9 +1019,9 @@
         getStatusLabel: function(status) {
             const labels = {
                 'solicitada': 'Solicitada',
-                'aceita': 'Aceita',
-                'rejeitada': 'Rejeitada',
-                'cancelada': 'Cancelada'
+        'aceita': 'Aceita',
+        'rejeitada': 'Rejeitada',
+        'cancelada': 'Cancelada'
             };
             return labels[status] || status;
         }

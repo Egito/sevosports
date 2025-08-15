@@ -30,6 +30,10 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         wp_enqueue_style('sevo-toaster-style');
         wp_enqueue_script('sevo-toaster-script');
         
+        // Enfileirar o sistema de popup
+        wp_enqueue_style('sevo-popup-style');
+        wp_enqueue_script('sevo-popup-script');
+        
         wp_localize_script('sevo-orgs-dashboard-script', 'sevoOrgsDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'admin_url' => admin_url(),

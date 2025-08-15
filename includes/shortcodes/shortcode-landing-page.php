@@ -53,6 +53,10 @@ class Sevo_Landing_Page_Shortcode {
         wp_enqueue_style('sevo-toaster-style');
         wp_enqueue_script('sevo-toaster-script');
         
+        // Enfileirar o sistema de popup
+        wp_enqueue_style('sevo-popup-style');
+        wp_enqueue_script('sevo-popup-script');
+        
         // Localiza o script com dados necessários para AJAX
         wp_localize_script('sevo-landing-page-script', 'sevoLandingPage', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -383,14 +387,17 @@ class Sevo_Landing_Page_Shortcode {
             $inscricoes_abertas_meta[] = $tipo_evento_filter;
         }
         
-        $inscricoes_abertas = new WP_Query(array(
+        $inscricoes_abertas_args = array(
             'post_type' => SEVO_EVENTO_POST_TYPE,
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'fields' => 'ids',
-            'meta_query' => $inscricoes_abertas_meta,
-            'post__in' => (!$user_can_update && empty($tipos_ativos)) ? array(0) : null
-        ));
+            'meta_query' => $inscricoes_abertas_meta
+        );
+        if (!$user_can_update && empty($tipos_ativos)) {
+            $inscricoes_abertas_args['post__in'] = array(0);
+        }
+        $inscricoes_abertas = new WP_Query($inscricoes_abertas_args);
         
         // Eventos planejados
         $planejados_meta = array(
@@ -697,12 +704,12 @@ class Sevo_Landing_Page_Shortcode {
             'post_type' => SEVO_INSCR_POST_TYPE,
             'meta_query' => array(
                 array(
-                    'key' => '_sevo_inscricao_evento_id',
+                    'key' => '_sevo_inscr_evento_id',
                     'value' => $event_id,
                     'compare' => '='
                 ),
                 array(
-                    'key' => '_sevo_inscricao_user_id',
+                    'key' => '_sevo_inscr_user_id',
                     'value' => $user_id,
                     'compare' => '='
                 )
@@ -722,12 +729,12 @@ class Sevo_Landing_Page_Shortcode {
                 'post_type' => SEVO_INSCR_POST_TYPE,
                 'meta_query' => array(
                     array(
-                        'key' => '_sevo_inscricao_evento_id',
+                        'key' => '_sevo_inscr_evento_id',
                         'value' => $event_id,
                         'compare' => '='
                     ),
                     array(
-                        'key' => '_sevo_inscricao_status',
+                        'key' => '_sevo_inscr_status',
                         'value' => 'aceita',
                         'compare' => '='
                     )
@@ -756,10 +763,10 @@ class Sevo_Landing_Page_Shortcode {
         }
 
         // Adiciona metadados
-        update_post_meta($inscricao_id, '_sevo_inscricao_evento_id', $event_id);
-        update_post_meta($inscricao_id, '_sevo_inscricao_user_id', $user_id);
-        update_post_meta($inscricao_id, '_sevo_inscricao_status', 'solicitada');
-        update_post_meta($inscricao_id, '_sevo_inscricao_data', current_time('Y-m-d H:i:s'));
+        update_post_meta($inscricao_id, '_sevo_inscr_evento_id', $event_id);
+        update_post_meta($inscricao_id, '_sevo_inscr_user_id', $user_id);
+        update_post_meta($inscricao_id, '_sevo_inscr_status', 'solicitada');
+        update_post_meta($inscricao_id, '_sevo_inscr_data', current_time('Y-m-d H:i:s'));
 
         // Adiciona comentário no fórum do evento
         $user = wp_get_current_user();
@@ -805,28 +812,28 @@ class Sevo_Landing_Page_Shortcode {
         }
 
         // Verifica se o usuário é o dono da inscrição ou tem permissão para gerenciar
-        $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscricao_user_id', true);
+        $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscr_user_id', true);
         if ($inscricao_user_id != $user_id && !current_user_can('manage_options')) {
             wp_send_json_error('Sem permissão para cancelar esta inscrição');
         }
 
-        // Verifica se a inscrição não está aceita (não pode cancelar inscrição aceita)
-        $status_atual = get_post_meta($inscricao_id, '_sevo_inscricao_status', true);
+        // Verifica se a inscrição não está aprovada (não pode cancelar inscrição aprovada)
+        $status_atual = get_post_meta($inscricao_id, '_sevo_inscr_status', true);
         if ($status_atual === 'aceita') {
-            wp_send_json_error('Não é possível cancelar uma inscrição já aceita');
+            wp_send_json_error('Não é possível cancelar uma inscrição já aprovada');
         }
 
         // Obtém o ID do evento para retornar
-        $event_id = get_post_meta($inscricao_id, '_sevo_inscricao_evento_id', true);
+        $event_id = get_post_meta($inscricao_id, '_sevo_inscr_evento_id', true);
 
         // Incrementa o contador de cancelamentos
-        $cancelamentos = get_post_meta($inscricao_id, '_sevo_inscricao_cancelamentos', true);
+        $cancelamentos = get_post_meta($inscricao_id, '_sevo_inscr_cancel_count', true);
         $cancelamentos = intval($cancelamentos) + 1;
-        update_post_meta($inscricao_id, '_sevo_inscricao_cancelamentos', $cancelamentos);
+        update_post_meta($inscricao_id, '_sevo_inscr_cancel_count', $cancelamentos);
 
         // Atualiza o status para cancelada
-        update_post_meta($inscricao_id, '_sevo_inscricao_status', 'cancelada');
-        update_post_meta($inscricao_id, '_sevo_inscricao_data_cancelamento', current_time('Y-m-d H:i:s'));
+        update_post_meta($inscricao_id, '_sevo_inscr_status', 'cancelada');
+        update_post_meta($inscricao_id, '_sevo_inscr_data_cancelamento', current_time('Y-m-d H:i:s'));
 
         // Adiciona comentário no fórum do evento
         $user = wp_get_current_user();

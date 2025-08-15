@@ -132,7 +132,7 @@ jQuery(document).ready(function($) {
                 }
             },
             error: function() {
-                alert('Erro de comunicação. Por favor, tente novamente.');
+                SevoToaster.showError('Erro de comunicação. Por favor, tente novamente.');
                 saveButton.text(originalText).prop('disabled', false);
             }
         });

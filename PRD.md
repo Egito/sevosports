@@ -61,33 +61,10 @@ O Sevo Eventos é um plugin WordPress desenvolvido para facilitar o gerenciament
 - **CPT**: `sevo_inscr`
 - **Capacidades**: Criação desabilitada (`'create_posts' => 'do_not_allow'`)
 - **Funcionalidades**:
-  - Status personalizados: 'solicitada', 'aceita', 'rejeitada'
+  - Status personalizados: 'solicitada', 'cancelada', 'aceita', 'rejeitada'
   - Sistema de log de comentários
   - Gestão via dashboard de eventos
   - Controle de acesso: `is_user_logged_in()`
-
----
-
-## 3. Integração com Fórum
-
-### 3.1 Plugin Asgaros Forum
-- **Dependência**: Asgaros Forum (opcional)
-- **Funcionalidades**:
-  - Criação automática de categorias para organizações
-  - Criação de sub-fóruns para tipos de evento
-  - Geração automática de tópicos para eventos
-  - Sincronização de nomes e descrições
-
-### 3.2 Estrutura do Fórum
-```
-Organização (Categoria)
-├── Tipo de Evento 1 (Sub-fórum)
-│   ├── Evento A (Tópico)
-│   └── Evento B (Tópico)
-└── Tipo de Evento 2 (Sub-fórum)
-    ├── Evento C (Tópico)
-    └── Evento D (Tópico)
-```
 
 ---
 
@@ -98,7 +75,7 @@ Organização (Categoria)
 - `[sevo-orgs-dashboard]` - Dashboard de organizações (apenas administradores)
 - `[sevo-tipo-evento-dashboard]` - Dashboard de tipos de evento (administradores e editores)
 - `[sevo-inscricoes-dashboard]` - Dashboard de inscrições (administradores, editores e autores) *[A ser implementado]*
-- `[sevo-booking-dashboard]` - Dashboard de booking pessoal (todos os usuários logados) *[A ser implementado]*
+- `[sevo-inscricoes-pessoais]` - Dashboard de inscrições pessoais (todos os usuários logados) *[A ser implementado]*
 
 ### 4.2 Summary Cards Interativos
 - **Card "Total de Organizações"**: Clicável, direciona para **Página de Organizações** (que contém `[sevo-orgs-dashboard]`)
@@ -171,7 +148,7 @@ sevo/
 - **Tipos de Evento**: Criar, editar, visualizar (não excluir)
 - **Eventos**: Criar, editar, visualizar, alterar status (não excluir)
 - **Inscrições**: Validar, aprovar, rejeitar inscrições
-- **Booking**: Acessar página de booking própria
+- **Inscrições Pessoais**: Acessar dashboard de inscrições pessoais
 - **Solicitações**: Fazer inscrições em eventos
 - **Fórum**: Participar em discussões
 
@@ -180,7 +157,7 @@ sevo/
 - **Tipos de Evento**: Visualizar apenas
 - **Eventos**: Editar eventos próprios, alterar status dos próprios eventos
 - **Inscrições**: Validar inscrições apenas dos próprios eventos
-- **Booking**: Acessar página de booking própria
+- **Inscrições Pessoais**: Acessar dashboard de inscrições pessoais
 - **Solicitações**: Fazer inscrições em eventos
 - **Fórum**: Participar em discussões
 
@@ -189,7 +166,7 @@ sevo/
 - **Tipos de Evento**: Visualizar apenas (via landing page)
 - **Eventos**: Visualizar apenas (via landing page e modais)
 - **Inscrições**: Fazer inscrições em eventos disponíveis
-- **Booking**: Acessar página de booking própria para visualizar inscrições
+- **Inscrições Pessoais**: Acessar dashboard de inscrições pessoais para visualizar inscrições
 - **Solicitações**: Gerenciar próprias inscrições
 - **Fórum**: Participar em discussões (se logado)
 
@@ -200,14 +177,14 @@ sevo/
 
 ### 6.2 Funcionalidades por Seção
 
-#### 6.2.1 Página de Booking
+#### 6.2.1 Dashboard de Inscrições Pessoais
 - **Acesso**: Todos os usuários logados
 - **Funcionalidades**:
   - Visualizar próprias inscrições
   - Status das inscrições (solicitada, aceita, rejeitada)
   - Histórico de participações
   - Cancelar inscrições (se permitido)
-- **Shortcode**: `[sevo-booking-dashboard]` (a ser implementado)
+- **Shortcode**: `[sevo-inscricoes-pessoais]` (a ser implementado)
 
 #### 6.2.2 Validação de Inscrições
 - **Editores e Administradores**: Validar qualquer inscrição
@@ -223,7 +200,7 @@ sevo/
 - **Dashboard de Tipos de Evento**: Administradores e Editores (acessível via card de tipos)
 - **Dashboard de Inscrições**: Administradores, Editores e Autores limitado (acessível via card de inscrições)
 - **Landing Page**: Acesso público para visualização de eventos (acessível via card de eventos)
-- **Dashboard de Booking**: Todos os usuários logados (acesso direto via menu/shortcode)
+- **Dashboard de Inscrições Pessoais**: Todos os usuários logados (acesso direto via menu/shortcode)
 
 ### 6.3 Implementação Técnica de Permissões
 
@@ -265,7 +242,7 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ## 7. Requisitos Funcionais para Implementação
 
-### 7.1 Dashboard de Booking (`[sevo-booking-dashboard]`)
+### 7.1 Dashboard de Inscrições Pessoais (`[sevo-inscricoes-pessoais]`)
 
 #### 7.1.1 Funcionalidades Requeridas
 - **Listagem de Inscrições**: Exibir todas as inscrições do usuário logado
@@ -465,28 +442,250 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ---
 
-## 11. Roadmap e Melhorias Futuras
+## 11. Sistemas Centralizados de Interface
 
-### 11.1 Versão 3.1 (Em Desenvolvimento)
+### 11.1 Sistema de Toaster (SevoToaster)
+
+#### 11.1.1 Objetivo
+Sistema centralizado para exibição de mensagens de feedback ao usuário, substituindo alerts nativos e mensagens HTML estáticas por uma interface moderna e consistente.
+
+#### 11.1.2 Funcionalidades
+- **Tipos de Mensagem**: Sucesso, erro, informação, aviso
+- **Posicionamento**: Canto superior direito da tela
+- **Animações**: Entrada e saída suaves
+- **Auto-dismiss**: Fechamento automático configurável
+- **Empilhamento**: Múltiplas mensagens simultâneas
+- **Responsividade**: Adaptável a diferentes dispositivos
+
+#### 11.1.3 API JavaScript
+```javascript
+// Métodos disponíveis
+SevoToaster.showSuccess(message, options)
+SevoToaster.showError(message, options)
+SevoToaster.showInfo(message, options)
+SevoToaster.showWarning(message, options)
+SevoToaster.clear() // Remove todas as mensagens
+```
+
+#### 11.1.4 Integração
+- **Assets**: `sevo-toaster.css` e `sevo-toaster.js`
+- **Dependências**: Registrado em todos os shortcodes
+- **Compatibilidade**: Funciona com respostas AJAX WordPress
+- **Fallback**: Graceful degradation para browsers antigos
+
+### 11.2 Sistema de Popup (SevoPopup)
+
+#### 11.2.1 Objetivo
+Sistema centralizado para diálogos interativos, substituindo confirm() nativo e prompts por uma interface moderna que retorna Promises para melhor controle de fluxo.
+
+#### 11.2.2 Funcionalidades
+- **Tipos de Popup**: Confirmação, aviso, perigo, prompt, informativo
+- **Promises**: Retorna Promise para controle assíncrono
+- **Customização**: Títulos, textos de botões, ícones personalizáveis
+- **Acessibilidade**: Suporte a navegação por teclado e screen readers
+- **Modal**: Overlay com foco capturado
+- **Responsividade**: Interface adaptável
+
+#### 11.2.3 API JavaScript
+```javascript
+// Métodos disponíveis
+SevoPopup.confirm(message, options) // Retorna Promise<boolean>
+SevoPopup.warning(message, options) // Retorna Promise<boolean>
+SevoPopup.danger(message, options) // Retorna Promise<boolean>
+SevoPopup.prompt(message, options) // Retorna Promise<string|null>
+SevoPopup.info(message, options) // Retorna Promise<void>
+SevoPopup.custom(config) // Retorna Promise<any>
+```
+
+#### 11.2.4 Exemplos de Uso
+```javascript
+// Confirmação simples
+SevoPopup.confirm('Deseja continuar?').then(confirmed => {
+    if (confirmed) {
+        // Executar ação
+    }
+});
+
+// Ação perigosa
+SevoPopup.danger('Deseja excluir este item?', {
+    title: 'Exclusão Permanente',
+    confirmText: 'Sim, excluir',
+    cancelText: 'Cancelar'
+}).then(confirmed => {
+    if (confirmed) {
+        // Executar exclusão
+    }
+});
+
+// Entrada de dados
+SevoPopup.prompt('Digite o nome:', {
+    placeholder: 'Nome completo',
+    required: true
+}).then(name => {
+    if (name) {
+        // Usar o nome inserido
+    }
+});
+```
+
+#### 11.2.5 Integração
+- **Assets**: `sevo-popup.css` e `sevo-popup.js`
+- **Dependências**: Registrado em todos os shortcodes
+- **Refatoração**: Substitui todas as chamadas confirm() existentes
+- **Compatibilidade**: Mantém método nativo como fallback
+
+### 11.3 Benefícios dos Sistemas Centralizados
+
+#### 11.3.1 Consistência Visual
+- Interface unificada em todo o plugin
+- Branding consistente com cores e tipografia
+- Experiência de usuário padronizada
+
+#### 11.3.2 Manutenibilidade
+- Código centralizado para fácil manutenção
+- Atualizações globais com mudanças em um local
+- Redução de duplicação de código
+
+#### 11.3.3 Funcionalidades Avançadas
+- Controle assíncrono com Promises
+- Configurações flexíveis por contexto
+- Melhor acessibilidade e usabilidade
+
+#### 11.3.4 Performance
+- Assets otimizados e minificados
+- Carregamento sob demanda
+- Cache de browser eficiente
+
+---
+
+## 12. Estrutura Hierárquica do Fórum
+
+O plugin Sevo Eventos integra-se com o Asgaros Forum seguindo uma estrutura hierárquica específica:
+
+### 12.1 Hierarquia Correta:
+
+1. **Organização** → **Categoria do Fórum**
+   - Cada organização cria uma categoria no fórum
+   - Nome da categoria: "Eventos - [Nome da Organização]"
+   - Meta: `_sevo_forum_category_id`
+
+2. **Tipo de Evento** → **Fórum**
+   - Cada tipo de evento cria um fórum dentro da categoria da organização
+   - Nome do fórum: [Nome do Tipo de Evento]
+   - Meta: `_sevo_forum_forum_id`
+   - Parent: categoria da organização
+
+3. **Evento** → **Tópico**
+   - Cada evento cria um tópico dentro do fórum do tipo de evento
+   - Nome do tópico: [Nome do Evento]
+   - Meta: `_sevo_forum_topic_id`
+   - Parent: fórum do tipo de evento
+
+4. **Inscrição** → **Post/Comentário**
+   - Cada inscrição cria um post no tópico do evento
+   - Conteúdo: "[Nome do Usuário] se inscreveu no evento em [Data/Hora]"
+   - Author: usuário que se inscreveu
+   - Parent: tópico do evento
+
+### 12.2 Estrutura Visual:
+```
+Categoria: Eventos - Organização A
+├── Fórum: Tipo de Evento 1
+│   ├── Tópico: Evento A
+│   │   ├── Post: João se inscreveu no evento em 09/01/2025 10:30
+│   │   └── Post: Maria se inscreveu no evento em 09/01/2025 11:15
+│   └── Tópico: Evento B
+│       └── Post: Pedro se inscreveu no evento em 09/01/2025 09:45
+└── Fórum: Tipo de Evento 2
+    └── Tópico: Evento C
+        └── Post: Ana se inscreveu no evento em 09/01/2025 14:20
+```
+
+### 12.3 Integração com Asgaros Forum
+
+#### Funções Principais:
+
+1. **Criação de Categoria** (Organização)
+   - Usar: `$asgarosforum->content->insert_category()`
+   - Armazenar ID em: `_sevo_forum_category_id`
+
+2. **Criação de Fórum** (Tipo de Evento)
+   - Usar: `$asgarosforum->content->insert_forum()`
+   - Armazenar ID em: `_sevo_forum_forum_id`
+
+3. **Criação de Tópico** (Evento)
+   - Usar: `$asgarosforum->content->insert_topic()`
+   - Armazenar ID em: `_sevo_forum_topic_id`
+
+4. **Criação de Post** (Inscrição)
+   - Usar: `$asgarosforum->content->insert_post()`
+   - Armazenar ID em: `_sevo_forum_post_id`
+
+#### Sistema de Log de Inscrições
+
+Quando um usuário se inscreve em um evento:
+1. Criar post no tópico do evento no fórum
+2. Conteúdo do post: "[Nome do Usuário] se inscreveu no evento em [Data/Hora]"
+3. Armazenar ID do post na meta da inscrição
+4. Notificar usuários inscritos no tópico (se configurado)
+
+#### Tópicos de Notificação
+
+Quando datas importantes do evento são definidas/alteradas:
+1. Criar tópicos automáticos no fórum do evento
+2. Tipos de notificação:
+   - "Período de Inscrição Definido!"
+   - "Data do Evento Marcada!"
+
+### 12.4 Correções Implementadas
+
+#### Problema Identificado e Resolvido
+O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, quebrando a hierarquia correta e impedindo que os comentários de inscrição aparecessem no local adequado.
+
+#### Correções Realizadas
+1. **Arquivo `cpt-evento.php`**: 
+   - Alterada a função `create_or_update_event_subforum` para `create_or_update_event_topic`
+   - Agora cria tópicos em vez de sub-fóruns para eventos
+   - Adicionada função `generate_event_topic_content` para formatar o conteúdo inicial do tópico
+
+2. **Arquivo `cpt-inscr.php`**: 
+   - Modificada a função `sevo_add_inscription_log_comment` para adicionar posts no tópico do fórum
+   - Utiliza `$asgarosforum->content->insert_post()` em vez de `wp_insert_comment()`
+
+3. **Arquivo `sevo-forum-integration.php`**: 
+   - Removida a função `create_sub_forum_for_event` que não é mais necessária
+   - Atualizada a função `handle_event_forum_creation_and_topics` para não criar sub-fóruns
+
+#### Meta Fields Corretos
+- **Organização**: `_sevo_forum_category_id` (ID da categoria do fórum)
+- **Tipo de Evento**: `_sevo_forum_forum_id` (ID do fórum)
+- **Evento**: `_sevo_forum_topic_id` (ID do tópico)
+- **Inscrição**: Posts são criados diretamente no tópico do evento via Asgaros Forum API
+
+---
+
+## 13. Roadmap e Melhorias Futuras
+
+### 13.1 Versão 3.1 (Em Desenvolvimento)
 - **Summary Cards Interativos**: Navegação rápida entre dashboards
 - **Dashboard de Inscrições**: Interface completa para validação e gestão
-- **Dashboard de Booking Pessoal**: Para usuários visualizarem suas inscrições
+- **Dashboard de Inscrições Pessoais**: Para usuários visualizarem suas inscrições
 - **Sistema de Permissões Granular**: Controle refinado de acesso
 - **Verificação de Propriedade**: Autores limitados aos próprios eventos
 
-### 11.2 Versão 3.2 (Planejada)
+### 13.2 Versão 3.2 (Planejada)
 - Sistema de notificações por email
 - Relatórios avançados
 - API REST personalizada
 - Integração com calendários externos
 
-### 11.3 Versão 3.3 (Planejada)
+### 13.3 Versão 3.3 (Planejada)
 - Sistema de pagamentos para inscrições
 - Certificados automáticos
 - App mobile companion
 - Integração com redes sociais
 
-### 11.4 Melhorias de Segurança
+### 13.4 Melhorias de Segurança
 - Implementação de roles personalizados
 - Auditoria de ações
 - Backup automático de dados
@@ -494,15 +693,15 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ---
 
-## 12. Suporte e Manutenção
+## 14. Suporte e Manutenção
 
-### 12.1 Documentação
+### 14.1 Documentação
 - Manual do usuário
 - Documentação técnica para desenvolvedores
 - Guias de instalação e configuração
 - FAQ e troubleshooting
 
-### 12.2 Suporte Técnico
+### 14.2 Suporte Técnico
 - Canal de suporte via email
 - Fórum de discussão
 - Atualizações regulares de segurança

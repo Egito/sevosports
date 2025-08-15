@@ -20,6 +20,8 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         add_action('wp_ajax_sevo_dashboard_get_stats', array($this, 'ajax_get_stats'));
         add_action('wp_ajax_nopriv_sevo_dashboard_get_stats', array($this, 'ajax_get_stats'));
         add_action('wp_ajax_sevo_dashboard_export_inscricoes', array($this, 'ajax_export_inscricoes'));
+        add_action('wp_ajax_sevo_dashboard_get_inscricao_edit', array($this, 'ajax_get_inscricao_edit'));
+        add_action('wp_ajax_sevo_dashboard_save_inscricao_edit', array($this, 'ajax_save_inscricao_edit'));
     }
     
     /**
@@ -63,10 +65,18 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 SEVO_EVENTOS_VERSION
             );
             
+            // Enfileirar o sistema de toaster
+            wp_enqueue_style('sevo-toaster-style');
+            wp_enqueue_script('sevo-toaster-script');
+            
+            // Enfileirar o sistema de popup
+            wp_enqueue_style('sevo-popup-style');
+            wp_enqueue_script('sevo-popup-script');
+            
             wp_enqueue_script(
                 'sevo-dashboard-inscricoes',
                 SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-inscricoes.js',
-                array('jquery'),
+                array('jquery', 'sevo-toaster-script'),
                 SEVO_EVENTOS_VERSION,
                 true
             );
@@ -75,6 +85,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             wp_localize_script('sevo-dashboard-inscricoes', 'sevoDashboardInscricoes', array(
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('sevo_dashboard_inscricoes_nonce'),
+                'eventViewNonce' => wp_create_nonce('sevo_landing_page_nonce'),
                 'canManageAll' => sevo_check_user_permission('manage_inscricoes'),
                 'currentUserId' => get_current_user_id(),
                 'strings' => array(
@@ -103,6 +114,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         // Verificar se é superadmin ou admin primeiro
         $is_super_admin = is_super_admin();
         $is_admin = current_user_can('manage_options');
+        // Superadmin e administradores podem ver todas as inscrições
         $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
         $can_view_own = sevo_check_user_permission('view_own_inscricoes');
         
@@ -155,6 +167,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         // Verificar se é superadmin ou admin primeiro
         $is_super_admin = is_super_admin();
         $is_admin = current_user_can('manage_options');
+        // Superadmin e administradores podem ver todas as inscrições
         $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
         
         if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
@@ -177,6 +190,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             // Verificar se é superadmin ou admin primeiro
             $is_super_admin = is_super_admin();
             $is_admin = current_user_can('manage_options');
+            // Superadmin e administradores podem ver todas as inscrições
             $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
             
             if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
@@ -219,6 +233,102 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     }
     
     /**
+     * AJAX: Buscar dados da inscrição para edição
+     */
+    public function ajax_get_inscricao_edit() {
+        check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
+        
+        if (!is_super_admin()) {
+            wp_send_json_error('Acesso negado. Apenas superadmin pode editar inscrições.');
+        }
+        
+        $inscricao_id = intval($_POST['inscricao_id'] ?? 0);
+        
+        if (!$inscricao_id) {
+            wp_send_json_error('ID da inscrição não fornecido.');
+        }
+        
+        global $wpdb;
+        
+        // Buscar dados da inscrição
+        $inscricao = $wpdb->get_row($wpdb->prepare("
+            SELECT p.*, 
+                   pm_evento.meta_value as evento_id,
+                   pm_usuario.meta_value as usuario_id,
+                   pm_status.meta_value as status,
+                   pm_comentario.meta_value as comentario,
+                   e.post_title as evento_nome,
+                   u.display_name as usuario_nome,
+                   u.user_email as usuario_email
+            FROM {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} pm_evento ON p.ID = pm_evento.post_id AND pm_evento.meta_key = '_sevo_inscr_evento_id'
+            LEFT JOIN {$wpdb->postmeta} pm_usuario ON p.ID = pm_usuario.post_id AND pm_usuario.meta_key = '_sevo_inscr_usuario_id'
+            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_sevo_inscr_status'
+            LEFT JOIN {$wpdb->postmeta} pm_comentario ON p.ID = pm_comentario.post_id AND pm_comentario.meta_key = '_sevo_inscr_comentario'
+            LEFT JOIN {$wpdb->posts} e ON pm_evento.meta_value = e.ID
+            LEFT JOIN {$wpdb->users} u ON pm_usuario.meta_value = u.ID
+            WHERE p.ID = %d AND p.post_type = 'sevo_inscr'
+        ", $inscricao_id));
+        
+        if (!$inscricao) {
+            wp_send_json_error('Inscrição não encontrada.');
+        }
+        
+        // Incluir template do modal
+        ob_start();
+        include SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-inscricao-edit.php';
+        $html = ob_get_clean();
+        
+        wp_send_json_success(array(
+            'html' => $html,
+            'inscricao' => $inscricao
+        ));
+    }
+    
+    public function ajax_save_inscricao_edit() {
+        check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
+        
+        if (!is_super_admin()) {
+            wp_send_json_error('Acesso negado. Apenas superadmin pode editar inscrições.');
+        }
+        
+        $inscricao_id = intval($_POST['inscricao_id'] ?? 0);
+        $status = sanitize_text_field($_POST['status'] ?? '');
+        $comentario = sanitize_textarea_field($_POST['comentario'] ?? '');
+        
+        if (!$inscricao_id) {
+            wp_send_json_error('ID da inscrição não fornecido.');
+        }
+        
+        if (!in_array($status, ['solicitada', 'aceita', 'rejeitada', 'cancelada'])) {
+            wp_send_json_error('Status inválido.');
+        }
+        
+        // Verificar se a inscrição existe
+        $inscricao = get_post($inscricao_id);
+        if (!$inscricao || $inscricao->post_type !== 'sevo_inscr') {
+            wp_send_json_error('Inscrição não encontrada.');
+        }
+        
+        // Atualizar meta fields
+        update_post_meta($inscricao_id, '_sevo_inscr_status', $status);
+        update_post_meta($inscricao_id, '_sevo_inscr_comentario', $comentario);
+        
+        // Atualizar data de modificação
+        wp_update_post(array(
+            'ID' => $inscricao_id,
+            'post_modified' => current_time('mysql'),
+            'post_modified_gmt' => current_time('mysql', 1)
+        ));
+        
+        wp_send_json_success(array(
+            'message' => 'Inscrição atualizada com sucesso!',
+            'status' => $status,
+            'comentario' => $comentario
+        ));
+    }
+    
+    /**
      * Buscar dados das inscrições com filtros e paginação.
      */
     private function get_inscricoes_data($page, $per_page, $filters, $can_manage_all) {
@@ -239,7 +349,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         if (!empty($filters['status']) && $filters['status'] !== '') {
-            $where_conditions[] = $wpdb->prepare('inscr.post_status = %s', sanitize_text_field($filters['status']));
+            $where_conditions[] = $wpdb->prepare('status_meta.meta_value = %s', sanitize_text_field($filters['status']));
         }
         
         if (!empty($filters['ano']) && $filters['ano'] !== '') {
@@ -278,7 +388,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 inscr.ID as inscricao_id,
                 inscr.post_author as usuario_id,
                 inscr.post_date as data_inscricao,
-                inscr.post_status as status,
+                COALESCE(status_meta.meta_value, 'solicitada') as status,
                 evento_meta.meta_value as evento_id,
                 evento.post_title as evento_nome,
                 evento_data.meta_value as evento_data,
@@ -288,14 +398,19 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 org.post_title as organizacao_nome
             FROM {$wpdb->posts} inscr
             LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
-            LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID
+            LEFT JOIN {$wpdb->postmeta} status_meta ON inscr.ID = status_meta.post_id AND status_meta.meta_key = '_sevo_inscr_status'
+            LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID AND evento.post_type = 'sevo_evento' AND evento.post_status = 'publish'
             LEFT JOIN {$wpdb->postmeta} evento_data ON evento.ID = evento_data.post_id AND evento_data.meta_key = '_sevo_evento_data'
             LEFT JOIN {$wpdb->postmeta} tipo_evento_meta ON evento.ID = tipo_evento_meta.post_id AND tipo_evento_meta.meta_key = '_sevo_evento_tipo_evento_id'
-            LEFT JOIN {$wpdb->posts} tipo_evento ON tipo_evento_meta.meta_value = tipo_evento.ID
+            LEFT JOIN {$wpdb->posts} tipo_evento ON tipo_evento_meta.meta_value = tipo_evento.ID AND tipo_evento.post_type = 'sevo_tipo_evento' AND tipo_evento.post_status = 'publish'
             LEFT JOIN {$wpdb->postmeta} org_meta ON tipo_evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'
-            LEFT JOIN {$wpdb->posts} org ON org_meta.meta_value = org.ID
+            LEFT JOIN {$wpdb->posts} org ON org_meta.meta_value = org.ID AND org.post_type = 'sevo_organizacao' AND org.post_status = 'publish'
             {$joins}
-            WHERE inscr.post_type = 'sevo_inscr' AND {$where}
+            WHERE inscr.post_type = 'sevo_inscr' 
+                AND inscr.post_status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')
+                AND evento_meta.meta_value IS NOT NULL 
+                AND evento_meta.meta_value != ''
+                AND {$where}
             ORDER BY inscr.post_date DESC
             LIMIT {$per_page} OFFSET {$offset}
         ";
@@ -307,9 +422,14 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             SELECT COUNT(DISTINCT inscr.ID)
             FROM {$wpdb->posts} inscr
             LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
-            LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID
+            LEFT JOIN {$wpdb->postmeta} status_meta ON inscr.ID = status_meta.post_id AND status_meta.meta_key = '_sevo_inscr_status'
+            LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID AND evento.post_type = 'sevo_evento' AND evento.post_status = 'publish'
             {$joins}
-            WHERE inscr.post_type = 'sevo_inscr' AND {$where}
+            WHERE inscr.post_type = 'sevo_inscr' 
+                AND inscr.post_status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')
+                AND evento_meta.meta_value IS NOT NULL 
+                AND evento_meta.meta_value != ''
+                AND {$where}
         ";
         
         $total = $wpdb->get_var($count_sql);
@@ -378,8 +498,8 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         $status_labels = array(
             'solicitada' => 'Solicitada',
-            'aceita' => 'Aprovada',
-            'rejeitada' => 'Reprovada',
+            'aceita' => 'Aceita',
+            'rejeitada' => 'Rejeitada',
             'cancelada' => 'Cancelada'
         );
         
@@ -387,8 +507,8 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $new_label = $status_labels[$new_status] ?? $new_status;
         
         $action_labels = array(
-            'aceita' => 'aprovada',
-            'rejeitada' => 'reprovada',
+            'aceita' => 'aceita',
+            'rejeitada' => 'rejeitada',
             'solicitada' => 'revertida para solicitada',
             'cancelada' => 'cancelada'
         );
@@ -410,13 +530,19 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             $comment_content .= "\nMotivo: " . $reason;
         }
         
-        wp_insert_comment(array(
-            'comment_post_ID' => $evento_id,
-            'comment_content' => $comment_content,
-            'comment_type' => 'sevo_inscricao_log',
-            'comment_approved' => 1,
-            'user_id' => get_current_user_id()
-        ));
+        // Usar a função sevo_add_inscription_log_comment se disponível
+        if (function_exists('sevo_add_inscription_log_comment')) {
+            sevo_add_inscription_log_comment($evento_id, $comment_content);
+        } else {
+            // Fallback para wp_insert_comment
+            wp_insert_comment(array(
+                'comment_post_ID' => $evento_id,
+                'comment_content' => $comment_content,
+                'comment_type' => 'sevo_inscricao_log',
+                'comment_approved' => 1,
+                'user_id' => get_current_user_id()
+            ));
+        }
     }
     
     /**
@@ -528,9 +654,9 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN inscr.post_status = 'solicitada' THEN 1 ELSE 0 END) as solicitadas,
-                SUM(CASE WHEN inscr.post_status = 'aceita' THEN 1 ELSE 0 END) as approved,
-                SUM(CASE WHEN inscr.post_status = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
-                SUM(CASE WHEN inscr.post_status = 'cancelada' THEN 1 ELSE 0 END) as canceladas
+            SUM(CASE WHEN inscr.post_status = 'aceita' THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN inscr.post_status = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
+            SUM(CASE WHEN inscr.post_status = 'cancelada' THEN 1 ELSE 0 END) as canceladas
             FROM {$wpdb->posts} inscr
             LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
             {$joins}

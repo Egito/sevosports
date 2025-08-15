@@ -348,7 +348,7 @@ jQuery(document).ready(function($) {
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
                 console.error('Dados AJAX não disponíveis (sevoLandingPage)');
-                alert('Erro: Dados de configuração não encontrados');
+                SevoToaster.showError('Erro: Dados de configuração não encontrados');
                 return;
             }
             
@@ -384,7 +384,7 @@ jQuery(document).ready(function($) {
                         modalContent.style.display = 'block';
                     } else {
                         console.error('Erro ao carregar evento:', response.data);
-                        alert('Erro ao carregar evento: ' + (response.data || 'Erro desconhecido'));
+                        SevoToaster.showError('Erro ao carregar evento: ' + (response.data || 'Erro desconhecido'));
                         this.closeEventModal();
                     }
                 }.bind(this),
@@ -395,7 +395,7 @@ jQuery(document).ready(function($) {
                         responseText: xhr.responseText,
                         xhr: xhr
                     });
-                    alert('Erro na requisição AJAX: ' + error);
+                    SevoToaster.showError('Erro na requisição AJAX: ' + error);
                     this.closeEventModal();
                 }.bind(this)
             });
@@ -434,14 +434,17 @@ jQuery(document).ready(function($) {
         inscribeToEvent: function(eventId) {
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
-                alert('Erro: Dados de configuração não encontrados');
+                SevoToaster.showError('Erro: Dados de configuração não encontrados');
                 return;
             }
 
-            if (!confirm('Deseja se inscrever neste evento?')) {
-                return;
-            }
-
+            SevoPopup.confirm('Deseja se inscrever neste evento?', {
+                title: 'Confirmar Inscrição',
+                confirmText: 'Sim, inscrever',
+                cancelText: 'Cancelar'
+            }).then(confirmed => {
+                if (!confirmed) return;
+                
             $.ajax({
                 url: ajaxData.ajax_url,
                 type: 'POST',
@@ -455,20 +458,21 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Inscrição realizada com sucesso!');
+                        SevoToaster.showSuccess('Inscrição realizada com sucesso!');
                         // Recarrega o modal para mostrar o novo status
                         this.openEventModal(eventId);
                     } else {
-                        alert('Erro ao realizar inscrição: ' + (response.data || 'Erro desconhecido'));
+                        SevoToaster.showError('Erro ao realizar inscrição: ' + (response.data || 'Erro desconhecido'));
                     }
                 }.bind(this),
                 error: function(xhr, status, error) {
                     console.error('Erro na inscrição:', error);
-                    alert('Erro na inscrição: ' + error);
+                    SevoToaster.showError('Erro na inscrição: ' + error);
                 },
                 complete: function() {
                     $('.sevo-inscribe-evento').prop('disabled', false).html('<i class="dashicons dashicons-plus-alt"></i> Inscrever-se');
                 }
+            });
             });
         },
 
@@ -476,14 +480,17 @@ jQuery(document).ready(function($) {
         cancelInscricao: function(inscricaoId) {
             const ajaxData = window.sevoLandingPage || window.sevoLandingPageData;
             if (!ajaxData) {
-                alert('Erro: Dados de configuração não encontrados');
+                SevoToaster.showError('Erro: Dados de configuração não encontrados');
                 return;
             }
 
-            if (!confirm('Deseja cancelar sua inscrição neste evento?')) {
-                return;
-            }
-
+            SevoPopup.danger('Deseja cancelar sua inscrição neste evento?', {
+                title: 'Cancelar Inscrição',
+                confirmText: 'Sim, cancelar',
+                cancelText: 'Manter inscrição'
+            }).then(confirmed => {
+                if (!confirmed) return;
+                
             $.ajax({
                 url: ajaxData.ajax_url,
                 type: 'POST',
@@ -497,21 +504,22 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Inscrição cancelada com sucesso!');
+                        SevoToaster.showSuccess('Inscrição cancelada com sucesso!');
                         // Recarrega o modal para mostrar o novo status
                         const eventId = response.data.event_id;
                         this.openEventModal(eventId);
                     } else {
-                        alert('Erro ao cancelar inscrição: ' + (response.data || 'Erro desconhecido'));
+                        SevoToaster.showError('Erro ao cancelar inscrição: ' + (response.data || 'Erro desconhecido'));
                     }
                 }.bind(this),
                 error: function(xhr, status, error) {
                     console.error('Erro ao cancelar inscrição:', error);
-                    alert('Erro ao cancelar inscrição: ' + error);
+                    SevoToaster.showError('Erro ao cancelar inscrição: ' + error);
                 },
                 complete: function() {
                     $('.sevo-cancel-inscricao').prop('disabled', false).html('<i class="dashicons dashicons-no"></i> Cancelar Inscrição');
                 }
+            });
             });
         },
 
