@@ -81,6 +81,11 @@ function sevo_check_user_permission($action, $user_id = null, $post_id = null) {
         return in_array($action, $public_actions);
     }
     
+    // Verificação especial para superadmin - tem acesso total
+    if (is_super_admin($user_id)) {
+        return true;
+    }
+    
     // Verificar permissões baseadas na ação
     switch ($action) {
         // Ações de administração total - apenas administradores

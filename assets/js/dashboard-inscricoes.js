@@ -43,25 +43,26 @@
         cacheElements: function() {
             this.elements = {
                 container: $('.sevo-dashboard-inscricoes'),
-                filtersToggle: $('.sevo-filters-toggle'),
-                filtersContent: $('.sevo-filters-content'),
-                filterForm: $('#sevo-filters-form'),
+                filtersToggle: $('#sevo-filters-toggle'),
+                filtersContent: $('#sevo-filters-content'),
+                filterForm: $('.sevo-filters-content'),
                 tableContainer: $('.sevo-table-container'),
-                tableBody: $('#sevo-inscricoes-tbody'),
-                tableLoading: $('.sevo-table-loading'),
-                noResults: $('.sevo-no-results'),
-                pagination: $('.sevo-pagination'),
-                itemsPerPageSelect: $('#items-per-page'),
-                refreshBtn: $('.sevo-refresh-btn'),
-                tableInfo: $('.sevo-table-info'),
-                statsCards: $('.sevo-stat-number'),
-                modal: $('#sevo-confirmation-modal'),
-                modalTitle: $('#modal-title'),
-                modalMessage: $('#modal-message'),
-                modalInput: $('#modal-input'),
-                modalConfirm: $('#modal-confirm'),
-                modalCancel: $('#modal-cancel'),
-                toast: $('#sevo-toast')
+                table: $('#inscricoes-table'),
+                tableBody: $('#inscricoes-tbody'),
+                tableLoading: $('#table-loading'),
+                noResults: $('#no-results'),
+                pagination: $('#pagination-container'),
+                itemsPerPageSelect: $('#per-page-select'),
+                refreshBtn: $('#refresh-table'),
+                tableInfo: $('#results-info'),
+                modal: $('#confirmation-modal'),
+                toast: $('#notification-toast'),
+                stats: {
+                    total: $('#stat-total'),
+                    pending: $('#stat-pending'),
+                    approved: $('#stat-approved'),
+                    rejected: $('#stat-rejected')
+                }
             };
         },
 
@@ -71,8 +72,8 @@
             this.elements.filtersToggle.on('click', this.toggleFilters.bind(this));
 
             // Aplicar filtros
-            this.elements.filterForm.on('submit', this.applyFilters.bind(this));
-            this.elements.filterForm.on('reset', this.resetFilters.bind(this));
+            $('#apply-filters').on('click', this.applyFilters.bind(this));
+            $('#clear-filters').on('click', this.resetFilters.bind(this));
 
             // Itens por página
             this.elements.itemsPerPageSelect.on('change', this.changeItemsPerPage.bind(this));
@@ -81,7 +82,7 @@
             this.elements.refreshBtn.on('click', this.refreshData.bind(this));
 
             // Ordenação da tabela
-            $(document).on('click', '.sevo-inscricoes-table th.sortable', this.handleSort.bind(this));
+            $(document).on('click', '#inscricoes-table th.sortable', this.handleSort.bind(this));
 
             // Ações da tabela
             $(document).on('click', '.action-approve', this.handleApprove.bind(this));
@@ -90,7 +91,7 @@
             $(document).on('click', '.action-view', this.handleView.bind(this));
 
             // Paginação
-            $(document).on('click', '.sevo-pagination button[data-page]', this.changePage.bind(this));
+            $(document).on('click', '#pagination-container button[data-page]', this.changePage.bind(this));
 
             // Modal
             this.elements.modalConfirm.on('click', this.confirmAction.bind(this));
@@ -139,17 +140,25 @@
         applyFilters: function(e) {
             e.preventDefault();
             
-            // Coletar valores dos filtros
-            const formData = new FormData(this.elements.filterForm[0]);
+            // Coletar valores dos filtros, garantindo que valores vazios sejam tratados
             this.config.filters = {
-                evento: formData.get('evento') || '',
-                status: formData.get('status') || '',
-                ano: formData.get('ano') || '',
-                mes: formData.get('mes') || '',
-                organizacao: formData.get('organizacao') || '',
-                tipo_evento: formData.get('tipo_evento') || '',
-                usuario: formData.get('usuario') || ''
+                evento_id: $('#filter-evento').val() || '',
+                status: $('#filter-status').val() || '',
+                ano: $('#filter-ano').val() || '',
+                mes: $('#filter-mes').val() || '',
+                organizacao_id: $('#filter-organizacao').val() || '',
+                tipo_evento_id: $('#filter-tipo-evento').val() || '',
+                usuario: $('#filter-usuario').val() || ''
             };
+
+            // Remover filtros vazios para evitar problemas na query
+            Object.keys(this.config.filters).forEach(key => {
+                if (this.config.filters[key] === '' || this.config.filters[key] === null || this.config.filters[key] === undefined) {
+                    delete this.config.filters[key];
+                }
+            });
+
+            console.log('Filtros aplicados:', this.config.filters); // Debug
 
             // Resetar para primeira página
             this.config.currentPage = 1;
@@ -163,14 +172,23 @@
         resetFilters: function(e) {
             e.preventDefault();
             
+            // Limpar campos de filtro
+            $('#filter-evento').val('');
+            $('#filter-status').val('');
+            $('#filter-ano').val('');
+            $('#filter-mes').val('');
+            $('#filter-organizacao').val('');
+            $('#filter-tipo-evento').val('');
+            $('#filter-usuario').val('');
+            
             // Limpar filtros
             this.config.filters = {
-                evento: '',
+                evento_id: '',
                 status: '',
                 ano: '',
                 mes: '',
-                organizacao: '',
-                tipo_evento: '',
+                organizacao_id: '',
+                tipo_evento_id: '',
                 usuario: ''
             };
 
@@ -211,7 +229,7 @@
             }
 
             // Atualizar UI
-            $('.sevo-inscricoes-table th').removeClass('sort-asc sort-desc');
+            $('#inscricoes-table th').removeClass('sort-asc sort-desc');
             $th.addClass('sort-' + this.config.sortOrder);
 
             // Recarregar dados
@@ -252,10 +270,10 @@
 
         // Atualizar estatísticas
         updateStats: function(stats) {
-            $('.sevo-stat-total .sevo-stat-number').text(stats.total || 0);
-            $('.sevo-stat-pending .sevo-stat-number').text(stats.pending || 0);
-            $('.sevo-stat-approved .sevo-stat-number').text(stats.approved || 0);
-            $('.sevo-stat-rejected .sevo-stat-number').text(stats.rejected || 0);
+            this.elements.stats.total.text(stats.total || 0);
+            this.elements.stats.pending.text(stats.pending || 0);
+            this.elements.stats.approved.text(stats.approved || 0);
+            this.elements.stats.rejected.text(stats.rejected || 0);
         },
 
         // Carregar inscrições
@@ -281,17 +299,21 @@
                     this.config.isLoading = false;
                     this.hideLoading();
 
+                    console.log('Response:', response); // Debug
+
                     if (response.success) {
                         this.renderInscricoes(response.data.inscricoes);
-                        this.updatePagination(response.data.pagination);
-                        this.updateTableInfo(response.data.pagination);
+                        this.updatePagination(response.data);
+                        this.updateTableInfo(response.data);
                     } else {
+                        console.error('Error response:', response);
                         this.showError(response.data || 'Erro ao carregar inscrições');
                     }
                 },
-                error: () => {
+                error: (xhr, status, error) => {
                     this.config.isLoading = false;
                     this.hideLoading();
+                    console.error('AJAX Error:', xhr, status, error);
                     this.showError('Erro de conexão ao carregar inscrições');
                 }
             });
@@ -308,6 +330,7 @@
             }
 
             this.hideNoResults();
+            this.elements.pagination.show();
 
             let html = '';
             inscricoes.forEach(inscricao => {
@@ -321,18 +344,53 @@
         renderInscricaoRow: function(inscricao, template) {
             let html = template;
 
-            // Substituir placeholders
-            html = html.replace(/{{id}}/g, inscricao.id);
-            html = html.replace(/{{usuario_nome}}/g, this.escapeHtml(inscricao.usuario_nome));
-            html = html.replace(/{{usuario_email}}/g, this.escapeHtml(inscricao.usuario_email));
-            html = html.replace(/{{evento_titulo}}/g, this.escapeHtml(inscricao.evento_titulo));
-            html = html.replace(/{{evento_data}}/g, this.formatDate(inscricao.evento_data));
-            html = html.replace(/{{organizacao_nome}}/g, this.escapeHtml(inscricao.organizacao_nome));
-            html = html.replace(/{{tipo_evento_nome}}/g, this.escapeHtml(inscricao.tipo_evento_nome));
-            html = html.replace(/{{status}}/g, inscricao.status);
+            // Substituir placeholders básicos
+            html = html.replace(/{{inscricao_id}}/g, inscricao.id || inscricao.inscricao_id);
+            html = html.replace(/{{usuario_nome}}/g, this.escapeHtml(inscricao.usuario_nome || ''));
+            html = html.replace(/{{usuario_email}}/g, this.escapeHtml(inscricao.usuario_email || ''));
+            html = html.replace(/{{evento_nome}}/g, this.escapeHtml(inscricao.evento_nome || inscricao.evento_titulo || ''));
+            html = html.replace(/{{evento_data_formatted}}/g, this.formatDate(inscricao.evento_data));
+            html = html.replace(/{{organizacao_nome}}/g, this.escapeHtml(inscricao.organizacao_nome || ''));
+            html = html.replace(/{{tipo_evento_nome}}/g, this.escapeHtml(inscricao.tipo_evento_nome || ''));
+            html = html.replace(/{{status}}/g, inscricao.status || '');
             html = html.replace(/{{status_label}}/g, this.getStatusLabel(inscricao.status));
-            html = html.replace(/{{data_inscricao}}/g, this.formatDateTime(inscricao.data_inscricao));
-            html = html.replace(/{{evento_id}}/g, inscricao.evento_id);
+            html = html.replace(/{{data_inscricao_formatted}}/g, this.formatDateTime(inscricao.data_inscricao));
+            html = html.replace(/{{evento_id}}/g, inscricao.evento_id || '');
+
+            // Substituir condicionais de status
+            const isStatusSolicitada = inscricao.status === 'solicitada';
+            
+            // Processar if_status_solicitada
+            const startTagSolicitada = '{{#if_status_solicitada}}';
+            const endTagSolicitada = '{{/if_status_solicitada}}';
+            let startIndex = html.indexOf(startTagSolicitada);
+            while (startIndex !== -1) {
+                const endIndex = html.indexOf(endTagSolicitada, startIndex);
+                if (endIndex !== -1) {
+                    const fullMatch = html.substring(startIndex, endIndex + endTagSolicitada.length);
+                    const content = html.substring(startIndex + startTagSolicitada.length, endIndex);
+                    html = html.replace(fullMatch, isStatusSolicitada ? content : '');
+                    startIndex = html.indexOf(startTagSolicitada, startIndex);
+                } else {
+                    break;
+                }
+            }
+            
+            // Processar if_status_not_solicitada
+            const startTagNotSolicitada = '{{#if_status_not_solicitada}}';
+            const endTagNotSolicitada = '{{/if_status_not_solicitada}}';
+            startIndex = html.indexOf(startTagNotSolicitada);
+            while (startIndex !== -1) {
+                const endIndex = html.indexOf(endTagNotSolicitada, startIndex);
+                if (endIndex !== -1) {
+                    const fullMatch = html.substring(startIndex, endIndex + endTagNotSolicitada.length);
+                    const content = html.substring(startIndex + startTagNotSolicitada.length, endIndex);
+                    html = html.replace(fullMatch, !isStatusSolicitada ? content : '');
+                    startIndex = html.indexOf(startTagNotSolicitada, startIndex);
+                } else {
+                    break;
+                }
+            }
 
             return html;
         },
@@ -536,12 +594,12 @@
         },
 
         // Atualizar informações da tabela
-        updateTableInfo: function(pagination) {
-            const start = ((pagination.current - 1) * this.config.itemsPerPage) + 1;
-            const end = Math.min(start + this.config.itemsPerPage - 1, pagination.total);
+        updateTableInfo: function(data) {
+            const start = ((data.current - 1) * this.config.itemsPerPage) + 1;
+            const end = Math.min(start + this.config.itemsPerPage - 1, data.total);
             
             this.elements.tableInfo.text(
-                `Mostrando ${start} a ${end} de ${pagination.total} inscrições`
+                `Mostrando ${start} a ${end} de ${data.total} inscrições`
             );
         },
 
@@ -550,6 +608,7 @@
             this.elements.tableLoading.show();
             this.elements.tableBody.parent().hide();
             this.elements.noResults.hide();
+            this.elements.pagination.hide();
         },
 
         // Esconder loading

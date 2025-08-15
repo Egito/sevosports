@@ -97,7 +97,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_inscricoes() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        $can_manage_all = sevo_check_user_permission('manage_inscricoes');
+        // Verificar se é superadmin ou admin primeiro
+        $is_super_admin = is_super_admin();
+        $is_admin = current_user_can('manage_options');
+        $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
         $can_view_own = sevo_check_user_permission('view_own_inscricoes');
         
         if (!$can_manage_all && !$can_view_own) {
@@ -146,7 +149,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_filter_options() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        $can_manage_all = sevo_check_user_permission('manage_inscricoes');
+        // Verificar se é superadmin ou admin primeiro
+        $is_super_admin = is_super_admin();
+        $is_admin = current_user_can('manage_options');
+        $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
         
         if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
             wp_die('Permissão negada.');
@@ -165,7 +171,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         try {
             $filters = isset($_POST['filters']) ? $_POST['filters'] : [];
-            $can_manage_all = sevo_check_user_permission('manage_inscricoes');
+            // Verificar se é superadmin ou admin primeiro
+            $is_super_admin = is_super_admin();
+            $is_admin = current_user_can('manage_options');
+            $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
             
             if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
                 wp_die('Permissão negada.');
@@ -221,24 +230,35 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             $where_conditions[] = $wpdb->prepare('inscr.post_author = %d', get_current_user_id());
         }
         
-        // Aplicar filtros
-        if (!empty($filters['evento_id'])) {
+        // Aplicar filtros apenas se não estiverem vazios
+        if (!empty($filters['evento_id']) && $filters['evento_id'] !== '') {
             $where_conditions[] = $wpdb->prepare('evento_meta.meta_value = %d', intval($filters['evento_id']));
         }
         
-        if (!empty($filters['status'])) {
+        if (!empty($filters['status']) && $filters['status'] !== '') {
             $where_conditions[] = $wpdb->prepare('inscr.post_status = %s', sanitize_text_field($filters['status']));
         }
         
-        if (!empty($filters['ano'])) {
+        if (!empty($filters['ano']) && $filters['ano'] !== '') {
             $where_conditions[] = $wpdb->prepare('YEAR(inscr.post_date) = %d', intval($filters['ano']));
         }
         
-        if (!empty($filters['mes'])) {
+        if (!empty($filters['mes']) && $filters['mes'] !== '') {
             $where_conditions[] = $wpdb->prepare('MONTH(inscr.post_date) = %d', intval($filters['mes']));
         }
         
-        if (!empty($filters['usuario']) && $can_manage_all) {
+        if (!empty($filters['organizacao']) && $filters['organizacao'] !== '' && $can_manage_all) {
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} org_meta ON evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_evento_tipo_evento_id'";
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_org_meta ON org_meta.meta_value = tipo_org_meta.post_id AND tipo_org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'";
+            $where_conditions[] = $wpdb->prepare('tipo_org_meta.meta_value = %d', intval($filters['organizacao']));
+        }
+        
+        if (!empty($filters['tipo_evento']) && $filters['tipo_evento'] !== '' && $can_manage_all) {
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_meta ON evento.ID = tipo_meta.post_id AND tipo_meta.meta_key = '_sevo_evento_tipo_evento_id'";
+            $where_conditions[] = $wpdb->prepare('tipo_meta.meta_value = %d', intval($filters['tipo_evento']));
+        }
+        
+        if (!empty($filters['usuario']) && $filters['usuario'] !== '' && $can_manage_all) {
             $join_tables[] = "LEFT JOIN {$wpdb->users} u ON inscr.post_author = u.ID";
             $where_conditions[] = $wpdb->prepare('(u.display_name LIKE %s OR u.user_email LIKE %s)', 
                 '%' . $wpdb->esc_like($filters['usuario']) . '%',
@@ -473,17 +493,32 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             $where_conditions[] = $wpdb->prepare('inscr.post_author = %d', get_current_user_id());
         }
         
-        // Aplicar filtros
-        if (!empty($filters['evento_id'])) {
+        // Aplicar filtros apenas se não estiverem vazios
+        if (!empty($filters['evento_id']) && $filters['evento_id'] !== '') {
             $where_conditions[] = $wpdb->prepare('evento_meta.meta_value = %d', intval($filters['evento_id']));
         }
         
-        if (!empty($filters['ano'])) {
+        if (!empty($filters['status']) && $filters['status'] !== '') {
+            $where_conditions[] = $wpdb->prepare('inscr.post_status = %s', sanitize_text_field($filters['status']));
+        }
+        
+        if (!empty($filters['ano']) && $filters['ano'] !== '') {
             $where_conditions[] = $wpdb->prepare('YEAR(inscr.post_date) = %d', intval($filters['ano']));
         }
         
-        if (!empty($filters['mes'])) {
+        if (!empty($filters['mes']) && $filters['mes'] !== '') {
             $where_conditions[] = $wpdb->prepare('MONTH(inscr.post_date) = %d', intval($filters['mes']));
+        }
+        
+        if (!empty($filters['organizacao']) && $filters['organizacao'] !== '' && $can_manage_all) {
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} org_meta ON evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_evento_tipo_evento_id'";
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_org_meta ON org_meta.meta_value = tipo_org_meta.post_id AND tipo_org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'";
+            $where_conditions[] = $wpdb->prepare('tipo_org_meta.meta_value = %d', intval($filters['organizacao']));
+        }
+        
+        if (!empty($filters['tipo_evento']) && $filters['tipo_evento'] !== '' && $can_manage_all) {
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_meta ON evento.ID = tipo_meta.post_id AND tipo_meta.meta_key = '_sevo_evento_tipo_evento_id'";
+            $where_conditions[] = $wpdb->prepare('tipo_meta.meta_value = %d', intval($filters['tipo_evento']));
         }
         
         $joins = implode(' ', $join_tables);

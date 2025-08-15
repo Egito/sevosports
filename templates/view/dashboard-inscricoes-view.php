@@ -13,23 +13,6 @@ $current_user = wp_get_current_user();
 ?>
 
 <div class="sevo-dashboard-inscricoes" id="sevo-dashboard-inscricoes">
-    <!-- Cabeçalho -->
-    <div class="sevo-dashboard-header">
-        <h2 class="sevo-dashboard-title">
-            <?php if ($can_manage_all): ?>
-                Dashboard de Inscrições
-            <?php else: ?>
-                Minhas Inscrições
-            <?php endif; ?>
-        </h2>
-        <div class="sevo-dashboard-user-info">
-            <span class="sevo-user-welcome">Olá, <?php echo esc_html($current_user->display_name); ?>!</span>
-            <?php if ($can_manage_all): ?>
-                <span class="sevo-user-role">Administrador</span>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <!-- Cards de Estatísticas -->
     <div class="sevo-dashboard-stats" id="sevo-dashboard-stats">
         <div class="sevo-stat-card sevo-stat-total">
@@ -266,22 +249,18 @@ $current_user = wp_get_current_user();
                     {{#if_status_solicitada}}
                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" 
                                 data-inscricao-id="{{inscricao_id}}" title="Aprovar">
-                            ✓
                         </button>
                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" 
                                 data-inscricao-id="{{inscricao_id}}" title="Reprovar">
-                            ✗
                         </button>
                     {{/if_status_solicitada}}
                     {{#if_status_not_solicitada}}
                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning revert-btn" 
                                 data-inscricao-id="{{inscricao_id}}" title="Reverter para Pendente">
-                            ↶
                         </button>
                     {{/if_status_not_solicitada}}
                     <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-btn" 
                             data-inscricao-id="{{inscricao_id}}" title="Ver Detalhes">
-                        👁
                     </button>
                 </div>
             <?php else: ?>
