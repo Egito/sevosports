@@ -84,26 +84,56 @@ Este documento estabelece os padrões de design e identidade visual para manter 
 
 ### Arquivo: `button-colors.css`
 
-#### Botão Primário (Ver Detalhes)
-- **Background**: `#007cba`
+#### Botões de Ação com Ícones
+Todos os botões de ação nos dashboards agora utilizam apenas ícones para uma interface mais limpa e moderna.
+
+##### Botão de Visualização (Ver Detalhes)
+- **Background**: `#3b82f6` (azul)
+- **Hover**: `#2563eb`
 - **Color**: `#ffffff`
-- **Padding**: `8px 16px`
-- **Border-radius**: `4px`
-- **Font-size**: `14px`
-- **Font-weight**: `500`
+- **Dimensões**: `36px x 36px`
+- **Padding**: `8px`
+- **Border-radius**: `6px`
+- **Ícone**: `dashicons-visibility`
+- **Tooltip**: "Ver Detalhes"
+- **Efeitos**: `translateY(-1px)` no hover com shadow `rgba(59, 130, 246, 0.3)`
 
-#### Botão Secundário (Alterar)
-- **Background**: `#6c757d`
+##### Botão de Edição (Editar)
+- **Background**: `#22c55e` (verde)
+- **Hover**: `#16a34a`
 - **Color**: `#ffffff`
-- **Hover**: `#5a6268`
+- **Dimensões**: `36px x 36px`
+- **Padding**: `8px`
+- **Border-radius**: `6px`
+- **Ícone**: `dashicons-edit`
+- **Tooltip**: "Editar"
+- **Efeitos**: `translateY(-1px)` no hover com shadow `rgba(34, 197, 94, 0.3)`
 
-#### Botão de Sucesso
-- **Background**: `#28a745`
-- **Hover**: `#218838`
+##### Botões Flutuantes de Adicionar
+- **Posição**: `fixed`, bottom-right
+- **Dimensões**: `56px x 56px`
+- **Border-radius**: `50%` (circular)
+- **Z-index**: `9998`
+- **Ícone**: `dashicons-plus-alt`
+- **Cores por contexto**:
+  - **Eventos**: Gradiente laranja `#f97316` → `#ea580c`
+  - **Organizações**: Gradiente roxo `#8b5cf6` → `#7c3aed`
+  - **Tipos de Evento**: Gradiente verde `#10b981` → `#059669`
+- **Efeitos**: Animação de entrada, ripple effect, tooltip
 
-#### Botão de Perigo
-- **Background**: `#dc3545`
-- **Hover**: `#c82333`
+##### Botão Back to Top
+- **Posição**: `fixed`, bottom-left
+- **Background**: Gradiente azul `#0073aa` → `#005177`
+- **Dimensões**: `50px x 50px`
+- **Border-radius**: `50%`
+- **Ícone**: `dashicons-arrow-up-alt`
+- **Z-index**: `9999`
+
+#### Especificações Técnicas
+- **Transições**: `all 0.2s ease`
+- **Acessibilidade**: Suporte a alto contraste e redução de movimento
+- **Responsividade**: Dimensões reduzidas em dispositivos móveis
+- **Interação**: Tooltips para identificação da função
 
 ## 🪟 Modais
 

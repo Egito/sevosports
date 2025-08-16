@@ -351,14 +351,12 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
                 </div>
                 
                 <div class="card-actions">
-                    <button class="btn-view-tipo-evento" onclick="SevoTipoEventoDashboard.viewTipoEvento(<?php echo esc_attr($post_id); ?>)">
+                    <button class="btn-view-tipo-evento" onclick="SevoTipoEventoDashboard.viewTipoEvento(<?php echo esc_attr($post_id); ?>)" title="Ver Detalhes">
                         <i class="dashicons dashicons-visibility"></i>
-                        Ver Detalhes
                     </button>
                     <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
-                        <button class="btn-edit-tipo-evento" onclick="SevoTipoEventoDashboard.editTipoEvento(<?php echo esc_attr($post_id); ?>)">
+                        <button class="btn-edit-tipo-evento" onclick="SevoTipoEventoDashboard.editTipoEvento(<?php echo esc_attr($post_id); ?>)" title="Editar">
                             <i class="dashicons dashicons-edit"></i>
-                            Alterar
                         </button>
                     <?php endif; ?>
                 </div>

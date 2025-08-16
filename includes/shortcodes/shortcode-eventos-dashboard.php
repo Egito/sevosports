@@ -229,17 +229,30 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('Evento não encontrado.');
         }
         
-        // Verifica se já está inscrito
+        // Verifica período de inscrições
+        $data_inicio_insc = get_post_meta($evento_id, '_sevo_evento_data_inicio_inscricoes', true);
+        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
+        $hoje = current_time('Y-m-d');
+        
+        if ($data_inicio_insc && $hoje < $data_inicio_insc) {
+            wp_send_json_error('As inscrições ainda não foram abertas para este evento.');
+        }
+        
+        if ($data_fim_insc && $hoje > $data_fim_insc) {
+            wp_send_json_error('O período de inscrições para este evento já foi encerrado.');
+        }
+        
+        // Verifica se já está inscrito (incluindo inscrições canceladas)
         $existing = get_posts(array(
             'post_type' => SEVO_INSCR_POST_TYPE,
             'meta_query' => array(
                 array(
-                    'key' => '_sevo_inscricao_evento_id',
+                    'key' => '_sevo_inscr_evento_id',
                     'value' => $evento_id,
                     'compare' => '='
                 ),
                 array(
-                    'key' => '_sevo_inscricao_user_id',
+                    'key' => '_sevo_inscr_user_id',
                     'value' => $user_id,
                     'compare' => '='
                 )
@@ -248,10 +261,34 @@ class Sevo_Eventos_Dashboard_Shortcode {
         ));
         
         if (!empty($existing)) {
-            wp_send_json_error('Você já está inscrito neste evento.');
+            $inscricao_existente = $existing[0];
+            $status_atual = get_post_meta($inscricao_existente->ID, '_sevo_inscr_status', true);
+            $cancel_count = intval(get_post_meta($inscricao_existente->ID, '_sevo_inscr_cancel_count', true));
+            
+            // Se já está ativa, não pode se inscrever novamente
+            if ($status_atual === 'solicitada' || $status_atual === 'aceita') {
+                wp_send_json_error('Você já está inscrito neste evento.');
+            }
+            
+            // Se foi cancelada, verifica se pode se inscrever novamente
+            if ($status_atual === 'cancelada') {
+                if ($cancel_count >= 3) {
+                    wp_send_json_error('Você atingiu o limite máximo de 3 cancelamentos para este evento.');
+                }
+                
+                // Reativa a inscrição existente
+                update_post_meta($inscricao_existente->ID, '_sevo_inscr_status', 'solicitada');
+                update_post_meta($inscricao_existente->ID, '_sevo_inscr_data', current_time('mysql'));
+                
+                wp_send_json_success(array(
+                    'message' => 'Inscrição reativada com sucesso!',
+                    'inscricao_id' => $inscricao_existente->ID
+                ));
+                return;
+            }
         }
         
-        // Cria a inscrição
+        // Cria nova inscrição
         $inscricao_id = wp_insert_post(array(
             'post_type' => SEVO_INSCR_POST_TYPE,
             'post_status' => 'publish',
@@ -262,11 +299,12 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('Erro ao criar inscrição.');
         }
         
-        // Salva metadados da inscrição
-        update_post_meta($inscricao_id, '_sevo_inscricao_evento_id', $evento_id);
-        update_post_meta($inscricao_id, '_sevo_inscricao_user_id', $user_id);
-        update_post_meta($inscricao_id, '_sevo_inscricao_data', current_time('mysql'));
-        update_post_meta($inscricao_id, '_sevo_inscricao_status', 'ativa');
+        // Salva metadados da inscrição com nomes corretos
+        update_post_meta($inscricao_id, '_sevo_inscr_evento_id', $evento_id);
+        update_post_meta($inscricao_id, '_sevo_inscr_user_id', $user_id);
+        update_post_meta($inscricao_id, '_sevo_inscr_data', current_time('mysql'));
+        update_post_meta($inscricao_id, '_sevo_inscr_status', 'solicitada');
+        update_post_meta($inscricao_id, '_sevo_inscr_cancel_count', 0);
         
         wp_send_json_success(array(
             'message' => 'Inscrição realizada com sucesso!',
@@ -293,16 +331,43 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('Inscrição não encontrada.');
         }
         
-        $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscricao_user_id', true);
+        $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscr_user_id', true);
         if ($inscricao_user_id != $user_id && !current_user_can('manage_options')) {
             wp_send_json_error('Você não tem permissão para cancelar esta inscrição.');
         }
         
-        // Atualiza o status da inscrição
-        update_post_meta($inscricao_id, '_sevo_inscricao_status', 'cancelada');
+        // Verifica se a inscrição pode ser cancelada
+        $status_atual = get_post_meta($inscricao_id, '_sevo_inscr_status', true);
+        if ($status_atual === 'cancelada') {
+            wp_send_json_error('Esta inscrição já foi cancelada.');
+        }
+        
+        // Verifica período de inscrições do evento
+        $evento_id = get_post_meta($inscricao_id, '_sevo_inscr_evento_id', true);
+        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
+        $hoje = current_time('Y-m-d');
+        
+        if ($data_fim_insc && $hoje > $data_fim_insc) {
+            wp_send_json_error('Não é possível cancelar a inscrição após o período de inscrições.');
+        }
+        
+        // Incrementa o contador de cancelamentos
+        $cancel_count = intval(get_post_meta($inscricao_id, '_sevo_inscr_cancel_count', true));
+        $cancel_count++;
+        
+        // Atualiza o status da inscrição e contador
+        update_post_meta($inscricao_id, '_sevo_inscr_status', 'cancelada');
+        update_post_meta($inscricao_id, '_sevo_inscr_cancel_count', $cancel_count);
+        
+        $message = 'Inscrição cancelada com sucesso!';
+        if ($cancel_count >= 3) {
+            $message .= ' Você atingiu o limite máximo de cancelamentos para este evento.';
+        }
         
         wp_send_json_success(array(
-            'message' => 'Inscrição cancelada com sucesso!'
+            'message' => $message,
+            'cancel_count' => $cancel_count,
+            'evento_id' => $evento_id
         ));
     }
 

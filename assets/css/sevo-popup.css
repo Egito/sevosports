@@ -28,8 +28,8 @@
 /* Container do popup */
 .sevo-popup {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     max-width: 500px;
     width: 90%;
     max-height: 80vh;
@@ -37,6 +37,8 @@
     transform: scale(0.8) translateY(-20px);
     transition: all 0.3s ease;
     position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    border: 1px solid #e1e5e9;
 }
 
 .sevo-popup-overlay.show .sevo-popup {
@@ -46,10 +48,12 @@
 /* Header do popup */
 .sevo-popup-header {
     padding: 20px 20px 15px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #e1e5e9;
     display: flex;
     align-items: center;
     gap: 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+    border-radius: 12px 12px 0 0;
 }
 
 .sevo-popup-icon {
@@ -66,33 +70,33 @@
 /* Ícones por tipo */
 .sevo-popup-icon.confirm {
     background: #e3f2fd;
-    color: #1976d2;
+    color: #3b82f6;
 }
 
 .sevo-popup-icon.warning {
     background: #fff3e0;
-    color: #f57c00;
+    color: #f59e0b;
 }
 
 .sevo-popup-icon.danger {
     background: #ffebee;
-    color: #d32f2f;
+    color: #ef4444;
 }
 
 .sevo-popup-icon.question {
-    background: #f3e5f5;
-    color: #7b1fa2;
+    background: #e3f2fd;
+    color: #3b82f6;
 }
 
 .sevo-popup-icon.info {
     background: #e8f5e8;
-    color: #388e3c;
+    color: #22c55e;
 }
 
 .sevo-popup-title {
     font-size: 18px;
     font-weight: 600;
-    color: #333;
+    color: #1a202c;
     margin: 0;
     flex: 1;
 }
@@ -104,8 +108,8 @@
 
 .sevo-popup-message {
     font-size: 14px;
-    line-height: 1.5;
-    color: #555;
+    line-height: 1.6;
+    color: #4a5568;
     margin: 0;
 }
 
@@ -113,17 +117,18 @@
 .sevo-popup-input {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     font-size: 14px;
     margin-top: 15px;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
 }
 
 .sevo-popup-input:focus {
     outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .sevo-popup-textarea {
@@ -138,7 +143,9 @@
     display: flex;
     gap: 10px;
     justify-content: flex-end;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #e1e5e9;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
 }
 
 /* Botões */
@@ -165,34 +172,34 @@
 
 /* Botão primário */
 .sevo-popup-btn-primary {
-    background: #007cba;
+    background: #3b82f6;
     color: white;
 }
 
 .sevo-popup-btn-primary:hover:not(:disabled) {
-    background: #005a87;
+    background: #2563eb;
 }
 
 /* Botão secundário */
 .sevo-popup-btn-secondary {
-    background: #f8f9fa;
-    color: #495057;
-    border: 1px solid #dee2e6;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
 }
 
 .sevo-popup-btn-secondary:hover:not(:disabled) {
-    background: #e9ecef;
-    border-color: #adb5bd;
+    background: #e5e7eb;
+    border-color: #9ca3af;
 }
 
 /* Botão de perigo */
 .sevo-popup-btn-danger {
-    background: #dc3545;
+    background: #ef4444;
     color: white;
 }
 
 .sevo-popup-btn-danger:hover:not(:disabled) {
-    background: #c82333;
+    background: #dc2626;
 }
 
 /* Botão de sucesso */
@@ -295,27 +302,25 @@
     outline-offset: 2px;
 }
 
-/* Tema escuro (opcional) */
-@media (prefers-color-scheme: dark) {
-    .sevo-popup {
-        background: #2d3748;
-        color: #e2e8f0;
-    }
-    
-    .sevo-popup-header,
-    .sevo-popup-footer {
-        border-color: #4a5568;
-    }
-    
-    .sevo-popup-input {
-        background: #4a5568;
-        border-color: #718096;
-        color: #e2e8f0;
-    }
-    
-    .sevo-popup-btn-secondary {
-        background: #4a5568;
-        color: #e2e8f0;
-        border-color: #718096;
-    }
+/* Forçar tema claro sempre */
+.sevo-popup {
+    background: white !important;
+    color: #1a202c !important;
+}
+
+.sevo-popup-header,
+.sevo-popup-footer {
+    border-color: #e1e5e9 !important;
+}
+
+.sevo-popup-input {
+    background: white !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+}
+
+.sevo-popup-btn-secondary {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border-color: #d1d5db !important;
 }

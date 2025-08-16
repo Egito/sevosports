@@ -145,6 +145,65 @@ function sevo_get_eventos_by_sections() {
 // Função para renderizar um card de evento
 function sevo_render_event_card($evento) {
     $can_manage_events = current_user_can('manage_options');
+    $evento_id = $evento['id'];
+    
+    // Verifica se o usuário pode se inscrever
+    $user_id = get_current_user_id();
+    $can_inscribe = false;
+    $user_inscricao = null;
+    $user_inscricao_status = null;
+    $cancel_count = 0;
+    $inscricoes_abertas = false;
+    
+    if (is_user_logged_in()) {
+        // Verifica período de inscrições
+        $data_inicio_insc = get_post_meta($evento_id, '_sevo_evento_data_inicio_inscricoes', true);
+        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
+        
+        $hoje = new DateTime();
+        $inicio_insc = $data_inicio_insc ? new DateTime($data_inicio_insc) : null;
+        $fim_insc = $data_fim_insc ? new DateTime($data_fim_insc) : null;
+        $inscricoes_abertas = ($inicio_insc && $fim_insc && $hoje >= $inicio_insc && $hoje <= $fim_insc);
+        
+        // Verifica se já está inscrito (usando nomes corretos dos campos)
+        $user_inscricao_query = new WP_Query(array(
+            'post_type' => SEVO_INSCR_POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => 1,
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => '_sevo_inscr_evento_id',
+                    'value' => $evento_id,
+                    'compare' => '='
+                ),
+                array(
+                    'key' => '_sevo_inscr_user_id',
+                    'value' => $user_id,
+                    'compare' => '='
+                )
+            ),
+            'orderby' => 'date',
+            'order' => 'DESC'
+        ));
+        
+        if ($user_inscricao_query->have_posts()) {
+            $user_inscricao = $user_inscricao_query->posts[0];
+            $user_inscricao_status = get_post_meta($user_inscricao->ID, '_sevo_inscr_status', true);
+            $cancel_count = (int) get_post_meta($user_inscricao->ID, '_sevo_inscr_cancel_count', true);
+            
+            // Se está cancelada e dentro do período, pode se inscrever novamente (se não atingiu limite)
+            if ($user_inscricao_status === 'cancelada' && $inscricoes_abertas && $cancel_count < 3) {
+                $can_inscribe = true;
+            }
+        } else {
+            // Não tem inscrição, pode se inscrever se período estiver aberto
+            if ($inscricoes_abertas) {
+                $can_inscribe = true;
+            }
+        }
+    }
+    
     ob_start();
     ?>
     <div class="sevo-event-card" data-event-id="<?php echo esc_attr($evento['id']); ?>">
@@ -188,14 +247,44 @@ function sevo_render_event_card($evento) {
             </div>
             
             <div class="card-actions">
-                <button class="btn-view-event" onclick="SevoEventosDashboard.viewEvent(<?php echo esc_attr($evento['id']); ?>)">
+                <button class="btn-view-event" onclick="SevoEventosDashboard.viewEvent(<?php echo esc_attr($evento['id']); ?>)" title="Ver Detalhes">
                     <i class="dashicons dashicons-visibility"></i>
-                    Ver Detalhes
                 </button>
+                
+                <?php 
+                // Só mostra botões de inscrição se o usuário estiver logado
+                if (is_user_logged_in()): 
+                ?>
+                    <?php if ($can_inscribe): ?>
+                        <button class="btn-inscribe-event" onclick="SevoEventosDashboard.inscribeEvent(<?php echo esc_attr($evento['id']); ?>)" title="Inscrever-se">
+                            <i class="dashicons dashicons-plus-alt"></i>
+                        </button>
+                    <?php elseif ($user_inscricao && $user_inscricao_status === 'solicitada'): ?>
+                        <button class="btn-cancel-inscription" onclick="SevoEventosDashboard.cancelInscription(<?php echo esc_attr($user_inscricao->ID); ?>)" title="Cancelar Inscrição">
+                            <i class="dashicons dashicons-dismiss"></i>
+                        </button>
+                    <?php elseif ($user_inscricao && $user_inscricao_status === 'aceita'): ?>
+                        <button class="btn-inscribed" title="Inscrito" disabled>
+                            <i class="dashicons dashicons-yes-alt"></i>
+                        </button>
+                    <?php elseif ($user_inscricao && $user_inscricao_status === 'rejeitada'): ?>
+                        <button class="btn-rejected" title="Inscrição Rejeitada" disabled>
+                            <i class="dashicons dashicons-no-alt"></i>
+                        </button>
+                    <?php elseif ($user_inscricao && $user_inscricao_status === 'cancelada' && $cancel_count >= 3): ?>
+                        <button class="btn-blocked" title="Limite de cancelamentos atingido" disabled>
+                            <i class="dashicons dashicons-lock"></i>
+                        </button>
+                    <?php elseif (!$inscricoes_abertas): ?>
+                        <!-- Não mostra botão quando período de inscrições está encerrado -->
+                    <?php endif; ?>
+                <?php else: ?>
+                    <!-- Não mostra botões de inscrição para usuários não logados -->
+                <?php endif; ?>
+                
                 <?php if ($can_manage_events): ?>
-                    <button class="btn-edit-event" onclick="SevoEventosDashboard.editEvent(<?php echo esc_attr($evento['id']); ?>)">
+                    <button class="btn-edit-event" onclick="SevoEventosDashboard.editEvent(<?php echo esc_attr($evento['id']); ?>)" title="Editar">
                         <i class="dashicons dashicons-edit"></i>
-                        Editar
                     </button>
                 <?php endif; ?>
             </div>

@@ -345,6 +345,9 @@ jQuery(document).ready(function($) {
 
         // Inscreve em evento
         inscribeToEvent: function(eventId) {
+            // Encontra o botão de inscrição para este evento
+            const inscribeBtn = document.querySelector(`button[onclick*="inscribeEvent(${eventId})"]`);
+            
             $.ajax({
                 url: sevoEventosDashboard.ajax_url,
                 type: 'POST',
@@ -356,6 +359,21 @@ jQuery(document).ready(function($) {
                 success: function(response) {
                     if (response.success) {
                         SevoToaster.showSuccess(response.data.message);
+                        
+                        // Atualiza o botão dinamicamente
+                        if (inscribeBtn) {
+                            // Muda para botão de cancelar inscrição
+                            inscribeBtn.className = 'btn-cancel-inscription';
+                            inscribeBtn.innerHTML = '<i class="dashicons dashicons-dismiss"></i>';
+                            inscribeBtn.title = 'Cancelar Inscrição';
+                            
+                            // Atualiza o onclick para cancelar inscrição
+                            // Assume que a resposta contém o ID da inscrição
+                            if (response.data.inscricao_id) {
+                                inscribeBtn.setAttribute('onclick', `SevoEventosDashboard.cancelInscription(${response.data.inscricao_id})`);
+                            }
+                        }
+                        
                         // Recarrega o modal para mostrar o novo status
                         SevoEventosDashboard.openEventModal(eventId);
                     } else {
@@ -370,30 +388,53 @@ jQuery(document).ready(function($) {
 
         // Cancela inscrição
         cancelInscricao: function(inscricaoId) {
-            if (!confirm('Tem certeza que deseja cancelar sua inscrição?')) {
-                return;
-            }
-
-            $.ajax({
-                url: sevoEventosDashboard.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'sevo_cancel_inscricao',
-                    inscricao_id: inscricaoId,
-                    nonce: sevoEventosDashboard.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        SevoToaster.showSuccess(response.data.message);
-                        // Recarrega a página para mostrar as mudanças
-                        location.reload();
-                    } else {
-                        SevoToaster.showError(response.data || 'Erro ao cancelar inscrição.');
-                    }
-                },
-                error: function() {
-                    SevoToaster.showError('Erro ao cancelar inscrição.');
+            SevoPopup.confirm('Tem certeza que deseja cancelar sua inscrição?', {
+                title: 'Cancelar Inscrição',
+                confirmText: 'Sim, cancelar',
+                cancelText: 'Não, manter'
+            }).then(confirmed => {
+                if (!confirmed) {
+                    return;
                 }
+
+                // Encontra o botão de cancelamento para esta inscrição
+                const cancelBtn = document.querySelector(`button[onclick*="cancelInscription(${inscricaoId})"]`);
+                
+                $.ajax({
+                    url: sevoEventosDashboard.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'sevo_cancel_inscricao',
+                        inscricao_id: inscricaoId,
+                        nonce: sevoEventosDashboard.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            SevoToaster.showSuccess(response.data.message);
+                            
+                            // Atualiza o botão dinamicamente
+                            if (cancelBtn && response.data.evento_id) {
+                                // Muda para botão de inscrição
+                                cancelBtn.className = 'btn-inscribe-event';
+                                cancelBtn.innerHTML = '<i class="dashicons dashicons-plus-alt"></i>';
+                                cancelBtn.title = 'Inscrever-se';
+                                
+                                // Atualiza o onclick para inscrever novamente
+                                cancelBtn.setAttribute('onclick', `SevoEventosDashboard.inscribeEvent(${response.data.evento_id})`);
+                            }
+                            
+                            // Recarrega o modal para mostrar o novo status
+                            if (response.data.evento_id) {
+                                SevoEventosDashboard.openEventModal(response.data.evento_id);
+                            }
+                        } else {
+                            SevoToaster.showError(response.data || 'Erro ao cancelar inscrição.');
+                        }
+                    },
+                    error: function() {
+                        SevoToaster.showError('Erro ao cancelar inscrição.');
+                    }
+                });
             });
         }
     };
@@ -688,5 +729,24 @@ jQuery(document).ready(function($) {
     
     // Torna a classe disponível globalmente para uso externo
     window.SevoEventCarousel = SevoEventCarousel;
+    
+    // Torna as funções disponíveis globalmente
+    window.SevoEventosDashboard = {
+        viewEvent: function(eventId) {
+            SevoEventosDashboard.openEventModal(eventId);
+        },
+        editEvent: function(eventId) {
+            SevoEventosDashboard.openEditModal(eventId);
+        },
+        inscribeEvent: function(eventId) {
+            SevoEventosDashboard.inscribeToEvent(eventId);
+        },
+        cancelInscription: function(inscricaoId) {
+            SevoEventosDashboard.cancelInscricao(inscricaoId);
+        },
+        closeEventModal: function() {
+            SevoEventosDashboard.closeModal();
+        }
+    };
     
 });

@@ -250,40 +250,13 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
         <?php endif; ?>
     </div>
 
-    <div class="sevo-modal-footer-compact">
-        <div class="sevo-modal-actions-compact">
-            <?php if ($can_inscribe): ?>
-                <?php if (!$user_inscricao): ?>
-                    <button class="sevo-button-success sevo-inscribe-evento" data-event-id="<?php echo esc_attr($post_id); ?>">
-                        <i class="dashicons dashicons-plus-alt"></i>
-                        Inscrever-se
-                    </button>
-                <?php elseif ($user_inscricao_status === 'solicitada'): ?>
-                    <button class="sevo-button-warning sevo-cancel-inscricao" data-inscricao-id="<?php echo esc_attr($user_inscricao->ID); ?>">
-                        <i class="dashicons dashicons-no"></i>
-                        Cancelar Inscrição
-                    </button>
-                <?php elseif ($user_inscricao_status === 'aceita'): ?>
-                    <button class="sevo-button-warning sevo-cancel-inscricao" data-inscricao-id="<?php echo esc_attr($user_inscricao->ID); ?>">
-                        <i class="dashicons dashicons-no"></i>
-                        Cancelar Inscrição
-                    </button>
-                <?php endif; ?>
-            <?php elseif (!is_user_logged_in()): ?>
-                <p class="sevo-login-message">Faça login para se inscrever neste evento.</p>
-            <?php endif; ?>
-        </div>
-    </div>
-
 </div>
 
 <div class="sevo-modal-footer">
-    <?php if ($can_edit): ?>
-        <button class="sevo-modal-button sevo-button-edit sevo-edit-evento-modal" data-event-id="<?php echo esc_attr($post_id); ?>">
-            <i class="fas fa-edit mr-2"></i>
-            Editar Evento
-        </button>
-    <?php endif; ?>
+    <button class="sevo-modal-button sevo-button-secondary" onclick="SevoEventosDashboard.closeEventModal()">
+        <i class="dashicons dashicons-arrow-left-alt"></i>
+        Retornar
+    </button>
 </div>
 </div>
 

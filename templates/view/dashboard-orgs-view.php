@@ -74,14 +74,12 @@ $organizacoes = new WP_Query($args);
                         </p>
                         
                         <div class="card-actions">
-                            <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr(get_the_ID()); ?>)">
+                            <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr(get_the_ID()); ?>)" title="Ver Detalhes">
                                 <i class="dashicons dashicons-visibility"></i>
-                                Ver Detalhes
                             </button>
                             <?php if (current_user_can('manage_options')): ?>
-                                <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr(get_the_ID()); ?>)">
+                                <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr(get_the_ID()); ?>)" title="Editar">
                                     <i class="dashicons dashicons-edit"></i>
-                                    Alterar
                                 </button>
                             <?php endif; ?>
                         </div>

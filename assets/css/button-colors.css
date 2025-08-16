@@ -2,6 +2,8 @@
 
 /* === BOTÕES DE EDIÇÃO (VERDE) === */
 .btn-edit-event,
+.btn-edit-org,
+.btn-edit-tipo-evento,
 .sevo-button-edit,
 .sevo-edit-evento,
 .sevo-edit-evento-modal,
@@ -9,33 +11,84 @@
     background-color: #22c55e !important;
     color: white !important;
     border: 1px solid #22c55e !important;
+    padding: 8px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
 }
 
 .btn-edit-event:hover,
+.btn-edit-org:hover,
+.btn-edit-tipo-evento:hover,
 .sevo-button-edit:hover,
 .sevo-edit-evento:hover,
 .sevo-edit-evento-modal:hover,
 .edit-inscricao-btn:hover {
     background-color: #16a34a !important;
     border-color: #16a34a !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3) !important;
 }
 
-/* === BOTÕES DE VISUALIZAÇÃO (AMARELO) === */
+.btn-edit-event .dashicons,
+.btn-edit-org .dashicons,
+.btn-edit-tipo-evento .dashicons,
+.sevo-button-edit .dashicons,
+.edit-inscricao-btn .dashicons {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* === BOTÕES DE VISUALIZAÇÃO (AZUL) === */
 .btn-view-event,
+.btn-view-org,
+.btn-view-tipo-evento,
 .sevo-view-evento,
 .view-event-btn,
 .sevo-button-view {
-    background-color: #eab308 !important;
+    background-color: #3b82f6 !important;
     color: white !important;
-    border: 1px solid #eab308 !important;
+    border: 1px solid #3b82f6 !important;
+    padding: 8px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
+    margin-right: 8px !important;
 }
 
 .btn-view-event:hover,
+.btn-view-org:hover,
+.btn-view-tipo-evento:hover,
 .sevo-view-evento:hover,
 .view-event-btn:hover,
 .sevo-button-view:hover {
-    background-color: #ca8a04 !important;
-    border-color: #ca8a04 !important;
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+.btn-view-event .dashicons,
+.btn-view-org .dashicons,
+.btn-view-tipo-evento .dashicons,
+.sevo-button-view .dashicons,
+.view-event-btn .dashicons {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
 }
 
 /* === BOTÕES DE INSCRIÇÃO (AZUL) === */
@@ -201,38 +254,158 @@
     text-decoration: none;
 }
 
-/* Botões de visualizar */
+/* Botões de Ação com Ícones */
 .btn-view-event,
+.btn-edit-event,
+.btn-inscribe-event,
+.btn-cancel-inscription,
+.btn-inscribed,
 .btn-view-org,
-.btn-view-tipo-evento {
-    background-color: #f8f9fa;
-    color: #495057;
-    border: 1px solid #dee2e6;
+.btn-edit-org,
+.btn-view-tipo-evento,
+.btn-edit-tipo-evento {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-view-event:hover,
+.btn-inscribe-event:hover,
+.btn-cancel-inscription:hover,
 .btn-view-org:hover,
 .btn-view-tipo-evento:hover {
-    background-color: #e9ecef;
-    color: #343a40;
-    transform: translateY(-1px);
-}
-
-/* Botões de editar */
-.btn-edit-event,
-.btn-edit-org,
-.btn-edit-tipo-evento {
-    background-color: #007cba;
-    color: white;
-    border: 1px solid #005a87;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-edit-event:hover,
 .btn-edit-org:hover,
 .btn-edit-tipo-evento:hover {
-    background-color: #005a87;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Botões de Visualização - Azul */
+.btn-view-event,
+.btn-view-org,
+.btn-view-tipo-evento {
+    background-color: #3b82f6;
     color: white;
-    transform: translateY(-1px);
+}
+
+.btn-view-event:hover,
+.btn-view-org:hover,
+.btn-view-tipo-evento:hover {
+    background-color: #2563eb;
+}
+
+/* Botões de Edição - Verde */
+.btn-edit-event,
+.btn-edit-org,
+.btn-edit-tipo-evento {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-edit-event:hover,
+.btn-edit-org:hover,
+.btn-edit-tipo-evento:hover {
+    background-color: #059669;
+}
+
+/* Botão de Inscrição - Azul Claro */
+.btn-inscribe-event {
+    background-color: #06b6d4;
+    color: white;
+}
+
+.btn-inscribe-event:hover {
+    background-color: #0891b2;
+}
+
+/* Botão de Cancelar Inscrição - Laranja */
+.btn-cancel-inscription {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.btn-cancel-inscription:hover {
+    background-color: #d97706;
+}
+
+/* Botão de Inscrito - Verde Claro (Desabilitado) */
+.btn-inscribed {
+    background-color: #22c55e;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-inscribed:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão de Inscrição Rejeitada - Vermelho (Desabilitado) */
+.btn-rejected {
+    background-color: #ef4444;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-rejected:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão Bloqueado - Cinza Escuro (Desabilitado) */
+.btn-blocked {
+    background-color: #6b7280;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-blocked:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão Período Encerrado - Cinza (Desabilitado) */
+.btn-period-closed {
+    background-color: #9ca3af;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-period-closed:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão Login Necessário - Azul Acinzentado (Desabilitado) */
+.btn-login-required {
+    background-color: #64748b;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-login-required:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Ícones dos botões */
