@@ -115,7 +115,7 @@
 .status-inativo { background-color: #ef4444; }
 
 /* --- Modal --- */
-/* Estilos de modal removidos - agora usando modal-responsive.css */
+/* Estilos de modal removidos - agora usando modal-unified.css */
 .hidden { display: none; }
 .sevo-modal-footer-form {
     padding: 10px 15px;

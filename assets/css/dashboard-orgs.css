@@ -30,6 +30,7 @@
     background-color: #fff;
     display: flex;
     flex-direction: column;
+    flex: 0 0 240px; /* Reduzido de 300px para 240px (20% menor) */
 }
 
 .sevo-card.org-card:hover {
@@ -98,7 +99,7 @@
 }
 
 /* --- Estilos do Modal --- */
-/* Estilos de modal removidos - agora usando modal-responsive.css */
+/* Estilos de modal removidos - agora usando modal-unified.css */
 
 /* Spinner de Carregamento */
 .sevo-spinner {

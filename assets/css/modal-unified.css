@@ -1,0 +1,405 @@
+/**
+ * SEVO Modal Unified - Modais Padronizados e Responsivos
+ * Combina estrutura base com ajustes tipográficos e responsivos
+ * Substitui modal-standards.css e modal-responsive.css
+ */
+
+/* === ESTRUTURA BASE PARA MODAIS CENTRALIZADOS === */
+.sevo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sevo-modal[style*="display: block"],
+.sevo-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Overlay de fundo */
+.sevo-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+/* Container do modal */
+.sevo-modal-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 90%;
+    width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+    transform: scale(0.8) translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.sevo-modal[style*="display: block"] .sevo-modal-container,
+.sevo-modal.show .sevo-modal-container {
+    transform: scale(1) translateY(0);
+}
+
+/* Header do modal */
+.sevo-modal-header {
+    padding: 20px 20px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Botão de fechar */
+.sevo-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.sevo-modal-close:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* Corpo do modal */
+.sevo-modal-body {
+    padding: 20px;
+}
+
+/* Footer do modal */
+.sevo-modal-footer {
+    padding: 15px 20px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Loading state */
+.sevo-modal-loading {
+    padding: 40px;
+    text-align: center;
+    color: #666;
+}
+
+.sevo-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007cba;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Backdrop para modais de formulário */
+.sevo-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sevo-modal-backdrop[style*="display: block"],
+.sevo-modal-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* === TIPOGRAFIA E CONTEÚDO === */
+
+/* Títulos dos modais */
+.sevo-modal-title {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    margin: 0 !important;
+}
+
+/* Descrições dos modais */
+.sevo-modal-description {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    max-height: 150px !important;
+    color: #4a5568 !important;
+    margin-bottom: 12px !important;
+    /* Melhor quebra de texto */
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+    /* Scrollbar customizada */
+    scrollbar-width: thin !important;
+    scrollbar-color: #cbd5e1 #f1f5f9 !important;
+}
+
+.sevo-modal-description::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.sevo-modal-description::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+    border-radius: 3px !important;
+}
+
+.sevo-modal-description::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+    border-radius: 3px !important;
+}
+
+.sevo-modal-description::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8 !important;
+}
+
+/* Títulos das seções */
+.sevo-modal-section-title {
+    font-size: 1.1rem !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Seções do modal */
+.sevo-modal-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+}
+
+/* Listas dos modais */
+.sevo-modal-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sevo-modal-list li {
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    padding: 8px 0 !important;
+    color: #4a5568 !important;
+}
+
+/* Ícones das listas */
+.sevo-modal-list i {
+    font-size: 0.9rem !important;
+    margin-right: 8px !important;
+    color: #3b82f6 !important;
+}
+
+/* Imagens do modal */
+.sevo-modal-image {
+    max-width: 70%;
+    max-height: 70%;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* === RESPONSIVIDADE PARA TABLETS === */
+@media (max-width: 1024px) {
+    .sevo-modal-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .sevo-modal-description {
+        font-size: 0.9rem !important;
+        max-height: 120px !important;
+    }
+    
+    .sevo-modal-section-title {
+        font-size: 1rem !important;
+    }
+    
+    .sevo-modal-list li {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* === RESPONSIVIDADE PARA MOBILE === */
+@media (max-width: 768px) {
+    .sevo-modal-container {
+        width: 95%;
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .sevo-modal-header {
+        padding: 15px;
+    }
+    
+    .sevo-modal-body {
+        padding: 15px 12px !important;
+    }
+    
+    .sevo-modal-footer {
+        padding: 10px 15px 15px;
+        flex-direction: column;
+    }
+    
+    .sevo-modal-footer button {
+        width: 100%;
+    }
+    
+    .sevo-modal-title {
+        font-size: 1.3rem !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .sevo-modal-description {
+        font-size: 0.85rem !important;
+        line-height: 1.5 !important;
+        max-height: 100px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .sevo-modal-section-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .sevo-modal-list li {
+        font-size: 0.8rem !important;
+        padding: 6px 0 !important;
+    }
+    
+    .sevo-modal-list i {
+        font-size: 0.8rem !important;
+        margin-right: 8px !important;
+    }
+    
+    .sevo-modal-section {
+        padding: 15px !important;
+        margin-bottom: 15px !important;
+    }
+}
+
+/* === RESPONSIVIDADE PARA TELAS PEQUENAS === */
+@media (max-width: 480px) {
+    .sevo-modal-container {
+        width: 98%;
+        margin: 5px;
+    }
+    
+    .sevo-modal-header,
+    .sevo-modal-body {
+        padding: 12px;
+    }
+    
+    .sevo-modal-footer {
+        padding: 8px 12px 12px;
+    }
+    
+    .sevo-modal-title {
+        font-size: 1.1rem !important;
+    }
+    
+    .sevo-modal-description {
+        font-size: 0.8rem !important;
+        max-height: 80px !important;
+    }
+    
+    .sevo-modal-section-title {
+        font-size: 0.9rem !important;
+    }
+    
+    .sevo-modal-list li {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* === AJUSTES ESPECÍFICOS PARA FORMULÁRIOS === */
+#sevo-evento-form-modal-container .sevo-modal-title {
+    font-size: 1.3rem !important;
+}
+
+@media (max-width: 768px) {
+    #sevo-evento-form-modal-container .sevo-modal-title {
+        font-size: 1.1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #sevo-evento-form-modal-container .sevo-modal-title {
+        font-size: 1rem !important;
+    }
+}
+
+/* === CLASSES UTILITÁRIAS === */
+.hidden {
+    display: none;
+}
+
+/* Footer específico para formulários */
+.sevo-modal-footer-form {
+    padding: 10px 20px;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .sevo-modal-footer-form {
+        flex-direction: column;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .sevo-modal-footer-form button {
+        width: 100%;
+        margin: 2px 0;
+    }
+}

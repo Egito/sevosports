@@ -251,65 +251,62 @@ function sevo_render_events_sections() {
 
 <div class="sevo-dashboard-wrapper">
     <div class="sevo-dashboard-header">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard de Eventos</h2>
-            <?php if ($can_manage_events): ?>
-                <button id="sevo-create-evento-button" class="sevo-add-button" data-tooltip="Criar Novo Evento">
-                    <i class="dashicons dashicons-plus-alt"></i>
-                </button>
-            <?php endif; ?>
-        </div>
+        <h2>Dashboard de Eventos</h2>
+        <?php if ($can_manage_events): ?>
+            <button id="sevo-create-evento-button" class="sevo-add-button" data-tooltip="Criar Novo Evento">
+                <i class="dashicons dashicons-plus-alt"></i>
+            </button>
+        <?php endif; ?>
+    </div>
         
         <!-- Summary Cards -->
         <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
         
-        <!-- Filtros -->
-        <div class="sevo-filters-container">
-            <div class="sevo-filters-row">
-                <div class="sevo-filter-group">
-                    <label for="filter-organizacao">Organização:</label>
-                    <select id="filter-organizacao" class="sevo-filter-select">
-                        <option value="">Todas as organizações</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-tipo">Tipo de Evento:</label>
-                    <select id="filter-tipo" class="sevo-filter-select">
-                        <option value="">Todos os tipos</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-status">Status:</label>
-                    <select id="filter-status" class="sevo-filter-select">
-                        <option value="">Todos os status</option>
-                        <option value="inscricoes-abertas">Inscrições Abertas</option>
-                        <option value="inscricoes-encerradas">Inscrições Encerradas</option>
-                        <option value="em-andamento">Em Andamento</option>
-                        <option value="aguardando-inicio">Aguardando Início</option>
-                        <option value="encerrado">Encerrado</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <button id="clear-filters" class="sevo-clear-filters-btn">
-                        <i class="dashicons dashicons-dismiss"></i>
-                        Limpar Filtros
-                    </button>
-                </div>
-            </div>
+    <!-- Filtros -->
+    <div class="sevo-filters-container">
+        <div class="sevo-filter-group">
+            <label for="filter-organizacao">Organização:</label>
+            <select id="filter-organizacao" class="sevo-filter-select">
+                <option value="">Todas as organizações</option>
+            </select>
         </div>
         
-        <!-- Seções de Eventos com Carrossel -->
-        <div id="eventos-container" class="sevo-eventos-sections">
-            <?php echo sevo_render_events_sections(); ?>
+        <div class="sevo-filter-group">
+            <label for="filter-tipo">Tipo de Evento:</label>
+            <select id="filter-tipo" class="sevo-filter-select">
+                <option value="">Todos os tipos</option>
+            </select>
         </div>
         
-        <!-- Loading indicator -->
-        <div id="sevo-eventos-loading" class="sevo-loading-indicator" style="display: none;">
-            <div class="sevo-spinner"></div>
-            <p>Carregando eventos...</p>
+        <div class="sevo-filter-group">
+            <label for="filter-status">Status:</label>
+            <select id="filter-status" class="sevo-filter-select">
+                <option value="">Todos os status</option>
+                <option value="inscricoes-abertas">Inscrições Abertas</option>
+                <option value="inscricoes-encerradas">Inscrições Encerradas</option>
+                <option value="em-andamento">Em Andamento</option>
+                <option value="aguardando-inicio">Aguardando Início</option>
+                <option value="encerrado">Encerrado</option>
+            </select>
         </div>
+        
+        <div class="sevo-filter-group">
+            <button id="clear-filters" class="sevo-clear-filters-btn">
+                <i class="dashicons dashicons-dismiss"></i>
+                Limpar Filtros
+            </button>
+        </div>
+    </div>
+        
+    <!-- Seções de Eventos com Carrossel -->
+    <div id="eventos-container" class="sevo-eventos-sections">
+        <?php echo sevo_render_events_sections(); ?>
+    </div>
+    
+    <!-- Loading indicator -->
+    <div id="sevo-eventos-loading" class="sevo-loading-indicator" style="display: none;">
+        <div class="sevo-spinner"></div>
+        <p>Carregando eventos...</p>
     </div>
 </div>
 
@@ -333,5 +330,4 @@ function sevo_render_events_sections() {
 <!-- Container para o modal de formulário de edição -->
 <div id="sevo-evento-form-modal-container" class="sevo-modal-backdrop" style="display: none;">
     <!-- O conteúdo do formulário será carregado aqui via AJAX -->
-</div>
 </div>
