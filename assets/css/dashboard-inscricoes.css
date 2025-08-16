@@ -8,11 +8,13 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
     line-height: 1.6;
     color: #333;
-    max-width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 10px;
+    padding: 20px;
     background: #f8f9fa;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
 }
 
 /* Cabeçalho */
@@ -119,85 +121,88 @@
 
 /* Summary cards são carregados do CSS da landing page */
 
-/* Filtros Simplificados */
+/* Filtros Simplificados - Estilo da Landing Page */
 .sevo-dashboard-filters {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e1e5e9;
 }
 
 .sevo-filters-single-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
 }
 
 .sevo-filter-group {
     display: flex;
-    align-items: center;
-    min-width: 0;
-    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sevo-filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 2px;
 }
 
 .sevo-filter-input,
 .sevo-filter-select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 14px;
-    background: #fff;
-    transition: all 0.2s ease;
-    min-width: 120px;
+    font-size: 0.9rem;
+    background-color: white;
+    color: #374151;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sevo-filter-input:focus,
 .sevo-filter-select:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .sevo-filter-input::placeholder {
-    color: #999;
+    color: #9ca3af;
     font-style: italic;
 }
 
 .sevo-filter-actions {
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    justify-content: center;
+    gap: 10px;
+    grid-column: 1 / -1;
+    margin-top: 15px;
 }
 
 .sevo-filter-actions .sevo-btn {
-    padding: 10px 12px;
+    padding: 8px 16px;
     border-radius: 6px;
-    font-size: 16px;
-    min-width: auto;
-    width: auto;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 /* Responsividade para filtros */
 @media (max-width: 768px) {
+    .sevo-dashboard-filters {
+        padding: 15px;
+    }
+    
     .sevo-filters-single-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-    
-    .sevo-filter-group {
-        flex: none;
-    }
-    
-    .sevo-filter-input,
-    .sevo-filter-select {
-        min-width: auto;
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .sevo-filter-actions {
+        margin-top: 20px;
         justify-content: center;
     }
 }

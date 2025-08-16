@@ -46,6 +46,7 @@ class Sevo_Landing_Page_Shortcode {
      */
     public function render_landing_page($atts) {
         // Enqueue dos estilos e scripts
+        wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-landing-page-style');
         wp_enqueue_style(
             'sevo-dashboard-inscricoes',

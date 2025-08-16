@@ -5,6 +5,17 @@
     min-height: 100vh;
 }
 
+/* Aplicar estilos do dashboard quando ambas as classes estão presentes */
+.sevo-landing-page-container.sevo-dashboard-inscricoes {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
+}
+
 /* === HEADER === */
 .sevo-landing-header {
     text-align: center;
@@ -17,7 +28,7 @@
 }
 
 .sevo-landing-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin: 0 0 5px 0;
     color: #1a1a1a;
@@ -25,7 +36,7 @@
 }
 
 .sevo-landing-subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0;
     color: #333333;
     font-weight: 400;
@@ -56,7 +67,7 @@
 }
 
 .sevo-filter-group label {
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     font-weight: 600;
     color: #374151;
     margin-bottom: 2px;
@@ -66,7 +77,7 @@
     padding: 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     background-color: white;
     color: #374151;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -84,7 +95,7 @@
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -98,7 +109,7 @@
 }
 
 .sevo-clear-filters-btn .dashicons {
-    font-size: 16px;
+    font-size: 14.4px;
     width: 16px;
     height: 16px;
 }
@@ -130,7 +141,7 @@
 
 .summary-card h3 {
     margin: 0 0 4px 0;
-    font-size: 0.7rem;
+    font-size: 0.63rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
@@ -140,7 +151,7 @@
 }
 
 .summary-card .count {
-    font-size: 1.8rem;
+    font-size: 1.62rem;
     font-weight: 700;
     margin: 0;
     color: white;
@@ -168,7 +179,7 @@
 }
 
 .sevo-section-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: #1e293b;
     margin: 0 0 10px 0;
@@ -179,7 +190,7 @@
 }
 
 .sevo-section-title .dashicons {
-    font-size: 1.8rem;
+    font-size: 1.62rem;
     color: #3b82f6;
 }
 
@@ -188,14 +199,14 @@
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     font-weight: 600;
     margin-left: 10px;
 }
 
 .sevo-section-description {
     color: #64748b;
-    font-size: 1.1rem;
+    font-size: 0.99rem;
     margin: 0;
     font-weight: 400;
 }
@@ -257,7 +268,7 @@
 }
 
 .sevo-carousel-btn .dashicons {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 /* === CARDS DO CARROSSEL === */
@@ -304,7 +315,7 @@
 .sevo-status-badge {
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.675rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -329,7 +340,7 @@
 }
 
 .sevo-card-title {
-    font-size: 1.25em;
+    font-size: 1.125em;
     font-weight: 700;
     color: #1a202c;
     margin: 0 0 10px;
@@ -341,7 +352,7 @@
 }
 
 .sevo-card-description {
-    font-size: 0.9em;
+    font-size: 0.81em;
     color: #4a5568;
     line-height: 1.5;
     margin-bottom: 15px;
@@ -361,12 +372,12 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-    font-size: 0.85rem;
+    font-size: 0.765rem;
     color: #64748b;
 }
 
 .sevo-meta-item .dashicons {
-    font-size: 16px;
+    font-size: 14.4px;
     color: #3b82f6;
     width: 16px;
     height: 16px;
@@ -390,7 +401,7 @@
     align-items: center;
     gap: 6px;
     transition: all 0.2s ease;
-    font-size: 0.85rem;
+    font-size: 0.765rem;
     flex: 1;
     justify-content: center;
 }
@@ -412,7 +423,7 @@
     align-items: center;
     gap: 6px;
     transition: background-color 0.2s ease;
-    font-size: 0.85rem;
+    font-size: 0.765rem;
     flex: 1;
     justify-content: center;
 }
@@ -423,7 +434,7 @@
 
 .sevo-button-primary .dashicons,
 .sevo-button-secondary .dashicons {
-    font-size: 14px;
+    font-size: 12.6px;
     width: 14px;
     height: 14px;
 }
@@ -476,7 +487,7 @@
 }
 
 .sevo-carousel-card-placeholder .dashicons {
-    font-size: 3rem;
+    font-size: 2.7rem;
 }
 
 .sevo-carousel-card-org-thumb {
@@ -505,7 +516,7 @@
 }
 
 .sevo-carousel-card-title {
-    font-size: 1.1rem;
+    font-size: 0.99rem;
     font-weight: 700;
     color: #1e293b;
     margin: 0 0 10px 0;
@@ -521,7 +532,7 @@
     color: #475569;
     padding: 4px 8px;
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 600;
     margin: 0 0 8px 0;
     display: inline-block;
@@ -530,7 +541,7 @@
 
 .sevo-carousel-card-org {
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     margin: 0 0 12px 0;
     font-weight: 500;
 }
@@ -544,12 +555,12 @@
     align-items: center;
     gap: 6px;
     color: #3b82f6;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     font-weight: 600;
 }
 
 .sevo-carousel-card-date .dashicons {
-    font-size: 16px;
+    font-size: 14.4px;
 }
 
 .sevo-carousel-card-location {
@@ -557,11 +568,11 @@
     align-items: center;
     gap: 6px;
     color: #64748b;
-    font-size: 0.85rem;
+    font-size: 0.765rem;
 }
 
 .sevo-carousel-card-location .dashicons {
-    font-size: 14px;
+    font-size: 12.6px;
 }
 
 /* === INDICADORES === */
@@ -600,19 +611,19 @@
 }
 
 .sevo-empty-icon .dashicons {
-    font-size: 4rem;
+    font-size: 3.6rem;
     color: #cbd5e1;
 }
 
 .sevo-empty-state h3 {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     color: #64748b;
     margin: 0 0 10px 0;
 }
 
 .sevo-empty-state p {
     color: #94a3b8;
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0;
 }
 
@@ -677,7 +688,7 @@
     right: 20px;
     background: none;
     border: none;
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     color: #9ca3af;
     cursor: pointer;
     line-height: 1;
@@ -767,7 +778,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 1.3rem;
+    font-size: 1.17rem;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     backdrop-filter: blur(10px);
@@ -810,7 +821,7 @@
 }
 
 .sevo-modal-title {
-    font-size: 2.25rem;
+    font-size: 2.025rem;
     font-weight: 800;
     color: #1e293b;
     margin-bottom: 20px;
@@ -825,7 +836,7 @@
     color: #475569;
     line-height: 1.7;
     margin-bottom: 30px;
-    font-size: 1.1rem;
+    font-size: 0.99rem;
     max-height: 200px;
     overflow-y: auto;
     padding-right: 10px;
@@ -843,7 +854,7 @@
 }
 
 .sevo-modal-section-title {
-    font-size: 1.4rem;
+    font-size: 1.26rem;
     font-weight: 700;
     color: #334155;
     margin-bottom: 18px;
@@ -892,7 +903,7 @@
     margin-right: 15px;
     width: 24px;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 0.99rem;
 }
 
 .sevo-modal-list strong {
@@ -929,7 +940,7 @@
 .sevo-status-badge {
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 10.8px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -948,7 +959,7 @@
 .sevo-user-status {
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 10.8px;
     font-weight: 500;
     text-transform: uppercase;
 }
@@ -1003,7 +1014,7 @@
     padding: 8px 16px;
     border-radius: 20px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     color: white;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1028,7 +1039,7 @@
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 12.6px;
     font-weight: 500;
     cursor: pointer;
     text-decoration: none;
@@ -1051,7 +1062,7 @@
     color: #212529;
     border: none;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 12.6px;
     font-weight: 500;
     cursor: pointer;
     text-decoration: none;
@@ -1078,7 +1089,7 @@
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     border: none;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.81rem;
 }
 
 .sevo-modal-button:hover {
@@ -1124,11 +1135,11 @@
 
 @media (max-width: 768px) {
     .sevo-landing-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .sevo-landing-subtitle {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
     .sevo-summary-cards {
@@ -1142,15 +1153,15 @@
     }
     
     .summary-card h3 {
-        font-size: 0.7rem;
+        font-size: 0.63rem;
     }
     
     .summary-card .count {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
     }
     
     .sevo-section-title {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         flex-direction: column;
         gap: 5px;
     }
@@ -1226,7 +1237,7 @@
 }
 
 .sevo-modal-title-compact {
-    font-size: 1.4rem;
+    font-size: 1.26rem;
     font-weight: 600;
     margin: 0 0 8px 0;
     color: #1f2937;
@@ -1285,7 +1296,7 @@
 
 .sevo-modal-subsection-title-compact,
 .sevo-modal-subsection-title {
-    font-size: 0.95rem;
+    font-size: 0.855rem;
     font-weight: 600;
     color: #374151;
     margin: 0 0 10px 0;
@@ -1304,7 +1315,7 @@
 }
 
 .sevo-modal-description-compact {
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     color: #6b7280;
     margin-bottom: 15px;
     line-height: 1.4;
@@ -1335,7 +1346,7 @@
 }
 
 .sevo-modal-section-title-compact {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     margin: 0 0 10px 0;
     color: #374151;
@@ -1351,13 +1362,13 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.85rem;
+    font-size: 0.765rem;
     color: #4b5563;
 }
 
 .sevo-info-item i {
     color: #6366f1;
-    font-size: 16px;
+    font-size: 14.4px;
     width: 16px;
     flex-shrink: 0;
 }
@@ -1383,7 +1394,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 600;
     color: #6b7280;
     text-transform: uppercase;
@@ -1392,13 +1403,13 @@
 
 .sevo-info-label i {
     color: #6366f1;
-    font-size: 14px;
+    font-size: 12.6px;
     width: 14px;
     flex-shrink: 0;
 }
 
 .sevo-info-value {
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     color: #1f2937;
     font-weight: 500;
     line-height: 1.4;
@@ -1412,7 +1423,7 @@
     background: white;
     border-radius: 6px;
     border: 1px solid #e5e7eb;
-    font-size: 0.9rem;
+    font-size: 0.81rem;
     line-height: 1.5;
 }
 
@@ -1475,12 +1486,12 @@
     }
     
     .summary-card h3 {
-        font-size: 0.65rem;
+        font-size: 0.585rem;
         margin: 0 0 3px 0;
     }
     
     .summary-card .count {
-        font-size: 1.3rem;
+        font-size: 1.17rem;
     }
     
     .sevo-carousel-wrapper {
@@ -1569,14 +1580,14 @@
 
 #sevo-evento-form-modal-container .sevo-modal-title {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.35em;
     color: #333;
 }
 
 #sevo-evento-form-modal-container .sevo-modal-close {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 21.6px;
     cursor: pointer;
     color: #666;
     padding: 0;
@@ -1623,7 +1634,7 @@
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 12.6px;
     box-sizing: border-box;
 }
 
@@ -1649,7 +1660,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12.6px;
     font-weight: 600;
     transition: background-color 0.2s;
 }

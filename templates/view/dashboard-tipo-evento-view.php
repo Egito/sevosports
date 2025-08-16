@@ -8,16 +8,20 @@ if (!defined('ABSPATH')) {
 }
 ?>
 
-<div class="sevo-dashboard-container" id="sevo-tipo-evento-dashboard">
+<div class="sevo-dashboard-wrapper">
+    <div class="sevo-dashboard-container" id="sevo-tipo-evento-dashboard">
     
     <div class="sevo-dashboard-header">
         <h2>Tipos de Evento</h2>
         <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
-            <button id="sevo-create-tipo-evento-button" class="sevo-button-primary">
-                <i class="dashicons dashicons-plus-alt"></i> Criar Novo Tipo de Evento
+            <button id="sevo-create-tipo-evento-button" class="sevo-add-button" data-tooltip="Criar Novo Tipo de Evento">
+                <i class="dashicons dashicons-plus-alt"></i>
             </button>
         <?php endif; ?>
     </div>
+
+    <!-- Summary Cards -->
+    <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
 
     <!-- Container para os Cards -->
     <div id="sevo-tipo-eventos-container" class="sevo-grid">
@@ -38,4 +42,5 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
     </div>
+</div>
 </div>

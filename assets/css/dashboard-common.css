@@ -1,0 +1,117 @@
+/**
+ * Estilos Comuns para Dashboards
+ * Plugin Sevo Eventos
+ */
+
+/* Container externo padrão para todos os dashboards */
+.sevo-dashboard-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Container interno para conteúdo específico */
+.sevo-dashboard-wrapper .sevo-dashboard-inscricoes,
+.sevo-dashboard-wrapper .sevo-orgs-dashboard-container,
+.sevo-dashboard-wrapper .sevo-dashboard-container {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-dashboard-wrapper {
+        margin: 10px;
+        padding: 15px;
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-dashboard-wrapper {
+        margin: 5px;
+        padding: 10px;
+    }
+}
+
+/* Botão sutil de adicionar */
+.sevo-add-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.sevo-add-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.sevo-add-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.sevo-add-button .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Tooltip para o botão */
+.sevo-add-button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.sevo-add-button:hover::after {
+    opacity: 1;
+}
+
+/* Responsividade para o botão */
+@media (max-width: 768px) {
+    .sevo-add-button {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .sevo-add-button .dashicons {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}

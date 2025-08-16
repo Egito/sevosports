@@ -41,15 +41,19 @@ $args = array(
 $organizacoes = new WP_Query($args);
 ?>
 
-<div class="sevo-orgs-dashboard-container">
+<div class="sevo-dashboard-wrapper">
+    <div class="sevo-orgs-dashboard-container">
     <div class="sevo-dashboard-header">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Nossas Organizações</h2>
         <?php if (current_user_can('manage_options')): ?>
-            <button id="sevo-create-org-button" class="sevo-button-primary">
-                <i class="dashicons dashicons-plus-alt"></i> Criar Nova Organização
+            <button id="sevo-create-org-button" class="sevo-add-button" data-tooltip="Criar Nova Organização">
+                <i class="dashicons dashicons-plus-alt"></i>
             </button>
         <?php endif; ?>
     </div>
+    
+    <!-- Summary Cards -->
+    <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
     
     <?php if ($organizacoes->have_posts()) : ?>
         <div class="sevo-grid">
@@ -94,4 +98,5 @@ $organizacoes = new WP_Query($args);
             </div>
         </div>
     </div>
+</div>
 </div>

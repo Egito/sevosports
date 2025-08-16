@@ -26,6 +26,8 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
 
     public function render_dashboard() {
         // Enfileira os assets específicos para este dashboard
+        wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-landing-page-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/landing-page.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-tipo-evento-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-orgs-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-orgs.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_script('sevo-tipo-evento-dashboard-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js', array('jquery', 'sevo-toaster-script'), SEVO_EVENTOS_VERSION, true);
@@ -43,6 +45,11 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sevo_tipo_evento_nonce'),
         ));
+
+        // Carrega a função dos summary cards
+        if (!function_exists('sevo_get_summary_cards')) {
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/summary-cards.php';
+        }
 
         ob_start();
         include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-tipo-evento-view.php');

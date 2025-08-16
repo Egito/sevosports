@@ -23,6 +23,8 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
      */
     public function render_dashboard_shortcode()
     {
+        wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-landing-page-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/landing-page.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-orgs-dashboard-style');
         wp_enqueue_script('sevo-orgs-dashboard-script');
         wp_enqueue_style('dashicons');
@@ -40,6 +42,11 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
             'org_post_type' => SEVO_ORG_POST_TYPE,
             'nonce'    => wp_create_nonce('sevo_org_nonce')
         ));
+
+        // Carrega a função dos summary cards
+        if (!function_exists('sevo_get_summary_cards')) {
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/summary-cards.php';
+        }
 
         ob_start();
         include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-orgs-view.php');

@@ -20,7 +20,8 @@ $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('ma
 $current_user = wp_get_current_user();
 ?>
 
-<div class="sevo-dashboard-inscricoes" id="sevo-dashboard-inscricoes">
+<div class="sevo-dashboard-wrapper">
+    <div class="sevo-dashboard-inscricoes" id="sevo-dashboard-inscricoes">
     <!-- Summary Cards -->
     <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
 
@@ -28,34 +29,40 @@ $current_user = wp_get_current_user();
     <div class="sevo-dashboard-filters">
         <div class="sevo-filters-single-row">
             <div class="sevo-filter-group">
+                <label for="filter-usuario">Usuário</label>
                 <input type="text" id="filter-usuario" name="usuario" placeholder="Nome do usuário..." class="sevo-filter-input">
             </div>
             
             <div class="sevo-filter-group">
+                <label for="filter-organizacao">Organização</label>
                 <select id="filter-organizacao" name="organizacao_id" class="sevo-filter-select">
                     <option value="">Todas as organizações</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
+                <label for="filter-tipo-evento">Tipo de Evento</label>
                 <select id="filter-tipo-evento" name="tipo_evento_id" class="sevo-filter-select">
                     <option value="">Todos os tipos</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
+                <label for="filter-evento">Evento</label>
                 <select id="filter-evento" name="evento_id" class="sevo-filter-select">
                     <option value="">Todos os eventos</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
+                <label for="filter-ano">Ano</label>
                 <select id="filter-ano" name="ano" class="sevo-filter-select">
                     <option value="">Todos os anos</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
+                <label for="filter-mes">Mês</label>
                 <select id="filter-mes" name="mes" class="sevo-filter-select">
                     <option value="">Todos os meses</option>
                     <option value="1">Janeiro</option>
@@ -119,6 +126,7 @@ $current_user = wp_get_current_user();
     <!-- Indicador de fim da lista -->
     <div class="sevo-end-of-list" id="end-of-list" style="display: none;">
         <p>Todas as inscrições foram carregadas.</p>
+    </div>
     </div>
 </div>
 

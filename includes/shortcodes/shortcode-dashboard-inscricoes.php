@@ -59,6 +59,12 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         global $post;
         if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'sevo_dashboard_inscricoes')) {
             wp_enqueue_style(
+                'sevo-dashboard-common-style',
+                SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css',
+                array(),
+                SEVO_EVENTOS_VERSION
+            );
+            wp_enqueue_style(
                 'sevo-dashboard-inscricoes',
                 SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-inscricoes.css',
                 array(),
