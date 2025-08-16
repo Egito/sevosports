@@ -1,9 +1,7 @@
 /* === LANDING PAGE STYLES === */
 
 .sevo-landing-page-container {
-    padding: 15px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f6f6f6;
+    /* Estilos específicos da landing page que não conflitam com o dashboard */
     min-height: 100vh;
 }
 

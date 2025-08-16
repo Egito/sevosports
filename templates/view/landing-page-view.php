@@ -21,7 +21,7 @@ $shortcode_instance = new Sevo_Landing_Page_Shortcode();
 $section_counts = $shortcode_instance->get_section_counts();
 ?>
 
-<div class="sevo-landing-page-container">
+<div class="sevo-landing-page-container sevo-dashboard-inscricoes">
     
     <!-- 1. Cards de Resumo -->
     <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>

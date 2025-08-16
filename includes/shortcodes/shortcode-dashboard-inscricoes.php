@@ -65,6 +65,13 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 SEVO_EVENTOS_VERSION
             );
             
+            wp_enqueue_style(
+                'sevo-landing-page',
+                SEVO_EVENTOS_PLUGIN_URL . 'assets/css/landing-page.css',
+                array(),
+                SEVO_EVENTOS_VERSION
+            );
+            
             // Enfileirar o sistema de toaster
             wp_enqueue_style('sevo-toaster-style');
             wp_enqueue_script('sevo-toaster-script');
@@ -360,20 +367,21 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             $where_conditions[] = $wpdb->prepare('MONTH(inscr.post_date) = %d', intval($filters['mes']));
         }
         
-        if (!empty($filters['organizacao']) && $filters['organizacao'] !== '' && $can_manage_all) {
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} org_meta ON evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_evento_tipo_evento_id'";
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_org_meta ON org_meta.meta_value = tipo_org_meta.post_id AND tipo_org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'";
-            $where_conditions[] = $wpdb->prepare('tipo_org_meta.meta_value = %d', intval($filters['organizacao']));
+        if (!empty($filters['organizacao_id']) && $filters['organizacao_id'] !== '' && $can_manage_all) {
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} org_meta_filter ON evento.ID = org_meta_filter.post_id AND org_meta_filter.meta_key = '_sevo_evento_tipo_evento_id'";
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_org_meta_filter ON org_meta_filter.meta_value = tipo_org_meta_filter.post_id AND tipo_org_meta_filter.meta_key = '_sevo_tipo_evento_organizacao_id'";
+            $where_conditions[] = $wpdb->prepare('tipo_org_meta_filter.meta_value = %d', intval($filters['organizacao_id']));
         }
-        
-        if (!empty($filters['tipo_evento']) && $filters['tipo_evento'] !== '' && $can_manage_all) {
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_meta ON evento.ID = tipo_meta.post_id AND tipo_meta.meta_key = '_sevo_evento_tipo_evento_id'";
-            $where_conditions[] = $wpdb->prepare('tipo_meta.meta_value = %d', intval($filters['tipo_evento']));
+
+        if (!empty($filters['tipo_evento_id']) && $filters['tipo_evento_id'] !== '' && $can_manage_all) {
+            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_meta_filter ON evento.ID = tipo_meta_filter.post_id AND tipo_meta_filter.meta_key = '_sevo_evento_tipo_evento_id'";
+            $where_conditions[] = $wpdb->prepare('tipo_meta_filter.meta_value = %d', intval($filters['tipo_evento_id']));
         }
-        
-        if (!empty($filters['usuario']) && $filters['usuario'] !== '' && $can_manage_all) {
+
+        if (!empty($filters['usuario']) && $filters['usuario'] !== '') {
             $join_tables[] = "LEFT JOIN {$wpdb->users} u ON inscr.post_author = u.ID";
-            $where_conditions[] = $wpdb->prepare('(u.display_name LIKE %s OR u.user_email LIKE %s)', 
+            $where_conditions[] = $wpdb->prepare('(u.display_name LIKE %s OR u.user_email LIKE %s OR u.user_login LIKE %s)', 
+                '%' . $wpdb->esc_like($filters['usuario']) . '%',
                 '%' . $wpdb->esc_like($filters['usuario']) . '%',
                 '%' . $wpdb->esc_like($filters['usuario']) . '%'
             );

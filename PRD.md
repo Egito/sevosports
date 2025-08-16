@@ -68,16 +68,15 @@ O Sevo Eventos é um plugin WordPress desenvolvido para facilitar o gerenciament
 
 ---
 
-## 4. Interface do Usuário
+## 3. Interface do Usuário
 
-### 4.1 Shortcodes Disponíveis
+### 3.1 Shortcodes Disponíveis
 - `[sevo-landing-page]` - Página inicial com carrossel de eventos
 - `[sevo-orgs-dashboard]` - Dashboard de organizações (apenas administradores)
 - `[sevo-tipo-evento-dashboard]` - Dashboard de tipos de evento (administradores e editores)
 - `[sevo-inscricoes-dashboard]` - Dashboard de inscrições (administradores, editores e autores) *[A ser implementado]*
-- `[sevo-inscricoes-pessoais]` - Dashboard de inscrições pessoais (todos os usuários logados) *[A ser implementado]*
 
-### 4.2 Summary Cards Interativos
+### 3.2 Summary Cards Interativos
 - **Card "Total de Organizações"**: Clicável, direciona para **Página de Organizações** (que contém `[sevo-orgs-dashboard]`)
 - **Card "Total de Tipos de Evento"**: Clicável, direciona para **Página de Tipos de Evento** (que contém `[sevo-tipo-evento-dashboard]`)
 - **Card "Total de Eventos"**: Clicável, direciona para **Página de Landing Page** (que contém `[sevo-landing-page]`)
@@ -87,13 +86,13 @@ O Sevo Eventos é um plugin WordPress desenvolvido para facilitar o gerenciament
 - **Permissões**: Cards visíveis apenas para usuários com permissões adequadas
 - **Funcionalidade**: Navegação contextual entre seções do sistema
 
-### 4.3 Dashboards
+### 3.3 Dashboards
 - **Design**: Interface moderna com modais
 - **Funcionalidades**: CRUD completo via AJAX
 - **Responsividade**: Adaptável a diferentes dispositivos
 - **Estilização**: CSS personalizado para cada dashboard
 
-### 4.4 Modais
+### 3.4 Modais
 - **Tipos**:
   - Formulários de criação/edição
   - Visualização de detalhes
@@ -102,9 +101,9 @@ O Sevo Eventos é um plugin WordPress desenvolvido para facilitar o gerenciament
 
 ---
 
-## 5. Arquitetura Técnica
+## 4. Arquitetura Técnica
 
-### 5.1 Estrutura de Arquivos
+### 4.1 Estrutura de Arquivos
 ```
 sevo/
 ├── sevo-eventos.php (arquivo principal)
@@ -120,7 +119,7 @@ sevo/
     └── view/ (templates de visualização)
 ```
 
-### 5.2 Tecnologias Utilizadas
+### 4.2 Tecnologias Utilizadas
 - **Backend**: PHP 7.4+, WordPress 5.0+
 - **Frontend**: HTML5, CSS3, JavaScript (jQuery)
 - **Database**: MySQL (via WordPress)
@@ -129,11 +128,11 @@ sevo/
 
 ---
 
-## 6. Sistema de Permissões
+## 5. Sistema de Permissões
 
-### 6.1 Matriz de Permissões por Papel
+### 5.1 Matriz de Permissões por Papel
 
-#### 6.1.1 Administrador (`manage_options`)
+#### 5.1.1 Administrador (`manage_options`)
 - **Acesso Total**: Todas as funcionalidades do sistema
 - **Organizações**: Criar, editar, excluir, visualizar
 - **Tipos de Evento**: Criar, editar, excluir, visualizar
@@ -143,7 +142,7 @@ sevo/
 - **Fórum**: Gerenciar categorias e sub-fóruns
 - **Relatórios**: Acesso a todas as métricas e analytics
 
-#### 6.1.2 Editor (`edit_posts`)
+#### 5.1.2 Editor (`edit_posts`)
 - **Organizações**: Visualizar apenas
 - **Tipos de Evento**: Criar, editar, visualizar (não excluir)
 - **Eventos**: Criar, editar, visualizar, alterar status (não excluir)
@@ -152,7 +151,7 @@ sevo/
 - **Solicitações**: Fazer inscrições em eventos
 - **Fórum**: Participar em discussões
 
-#### 6.1.3 Autor (`edit_published_posts`)
+#### 5.1.3 Autor (`edit_published_posts`)
 - **Organizações**: Visualizar apenas
 - **Tipos de Evento**: Visualizar apenas
 - **Eventos**: Editar eventos próprios, alterar status dos próprios eventos
@@ -161,7 +160,7 @@ sevo/
 - **Solicitações**: Fazer inscrições em eventos
 - **Fórum**: Participar em discussões
 
-#### 6.1.4 Usuários Comuns (Contributor, Subscriber, etc.)
+#### 5.1.4 Usuários Comuns (Contributor, Subscriber, etc.)
 - **Organizações**: Visualizar apenas (via landing page)
 - **Tipos de Evento**: Visualizar apenas (via landing page)
 - **Eventos**: Visualizar apenas (via landing page e modais)
@@ -170,14 +169,14 @@ sevo/
 - **Solicitações**: Gerenciar próprias inscrições
 - **Fórum**: Participar em discussões (se logado)
 
-#### 6.1.5 Visitantes (Não Logados)
+#### 5.1.5 Visitantes (Não Logados)
 - **Acesso Público**: Landing page, visualização de eventos via modais
 - **Limitações**: Não podem fazer inscrições ou acessar dashboards
 - **Fórum**: Apenas visualização (se permitido pelo Asgaros Forum)
 
-### 6.2 Funcionalidades por Seção
+### 5.2 Funcionalidades por Seção
 
-#### 6.2.1 Dashboard de Inscrições Pessoais
+#### 5.2.1 Dashboard de Inscrições Pessoais
 - **Acesso**: Todos os usuários logados
 - **Funcionalidades**:
   - Visualizar próprias inscrições
@@ -186,7 +185,7 @@ sevo/
   - Cancelar inscrições (se permitido)
 - **Shortcode**: `[sevo-inscricoes-pessoais]` (a ser implementado)
 
-#### 6.2.2 Validação de Inscrições
+#### 5.2.2 Validação de Inscrições
 - **Editores e Administradores**: Validar qualquer inscrição
 - **Autores**: Validar apenas inscrições dos próprios eventos
 - **Ações Disponíveis**:
@@ -195,16 +194,16 @@ sevo/
   - Adicionar comentários/observações
   - Visualizar histórico de ações
 
-#### 6.2.3 Dashboards Administrativos
+#### 5.2.3 Dashboards Administrativos
 - **Dashboard de Organizações**: Apenas Administradores (acessível via card de organizações)
 - **Dashboard de Tipos de Evento**: Administradores e Editores (acessível via card de tipos)
 - **Dashboard de Inscrições**: Administradores, Editores e Autores limitado (acessível via card de inscrições)
 - **Landing Page**: Acesso público para visualização de eventos (acessível via card de eventos)
 - **Dashboard de Inscrições Pessoais**: Todos os usuários logados (acesso direto via menu/shortcode)
 
-### 6.3 Implementação Técnica de Permissões
+### 5.3 Implementação Técnica de Permissões
 
-#### 6.3.1 Verificações de Capacidade
+#### 5.3.1 Verificações de Capacidade
 ```php
 // Administrador
 current_user_can('manage_options')
@@ -224,13 +223,13 @@ $current_user_id = get_current_user_id();
 $is_owner = ($post_author_id == $current_user_id);
 ```
 
-#### 6.3.2 Hooks de Segurança
+#### 5.3.2 Hooks de Segurança
 - `wp_ajax_*` actions com verificação de nonce
 - `check_ajax_referer()` em todas as operações AJAX
 - Validação de propriedade antes de operações de edição
 - Sanitização de dados com `sanitize_text_field()` e `wp_kses_post()`
 
-### 6.4 Controles de Segurança
+### 5.4 Controles de Segurança
 - WordPress Nonces para todas as operações AJAX
 - Verificação de capacidades antes de operações sensíveis
 - Verificação de propriedade para operações de autores
@@ -240,51 +239,51 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ---
 
-## 7. Requisitos Funcionais para Implementação
+## 6. Requisitos Funcionais para Implementação
 
-### 7.1 Dashboard de Inscrições Pessoais (`[sevo-inscricoes-pessoais]`)
+### 6.1 Dashboard de Inscrições Pessoais (`[sevo-inscricoes-pessoais]`)
 
-#### 7.1.1 Funcionalidades Requeridas
+#### 6.1.1 Funcionalidades Requeridas
 - **Listagem de Inscrições**: Exibir todas as inscrições do usuário logado
 - **Filtros**: Por status (solicitada, aceita, rejeitada), por data, por evento
 - **Detalhes da Inscrição**: Modal com informações completas do evento e status
 - **Ações do Usuário**: Cancelar inscrição (se permitido), visualizar detalhes
 - **Histórico**: Timeline de mudanças de status da inscrição
 
-#### 7.1.2 Interface
+#### 6.1.2 Interface
 - **Layout**: Cards responsivos com informações resumidas
 - **Cores de Status**: Verde (aceita), amarelo (solicitada), vermelho (rejeitada)
 - **Paginação**: Carregamento incremental via AJAX
 - **Responsividade**: Adaptável para mobile e desktop
 
-### 7.2 Sistema de Validação de Inscrições
+### 6.2 Sistema de Validação de Inscrições
 
-#### 7.2.1 Interface de Validação
+#### 6.2.1 Interface de Validação
 - **Localização**: Integrada à landing page e dashboards administrativos
 - **Ações Disponíveis**: Aprovar, Rejeitar, Adicionar Comentário
 - **Notificações**: Feedback visual após cada ação
 - **Filtros**: Por status, por evento, por data de inscrição
 
-#### 7.2.2 Permissões de Validação
+#### 6.2.2 Permissões de Validação
 - **Editores**: Podem validar qualquer inscrição
 - **Autores**: Apenas inscrições dos próprios eventos
 - **Verificação**: Validação de propriedade antes de permitir ação
 
-### 7.3 Sistema de Verificação de Propriedade
+### 6.3 Sistema de Verificação de Propriedade
 
-#### 7.3.1 Implementação
+#### 6.3.1 Implementação
 - **Função Utilitária**: `sevo_user_can_edit_event($event_id, $user_id)`
 - **Verificações**: Papel do usuário + propriedade do evento
 - **Cache**: Otimização para múltiplas verificações
 
-#### 7.3.2 Aplicação
+#### 6.3.2 Aplicação
 - **Dashboards**: Filtrar eventos exibidos baseado em permissões
 - **AJAX Actions**: Verificar antes de executar operações
 - **Modais**: Exibir/ocultar botões baseado em permissões
 
-### 7.4 Summary Cards Interativos
+### 6.4 Summary Cards Interativos
 
-#### 7.4.1 Funcionalidades dos Cards
+#### 6.4.1 Funcionalidades dos Cards
 - **Card "Total de Organizações"**: 
   - Exibe contagem total de organizações cadastradas
   - **Clicável**: Direciona para **Página de Organizações** (contém `[sevo-orgs-dashboard]`)
@@ -306,7 +305,7 @@ $is_owner = ($post_author_id == $current_user_id);
   - **Contexto**: Passa o status da inscrição como filtro (aceitas/pendentes/rejeitadas)
   - Visível para administradores, editores e autores
 
-#### 7.4.2 Implementação Técnica
+#### 6.4.2 Implementação Técnica
 - **JavaScript**: Eventos de clique nos cards com passagem de parâmetros
 - **Redirecionamento**: Via `window.location` com query parameters ou POST data
 - **Passagem de Contexto**: 
@@ -319,9 +318,9 @@ $is_owner = ($post_author_id == $current_user_id);
 - **Feedback Visual**: Hover effects e estados de loading
 - **Tratamento de Erros**: Fallback para página sem filtros se parâmetros inválidos
 
-### 7.5 Arquitetura de Páginas e Filtros Contextuais
+### 6.5 Arquitetura de Páginas e Filtros Contextuais
 
-#### 7.5.1 Estrutura das Páginas
+#### 6.5.1 Estrutura das Páginas
 - **Página de Organizações**: Contém shortcode `[sevo-orgs-dashboard]`
   - **URL**: `/organizacoes/`
   - **Parâmetros**: Não requer filtros específicos
@@ -342,7 +341,7 @@ $is_owner = ($post_author_id == $current_user_id);
   - **Parâmetros**: `?status=aceitas|pendentes|rejeitadas`
   - **Funcionalidade**: Filtra inscrições por status específico
 
-#### 7.5.2 Processamento de Parâmetros
+#### 6.5.2 Processamento de Parâmetros
 - **Detecção de Contexto**: Shortcodes verificam `$_GET`, `$_POST` ou session storage
 - **Aplicação de Filtros**: 
   - Modificação de queries WP_Query
@@ -351,24 +350,24 @@ $is_owner = ($post_author_id == $current_user_id);
 - **Fallback**: Se parâmetros inválidos, exibe conteúdo padrão sem filtros
 - **Histórico de Navegação**: Manutenção do estado para botão "voltar"
 
-### 7.6 Dashboard de Inscrições (`[sevo-inscricoes-dashboard]`)
+### 6.6 Dashboard de Inscrições (`[sevo-inscricoes-dashboard]`)
 
-#### 7.6.1 Funcionalidades Requeridas
+#### 6.6.1 Funcionalidades Requeridas
 - **Listagem de Inscrições**: Todas as inscrições do sistema (filtradas por permissão)
 - **Filtros**: Por status, evento, usuário, data
 - **Ações de Validação**: Aprovar, rejeitar, adicionar comentários
 - **Permissões**: Administradores veem todas, editores veem todas, autores apenas dos próprios eventos
 - **Estatísticas**: Resumo de inscrições por status
 
-#### 7.6.2 Interface
+#### 6.6.2 Interface
 - **Layout**: Tabela responsiva com ações inline
 - **Modais**: Para detalhes da inscrição e ações de validação
 - **Cores de Status**: Verde (aceita), amarelo (solicitada), vermelho (rejeitada)
 - **Paginação**: Sistema de paginação para grandes volumes
 
-### 7.7 Log de Ações
+### 6.7 Log de Ações
 
-#### 7.7.1 Eventos Logados
+#### 6.7.1 Eventos Logados
 - Aprovação de inscrição
 - Rejeição de inscrição
 - Cancelamento de inscrição pelo usuário
@@ -376,7 +375,7 @@ $is_owner = ($post_author_id == $current_user_id);
 - Criação/edição de eventos
 - Navegação via summary cards
 
-#### 7.7.2 Estrutura do Log
+#### 6.7.2 Estrutura do Log
 - **Timestamp**: Data e hora da ação
 - **Usuário**: ID e nome do usuário que executou a ação
 - **Ação**: Tipo de ação executada
@@ -385,9 +384,9 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ---
 
-## 8. Fluxos de Trabalho
+## 7. Fluxos de Trabalho
 
-### 8.1 Criação de Evento
+### 7.1 Criação de Evento
 1. Administrador cria organização
 2. Sistema cria categoria no fórum automaticamente
 3. Administrador cria tipo de evento associado à organização
@@ -396,7 +395,7 @@ $is_owner = ($post_author_id == $current_user_id);
 6. Sistema cria tópico no fórum para discussão do evento
 7. Participantes podem se inscrever no evento
 
-### 8.2 Gestão de Inscrições
+### 7.2 Gestão de Inscrições
 1. Usuário acessa evento via landing page ou dashboard
 2. Usuário se inscreve (se logado)
 3. Inscrição fica com status 'solicitada'
@@ -406,19 +405,19 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ---
 
-## 9. Requisitos Técnicos
+## 8. Requisitos Técnicos
 
-### 9.1 Requisitos Mínimos
+### 8.1 Requisitos Mínimos
 - WordPress 5.0 ou superior
 - PHP 7.4 ou superior
 - MySQL 5.6 ou superior
 - Suporte a JavaScript habilitado
 
-### 9.2 Dependências Opcionais
+### 8.2 Dependências Opcionais
 - Asgaros Forum (para funcionalidades de fórum)
 - Dashicons (incluído no WordPress)
 
-### 9.3 Compatibilidade
+### 8.3 Compatibilidade
 - Temas WordPress padrão
 - Plugins de cache
 - Plugins de segurança
@@ -426,30 +425,30 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ---
 
-## 10. Métricas e Analytics
+## 9. Métricas e Analytics
 
-### 10.1 Métricas Disponíveis
+### 9.1 Métricas Disponíveis
 - Número de organizações cadastradas
 - Número de tipos de evento por organização
 - Número de eventos ativos/inativos
 - Número de inscrições por status
 - Atividade no fórum (se integrado)
 
-### 10.2 Dashboard Administrativo
+### 9.2 Dashboard Administrativo
 - Visão geral com contadores
 - Acesso rápido a cada seção
 - Capacidade `manage_options` requerida
 
 ---
 
-## 11. Sistemas Centralizados de Interface
+## 10. Sistemas Centralizados de Interface
 
-### 11.1 Sistema de Toaster (SevoToaster)
+### 10.1 Sistema de Toaster (SevoToaster)
 
-#### 11.1.1 Objetivo
+#### 10.1.1 Objetivo
 Sistema centralizado para exibição de mensagens de feedback ao usuário, substituindo alerts nativos e mensagens HTML estáticas por uma interface moderna e consistente.
 
-#### 11.1.2 Funcionalidades
+#### 10.1.2 Funcionalidades
 - **Tipos de Mensagem**: Sucesso, erro, informação, aviso
 - **Posicionamento**: Canto superior direito da tela
 - **Animações**: Entrada e saída suaves
@@ -457,7 +456,7 @@ Sistema centralizado para exibição de mensagens de feedback ao usuário, subst
 - **Empilhamento**: Múltiplas mensagens simultâneas
 - **Responsividade**: Adaptável a diferentes dispositivos
 
-#### 11.1.3 API JavaScript
+#### 10.1.3 API JavaScript
 ```javascript
 // Métodos disponíveis
 SevoToaster.showSuccess(message, options)
@@ -467,18 +466,18 @@ SevoToaster.showWarning(message, options)
 SevoToaster.clear() // Remove todas as mensagens
 ```
 
-#### 11.1.4 Integração
+#### 10.1.4 Integração
 - **Assets**: `sevo-toaster.css` e `sevo-toaster.js`
 - **Dependências**: Registrado em todos os shortcodes
 - **Compatibilidade**: Funciona com respostas AJAX WordPress
 - **Fallback**: Graceful degradation para browsers antigos
 
-### 11.2 Sistema de Popup (SevoPopup)
+### 10.2 Sistema de Popup (SevoPopup)
 
-#### 11.2.1 Objetivo
+#### 10.2.1 Objetivo
 Sistema centralizado para diálogos interativos, substituindo confirm() nativo e prompts por uma interface moderna que retorna Promises para melhor controle de fluxo.
 
-#### 11.2.2 Funcionalidades
+#### 10.2.2 Funcionalidades
 - **Tipos de Popup**: Confirmação, aviso, perigo, prompt, informativo
 - **Promises**: Retorna Promise para controle assíncrono
 - **Customização**: Títulos, textos de botões, ícones personalizáveis
@@ -486,7 +485,7 @@ Sistema centralizado para diálogos interativos, substituindo confirm() nativo e
 - **Modal**: Overlay com foco capturado
 - **Responsividade**: Interface adaptável
 
-#### 11.2.3 API JavaScript
+#### 10.2.3 API JavaScript
 ```javascript
 // Métodos disponíveis
 SevoPopup.confirm(message, options) // Retorna Promise<boolean>
@@ -497,7 +496,7 @@ SevoPopup.info(message, options) // Retorna Promise<void>
 SevoPopup.custom(config) // Retorna Promise<any>
 ```
 
-#### 11.2.4 Exemplos de Uso
+#### 10.2.4 Exemplos de Uso
 ```javascript
 // Confirmação simples
 SevoPopup.confirm('Deseja continuar?').then(confirmed => {
@@ -528,41 +527,41 @@ SevoPopup.prompt('Digite o nome:', {
 });
 ```
 
-#### 11.2.5 Integração
+#### 10.2.5 Integração
 - **Assets**: `sevo-popup.css` e `sevo-popup.js`
 - **Dependências**: Registrado em todos os shortcodes
 - **Refatoração**: Substitui todas as chamadas confirm() existentes
 - **Compatibilidade**: Mantém método nativo como fallback
 
-### 11.3 Benefícios dos Sistemas Centralizados
+### 10.3 Benefícios dos Sistemas Centralizados
 
-#### 11.3.1 Consistência Visual
+#### 10.3.1 Consistência Visual
 - Interface unificada em todo o plugin
 - Branding consistente com cores e tipografia
 - Experiência de usuário padronizada
 
-#### 11.3.2 Manutenibilidade
+#### 10.3.2 Manutenibilidade
 - Código centralizado para fácil manutenção
 - Atualizações globais com mudanças em um local
 - Redução de duplicação de código
 
-#### 11.3.3 Funcionalidades Avançadas
+#### 10.3.3 Funcionalidades Avançadas
 - Controle assíncrono com Promises
 - Configurações flexíveis por contexto
 - Melhor acessibilidade e usabilidade
 
-#### 11.3.4 Performance
+#### 10.3.4 Performance
 - Assets otimizados e minificados
 - Carregamento sob demanda
 - Cache de browser eficiente
 
 ---
 
-## 12. Estrutura Hierárquica do Fórum
+## 11. Estrutura Hierárquica do Fórum
 
 O plugin Sevo Eventos integra-se com o Asgaros Forum seguindo uma estrutura hierárquica específica:
 
-### 12.1 Hierarquia Correta:
+### 11.1 Hierarquia Correta:
 
 1. **Organização** → **Categoria do Fórum**
    - Cada organização cria uma categoria no fórum
@@ -587,7 +586,7 @@ O plugin Sevo Eventos integra-se com o Asgaros Forum seguindo uma estrutura hier
    - Author: usuário que se inscreveu
    - Parent: tópico do evento
 
-### 12.2 Estrutura Visual:
+### 11.2 Estrutura Visual:
 ```
 Categoria: Eventos - Organização A
 ├── Fórum: Tipo de Evento 1
@@ -601,7 +600,7 @@ Categoria: Eventos - Organização A
         └── Post: Ana se inscreveu no evento em 09/01/2025 14:20
 ```
 
-### 12.3 Integração com Asgaros Forum
+### 11.3 Integração com Asgaros Forum
 
 #### Funções Principais:
 
@@ -637,7 +636,7 @@ Quando datas importantes do evento são definidas/alteradas:
    - "Período de Inscrição Definido!"
    - "Data do Evento Marcada!"
 
-### 12.4 Correções Implementadas
+### 11.4 Correções Implementadas
 
 #### Problema Identificado e Resolvido
 O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, quebrando a hierarquia correta e impedindo que os comentários de inscrição aparecessem no local adequado.
@@ -664,28 +663,28 @@ O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, qu
 
 ---
 
-## 13. Roadmap e Melhorias Futuras
+## 12. Roadmap e Melhorias Futuras
 
-### 13.1 Versão 3.1 (Em Desenvolvimento)
+### 12.1 Versão 3.1 (Em Desenvolvimento)
 - **Summary Cards Interativos**: Navegação rápida entre dashboards
 - **Dashboard de Inscrições**: Interface completa para validação e gestão
 - **Dashboard de Inscrições Pessoais**: Para usuários visualizarem suas inscrições
 - **Sistema de Permissões Granular**: Controle refinado de acesso
 - **Verificação de Propriedade**: Autores limitados aos próprios eventos
 
-### 13.2 Versão 3.2 (Planejada)
+### 12.2 Versão 3.2 (Planejada)
 - Sistema de notificações por email
 - Relatórios avançados
 - API REST personalizada
 - Integração com calendários externos
 
-### 13.3 Versão 3.3 (Planejada)
+### 12.3 Versão 3.3 (Planejada)
 - Sistema de pagamentos para inscrições
 - Certificados automáticos
 - App mobile companion
 - Integração com redes sociais
 
-### 13.4 Melhorias de Segurança
+### 12.4 Melhorias de Segurança
 - Implementação de roles personalizados
 - Auditoria de ações
 - Backup automático de dados
@@ -693,15 +692,15 @@ O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, qu
 
 ---
 
-## 14. Suporte e Manutenção
+## 13. Suporte e Manutenção
 
-### 14.1 Documentação
+### 13.1 Documentação
 - Manual do usuário
 - Documentação técnica para desenvolvedores
 - Guias de instalação e configuração
 - FAQ e troubleshooting
 
-### 14.2 Suporte Técnico
+### 13.2 Suporte Técnico
 - Canal de suporte via email
 - Fórum de discussão
 - Atualizações regulares de segurança

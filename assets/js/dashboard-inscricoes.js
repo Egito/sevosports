@@ -70,11 +70,15 @@
 
         // Vinculação de eventos
         bindEvents: function() {
-            // Toggle de filtros
-            this.elements.filtersToggle.on('click', this.toggleFilters.bind(this));
-
-            // Aplicar filtros
-            $('#apply-filters').on('click', this.applyFilters.bind(this));
+            // Filtros simplificados - aplicação automática
+            $('#filter-usuario').on('input', this.handleFilterChange.bind(this));
+            $('#filter-organizacao').on('change', this.handleFilterChange.bind(this));
+            $('#filter-tipo-evento').on('change', this.handleFilterChange.bind(this));
+            $('#filter-evento').on('change', this.handleFilterChange.bind(this));
+            $('#filter-ano').on('change', this.handleFilterChange.bind(this));
+            $('#filter-mes').on('change', this.handleFilterChange.bind(this));
+            
+            // Limpar filtros
             $('#clear-filters').on('click', this.resetFilters.bind(this));
 
 
@@ -114,9 +118,27 @@
         setupFilters: function() {
             // Carregar opções dos filtros
             this.loadFilterOptions();
+        },
 
-            // Estado inicial dos filtros (fechado)
-            this.elements.filtersContent.hide();
+        // Manipular mudança de filtros com limpeza automática
+        handleFilterChange: function(e) {
+            const changedField = $(e.target);
+            const fieldId = changedField.attr('id');
+            
+            // Se um filtro foi selecionado, limpar os outros
+            if (changedField.val() && changedField.val() !== '') {
+                $('#filter-usuario, #filter-organizacao, #filter-tipo-evento, #filter-evento, #filter-ano, #filter-mes').each(function() {
+                    if ($(this).attr('id') !== fieldId) {
+                        $(this).val('');
+                    }
+                });
+            }
+            
+            // Aplicar filtros automaticamente após um pequeno delay
+            clearTimeout(this.filterTimeout);
+            this.filterTimeout = setTimeout(() => {
+                this.applyFilters(e);
+            }, 300);
         },
 
         // Carregar dados iniciais
@@ -126,29 +148,15 @@
             this.loadInscricoes();
         },
 
-        // Toggle dos filtros
-        toggleFilters: function(e) {
-            e.preventDefault();
-            const $toggle = this.elements.filtersToggle;
-            const $content = this.elements.filtersContent;
-
-            if ($content.is(':visible')) {
-                $content.slideUp(300);
-                $toggle.removeClass('active');
-            } else {
-                $content.slideDown(300);
-                $toggle.addClass('active');
-            }
-        },
-
         // Aplicar filtros
         applyFilters: function(e) {
-            e.preventDefault();
+            if (e && e.preventDefault) {
+                e.preventDefault();
+            }
             
             // Coletar valores dos filtros, garantindo que valores vazios sejam tratados
             this.config.filters = {
                 evento_id: $('#filter-evento').val() || '',
-                status: $('#filter-status').val() || '',
                 ano: $('#filter-ano').val() || '',
                 mes: $('#filter-mes').val() || '',
                 organizacao_id: $('#filter-organizacao').val() || '',
@@ -181,7 +189,6 @@
             
             // Limpar campos de filtro
             $('#filter-evento').val('');
-            $('#filter-status').val('');
             $('#filter-ano').val('');
             $('#filter-mes').val('');
             $('#filter-organizacao').val('');
@@ -191,7 +198,6 @@
             // Limpar filtros
             this.config.filters = {
                 evento_id: '',
-                status: '',
                 ano: '',
                 mes: '',
                 organizacao_id: '',

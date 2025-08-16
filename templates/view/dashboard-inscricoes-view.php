@@ -1,149 +1,80 @@
 <?php
 /**
- * Template para o Dashboard de Inscrições
- * Este template é incluído pelo shortcode [sevo_dashboard_inscricoes].
+ * Template do Dashboard de Inscrições
+ * Exibe uma interface para gerenciar inscrições nos eventos
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-$can_manage_all = sevo_check_user_permission('manage_inscricoes');
+// Carrega a função dos summary cards
+if (!function_exists('sevo_get_summary_cards')) {
+    require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/summary-cards.php';
+}
+
+// Verificar permissões
 $is_super_admin = is_super_admin();
+$is_admin = current_user_can('manage_options');
+$can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
 $current_user = wp_get_current_user();
 ?>
 
 <div class="sevo-dashboard-inscricoes" id="sevo-dashboard-inscricoes">
-    <!-- Cards de Estatísticas -->
-    <div class="sevo-dashboard-stats" id="sevo-dashboard-stats">
-        <div class="sevo-stat-card sevo-stat-total">
-            <div class="sevo-stat-icon">📊</div>
-            <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-total">-</div>
-                <div class="sevo-stat-label">Total de Inscrições</div>
-            </div>
-        </div>
-        
-        <div class="sevo-stat-card sevo-stat-solicitada">
-            <div class="sevo-stat-icon">📝</div>
-            <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-solicitada">-</div>
-                <div class="sevo-stat-label">Solicitadas</div>
-            </div>
-        </div>
-        
-        <div class="sevo-stat-card sevo-stat-approved">
-            <div class="sevo-stat-icon">✅</div>
-            <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-approved">-</div>
-                <div class="sevo-stat-label">Aprovadas</div>
-            </div>
-        </div>
-        
-        <div class="sevo-stat-card sevo-stat-rejected">
-            <div class="sevo-stat-icon">❌</div>
-            <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-rejected">-</div>
-                <div class="sevo-stat-label">Reprovadas</div>
-            </div>
-        </div>
-        
-        <div class="sevo-stat-card sevo-stat-cancelada">
-            <div class="sevo-stat-icon">🚫</div>
-            <div class="sevo-stat-content">
-                <div class="sevo-stat-number" id="stat-canceladas">-</div>
-                <div class="sevo-stat-label">Canceladas</div>
-            </div>
-        </div>
-    </div>
+    <!-- Summary Cards -->
+    <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
 
-    <!-- Barra de Filtros -->
+    <!-- Filtros Simplificados -->
     <div class="sevo-dashboard-filters">
-        <div class="sevo-filters-header">
-            <h3>Filtros</h3>
-            <button type="button" class="sevo-filters-toggle" id="sevo-filters-toggle">
-                <span class="sevo-toggle-text">Mostrar Filtros</span>
-                <span class="sevo-toggle-icon">▼</span>
-            </button>
-        </div>
-        
-        <div class="sevo-filters-content" id="sevo-filters-content" style="display: none;">
-            <div class="sevo-filters-row">
-                <div class="sevo-filter-group">
-                    <label for="filter-evento">Evento:</label>
-                    <select id="filter-evento" name="evento_id">
-                        <option value="">Todos os eventos</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-status">Status:</label>
-                    <select id="filter-status" name="status">
-                        <option value="">Todos os status</option>
-                        <option value="solicitada">Solicitada</option>
-                        <option value="aceita">Aceita</option>
-                        <option value="rejeitada">Rejeitada</option>
-                        <option value="cancelada">Cancelada</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-ano">Ano:</label>
-                    <select id="filter-ano" name="ano">
-                        <option value="">Todos os anos</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-mes">Mês:</label>
-                    <select id="filter-mes" name="mes">
-                        <option value="">Todos os meses</option>
-                        <option value="1">Janeiro</option>
-                        <option value="2">Fevereiro</option>
-                        <option value="3">Março</option>
-                        <option value="4">Abril</option>
-                        <option value="5">Maio</option>
-                        <option value="6">Junho</option>
-                        <option value="7">Julho</option>
-                        <option value="8">Agosto</option>
-                        <option value="9">Setembro</option>
-                        <option value="10">Outubro</option>
-                        <option value="11">Novembro</option>
-                        <option value="12">Dezembro</option>
-                    </select>
-                </div>
+        <div class="sevo-filters-single-row">
+            <div class="sevo-filter-group">
+                <input type="text" id="filter-usuario" name="usuario" placeholder="Nome do usuário..." class="sevo-filter-input">
             </div>
             
-            <?php if ($can_manage_all): ?>
-            <div class="sevo-filters-row">
-                <div class="sevo-filter-group">
-                    <label for="filter-organizacao">Organização:</label>
-                    <select id="filter-organizacao" name="organizacao_id">
-                        <option value="">Todas as organizações</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-tipo-evento">Tipo de Evento:</label>
-                    <select id="filter-tipo-evento" name="tipo_evento_id">
-                        <option value="">Todos os tipos</option>
-                    </select>
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <label for="filter-usuario">Usuário:</label>
-                    <input type="text" id="filter-usuario" name="usuario" placeholder="Nome ou email do usuário">
-                </div>
-                
-                <div class="sevo-filter-group">
-                    <!-- Espaço para alinhamento -->
-                </div>
+            <div class="sevo-filter-group">
+                <select id="filter-organizacao" name="organizacao_id" class="sevo-filter-select">
+                    <option value="">Todas as organizações</option>
+                </select>
             </div>
-            <?php endif; ?>
             
-            <div class="sevo-filters-actions">
-                <button type="button" class="sevo-btn sevo-btn-primary" id="apply-filters">Aplicar Filtros</button>
-                <button type="button" class="sevo-btn sevo-btn-secondary" id="clear-filters">Limpar Filtros</button>
+            <div class="sevo-filter-group">
+                <select id="filter-tipo-evento" name="tipo_evento_id" class="sevo-filter-select">
+                    <option value="">Todos os tipos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <select id="filter-evento" name="evento_id" class="sevo-filter-select">
+                    <option value="">Todos os eventos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <select id="filter-ano" name="ano" class="sevo-filter-select">
+                    <option value="">Todos os anos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <select id="filter-mes" name="mes" class="sevo-filter-select">
+                    <option value="">Todos os meses</option>
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-actions">
+                <button type="button" class="sevo-btn sevo-btn-secondary" id="clear-filters" title="Limpar Filtros">🗑️</button>
             </div>
         </div>
     </div>

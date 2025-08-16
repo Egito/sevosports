@@ -117,111 +117,89 @@
     font-weight: 500;
 }
 
-/* Filtros */
+/* Summary cards são carregados do CSS da landing page */
+
+/* Filtros Simplificados */
 .sevo-dashboard-filters {
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 20px;
-    overflow: hidden;
-}
-
-.sevo-filters-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-    background: #f8f9fa;
-}
-
-.sevo-filters-header h3 {
-    margin: 0;
-    font-size: 18px;
-    color: #2c3e50;
-}
-
-.sevo-filters-toggle {
-    background: none;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    color: #3498db;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.sevo-filters-toggle:hover {
-    color: #2980b9;
-}
-
-.sevo-toggle-icon {
-    transition: transform 0.2s ease;
-}
-
-.sevo-filters-toggle.active .sevo-toggle-icon {
-    transform: rotate(180deg);
-}
-
-.sevo-filters-content {
     padding: 15px;
-    animation: slideDown 0.3s ease;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.sevo-filters-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
+.sevo-filters-single-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .sevo-filter-group {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    align-items: center;
+    min-width: 0;
+    flex: 1;
 }
 
-.sevo-filter-group label {
-    font-weight: 500;
-    color: #555;
-    font-size: 14px;
-}
-
-.sevo-filter-group select,
-.sevo-filter-group input {
-    padding: 8px;
+.sevo-filter-input,
+.sevo-filter-select {
+    width: 100%;
+    padding: 10px 12px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 14px;
-    transition: border-color 0.2s ease;
+    background: #fff;
+    transition: all 0.2s ease;
+    min-width: 120px;
 }
 
-.sevo-filter-group select:focus,
-.sevo-filter-group input:focus {
+.sevo-filter-input:focus,
+.sevo-filter-select:focus {
     outline: none;
     border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
-.sevo-filters-actions {
+.sevo-filter-input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.sevo-filter-actions {
     display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.sevo-filter-actions .sevo-btn {
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    min-width: auto;
+    width: auto;
+}
+
+/* Responsividade para filtros */
+@media (max-width: 768px) {
+    .sevo-filters-single-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .sevo-filter-group {
+        flex: none;
+    }
+    
+    .sevo-filter-input,
+    .sevo-filter-select {
+        min-width: auto;
+    }
+    
+    .sevo-filter-actions {
+        justify-content: center;
+    }
 }
 
 /* Botões */
