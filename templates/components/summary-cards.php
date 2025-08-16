@@ -1,5 +1,25 @@
 <?php
-if (!defined('ABSPATH')) exit;
+/**
+ * Componente Summary Cards - Reutilizável para todos os dashboards
+ * 
+ * @package SevoEventos
+ * @since 1.0.0
+ */
+
+// Evita acesso direto
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Enqueue do CSS específico do componente
+if (!wp_style_is('sevo-summary-cards-style', 'enqueued')) {
+    wp_enqueue_style(
+        'sevo-summary-cards-style',
+        SEVO_EVENTOS_PLUGIN_URL . 'assets/css/summary-cards.css',
+        array(),
+        SEVO_EVENTOS_VERSION
+    );
+}
 
 function sevo_get_summary_cards() {
     // Total de Organizações
@@ -82,49 +102,61 @@ function sevo_get_summary_cards() {
         array(
             'title' => 'Organizações',
             'count' => $orgs_count,
-            'class' => 'green-card'
+            'class' => 'sevo-card-green',
+            'icon' => 'dashicons-groups'
         ),
         array(
-            'title' => 'Tipos',
+            'title' => 'Tipos de Evento',
             'count' => $eventos_count,
-            'class' => 'teal-card'
+            'class' => 'sevo-card-blue',
+            'icon' => 'dashicons-category'
         ),
         array(
             'title' => 'Eventos Totais',
             'count' => $secoes_count,
-            'class' => 'cyan-card'
+            'class' => 'sevo-card-purple',
+            'icon' => 'dashicons-calendar-alt'
         ),
         array(
-            'title' => 'Eventos Acontecendo',
+            'title' => 'Em Andamento',
             'count' => $em_andamento->found_posts,
-            'class' => 'orange-card'
+            'class' => 'sevo-card-orange',
+            'icon' => 'dashicons-clock'
         ),
         array(
-            'title' => 'Eventos Aguardando',
+            'title' => 'Aguardando Início',
             'count' => $eventos_futuros->found_posts,
-            'class' => 'red-card'
+            'class' => 'sevo-card-yellow',
+            'icon' => 'dashicons-hourglass'
         ),
         array(
-            'title' => 'Eventos Inscrições Abertas',
+            'title' => 'Inscrições Abertas',
             'count' => $inscricoes_abertas->found_posts,
-            'class' => 'yellow-card'
+            'class' => 'sevo-card-green-light',
+            'icon' => 'dashicons-yes-alt'
         ),
         array(
-            'title' => 'Eventos Inscritos Totais',
+            'title' => 'Total de Inscritos',
             'count' => $total_inscritos,
-            'class' => 'blue-card'
+            'class' => 'sevo-card-red',
+            'icon' => 'dashicons-admin-users'
         )
     );
     
     ob_start();
     ?>
     <div class="sevo-summary-cards">
-        <?php foreach ($cards as $card): ?>
-            <div class="summary-card <?php echo esc_attr($card['class']); ?>">
-                <h3><?php echo esc_html($card['title']); ?></h3>
-                <div class="count"><?php echo esc_html($card['count']); ?></div>
-            </div>
-        <?php endforeach; ?>
+        <div class="sevo-summary-grid">
+            <?php foreach ($cards as $card): ?>
+                <div class="sevo-summary-card <?php echo esc_attr($card['class']); ?>">
+                    <div class="card-icon">
+                        <i class="dashicons <?php echo esc_attr($card['icon']); ?>"></i>
+                    </div>
+                    <div class="card-number"><?php echo esc_html($card['count']); ?></div>
+                    <div class="card-label"><?php echo esc_html($card['title']); ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
     <?php
     return ob_get_clean();

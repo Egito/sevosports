@@ -206,14 +206,17 @@ class Sevo_Eventos_Main {
         // Incluir handlers de shortcode unificados
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-landing-page.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-dashboard-inscricoes.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos-dashboard.php';
 
         // Inicializar as classes CPT
         new Sevo_Orgs_CPT();
         new Sevo_Tipo_Evento_CPT();
         new Sevo_Eventos_CPT_Final();
         new Sevo_Inscricoes_CPT();
+        
+        // Inicializar shortcodes
+        new Sevo_Eventos_Dashboard_Shortcode();
         
         // Inicializar integração com fórum se disponível
         if (class_exists('AsgarosForum')) {
@@ -282,22 +285,7 @@ class Sevo_Eventos_Main {
             true
         );
 
-        // Estilo para a Landing Page
-        wp_register_style(
-            'sevo-landing-page-style',
-            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/landing-page.css',
-            array(),
-            SEVO_EVENTOS_VERSION
-        );
 
-        // Script para a Landing Page
-        wp_register_script(
-            'sevo-landing-page-script',
-            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/landing-page.js',
-            array('jquery', 'sevo-toaster-script'),
-            SEVO_EVENTOS_VERSION,
-            true
-        );
 
         // Estilo para o sistema de Toaster
         wp_register_style(

@@ -1,0 +1,390 @@
+/**
+ * Estilos para o Dashboard de Eventos
+ * Plugin Sevo Eventos
+ */
+
+/* Reset e Base */
+.sevo-dashboard-eventos {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
+}
+
+/* Cabeçalho */
+.sevo-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sevo-dashboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.sevo-dashboard-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.sevo-user-welcome {
+    font-size: 16px;
+    color: #555;
+}
+
+.sevo-user-role {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #3498db;
+    color: white;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* Summary Cards - Removidos estilos específicos para usar o componente padronizado */
+
+/* Cards de Estatísticas - Estilo alternativo */
+.sevo-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sevo-stat-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sevo-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.sevo-stat-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f8f9fa;
+}
+
+.sevo-stat-total .sevo-stat-icon { background: #e3f2fd; }
+.sevo-stat-pending .sevo-stat-icon { background: #fff3e0; }
+.sevo-stat-approved .sevo-stat-icon { background: #e8f5e8; }
+.sevo-stat-rejected .sevo-stat-icon { background: #ffebee; }
+
+.sevo-stat-content {
+    flex: 1;
+}
+
+.sevo-stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 3px;
+}
+
+.sevo-stat-total .sevo-stat-number { color: #2196f3; }
+.sevo-stat-pending .sevo-stat-number { color: #ff9800; }
+.sevo-stat-approved .sevo-stat-number { color: #4caf50; }
+.sevo-stat-rejected .sevo-stat-number { color: #f44336; }
+
+.sevo-stat-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Filtros */
+.sevo-dashboard-filters {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e1e5e9;
+}
+
+.sevo-filters-single-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    align-items: end;
+    max-width: 800px;
+}
+
+.sevo-filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-filter-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.sevo-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.2s ease;
+}
+
+.sevo-filter-select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.sevo-filter-button {
+    padding: 8px 16px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.sevo-filter-button:hover {
+    background: #2980b9;
+}
+
+/* Grid de Eventos */
+.sevo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* Card do Evento */
+.sevo-card.evento-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-card.evento-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.sevo-card-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.sevo-card-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+}
+
+.sevo-card-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+}
+
+.sevo-card-content {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.sevo-card-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 10px;
+}
+
+.sevo-card-description {
+    font-size: 0.9em;
+    color: #4a5568;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.sevo-card-meta {
+    margin-bottom: 15px;
+}
+
+.sevo-card-meta p {
+    margin: 0 0 5px;
+    color: #475569;
+    font-size: 0.85em;
+}
+
+.sevo-card-link {
+    font-weight: 600;
+    color: #3b82f6;
+    transition: color 0.2s;
+}
+
+.sevo-status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-ativo { background-color: #22c55e; }
+.status-inativo { background-color: #ef4444; }
+.status-rascunho { background-color: #f59e0b; }
+.status-pendente { background-color: #8b5cf6; }
+
+/* Estado Vazio */
+.sevo-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sevo-empty-icon {
+    font-size: 64px;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.sevo-empty-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.sevo-empty-description {
+    font-size: 16px;
+    color: #718096;
+    margin-bottom: 30px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-dashboard-eventos {
+        margin: 10px;
+        padding: 15px;
+        border-radius: 6px;
+    }
+    
+    .sevo-dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .sevo-dashboard-user-info {
+        align-items: flex-start;
+    }
+    
+    .sevo-summary-cards {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    
+    .sevo-filters-single-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .sevo-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sevo-summary-cards {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+    }
+    
+    .sevo-summary-card {
+        padding: 12px;
+        min-height: 80px;
+    }
+    
+    .sevo-summary-card-number {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-dashboard-eventos {
+        margin: 5px;
+        padding: 10px;
+    }
+    
+    .sevo-summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+    
+    .sevo-summary-card {
+        padding: 10px;
+        min-height: 70px;
+    }
+    
+    .sevo-summary-card-title {
+        font-size: 9px;
+    }
+    
+    .sevo-summary-card-number {
+        font-size: 18px;
+    }
+    
+    .sevo-summary-card-subtitle {
+        font-size: 8px;
+    }
+    
+    .sevo-summary-card-number {
+        font-size: 28px;
+    }
+}

@@ -89,16 +89,20 @@ $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hid
                 <input type="text" id="_sevo_evento_local" name="_sevo_evento_local" value="<?php echo esc_attr($local); ?>" placeholder="Ex: Auditório Principal">
             </div>
 
-             <!-- Descrição -->
+             <!-- Descrição do Evento (Unificada) -->
             <div class="sevo-form-group-full">
                 <label for="post_content">Descrição do Evento</label>
-                <textarea id="post_content" name="post_content" rows="4"><?php echo esc_textarea($post_content); ?></textarea>
-            </div>
-
-            <!-- Regras e Detalhes -->
-            <div class="sevo-form-group-full">
-                <label for="_sevo_evento_regras">Regras e Detalhes</label>
-                <textarea id="_sevo_evento_regras" name="_sevo_evento_regras" rows="6" placeholder="Descreva as regras, requisitos e detalhes importantes do evento..."><?php echo esc_textarea($evento_regras); ?></textarea>
+                <textarea id="post_content" name="post_content" rows="8" placeholder="Descreva o evento, incluindo regras, requisitos e detalhes importantes..."><?php 
+                // Unifica descrição e regras em um único campo
+                $unified_content = $post_content;
+                if (!empty($evento_regras) && empty($post_content)) {
+                    $unified_content = $evento_regras;
+                } elseif (!empty($evento_regras) && !empty($post_content)) {
+                    $unified_content = $post_content . "\n\n" . $evento_regras;
+                }
+                echo esc_textarea($unified_content); 
+                ?></textarea>
+                <small class="sevo-form-help">Use este campo para toda a descrição do evento, incluindo regras e detalhes importantes.</small>
             </div>
 
             <hr class="sevo-form-group-full">

@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 // Carrega a função dos summary cards
 if (!function_exists('sevo_get_summary_cards')) {
-    require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/summary-cards.php';
+    require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/components/summary-cards.php';
 }
 
 // Verificar permissões

@@ -71,12 +71,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 SEVO_EVENTOS_VERSION
             );
             
-            wp_enqueue_style(
-                'sevo-landing-page',
-                SEVO_EVENTOS_PLUGIN_URL . 'assets/css/landing-page.css',
-                array(),
-                SEVO_EVENTOS_VERSION
-            );
+
             
             // Enfileirar o sistema de toaster
             wp_enqueue_style('sevo-toaster-style');

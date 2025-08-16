@@ -1,0 +1,427 @@
+/**
+ * CSS para Carrossel de Eventos no Dashboard
+ * Plugin Sevo Eventos
+ */
+
+/* === SEÇÕES DE EVENTOS === */
+.sevo-events-sections {
+    margin-top: 2rem;
+}
+
+.sevo-event-section {
+    margin-bottom: 3rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+}
+
+.sevo-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.sevo-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sevo-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    color: white;
+}
+
+.sevo-section-icon.inscricoes-abertas {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.sevo-section-icon.em-andamento {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.sevo-section-icon.inscricoes-encerradas {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.sevo-section-icon.aguardando-inicio {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.sevo-section-icon.encerrados {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.section-count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #6b7280;
+    margin-left: 0.5rem;
+}
+
+/* === CONTROLES DO CARROSSEL === */
+.carousel-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.carousel-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+.carousel-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #374151;
+}
+
+.carousel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9fafb;
+}
+
+.carousel-btn:disabled:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+
+/* === CONTAINER DO CARROSSEL === */
+.sevo-carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.sevo-carousel-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+/* === CARDS DE EVENTOS === */
+.sevo-event-card {
+    flex: 0 0 300px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
+}
+
+.sevo-event-card .card-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.sevo-event-card .card-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.1;
+}
+
+.sevo-event-card .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+}
+
+.sevo-event-card .card-content {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-event-card .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sevo-event-card .card-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sevo-event-card .card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.sevo-event-card .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.sevo-event-card .meta-icon {
+    width: 16px;
+    text-align: center;
+    color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.sevo-event-card .card-footer {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+    margin-top: auto;
+}
+
+.sevo-event-card .sevo-button-secondary,
+.sevo-event-card .sevo-button-primary {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.sevo-event-card .sevo-button-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.sevo-event-card .sevo-button-secondary:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.sevo-event-card .sevo-button-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.sevo-event-card .sevo-button-primary:hover {
+    background: #2563eb;
+}
+
+/* === BOTÕES DE AÇÃO DOS CARDS === */
+.sevo-event-card .card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+    margin-top: auto;
+}
+
+.sevo-event-card .btn-view-event,
+.sevo-event-card .btn-edit-event {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.sevo-event-card .btn-view-event {
+    background: #3b82f6;
+    color: white;
+    border: 1px solid #3b82f6;
+}
+
+.sevo-event-card .btn-view-event:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.sevo-event-card .btn-edit-event {
+    background: #10b981;
+    color: white;
+    border: 1px solid #10b981;
+}
+
+.sevo-event-card .btn-edit-event:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.sevo-event-card .btn-view-event i,
+.sevo-event-card .btn-edit-event i {
+    font-size: 0.875rem;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+    .sevo-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .sevo-section-title {
+        font-size: 1.25rem;
+    }
+    
+    .sevo-event-card {
+        flex: 0 0 280px;
+    }
+    
+    .sevo-event-card .card-footer {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-event-section {
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .sevo-event-card {
+        flex: 0 0 260px;
+    }
+    
+    .sevo-section-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+    
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+}
+
+/* === ANIMAÇÕES === */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sevo-event-card {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* === SCROLL SUAVE === */
+.sevo-carousel-container {
+    scroll-behavior: smooth;
+}
+
+/* === INDICADORES DE SCROLL === */
+.sevo-carousel-container::before,
+.sevo-carousel-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.sevo-carousel-container::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(255,255,255,0.8), transparent);
+}
+
+.sevo-carousel-container::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+}
+
+/* === ESTADO VAZIO === */
+.sevo-events-sections:empty::after {
+    content: 'Nenhum evento encontrado';
+    display: block;
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+    font-size: 1.125rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed #d1d5db;
+}
