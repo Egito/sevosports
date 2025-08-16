@@ -1,3 +1,13 @@
+// Objeto global para o dashboard de organizações
+window.SevoOrgsDashboard = {
+    viewOrg: function(orgId) {
+        openOrgViewModal(orgId);
+    },
+    editOrg: function(orgId) {
+        openOrgFormModal(orgId);
+    }
+};
+
 jQuery(document).ready(function($) {
     'use strict';
 
@@ -36,6 +46,10 @@ jQuery(document).ready(function($) {
 
     // Abre o modal ao clicar num cartão de organização (visualização)
     $(document).on('click', '.org-card', function(e) {
+        // Previne a abertura do modal se clicou em um botão
+        if ($(e.target).closest('.card-actions').length > 0) {
+            return;
+        }
         const orgId = $(this).data('org-id');
         openOrgViewModal(orgId);
     });

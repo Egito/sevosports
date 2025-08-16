@@ -124,6 +124,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Card do Evento */
@@ -260,8 +262,6 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
-/* Summary Cards - Removidos estilos específicos para usar o componente padronizado */
 
 /* === CARROSSEL DE EVENTOS === */
 /* === SEÇÕES DE EVENTOS === */

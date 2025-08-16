@@ -41,6 +41,8 @@ class Sevo_Eventos_Dashboard_Shortcode {
     public function render_dashboard_shortcode($atts) {
         // Enqueue dos estilos e scripts
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-modal-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-standards.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-eventos-dashboard-style');
         wp_enqueue_style('sevo-button-colors-style');
         

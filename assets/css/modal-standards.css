@@ -1,0 +1,192 @@
+/**
+ * SEVO Modal Standards - Padronização de Modais
+ * Garante que todos os modais apareçam centralizados e com visual consistente
+ */
+
+/* Estrutura base para modais centralizados */
+.sevo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sevo-modal[style*="display: block"],
+.sevo-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Overlay de fundo */
+.sevo-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+/* Container do modal */
+.sevo-modal-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 90%;
+    width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+    transform: scale(0.8) translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.sevo-modal[style*="display: block"] .sevo-modal-container,
+.sevo-modal.show .sevo-modal-container {
+    transform: scale(1) translateY(0);
+}
+
+/* Header do modal */
+.sevo-modal-header {
+    padding: 20px 20px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Botão de fechar */
+.sevo-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.sevo-modal-close:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* Corpo do modal */
+.sevo-modal-body {
+    padding: 20px;
+}
+
+/* Footer do modal */
+.sevo-modal-footer {
+    padding: 15px 20px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Loading state */
+.sevo-modal-loading {
+    padding: 40px;
+    text-align: center;
+    color: #666;
+}
+
+.sevo-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007cba;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Backdrop para modais de formulário */
+.sevo-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sevo-modal-backdrop[style*="display: block"],
+.sevo-modal-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-modal-container {
+        width: 95%;
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .sevo-modal-header {
+        padding: 15px;
+    }
+    
+    .sevo-modal-body {
+        padding: 15px;
+    }
+    
+    .sevo-modal-footer {
+        padding: 10px 15px 15px;
+        flex-direction: column;
+    }
+    
+    .sevo-modal-footer button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-modal-container {
+        width: 98%;
+        margin: 5px;
+    }
+    
+    .sevo-modal-header,
+    .sevo-modal-body {
+        padding: 12px;
+    }
+    
+    .sevo-modal-footer {
+        padding: 8px 12px 12px;
+    }
+}

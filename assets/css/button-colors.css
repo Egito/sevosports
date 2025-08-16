@@ -76,6 +76,78 @@
     border-color: #dc2626 !important;
 }
 
+/* === ESTILOS CONSOLIDADOS DE BOTÕES === */
+
+/* Botões primários, secundários e de perigo */
+.sevo-button-primary {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+
+.sevo-button-primary:hover {
+    background-color: #2563eb;
+}
+
+.sevo-button-primary:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.sevo-button-primary .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.sevo-button-secondary {
+    background-color: #f3f5f6;
+    color: #1d2327;
+    border: 1px solid #dcdcde;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.sevo-button-secondary:hover {
+    background-color: #e9eaec;
+    border-color: #c4c5c7;
+}
+
+.sevo-button-danger {
+    background-color: #d63638;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+
+.sevo-button-danger:hover {
+    background-color: #b92e30;
+}
+
 /* === ESTILOS GERAIS PARA TODOS OS BOTÕES === */
 .btn-view-event,
 .btn-edit-event,
@@ -86,19 +158,91 @@
 .sevo-button-success,
 .sevo-button-warning,
 .sevo-button-danger {
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+/* Botões de ação dos cards - padrão do dashboard de eventos */
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-view-event,
+.btn-edit-event,
+.btn-view-org,
+.btn-edit-org,
+.btn-view-tipo-evento,
+.btn-edit-tipo-evento {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
     border: none;
-    outline: none;
+    text-decoration: none;
+}
+
+/* Botões de visualizar */
+.btn-view-event,
+.btn-view-org,
+.btn-view-tipo-evento {
+    background-color: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.btn-view-event:hover,
+.btn-view-org:hover,
+.btn-view-tipo-evento:hover {
+    background-color: #e9ecef;
+    color: #343a40;
+    transform: translateY(-1px);
+}
+
+/* Botões de editar */
+.btn-edit-event,
+.btn-edit-org,
+.btn-edit-tipo-evento {
+    background-color: #007cba;
+    color: white;
+    border: 1px solid #005a87;
+}
+
+.btn-edit-event:hover,
+.btn-edit-org:hover,
+.btn-edit-tipo-evento:hover {
+    background-color: #005a87;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Ícones dos botões */
+.btn-view-event i,
+.btn-edit-event i,
+.btn-view-org i,
+.btn-edit-org i,
+.btn-view-tipo-evento i,
+.btn-edit-tipo-evento i {
+    font-size: 14px;
 }
 
 /* === RESPONSIVIDADE === */
@@ -108,6 +252,29 @@
     .sevo-inscribe-evento,
     .sevo-cancel-inscricao {
         padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .sevo-button-primary,
+    .sevo-button-secondary,
+    .sevo-button-danger {
+        padding: 8px 12px;
+        font-size: 14px;
+        justify-content: center;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .btn-view-event,
+    .btn-edit-event,
+    .btn-view-org,
+    .btn-edit-org,
+    .btn-view-tipo-evento,
+    .btn-edit-tipo-evento {
+        padding: 10px 12px;
         font-size: 12px;
     }
 }

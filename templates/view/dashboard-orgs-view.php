@@ -78,7 +78,19 @@ $organizacoes = new WP_Query($args);
                            echo wp_trim_words($excerpt, 15, '...');
                            ?>
                         </p>
-                        <span class="sevo-card-link">Ver Detalhes <i class="fas fa-arrow-right ml-2"></i></span>
+                        
+                        <div class="card-actions">
+                            <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr(get_the_ID()); ?>)">
+                                <i class="dashicons dashicons-visibility"></i>
+                                Ver Detalhes
+                            </button>
+                            <?php if (current_user_can('manage_options')): ?>
+                                <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr(get_the_ID()); ?>)">
+                                    <i class="dashicons dashicons-edit"></i>
+                                    Alterar
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             <?php endwhile; ?>

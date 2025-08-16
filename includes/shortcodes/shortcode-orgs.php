@@ -24,6 +24,9 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
     public function render_dashboard_shortcode()
     {
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-colors-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-modal-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-standards.css', array(), SEVO_EVENTOS_VERSION);
 
         wp_enqueue_style('sevo-orgs-dashboard-style');
         wp_enqueue_script('sevo-orgs-dashboard-script');

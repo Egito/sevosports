@@ -70,6 +70,12 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 array(),
                 SEVO_EVENTOS_VERSION
             );
+            wp_enqueue_style(
+                'sevo-modal-standards',
+                SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-standards.css',
+                array(),
+                SEVO_EVENTOS_VERSION
+            );
             
 
             

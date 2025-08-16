@@ -23,6 +23,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Card do Tipo de Evento */
@@ -231,18 +233,7 @@
 }
 
 /* --- Botões --- */
-.sevo-button-primary { background-color: #2271b1; color: #fff; }
-.sevo-button-secondary { background-color: #f3f5f6; color: #1d2327; border: 1px solid #dcdcde; }
-.sevo-button-danger { background-color: #d63638; color: #fff; }
-
-.sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
-    padding: 6px 12px; border-radius: 4px; cursor: pointer; border: none;
-    text-decoration: none; display: inline-flex; align-items: center;
-    margin: 2px; font-size: 14px;
-}
-.sevo-button-primary:hover { background-color: #1e6297; }
-.sevo-button-secondary:hover { background-color: #e9eaec; border-color: #c4c5c7; }
-.sevo-button-danger:hover { background-color: #b92e30; }
+/* Estilos de botão movidos para button-colors.css para reutilização */
 
 .sevo-spinner {
     border: 4px solid #f3f3f3;
@@ -283,9 +274,5 @@
         margin-bottom: 8px;
     }
     
-    .sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
-        padding: 8px 12px;
-        font-size: 14px;
-        justify-content: center;
-    }
+    /* Estilos de botão responsivos movidos para button-colors.css */
 }

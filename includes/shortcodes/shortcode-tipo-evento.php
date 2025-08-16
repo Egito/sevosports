@@ -27,6 +27,9 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     public function render_dashboard() {
         // Enfileira os assets específicos para este dashboard
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-colors-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-modal-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-standards.css', array(), SEVO_EVENTOS_VERSION);
 
         wp_enqueue_style('sevo-tipo-evento-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-orgs-dashboard-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-orgs.css', array(), SEVO_EVENTOS_VERSION);
@@ -339,7 +342,19 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
                     <p><strong>Vagas:</strong> <?php echo esc_html($vagas ?: 'Ilimitadas'); ?></p>
                     <p><strong>Participação:</strong> <?php echo esc_html(ucfirst($participacao ?: 'Não definida')); ?></p>
                 </div>
-                <span class="sevo-card-link">Ver Detalhes <i class="fas fa-arrow-right ml-2"></i></span>
+                
+                <div class="card-actions">
+                    <button class="btn-view-tipo-evento" onclick="SevoTipoEventoDashboard.viewTipoEvento(<?php echo esc_attr($post_id); ?>)">
+                        <i class="dashicons dashicons-visibility"></i>
+                        Ver Detalhes
+                    </button>
+                    <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
+                        <button class="btn-edit-tipo-evento" onclick="SevoTipoEventoDashboard.editTipoEvento(<?php echo esc_attr($post_id); ?>)">
+                            <i class="dashicons dashicons-edit"></i>
+                            Alterar
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         <?php

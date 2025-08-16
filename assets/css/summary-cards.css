@@ -2,9 +2,9 @@
 
 .sevo-summary-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(7, 1fr);
     gap: 6px;
-    margin-bottom: 15px;
+    margin: 0 auto 15px auto;
     max-width: 800px;
     width: 100%;
 }
@@ -107,7 +107,7 @@
 /* Responsividade */
 @media (max-width: 768px) {
     .sevo-summary-cards {
-        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 4px;
         max-width: 100%;
     }

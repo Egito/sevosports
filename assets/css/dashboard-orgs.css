@@ -12,39 +12,14 @@
     gap: 15px;
 }
 
-.sevo-button-primary {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease;
-}
-
-.sevo-button-primary:hover {
-    background-color: #2563eb;
-}
-
-.sevo-button-primary:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-}
-
-.sevo-button-primary .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-}
+/* Estilos de botão movidos para button-colors.css para reutilização */
 
 .sevo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Card da Organização */
@@ -168,11 +143,7 @@
         margin-bottom: 8px;
     }
     
-    .sevo-button-primary, .sevo-button-secondary, .sevo-button-danger {
-        padding: 8px 12px;
-        font-size: 14px;
-        justify-content: center;
-    }
+    /* Estilos de botão responsivos movidos para button-colors.css */
 }
 
 .hidden {
@@ -234,19 +205,4 @@
     flex-wrap: wrap;
 }
 
-.sevo-button-secondary {
-    background-color: #6b7280;
-    color: #fff;
-    padding: 10px 20px;
-    font-weight: 600;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-}
-
-.sevo-button-secondary:hover {
-    background-color: #5a6268;
-}
+/* Estilos de botão secundário movidos para button-colors.css */

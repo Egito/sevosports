@@ -1,3 +1,13 @@
+// Objeto global para o dashboard de tipo de evento
+window.SevoTipoEventoDashboard = {
+    viewTipoEvento: function(tipoEventoId) {
+        openViewModal(tipoEventoId);
+    },
+    editTipoEvento: function(tipoEventoId) {
+        openFormModal(tipoEventoId);
+    }
+};
+
 jQuery(document).ready(function($) {
     'use strict';
 
@@ -101,6 +111,10 @@ jQuery(document).ready(function($) {
 
     // Event listener para clicar nos cards de tipo de evento (visualização)
     $(document).on('click', '.tipo-evento-card', function(e) {
+        // Previne a abertura do modal se clicou em um botão
+        if ($(e.target).closest('.card-actions').length > 0) {
+            return;
+        }
         const tipoEventoId = $(this).data('tipo-evento-id') || $(this).data('id');
         openViewModal(tipoEventoId);
     });
