@@ -11,11 +11,6 @@ if (!defined('ABSPATH')) {
 <div class="sevo-dashboard-wrapper">
     <div class="sevo-dashboard-header">
         <h2>Tipos de Evento</h2>
-        <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
-            <button id="sevo-create-tipo-evento-button" class="sevo-add-button" data-tooltip="Criar Novo Tipo de Evento">
-                <i class="dashicons dashicons-plus-alt"></i>
-            </button>
-        <?php endif; ?>
     </div>
 
     <!-- Summary Cards -->
@@ -40,4 +35,11 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
     </div>
+    
+    <!-- Botão Flutuante de Adicionar -->
+    <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
+        <button id="sevo-create-tipo-evento-button" class="sevo-floating-add-button sevo-tipo-evento sevo-animate-in" data-tooltip="Criar Novo Tipo de Evento">
+            <i class="dashicons dashicons-plus-alt"></i>
+        </button>
+    <?php endif; ?>
 </div>

@@ -252,11 +252,6 @@ function sevo_render_events_sections() {
 <div class="sevo-dashboard-wrapper">
     <div class="sevo-dashboard-header">
         <h2>Dashboard de Eventos</h2>
-        <?php if ($can_manage_events): ?>
-            <button id="sevo-create-evento-button" class="sevo-add-button" data-tooltip="Criar Novo Evento">
-                <i class="dashicons dashicons-plus-alt"></i>
-            </button>
-        <?php endif; ?>
     </div>
         
         <!-- Summary Cards -->
@@ -330,4 +325,13 @@ function sevo_render_events_sections() {
 <!-- Container para o modal de formulário de edição -->
 <div id="sevo-evento-form-modal-container" class="sevo-modal-backdrop" style="display: none;">
     <!-- O conteúdo do formulário será carregado aqui via AJAX -->
+</div>
+
+<!-- Botão Flutuante de Adicionar -->
+<?php if ($can_manage_events): ?>
+    <button id="sevo-create-evento-button" class="sevo-floating-add-button sevo-eventos sevo-animate-in" data-tooltip="Criar Novo Evento">
+        <i class="dashicons dashicons-plus-alt"></i>
+    </button>
+<?php endif; ?>
+
 </div>

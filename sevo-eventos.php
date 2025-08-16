@@ -328,6 +328,31 @@ class Sevo_Eventos_Main {
             SEVO_EVENTOS_VERSION,
             true
         );
+
+        // Estilo para o botão Back to Top
+        wp_register_style(
+            'sevo-back-to-top-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/sevo-back-to-top.css',
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
+
+        // Script para o botão Back to Top
+        wp_register_script(
+            'sevo-back-to-top-script',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/sevo-back-to-top.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
+
+        // Floating Add Button
+        wp_register_style(
+            'sevo-floating-add-button-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/sevo-floating-add-button.css',
+            array(),
+            SEVO_EVENTOS_VERSION
+        );
     }
 
     public function activate() {

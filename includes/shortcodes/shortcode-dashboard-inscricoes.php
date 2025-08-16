@@ -85,9 +85,13 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             
             // Enfileirar o sistema de popup
             wp_enqueue_style('sevo-popup-style');
-            wp_enqueue_script('sevo-popup-script');
-            
-            wp_enqueue_script(
+        wp_enqueue_script('sevo-popup-script');
+
+        // Back to Top
+        wp_enqueue_style('sevo-back-to-top-style');
+        wp_enqueue_script('sevo-back-to-top-script');
+
+        wp_enqueue_script(
                 'sevo-dashboard-inscricoes',
                 SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-inscricoes.js',
                 array('jquery', 'sevo-toaster-script'),

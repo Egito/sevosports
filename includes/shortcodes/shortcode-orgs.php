@@ -41,6 +41,13 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         wp_enqueue_style('sevo-popup-style');
         wp_enqueue_script('sevo-popup-script');
         
+        // Back to Top
+        wp_enqueue_style('sevo-back-to-top-style');
+        wp_enqueue_script('sevo-back-to-top-script');
+
+        // Floating Add Button
+        wp_enqueue_style('sevo-floating-add-button-style');
+        
         wp_localize_script('sevo-orgs-dashboard-script', 'sevoOrgsDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'admin_url' => admin_url(),

@@ -1,0 +1,144 @@
+/**
+ * Sevo Back to Top Button Styles
+ * Botão "Voltar ao Topo" para o plugin Sevo Eventos
+ */
+
+.sevo-back-to-top {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0073aa, #005177);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    text-decoration: none;
+    outline: none;
+}
+
+.sevo-back-to-top:hover {
+    background: linear-gradient(135deg, #005177, #003d5c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 115, 170, 0.4);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.sevo-back-to-top:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.sevo-back-to-top:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 115, 170, 0.3);
+}
+
+.sevo-back-to-top.show {
+    display: flex;
+    animation: sevoFadeInUp 0.3s ease;
+}
+
+.sevo-back-to-top.hide {
+    animation: sevoFadeOutDown 0.3s ease;
+}
+
+/* Ícone do botão */
+.sevo-back-to-top i {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* Animações */
+@keyframes sevoFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sevoFadeOutDown {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-back-to-top {
+        bottom: 20px;
+        left: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .sevo-back-to-top i {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-back-to-top {
+        bottom: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .sevo-back-to-top i {
+        font-size: 14px;
+    }
+}
+
+/* Acessibilidade - Modo de alto contraste */
+@media (prefers-contrast: high) {
+    .sevo-back-to-top {
+        background: #000000;
+        border: 2px solid #ffffff;
+    }
+    
+    .sevo-back-to-top:hover {
+        background: #333333;
+    }
+}
+
+/* Acessibilidade - Redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+    .sevo-back-to-top {
+        transition: none;
+    }
+    
+    .sevo-back-to-top.show {
+        animation: none;
+    }
+    
+    .sevo-back-to-top.hide {
+        animation: none;
+    }
+    
+    .sevo-back-to-top:hover {
+        transform: none;
+    }
+}

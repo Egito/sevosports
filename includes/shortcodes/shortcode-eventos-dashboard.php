@@ -56,6 +56,13 @@ class Sevo_Eventos_Dashboard_Shortcode {
         wp_enqueue_style('sevo-popup-style');
         wp_enqueue_script('sevo-popup-script');
         
+        // Back to Top
+        wp_enqueue_style('sevo-back-to-top-style');
+        wp_enqueue_script('sevo-back-to-top-script');
+
+        // Floating Add Button
+        wp_enqueue_style('sevo-floating-add-button-style');
+
         // Script específico do dashboard de eventos
         wp_enqueue_script('sevo-eventos-dashboard-script');
         

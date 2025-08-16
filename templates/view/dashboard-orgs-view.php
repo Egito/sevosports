@@ -44,11 +44,6 @@ $organizacoes = new WP_Query($args);
 <div class="sevo-dashboard-wrapper">
     <div class="sevo-dashboard-header">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Nossas Organizações</h2>
-        <?php if (current_user_can('manage_options')): ?>
-            <button id="sevo-create-org-button" class="sevo-add-button" data-tooltip="Criar Nova Organização">
-                <i class="dashicons dashicons-plus-alt"></i>
-            </button>
-        <?php endif; ?>
     </div>
     
     <!-- Summary Cards -->
@@ -109,4 +104,11 @@ $organizacoes = new WP_Query($args);
             </div>
         </div>
     </div>
+    
+    <!-- Botão Flutuante de Adicionar -->
+    <?php if (current_user_can('manage_options')): ?>
+        <button id="sevo-create-org-button" class="sevo-floating-add-button sevo-orgs sevo-animate-in" data-tooltip="Criar Nova Organização">
+            <i class="dashicons dashicons-plus-alt"></i>
+        </button>
+    <?php endif; ?>
 </div>

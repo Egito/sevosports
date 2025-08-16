@@ -44,6 +44,13 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         wp_enqueue_style('sevo-popup-style');
         wp_enqueue_script('sevo-popup-script');
         
+        // Back to Top
+        wp_enqueue_style('sevo-back-to-top-style');
+        wp_enqueue_script('sevo-back-to-top-script');
+        
+        // Floating Add Button
+        wp_enqueue_style('sevo-floating-add-button-style');
+        
         wp_localize_script('sevo-tipo-evento-dashboard-script', 'sevoTipoEventoDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sevo_tipo_evento_nonce'),
