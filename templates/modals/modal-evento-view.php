@@ -42,7 +42,7 @@ $inscricoes_query = new WP_Query(array(
     'posts_per_page' => -1,
     'meta_query' => array(
         array(
-            'key' => '_sevo_inscricao_evento_id',
+            'key' => '_sevo_inscr_evento_id',
             'value' => $post_id,
             'compare' => '='
         )
@@ -63,12 +63,12 @@ if ($user_id) {
         'meta_query' => array(
             'relation' => 'AND',
             array(
-                'key' => '_sevo_inscricao_evento_id',
+                'key' => '_sevo_inscr_evento_id',
                 'value' => $post_id,
                 'compare' => '='
             ),
             array(
-                'key' => '_sevo_inscricao_user_id',
+                'key' => '_sevo_inscr_user_id',
                 'value' => $user_id,
                 'compare' => '='
             )
@@ -77,7 +77,7 @@ if ($user_id) {
     
     if ($user_inscricao_query->have_posts()) {
         $user_inscricao = $user_inscricao_query->posts[0];
-        $user_inscricao_status = get_post_meta($user_inscricao->ID, '_sevo_inscricao_status', true);
+        $user_inscricao_status = get_post_meta($user_inscricao->ID, '_sevo_inscr_status', true);
     }
 }
 
@@ -117,17 +117,7 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 
                 <?php if ($user_inscricao_status): ?>
                     <span class="sevo-user-status status-<?php echo esc_attr($user_inscricao_status); ?>">
-                        <?php
-        </div>
-        
-        <button type="button" class="sevo-modal-close-btn" onclick="sevoCloseModal()">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <?php if ($evento_thumbnail_url): ?>
-            <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image">
-        <?php endif; ?>
-    </div> 
+                        <?php 
                         switch($user_inscricao_status) {
                             case 'aceita': echo 'Inscrito'; break;
                             case 'solicitada': echo 'Aguardando Aprovação'; break;
@@ -195,8 +185,8 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                             <?php while ($inscricoes_query->have_posts()) : $inscricoes_query->the_post(); ?>
                                 <?php 
                                 $inscricao_id = get_the_ID();
-                                $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscricao_user_id', true);
-                                $inscricao_status = get_post_meta($inscricao_id, '_sevo_inscricao_status', true);
+                                $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscr_user_id', true);
+                                $inscricao_status = get_post_meta($inscricao_id, '_sevo_inscr_status', true);
                                 $user_data = get_userdata($inscricao_user_id);
                                 $user_name = $user_data ? $user_data->display_name : 'Usuário não encontrado';
                                 
@@ -241,7 +231,6 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
 
         <!-- Container Inferior: Descrição/Regras -->
         <div class="sevo-modal-bottom-container">
-            <h4><i class="fas fa-align-left"></i> Descrição e Regras</h4>
             <div class="sevo-modal-description-content">
                 <?php if ($evento_description): ?>
                     <div class="sevo-description-section">
@@ -252,7 +241,6 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 
                 <?php if ($evento_regras): ?>
                     <div class="sevo-regras-section">
-                        <h5>Regras e Detalhes</h5>
                         <?php echo wp_kses_post($evento_regras); ?>
                     </div>
                 <?php endif; ?>

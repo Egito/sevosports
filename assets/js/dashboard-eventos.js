@@ -72,7 +72,7 @@ jQuery(document).ready(function($) {
             });
 
             // Fechar modal
-            $(document).on('click', '#sevo-evento-view-modal-close, .sevo-modal-backdrop', function(e) {
+            $(document).on('click', '#sevo-evento-view-modal-close, .sevo-modal-backdrop, .sevo-modal-overlay', function(e) {
                 if (e.target === e.currentTarget) {
                     SevoEventosDashboard.closeEventModal();
                 }
