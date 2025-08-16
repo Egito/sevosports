@@ -102,58 +102,69 @@ $can_edit = sevo_check_user_permission('edit_evento');
 $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
 ?>
 
-<div class="sevo-modal-compact">
-        <div class="sevo-modal-header-compact">
-            <?php if ($evento_thumbnail_url) : ?>
-                <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image-compact">
-            <?php endif; ?>
-            <div class="sevo-modal-title-section">
-                <h2 class="sevo-modal-title-compact"><?php echo esc_html($evento_title); ?></h2>
-                <div class="sevo-modal-status-bar-compact">
-                    <?php if ($status_inscricao === 'abertas'): ?>
-                        <span class="sevo-status-badge status-ativo">Inscrições Abertas</span>
-                    <?php else: ?>
-                        <span class="sevo-status-badge status-inativo">Inscrições Fechadas</span>
-                    <?php endif; ?>
-                    
-                    <?php if ($user_inscricao_status): ?>
-                        <span class="sevo-user-status status-<?php echo esc_attr($user_inscricao_status); ?>">
-                            <?php 
-                            switch($user_inscricao_status) {
-                                case 'aceita': echo 'Inscrito'; break;
-                        case 'solicitada': echo 'Aguardando Aprovação'; break;
-                        case 'rejeitada': echo 'Inscrição Rejeitada'; break;
-                        case 'cancelada': echo 'Inscrição Cancelada'; break;
-                                default: echo 'Status: ' . $user_inscricao_status;
-                            }
-                            ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
+<div class="sevo-modal-evento-view">
+    <!-- Cabeçalho do Modal -->
+    <div class="sevo-modal-header-evento">
+        <div class="header-left">
+            <h3 class="sevo-modal-title"><?php echo esc_html($evento_title); ?></h3>
+            
+            <div class="sevo-modal-status-bar">
+                <?php if ($status_inscricao === 'abertas'): ?>
+                    <span class="sevo-status-badge status-ativo">Inscrições Abertas</span>
+                <?php else: ?>
+                    <span class="sevo-status-badge status-inativo">Inscrições Fechadas</span>
+                <?php endif; ?>
+                
+                <?php if ($user_inscricao_status): ?>
+                    <span class="sevo-user-status status-<?php echo esc_attr($user_inscricao_status); ?>">
+                        <?php
+        </div>
+        
+        <button type="button" class="sevo-modal-close-btn" onclick="sevoCloseModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <?php if ($evento_thumbnail_url): ?>
+            <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image">
+        <?php endif; ?>
+    </div> 
+                        switch($user_inscricao_status) {
+                            case 'aceita': echo 'Inscrito'; break;
+                            case 'solicitada': echo 'Aguardando Aprovação'; break;
+                            case 'rejeitada': echo 'Inscrição Rejeitada'; break;
+                            case 'cancelada': echo 'Inscrição Cancelada'; break;
+                            default: echo 'Status: ' . $user_inscricao_status;
+                        }
+                        ?>
+                    </span>
+                <?php endif; ?>
             </div>
         </div>
+        
+        <?php if ($evento_thumbnail_url): ?>
+            <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image">
+        <?php endif; ?>
+    </div>
 
-    <div class="sevo-modal-body-compact">
-        <!-- Container Superior: Informações e Regras/Detalhes -->
-        <div class="sevo-modal-content-grid">
-            <!-- Coluna de Informações Básicas -->
-            <div class="sevo-modal-info-column">
-                <h4><i class="fas fa-info-circle"></i> Informações</h4>
+    <!-- Corpo do Modal -->
+    <div class="sevo-modal-body-evento">
+        <!-- Container Superior: Dados do Evento e Lista de Inscrições -->
+        <div class="sevo-modal-top-container">
+            <!-- Lado Esquerdo: Dados do Evento -->
+            <div class="sevo-modal-evento-dados">
+                <h4><i class="fas fa-info-circle"></i> Informações do Evento</h4>
                 
-                <!-- Organização -->
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-building"></i> Organização:</strong>
                     <span><?php echo esc_html($organizacao_title); ?></span>
                 </div>
                 
-                <!-- Inscrições -->
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-groups"></i> Inscrições:</strong>
                     <span><?php echo esc_html($total_inscricoes); ?> / <?php echo $vagas ? esc_html($vagas) : '∞'; ?></span>
                 </div>
                 
                 <?php if ($local): ?>
-                <!-- Local -->
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-location"></i> Local:</strong>
                     <span><?php echo esc_html($local); ?></span>
@@ -161,7 +172,6 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 <?php endif; ?>
                 
                 <?php if ($data_inicio_insc && $data_fim_insc): ?>
-                <!-- Período de Inscrições -->
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-calendar-alt"></i> Período de Inscrições:</strong>
                     <span><?php echo date_i18n('d/m/Y', strtotime($data_inicio_insc)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_insc)); ?></span>
@@ -169,7 +179,6 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 <?php endif; ?>
                 
                 <?php if ($data_inicio_evento && $data_fim_evento): ?>
-                <!-- Período do Evento -->
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-flag"></i> Período do Evento:</strong>
                     <span><?php echo date_i18n('d/m/Y', strtotime($data_inicio_evento)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_evento)); ?></span>
@@ -177,87 +186,80 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 <?php endif; ?>
             </div>
 
-            <!-- Coluna de Lista de Inscritos -->
-             <div class="sevo-modal-info-column">
-                 <h4><i class="fas fa-users"></i> Lista de Inscritos</h4>
-                 <div class="sevo-info-item" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
-                     <?php if ($inscricoes_query->have_posts()) : ?>
-                         <div class="sevo-inscricoes-list">
-                             <?php while ($inscricoes_query->have_posts()) : $inscricoes_query->the_post(); ?>
-                                 <?php 
-                                 $inscricao_id = get_the_ID();
-                                 $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscricao_user_id', true);
-                                 $inscricao_status = get_post_meta($inscricao_id, '_sevo_inscricao_status', true);
-                                 $user_data = get_userdata($inscricao_user_id);
-                                 $user_name = $user_data ? $user_data->display_name : 'Usuário não encontrado';
-                                 
-                                 // Define a classe CSS baseada no status
-                                 $status_class = '';
-                                 $status_text = '';
-                                 switch($inscricao_status) {
-                                     case 'aceita':
-                                         $status_class = 'status-aceita';
-                                         $status_text = 'Aceita';
-                                         break;
-                                     case 'solicitada':
-                                         $status_class = 'status-solicitada';
-                                         $status_text = 'Pendente';
-                                         break;
-                                     case 'rejeitada':
-                                         $status_class = 'status-rejeitada';
-                                         $status_text = 'Rejeitada';
-                                         break;
-                                     case 'cancelada':
-                                         $status_class = 'status-cancelada';
-                                         $status_text = 'Cancelada';
-                                         break;
-                                     default:
-                                         $status_class = 'status-indefinido';
-                                         $status_text = ucfirst($inscricao_status ?: 'Indefinido');
-                                 }
-                                 ?>
-                                 <div class="sevo-inscricao-item" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #eee;">
-                                     <span class="sevo-inscricao-nome" style="flex: 1; font-weight: 500;"><?php echo esc_html($user_name); ?></span>
-                                     <span class="sevo-inscricao-status <?php echo esc_attr($status_class); ?>" style="padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;"><?php echo esc_html($status_text); ?></span>
-                                 </div>
-                             <?php endwhile; ?>
-                         </div>
-                         <?php wp_reset_postdata(); ?>
-                     <?php else : ?>
-                         <p class="sevo-no-items">Nenhuma inscrição encontrada para este evento.</p>
-                     <?php endif; ?>
-                 </div>
-                 
-                 <?php if ($evento_regras): ?>
-                 <div style="margin-top: 15px;">
-                     <h5><i class="fas fa-list-ul"></i> Regras e Detalhes</h5>
-                     <div class="sevo-info-item" style="max-height: 100px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; border-radius: 4px; font-size: 13px;">
-                         <?php echo wp_kses_post($evento_regras); ?>
-                     </div>
-                 </div>
-                 <?php endif; ?>
-             </div>
-        </div>
-
-        <!-- Container Inferior: Descrição -->
-        <?php if ($evento_description): ?>
-        <div class="sevo-modal-description-container" style="margin-top: 20px;">
-            <h4><i class="fas fa-align-left"></i> Descrição</h4>
-            <div class="sevo-modal-description-scrollable" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 4px; background-color: #f9f9f9;">
-                <?php echo wp_kses_post($evento_description); ?>
+            <!-- Lado Direito: Lista de Inscrições -->
+            <div class="sevo-modal-inscricoes-lista">
+                <h4><i class="fas fa-users"></i> Lista de Inscritos</h4>
+                <div class="sevo-inscricoes-container">
+                    <?php if ($inscricoes_query->have_posts()) : ?>
+                        <div class="sevo-inscricoes-list">
+                            <?php while ($inscricoes_query->have_posts()) : $inscricoes_query->the_post(); ?>
+                                <?php 
+                                $inscricao_id = get_the_ID();
+                                $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscricao_user_id', true);
+                                $inscricao_status = get_post_meta($inscricao_id, '_sevo_inscricao_status', true);
+                                $user_data = get_userdata($inscricao_user_id);
+                                $user_name = $user_data ? $user_data->display_name : 'Usuário não encontrado';
+                                
+                                // Define a classe CSS baseada no status
+                                $status_class = '';
+                                $status_text = '';
+                                switch($inscricao_status) {
+                                    case 'aceita':
+                                        $status_class = 'status-aceita';
+                                        $status_text = 'Aceita';
+                                        break;
+                                    case 'solicitada':
+                                        $status_class = 'status-solicitada';
+                                        $status_text = 'Pendente';
+                                        break;
+                                    case 'rejeitada':
+                                        $status_class = 'status-rejeitada';
+                                        $status_text = 'Rejeitada';
+                                        break;
+                                    case 'cancelada':
+                                        $status_class = 'status-cancelada';
+                                        $status_text = 'Cancelada';
+                                        break;
+                                    default:
+                                        $status_class = 'status-indefinido';
+                                        $status_text = ucfirst($inscricao_status ?: 'Indefinido');
+                                }
+                                ?>
+                                <div class="sevo-inscricao-item">
+                                    <span class="sevo-inscricao-nome"><?php echo esc_html($user_name); ?></span>
+                                    <span class="sevo-inscricao-status <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_text); ?></span>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+                        <?php wp_reset_postdata(); ?>
+                    <?php else : ?>
+                        <p class="sevo-no-items">Nenhuma inscrição encontrada para este evento.</p>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-        <?php endif; ?>
+
+        <!-- Container Inferior: Descrição/Regras -->
+        <div class="sevo-modal-bottom-container">
+            <h4><i class="fas fa-align-left"></i> Descrição e Regras</h4>
+            <div class="sevo-modal-description-content">
+                <?php if ($evento_description): ?>
+                    <div class="sevo-description-section">
+                        <h5>Descrição do Evento</h5>
+                        <?php echo wp_kses_post($evento_description); ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if ($evento_regras): ?>
+                    <div class="sevo-regras-section">
+                        <h5>Regras e Detalhes</h5>
+                        <?php echo wp_kses_post($evento_regras); ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 
-</div>
-
-<div class="sevo-modal-footer">
-    <button class="sevo-modal-button sevo-button-secondary" onclick="SevoEventosDashboard.closeEventModal()">
-        <i class="dashicons dashicons-arrow-left-alt"></i>
-        Retornar
-    </button>
-</div>
 </div>
 
 <!-- Container para o modal de formulário de edição -->

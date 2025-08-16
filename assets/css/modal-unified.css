@@ -52,6 +52,506 @@
     transition: all 0.3s ease;
 }
 
+/* === ESTILOS ESPECÍFICOS PARA MODAL DE EVENTO === */
+
+/* Container principal do modal de evento */
+.sevo-modal-evento-view {
+    background: linear-gradient(135deg, #ffffff 0%, #f8faff 50%, #e3f2fd 100%);
+    border: 2px solid #2196f3;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);
+    max-width: 95%;
+    width: 900px;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header do modal de evento */
+.sevo-modal-header-evento {
+    padding: 5px;
+    border-bottom: 2px solid #1565c0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    min-height: 60px;
+}
+
+.sevo-modal-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.sevo-modal-header-evento .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.sevo-modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.sevo-modal-status-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.sevo-modal-status-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+
+.sevo-status-badge, .sevo-user-status {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1976d2;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-ativo {
+    background: rgba(76, 175, 80, 0.9) !important;
+    color: white !important;
+    border-color: #4caf50 !important;
+}
+
+.status-inativo {
+    background: rgba(244, 67, 54, 0.9) !important;
+    color: white !important;
+    border-color: #f44336 !important;
+}
+
+.status-aceita {
+    background: rgba(33, 150, 243, 0.9) !important;
+    color: white !important;
+    border-color: #2196f3 !important;
+}
+
+.status-solicitada {
+    background: rgba(255, 193, 7, 0.9) !important;
+    color: #333 !important;
+    border-color: #ffc107 !important;
+}
+
+.status-rejeitada {
+    background: rgba(158, 158, 158, 0.9) !important;
+    color: white !important;
+    border-color: #9e9e9e !important;
+}
+
+.status-cancelada {
+    background: rgba(255, 87, 34, 0.9) !important;
+    color: white !important;
+    border-color: #ff5722 !important;
+}
+
+/* Body do modal de evento */
+.sevo-modal-body-evento {
+    flex: 1;
+    padding: 5px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Container superior com dois lados */
+.sevo-modal-top-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    min-height: 250px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
+}
+
+/* Dados do evento (lado esquerdo) */
+.sevo-modal-evento-dados {
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.sevo-modal-evento-dados h4 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sevo-info-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.sevo-info-item strong {
+    color: #495057;
+    font-weight: 500;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sevo-info-item span {
+    color: #6c757d;
+    flex: 1;
+}
+
+/* Lista de inscrições (lado direito) */
+.sevo-modal-inscricoes-lista {
+    background: #f8f9fa;
+    padding: 5px;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+.sevo-modal-inscricoes-lista h4 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sevo-inscricoes-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: white;
+    padding: 10px;
+}
+
+.sevo-inscricao-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.sevo-inscricao-item:last-child {
+    border-bottom: none;
+}
+
+.sevo-inscricao-nome {
+    font-weight: 500;
+    color: #495057;
+    flex: 1;
+}
+
+.sevo-inscricao-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Status das inscrições */
+.status-aceita {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-solicitada {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-rejeitada {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-cancelada {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* Container inferior com descrição */
+.sevo-modal-bottom-container {
+    background: linear-gradient(135deg, #f8faff 0%, #e3f2fd 100%);
+    border-top: 2px solid #2196f3;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 5px;
+    border-left: 4px solid #ffc107;
+}
+
+.sevo-modal-bottom-container h4 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sevo-modal-description-content {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: white;
+    padding: 15px;
+}
+
+.sevo-description-section,
+.sevo-regras-section {
+    margin-bottom: 15px;
+}
+
+.sevo-description-section:last-child,
+.sevo-regras-section:last-child {
+    margin-bottom: 0;
+}
+
+.sevo-description-section h5,
+.sevo-regras-section h5 {
+    margin: 0 0 8px 0;
+    color: #495057;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 5px;
+}
+
+/* Scrollbar customizada */
+.sevo-inscricoes-container::-webkit-scrollbar,
+.sevo-modal-description-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sevo-inscricoes-container::-webkit-scrollbar-track,
+.sevo-modal-description-content::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 3px;
+}
+
+.sevo-inscricoes-container::-webkit-scrollbar-thumb,
+.sevo-modal-description-content::-webkit-scrollbar-thumb {
+    background: #c1c8cd;
+    border-radius: 3px;
+}
+
+.sevo-inscricoes-container::-webkit-scrollbar-thumb:hover,
+.sevo-modal-description-content::-webkit-scrollbar-thumb:hover {
+    background: #a8b2ba;
+}
+
+/* Status badges */
+.sevo-status-badge {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-ativo {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.status-inativo {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.sevo-user-status {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Footer do modal - removido */
+.sevo-modal-footer {
+    display: none;
+}
+
+/* === RESPONSIVIDADE === */
+
+/* Tablets */
+@media (max-width: 768px) {
+    .sevo-modal-evento-view {
+        width: 95%;
+        max-width: 95%;
+        max-height: 85vh;
+    }
+    
+    .sevo-modal-top-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        min-height: auto;
+        padding: 8px;
+    }
+    
+    .sevo-modal-header-evento {
+        padding: 8px;
+        gap: 8px;
+        min-height: 70px;
+    }
+    
+    .sevo-modal-body-evento {
+        padding: 8px;
+        gap: 10px;
+    }
+    
+    .sevo-modal-image {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .sevo-modal-title {
+        font-size: 1.1rem;
+    }
+    
+    .sevo-status-badge, .sevo-user-status {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+    
+    .sevo-modal-evento-dados,
+    .sevo-modal-inscricoes-lista {
+        padding: 8px;
+    }
+    
+    .sevo-modal-bottom-container {
+        padding: 8px;
+    }
+    
+    .sevo-inscricoes-container {
+        max-height: 150px;
+    }
+    
+    .sevo-modal-description-content {
+        max-height: 150px;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sevo-modal-evento-view {
+        width: 98%;
+        max-width: 98%;
+        max-height: 90vh;
+        margin: 5px;
+    }
+    
+    .sevo-modal-header-evento {
+        padding: 6px;
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+        min-height: 60px;
+    }
+    
+    .sevo-modal-body-evento {
+        padding: 6px;
+        gap: 6px;
+    }
+    
+    .sevo-modal-evento-dados,
+    .sevo-modal-inscricoes-lista,
+    .sevo-modal-bottom-container {
+        padding: 6px;
+    }
+    
+    .sevo-modal-title {
+        font-size: 14px;
+    }
+    
+    .sevo-modal-image {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .sevo-info-item {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .sevo-info-item strong {
+        min-width: auto;
+    }
+    
+    .sevo-inscricoes-container {
+        max-height: 120px;
+    }
+    
+    .sevo-modal-description-content {
+        max-height: 120px;
+        padding: 5px;
+    }
+    
+    .sevo-modal-status-bar {
+        justify-content: center;
+    }
+    
+    .sevo-status-badge,
+    .sevo-user-status {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+    
+    .sevo-modal-top-container {
+        gap: 8px;
+        padding: 6px;
+    }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 320px) {
+    .sevo-modal-evento-view {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .sevo-modal-header-evento {
+        border-radius: 0;
+    }
+    
+    .sevo-modal-footer {
+        border-radius: 0;
+    }
+}
+
 .sevo-modal[style*="display: block"] .sevo-modal-container,
 .sevo-modal.show .sevo-modal-container {
     transform: scale(1) translateY(0);
@@ -148,6 +648,187 @@
 .sevo-modal-backdrop.show {
     opacity: 1;
     visibility: visible;
+}
+
+/* === LAYOUT DO MODAL DE VISUALIZAÇÃO DE EVENTOS === */
+
+/* Container superior com duas colunas lado a lado */
+.sevo-modal-top-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Coluna esquerda - Dados do evento */
+.sevo-modal-left-column {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Coluna direita - Lista de inscrições */
+.sevo-modal-right-column {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Container das inscrições com scroll */
+.sevo-inscricoes-container {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    background-color: #fafafa;
+}
+
+/* Item individual de inscrição */
+.sevo-inscricao-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.sevo-inscricao-item:last-child {
+    border-bottom: none;
+}
+
+/* Nome do inscrito */
+.sevo-inscricao-nome {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+    margin-right: 10px;
+}
+
+/* Status da inscrição */
+.sevo-inscricao-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Cores dos status */
+.status-aceita {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-solicitada {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-rejeitada {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-cancelada {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.status-indefinido {
+    background-color: #f1f3f4;
+    color: #5f6368;
+}
+
+/* Container inferior - Descrição e regras */
+.sevo-modal-bottom-container {
+    margin-top: 20px;
+}
+
+/* Área scrollável para descrição e regras */
+.sevo-modal-description-scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+/* Seções dentro da área scrollável */
+.sevo-description-section,
+.sevo-regras-section {
+    margin-bottom: 20px;
+}
+
+.sevo-description-section:last-child,
+.sevo-regras-section:last-child {
+    margin-bottom: 0;
+}
+
+.sevo-description-section h5,
+.sevo-regras-section h5 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+/* Itens de informação */
+.sevo-info-item {
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.sevo-info-item strong {
+    color: #2c3e50;
+    margin-right: 8px;
+}
+
+.sevo-info-item i {
+    margin-right: 5px;
+    color: #666;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-modal-top-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .sevo-inscricoes-container {
+        max-height: 200px;
+    }
+    
+    .sevo-modal-description-scrollable {
+        max-height: 250px;
+    }
+    
+    .sevo-modal-container {
+        width: 95%;
+        max-height: 85vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-inscricao-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .sevo-inscricao-nome {
+        margin-right: 0;
+    }
+    
+    .sevo-inscricoes-container {
+        max-height: 150px;
+    }
+    
+    .sevo-modal-description-scrollable {
+        max-height: 200px;
+    }
 }
 
 /* === TIPOGRAFIA E CONTEÚDO === */

@@ -242,7 +242,7 @@ jQuery(document).ready(function($) {
             const $loading = $modal.find('.sevo-modal-loading');
             const $content = $modal.find('.sevo-modal-content');
 
-            $modal.show();
+            $modal.addClass('show').css('display', 'flex');
             $loading.show();
             $content.empty();
 
@@ -273,7 +273,7 @@ jQuery(document).ready(function($) {
 
         // Fecha modal do evento
         closeEventModal: function() {
-            $('#sevo-event-modal').hide();
+            $('#sevo-event-modal').removeClass('show').css('display', 'none');
         },
 
         // Edita evento

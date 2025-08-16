@@ -398,11 +398,6 @@ function sevo_render_events_sections() {
 <div id="sevo-event-modal" class="sevo-modal" style="display: none;">
     <div class="sevo-modal-overlay" onclick="SevoEventosDashboard.closeEventModal()"></div>
     <div class="sevo-modal-container">
-        <div class="sevo-modal-header">
-            <button class="sevo-modal-close" onclick="SevoEventosDashboard.closeEventModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
         <div class="sevo-modal-loading" style="display: none;">
             <div class="sevo-spinner"></div>
             <p>Carregando evento...</p>
