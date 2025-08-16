@@ -57,69 +57,6 @@
     font-weight: 500;
 }
 
-/* Summary Cards - Removidos estilos específicos para usar o componente padronizado */
-
-/* Cards de Estatísticas - Estilo alternativo */
-.sevo-dashboard-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.sevo-stat-card {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.sevo-stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.sevo-stat-icon {
-    font-size: 32px;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #f8f9fa;
-}
-
-.sevo-stat-total .sevo-stat-icon { background: #e3f2fd; }
-.sevo-stat-pending .sevo-stat-icon { background: #fff3e0; }
-.sevo-stat-approved .sevo-stat-icon { background: #e8f5e8; }
-.sevo-stat-rejected .sevo-stat-icon { background: #ffebee; }
-
-.sevo-stat-content {
-    flex: 1;
-}
-
-.sevo-stat-number {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 3px;
-}
-
-.sevo-stat-total .sevo-stat-number { color: #2196f3; }
-.sevo-stat-pending .sevo-stat-number { color: #ff9800; }
-.sevo-stat-approved .sevo-stat-number { color: #4caf50; }
-.sevo-stat-rejected .sevo-stat-number { color: #f44336; }
-
-.sevo-stat-label {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
-}
 
 /* Filtros */
 .sevo-dashboard-filters {
@@ -306,6 +243,383 @@
     margin-bottom: 30px;
 }
 
+/* === MODAL STYLES === */
+/* Estilos de modal removidos - agora usando modal-responsive.css */
+
+.sevo-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Summary Cards - Removidos estilos específicos para usar o componente padronizado */
+
+/* === CARROSSEL DE EVENTOS === */
+/* === SEÇÕES DE EVENTOS === */
+.sevo-events-sections {
+    margin-top: 2rem;
+}
+
+.sevo-event-section {
+    margin-bottom: 3rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+}
+
+.sevo-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.sevo-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sevo-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    color: white;
+}
+
+.sevo-section-icon.inscricoes-abertas {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.sevo-section-icon.em-andamento {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.sevo-section-icon.inscricoes-encerradas {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.sevo-section-icon.aguardando-inicio {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.sevo-section-icon.encerrados {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.section-count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #6b7280;
+    margin-left: 0.5rem;
+}
+
+/* === CONTROLES DO CARROSSEL === */
+.carousel-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.carousel-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+.carousel-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #374151;
+}
+
+.carousel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9fafb;
+}
+
+.carousel-btn:disabled:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+
+/* === CONTAINER DO CARROSSEL === */
+.sevo-carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    scroll-behavior: smooth;
+}
+
+.sevo-carousel-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+/* === CARDS DE EVENTOS (REDUZIDOS EM 20%) === */
+.sevo-event-card {
+    flex: 0 0 240px; /* Reduzido de 300px para 240px (20% menor) */
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.3s ease-out;
+}
+
+.sevo-event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
+}
+
+.sevo-event-card .card-image {
+    height: 144px; /* Reduzido de 180px para 144px (20% menor) */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.sevo-event-card .card-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.1;
+}
+
+.sevo-event-card .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+}
+
+.sevo-event-card .card-content {
+    padding: 1rem; /* Reduzido de 1.25rem para 1rem */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-event-card .card-title {
+    font-size: 1rem; /* Reduzido de 1.125rem para 1rem */
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sevo-event-card .card-description {
+    font-size: 0.8rem; /* Reduzido de 0.875rem para 0.8rem */
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sevo-event-card .card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.sevo-event-card .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem; /* Reduzido de 0.875rem para 0.8rem */
+    color: #6b7280;
+}
+
+.sevo-event-card .meta-icon {
+    width: 16px;
+    text-align: center;
+    color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.sevo-event-card .card-footer {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+    margin-top: auto;
+}
+
+.sevo-event-card .card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+    margin-top: auto;
+}
+
+.sevo-event-card .sevo-button-secondary,
+.sevo-event-card .sevo-button-primary,
+.sevo-event-card .btn-view-event,
+.sevo-event-card .btn-edit-event {
+    flex: 1;
+    padding: 0.4rem 0.6rem; /* Reduzido de 0.5rem 0.75rem */
+    border-radius: 6px;
+    font-size: 0.8rem; /* Reduzido de 0.875rem para 0.8rem */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.sevo-event-card .sevo-button-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.sevo-event-card .sevo-button-secondary:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.sevo-event-card .sevo-button-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.sevo-event-card .sevo-button-primary:hover {
+    background: #2563eb;
+}
+
+.sevo-event-card .btn-view-event {
+    background: #3b82f6;
+    color: white;
+    border: 1px solid #3b82f6;
+}
+
+.sevo-event-card .btn-view-event:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.sevo-event-card .btn-edit-event {
+    background: #10b981;
+    color: white;
+    border: 1px solid #10b981;
+}
+
+.sevo-event-card .btn-edit-event:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.sevo-event-card .btn-view-event i,
+.sevo-event-card .btn-edit-event i {
+    font-size: 0.8rem; /* Reduzido de 0.875rem para 0.8rem */
+}
+
+/* === INDICADORES DE SCROLL === */
+.sevo-carousel-container::before,
+.sevo-carousel-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.sevo-carousel-container::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(255,255,255,0.8), transparent);
+}
+
+.sevo-carousel-container::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+}
+
+/* === ESTADO VAZIO === */
+.sevo-events-sections:empty::after {
+    content: 'Nenhum evento encontrado';
+    display: block;
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+    font-size: 1.125rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed #d1d5db;
+}
+
+/* === ANIMAÇÕES === */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
     .sevo-dashboard-eventos {
@@ -324,11 +638,6 @@
         align-items: flex-start;
     }
     
-    .sevo-summary-cards {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 10px;
-    }
-    
     .sevo-filters-single-row {
         grid-template-columns: 1fr;
         gap: 10px;
@@ -340,51 +649,9 @@
     }
 }
 
-@media (max-width: 768px) {
-    .sevo-summary-cards {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 8px;
-    }
-    
-    .sevo-summary-card {
-        padding: 12px;
-        min-height: 80px;
-    }
-    
-    .sevo-summary-card-number {
-        font-size: 20px;
-    }
-}
-
 @media (max-width: 480px) {
     .sevo-dashboard-eventos {
         margin: 5px;
         padding: 10px;
-    }
-    
-    .sevo-summary-cards {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
-    }
-    
-    .sevo-summary-card {
-        padding: 10px;
-        min-height: 70px;
-    }
-    
-    .sevo-summary-card-title {
-        font-size: 9px;
-    }
-    
-    .sevo-summary-card-number {
-        font-size: 18px;
-    }
-    
-    .sevo-summary-card-subtitle {
-        font-size: 8px;
-    }
-    
-    .sevo-summary-card-number {
-        font-size: 28px;
     }
 }

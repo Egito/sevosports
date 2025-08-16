@@ -1,0 +1,125 @@
+/* Padronização de Cores dos Botões - SEVO */
+
+/* === BOTÕES DE EDIÇÃO (VERDE) === */
+.btn-edit-event,
+.sevo-button-edit,
+.sevo-edit-evento,
+.sevo-edit-evento-modal,
+.edit-inscricao-btn {
+    background-color: #22c55e !important;
+    color: white !important;
+    border: 1px solid #22c55e !important;
+}
+
+.btn-edit-event:hover,
+.sevo-button-edit:hover,
+.sevo-edit-evento:hover,
+.sevo-edit-evento-modal:hover,
+.edit-inscricao-btn:hover {
+    background-color: #16a34a !important;
+    border-color: #16a34a !important;
+}
+
+/* === BOTÕES DE VISUALIZAÇÃO (AMARELO) === */
+.btn-view-event,
+.sevo-view-evento,
+.view-event-btn,
+.sevo-button-view {
+    background-color: #eab308 !important;
+    color: white !important;
+    border: 1px solid #eab308 !important;
+}
+
+.btn-view-event:hover,
+.sevo-view-evento:hover,
+.view-event-btn:hover,
+.sevo-button-view:hover {
+    background-color: #ca8a04 !important;
+    border-color: #ca8a04 !important;
+}
+
+/* === BOTÕES DE INSCRIÇÃO (AZUL) === */
+.sevo-inscribe-evento,
+.sevo-button-success,
+.approve-btn,
+.sevo-btn-success {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border: 1px solid #3b82f6 !important;
+}
+
+.sevo-inscribe-evento:hover,
+.sevo-button-success:hover,
+.approve-btn:hover,
+.sevo-btn-success:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+}
+
+/* === BOTÕES DE CANCELAMENTO (VERMELHO) === */
+.sevo-cancel-inscricao,
+.sevo-button-warning,
+.reject-btn,
+.sevo-btn-danger,
+.sevo-button-danger {
+    background-color: #ef4444 !important;
+    color: white !important;
+    border: 1px solid #ef4444 !important;
+}
+
+.sevo-cancel-inscricao:hover,
+.sevo-button-warning:hover,
+.reject-btn:hover,
+.sevo-btn-danger:hover,
+.sevo-button-danger:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+/* === ESTILOS GERAIS PARA TODOS OS BOTÕES === */
+.btn-view-event,
+.btn-edit-event,
+.sevo-inscribe-evento,
+.sevo-cancel-inscricao,
+.sevo-button-edit,
+.sevo-button-view,
+.sevo-button-success,
+.sevo-button-warning,
+.sevo-button-danger {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: none;
+    outline: none;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+    .btn-view-event,
+    .btn-edit-event,
+    .sevo-inscribe-evento,
+    .sevo-cancel-inscricao {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-view-event,
+    .btn-edit-event {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .card-actions {
+        gap: 4px;
+    }
+}

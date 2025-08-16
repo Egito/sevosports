@@ -42,10 +42,10 @@ class Sevo_Eventos_Dashboard_Shortcode {
         // Enqueue dos estilos e scripts
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-eventos-dashboard-style');
+        wp_enqueue_style('sevo-button-colors-style');
         
         // Enqueue dos novos estilos e scripts do carrossel
-        wp_enqueue_style('sevo-eventos-carousel-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-eventos-carousel.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_script('sevo-eventos-carousel-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-eventos-carousel.js', array('jquery'), SEVO_EVENTOS_VERSION, true);
+        // Estilos e scripts do carrossel agora estão integrados ao dashboard-eventos.css e dashboard-eventos.js
 
         wp_enqueue_style('sevo-modal-responsive', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-responsive.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('dashicons');

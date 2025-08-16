@@ -403,4 +403,290 @@ jQuery(document).ready(function($) {
 
     // Inicializa quando o documento estiver pronto
     SevoEventosDashboard.init();
+
+    // === FUNCIONALIDADE DO CARROSSEL DE EVENTOS ===
+    
+    /**
+     * Classe para gerenciar carrosseis de eventos
+     */
+    class SevoEventCarousel {
+        constructor(container) {
+            this.container = container;
+            this.track = container.querySelector('.sevo-carousel-track');
+            this.prevBtn = container.querySelector('.carousel-btn.prev');
+            this.nextBtn = container.querySelector('.carousel-btn.next');
+            this.currentPosition = 0;
+            this.cardWidth = 240; // Reduzido de 300px para 240px (20% menor)
+            this.gap = 16; // 1rem em pixels
+            this.visibleCards = 1;
+            this.totalCards = 0;
+            this.autoPlayInterval = null;
+            this.autoPlayDelay = 5000; // 5 segundos
+            this.isAutoPlayEnabled = true;
+            
+            this.init();
+        }
+        
+        init() {
+            if (!this.track) return;
+            
+            this.calculateDimensions();
+            this.bindEvents();
+            this.updateButtons();
+            
+            // Inicia autoplay se habilitado
+            if (this.isAutoPlayEnabled) {
+                this.startAutoPlay();
+            }
+        }
+        
+        calculateDimensions() {
+            const containerWidth = this.container.offsetWidth;
+            this.visibleCards = Math.floor(containerWidth / (this.cardWidth + this.gap));
+            this.visibleCards = Math.max(1, this.visibleCards); // Pelo menos 1 card visível
+            
+            this.totalCards = this.track.children.length;
+            
+            // Ajusta posição se necessário
+            const maxPosition = Math.max(0, this.totalCards - this.visibleCards);
+            if (this.currentPosition > maxPosition) {
+                this.currentPosition = maxPosition;
+            }
+            
+            this.updatePosition();
+        }
+        
+        bindEvents() {
+            // Navegação por clique
+            if (this.prevBtn) {
+                this.prevBtn.addEventListener('click', () => {
+                    this.prev();
+                    this.resetAutoPlay();
+                });
+            }
+            
+            if (this.nextBtn) {
+                this.nextBtn.addEventListener('click', () => {
+                    this.next();
+                    this.resetAutoPlay();
+                });
+            }
+            
+            // Navegação por roda do mouse
+            this.container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    this.next();
+                } else {
+                    this.prev();
+                }
+                this.resetAutoPlay();
+            });
+            
+            // Navegação por toque/swipe
+            let startX = 0;
+            let isDragging = false;
+            
+            this.track.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isDragging = true;
+                this.pauseAutoPlay();
+            });
+            
+            this.track.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+            });
+            
+            this.track.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                
+                if (Math.abs(diff) > 50) { // Mínimo de 50px para considerar swipe
+                    if (diff > 0) {
+                        this.next();
+                    } else {
+                        this.prev();
+                    }
+                }
+                
+                isDragging = false;
+                this.resetAutoPlay();
+            });
+            
+            // Redimensionamento da janela
+            window.addEventListener('resize', () => {
+                this.recalculateAndAdjust();
+            });
+            
+            // Pausa autoplay ao hover
+            this.container.addEventListener('mouseenter', () => {
+                this.pauseAutoPlay();
+            });
+            
+            this.container.addEventListener('mouseleave', () => {
+                if (this.isAutoPlayEnabled) {
+                    this.startAutoPlay();
+                }
+            });
+        }
+        
+        prev() {
+            if (this.currentPosition > 0) {
+                this.currentPosition--;
+                this.updatePosition();
+                this.updateButtons();
+            } else if (this.totalCards > this.visibleCards) {
+                // Scroll infinito - vai para o final
+                this.currentPosition = this.totalCards - this.visibleCards;
+                this.updatePosition();
+                this.updateButtons();
+            }
+        }
+        
+        next() {
+            const maxPosition = this.totalCards - this.visibleCards;
+            if (this.currentPosition < maxPosition) {
+                this.currentPosition++;
+                this.updatePosition();
+                this.updateButtons();
+            } else if (this.totalCards > this.visibleCards) {
+                // Scroll infinito - volta para o início
+                this.currentPosition = 0;
+                this.updatePosition();
+                this.updateButtons();
+            }
+        }
+        
+        updatePosition() {
+            const translateX = -(this.currentPosition * (this.cardWidth + this.gap));
+            this.track.style.transform = `translateX(${translateX}px)`;
+        }
+        
+        updateButtons() {
+            if (!this.prevBtn || !this.nextBtn) return;
+            
+            if (this.totalCards <= this.visibleCards) {
+                // Se todos os cards cabem na tela, desabilita ambos os botões
+                this.prevBtn.disabled = true;
+                this.nextBtn.disabled = true;
+            } else {
+                // Com scroll infinito, os botões nunca ficam desabilitados
+                this.prevBtn.disabled = false;
+                this.nextBtn.disabled = false;
+            }
+        }
+        
+        recalculateAndAdjust() {
+            // Debounce para evitar muitos cálculos durante redimensionamento
+            clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = setTimeout(() => {
+                this.calculateDimensions();
+                this.updateButtons();
+            }, 150);
+        }
+        
+        // Métodos para adicionar/remover eventos dinamicamente
+        addEvent(eventHtml) {
+            this.track.insertAdjacentHTML('beforeend', eventHtml);
+            this.totalCards++;
+            this.calculateDimensions();
+            this.updateButtons();
+        }
+        
+        removeEvent(index) {
+            const card = this.track.children[index];
+            if (card) {
+                card.remove();
+                this.totalCards--;
+                this.calculateDimensions();
+                this.updateButtons();
+            }
+        }
+        
+        // Método para atualizar um carrossel específico
+        updateCarousel(newHtml) {
+            this.track.innerHTML = newHtml;
+            this.totalCards = this.track.children.length;
+            this.currentPosition = 0;
+            this.calculateDimensions();
+            this.updateButtons();
+        }
+        
+        // Método para navegar para um card específico
+        goToCard(index) {
+            const maxPosition = this.totalCards - this.visibleCards;
+            this.currentPosition = Math.min(Math.max(0, index), maxPosition);
+            this.updatePosition();
+            this.updateButtons();
+        }
+        
+        // === FUNCIONALIDADE DE AUTO-PLAY ===
+        
+        enableAutoPlay() {
+            this.isAutoPlayEnabled = true;
+            this.startAutoPlay();
+        }
+        
+        disableAutoPlay() {
+            this.isAutoPlayEnabled = false;
+            this.stopAutoPlay();
+        }
+        
+        startAutoPlay() {
+            if (!this.isAutoPlayEnabled || this.totalCards <= this.visibleCards) return;
+            
+            this.stopAutoPlay(); // Para qualquer autoplay existente
+            
+            this.autoPlayInterval = setInterval(() => {
+                this.next();
+            }, this.autoPlayDelay);
+        }
+        
+        stopAutoPlay() {
+            if (this.autoPlayInterval) {
+                clearInterval(this.autoPlayInterval);
+                this.autoPlayInterval = null;
+            }
+        }
+        
+        pauseAutoPlay() {
+            this.stopAutoPlay();
+        }
+        
+        resetAutoPlay() {
+            if (this.isAutoPlayEnabled) {
+                this.stopAutoPlay();
+                // Reinicia após um delay
+                setTimeout(() => {
+                    if (this.isAutoPlayEnabled) {
+                        this.startAutoPlay();
+                    }
+                }, 2000);
+            }
+        }
+    }
+    
+    // Inicializa carrosseis quando o documento estiver pronto
+    function initCarousels() {
+        const carousels = document.querySelectorAll('.sevo-carousel-container');
+        carousels.forEach(container => {
+            new SevoEventCarousel(container);
+        });
+    }
+    
+    // Inicializa carrosseis
+    initCarousels();
+    
+    // Reinicializa carrosseis após atualizações AJAX
+    $(document).ajaxComplete(function() {
+        // Pequeno delay para garantir que o DOM foi atualizado
+        setTimeout(initCarousels, 100);
+    });
+    
+    // Torna a classe disponível globalmente para uso externo
+    window.SevoEventCarousel = SevoEventCarousel;
+    
 });
