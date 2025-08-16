@@ -9,8 +9,6 @@ if (!defined('ABSPATH')) {
 ?>
 
 <div class="sevo-dashboard-wrapper">
-    <div class="sevo-dashboard-container" id="sevo-tipo-evento-dashboard">
-    
     <div class="sevo-dashboard-header">
         <h2>Tipos de Evento</h2>
         <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
@@ -42,5 +40,4 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
     </div>
-</div>
 </div>

@@ -44,7 +44,7 @@
         // Cache dos elementos DOM
         cacheElements: function() {
             this.elements = {
-                container: $('.sevo-dashboard-inscricoes'),
+                container: $('.sevo-dashboard-wrapper'),
                 filtersToggle: $('#sevo-filters-toggle'),
                 filtersContent: $('#sevo-filters-content'),
                 filterForm: $('.sevo-filters-content'),
@@ -1037,13 +1037,13 @@
     $(document).ready(function() {
         console.log('Dashboard JS carregado');
         console.log('sevoDashboardInscricoes:', typeof sevoDashboardInscricoes !== 'undefined' ? sevoDashboardInscricoes : 'UNDEFINED');
-        console.log('Elementos encontrados:', $('.sevo-dashboard-inscricoes').length);
-        
-        if ($('.sevo-dashboard-inscricoes').length) {
-            console.log('Inicializando SevoDashboard...');
-            SevoDashboard.init();
-        } else {
-            console.log('Elemento .sevo-dashboard-inscricoes não encontrado');
+        console.log('Elementos encontrados:', $('.sevo-dashboard-wrapper').length);
+    
+    if ($('.sevo-dashboard-wrapper').length) {
+        console.log('Inicializando dashboard de inscrições...');
+        SevoDashboard.init();
+    } else {
+        console.log('Elemento .sevo-dashboard-wrapper não encontrado');
         }
     });
 

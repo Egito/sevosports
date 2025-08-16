@@ -37,7 +37,7 @@ jQuery(document).ready(function($) {
     const modal = $('#sevo-org-modal');
     const modalContent = $('#sevo-modal-content');
     const closeButton = $('#sevo-modal-close');
-    const dashboardContainer = $('.sevo-orgs-dashboard-container');
+    const dashboardContainer = $('.sevo-dashboard-wrapper');
 
     // Botão "Criar Nova Organização"
     dashboardContainer.on('click', '#sevo-create-org-button', function() {

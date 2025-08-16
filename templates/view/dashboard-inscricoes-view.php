@@ -21,7 +21,6 @@ $current_user = wp_get_current_user();
 ?>
 
 <div class="sevo-dashboard-wrapper">
-    <div class="sevo-dashboard-inscricoes" id="sevo-dashboard-inscricoes">
     <!-- Summary Cards -->
     <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
 
@@ -227,3 +226,4 @@ $current_user = wp_get_current_user();
     </div>
 </div>
 <?php endif; ?>
+</div>

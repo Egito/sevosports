@@ -250,8 +250,7 @@ function sevo_render_events_sections() {
 ?>
 
 <div class="sevo-dashboard-wrapper">
-    <div class="sevo-eventos-dashboard-container">
-        <div class="sevo-dashboard-header">
+    <div class="sevo-dashboard-header">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard de Eventos</h2>
             <?php if ($can_manage_events): ?>
                 <button id="sevo-create-evento-button" class="sevo-add-button" data-tooltip="Criar Novo Evento">
@@ -334,4 +333,5 @@ function sevo_render_events_sections() {
 <!-- Container para o modal de formulário de edição -->
 <div id="sevo-evento-form-modal-container" class="sevo-modal-backdrop" style="display: none;">
     <!-- O conteúdo do formulário será carregado aqui via AJAX -->
+</div>
 </div>

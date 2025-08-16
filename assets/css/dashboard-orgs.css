@@ -1,7 +1,5 @@
 /* --- Dashboard de Organizações --- */
-.sevo-orgs-dashboard-container {
-    padding: 20px;
-}
+/* Container removido - agora usa sevo-dashboard-wrapper do dashboard-common.css */
 
 .sevo-dashboard-header {
     display: flex;
