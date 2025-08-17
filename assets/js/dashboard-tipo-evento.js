@@ -84,8 +84,9 @@ jQuery(document).ready(function($) {
     }
 
     function openFormModal(id = null) {
+        console.log('openFormModal chamada com parâmetros:', { id: id, tipo: typeof id });
         modalContent.html('<div class="sevo-spinner"></div>');
-        modal.removeClass('hidden');
+        modal.removeClass('hidden').addClass('show').css('display', 'flex');
 
         $.post(sevoTipoEventoDashboard.ajax_url, {
             action: 'sevo_get_tipo_evento_form',
@@ -120,8 +121,9 @@ jQuery(document).ready(function($) {
     });
 
     function openViewModal(tipoEventoId) {
+        console.log('openViewModal chamada com parâmetros:', { tipoEventoId: tipoEventoId, tipo: typeof tipoEventoId });
         modalContent.html('<div class="sevo-spinner"></div>');
-        modal.removeClass('hidden');
+        modal.removeClass('hidden').addClass('show').css('display', 'flex');
 
         $.ajax({
             url: sevoTipoEventoDashboard.ajax_url,
@@ -176,7 +178,7 @@ jQuery(document).ready(function($) {
             contentType: false,
             success: function(response) {
                 if (response.success) {
-                    modal.addClass('hidden');
+                    modal.addClass('hidden').removeClass('show').css('display', 'none');
                     SevoToaster.showSuccess('Tipo de evento salvo com sucesso!');
                     loadTiposEvento(true); // Recarrega a lista
                 } else {
@@ -209,7 +211,7 @@ jQuery(document).ready(function($) {
             tipo_evento_id: id
         }).done(function(response) {
             if (response.success) {
-                modal.addClass('hidden');
+                modal.addClass('hidden').removeClass('show').css('display', 'none');
                 SevoToaster.showSuccess('Status alterado com sucesso!');
                 loadTiposEvento(true);
             } else {
@@ -221,11 +223,11 @@ jQuery(document).ready(function($) {
 
     // Event listener para o botão cancelar no formulário
     modal.on('click', '#sevo-cancel-button', function() {
-        modal.addClass('hidden');
+        modal.addClass('hidden').removeClass('show').css('display', 'none');
     });
 
     // Fechar o modal
-    modal.on('click', '#sevo-modal-close', () => modal.addClass('hidden'));
-    modal.on('click', (e) => { if ($(e.target).is(modal)) modal.addClass('hidden'); });
-    $(document).on('keyup', (e) => { if (e.key === "Escape") modal.addClass('hidden'); });
+    modal.on('click', '#sevo-modal-close', () => modal.addClass('hidden').removeClass('show').css('display', 'none'));
+    modal.on('click', (e) => { if ($(e.target).is(modal)) modal.addClass('hidden').removeClass('show').css('display', 'none'); });
+    $(document).on('keyup', (e) => { if (e.key === "Escape") modal.addClass('hidden').removeClass('show').css('display', 'none'); });
 });

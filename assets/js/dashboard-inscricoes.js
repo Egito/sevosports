@@ -57,6 +57,11 @@
                 endOfList: $('#end-of-list'),
 
                 modal: $('#confirmation-modal'),
+                modalConfirm: $('#modal-confirm'),
+                modalCancel: $('#modal-cancel'),
+                modalTitle: $('#modal-title'),
+                modalMessage: $('#modal-message'),
+                modalInput: $('#modal-input-container'),
 
                 stats: {
                     total: $('#stat-total'),
@@ -624,6 +629,7 @@
             
             // Mostra o modal e o loading
             modal.style.display = 'flex';
+            modal.classList.add('show');
             loadingIndicator.style.display = 'block';
             modalContent.style.display = 'none';
             
@@ -673,6 +679,7 @@
             const modal = document.getElementById('sevo-event-modal');
             if (modal) {
                 modal.style.display = 'none';
+                modal.classList.remove('show');
             }
         },
 
@@ -763,6 +770,7 @@
 
             // Mostra o modal e o loading
             modal.style.display = 'flex';
+            modal.classList.add('show');
             loadingIndicator.style.display = 'block';
             modalContent.style.display = 'none';
 
@@ -800,6 +808,7 @@
             const modal = document.getElementById('sevo-edit-inscricao-modal');
             if (modal) {
                 modal.style.display = 'none';
+                modal.classList.remove('show');
             }
             this.currentEditId = null;
         },
@@ -980,6 +989,13 @@
         },
 
 
+
+        // Fechar toast
+        closeToast: function() {
+            $('.sevo-toast').fadeOut(300, function() {
+                $(this).remove();
+            });
+        },
 
         // Manipular teclado
         handleKeyboard: function(e) {

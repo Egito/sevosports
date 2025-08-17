@@ -30,8 +30,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         wp_enqueue_style('sevo-button-colors', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_style('sevo-card-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/card-standards.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_style('sevo-filter-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/filter-standards.css', array(), SEVO_EVENTOS_VERSION);
+        // Removido card-standards.css e filter-standards.css - usando padrão visual unificado
 
         wp_enqueue_style('sevo-dashboard-tipo-evento', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_script('sevo-tipo-evento-dashboard-script', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/dashboard-tipo-evento.js', array('jquery', 'sevo-toaster-script'), SEVO_EVENTOS_VERSION, true);

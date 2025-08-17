@@ -1,9 +1,76 @@
+// Funções globais para os modais
+function openOrgViewModal(orgId) {
+    console.log('openOrgViewModal chamada com parâmetros:', { orgId: orgId, tipo: typeof orgId });
+    
+    const modal = jQuery('#sevo-org-modal');
+    const modalContent = jQuery('#sevo-modal-content');
+    
+    console.log('Elementos encontrados:', { modal: modal.length, modalContent: modalContent.length });
+    
+    modalContent.html('<div class="sevo-spinner"></div>');
+    modal.removeClass('hidden').addClass('show').css('display', 'flex');
+
+    jQuery.ajax({
+        url: sevoOrgsDashboard.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'sevo_get_org_details',
+            nonce: sevoOrgsDashboard.nonce,
+            org_id: orgId,
+        },
+        success: function(response) {
+            if (response.success) {
+                modalContent.html(response.data.html);
+            } else {
+                modalContent.html('<p class="text-red-500 text-center">Ocorreu um erro ao carregar os detalhes da organização.</p>');
+            }
+        },
+        error: function() {
+            modalContent.html('<p class="text-red-500 text-center">Erro de comunicação. Por favor, tente novamente.</p>');
+        }
+    });
+}
+
+function openOrgFormModal(orgId = null) {
+    console.log('openOrgFormModal chamada com parâmetros:', { orgId: orgId, tipo: typeof orgId });
+    
+    const modal = jQuery('#sevo-org-modal');
+    const modalContent = jQuery('#sevo-modal-content');
+    
+    console.log('Elementos encontrados:', { modal: modal.length, modalContent: modalContent.length });
+    
+    modalContent.html('<div class="sevo-spinner"></div>');
+    modal.removeClass('hidden').addClass('show').css('display', 'flex');
+
+    jQuery.ajax({
+        url: sevoOrgsDashboard.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'sevo_get_org_form',
+            nonce: sevoOrgsDashboard.nonce,
+            org_id: orgId || 0,
+        },
+        success: function(response) {
+            if (response.success) {
+                modalContent.html(response.data.html);
+            } else {
+                modalContent.html('<p class="text-red-500 text-center">Erro: ' + response.data + '</p>');
+            }
+        },
+        error: function() {
+            modalContent.html('<p class="text-red-500 text-center">Erro de comunicação. Por favor, tente novamente.</p>');
+        }
+    });
+}
+
 // Objeto global para o dashboard de organizações
 window.SevoOrgsDashboard = {
     viewOrg: function(orgId) {
+        console.log('SevoOrgsDashboard.viewOrg chamado com:', orgId);
         openOrgViewModal(orgId);
     },
     editOrg: function(orgId) {
+        console.log('SevoOrgsDashboard.editOrg chamado com:', orgId);
         openOrgFormModal(orgId);
     }
 };
@@ -54,57 +121,7 @@ jQuery(document).ready(function($) {
         openOrgViewModal(orgId);
     });
 
-    // Função para abrir modal de visualização
-    function openOrgViewModal(orgId) {
-        modalContent.html('<div class="sevo-spinner"></div>');
-        modal.removeClass('hidden');
-
-        $.ajax({
-            url: sevoOrgsDashboard.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'sevo_get_org_details',
-                nonce: sevoOrgsDashboard.nonce,
-                org_id: orgId,
-            },
-            success: function(response) {
-                if (response.success) {
-                    modalContent.html(response.data.html);
-                } else {
-                    modalContent.html('<p class="text-red-500 text-center">Ocorreu um erro ao carregar os detalhes da organização.</p>');
-                }
-            },
-            error: function() {
-                modalContent.html('<p class="text-red-500 text-center">Erro de comunicação. Por favor, tente novamente.</p>');
-            }
-        });
-    }
-
-    // Função para abrir modal de formulário (criar/editar)
-    function openOrgFormModal(orgId = null) {
-        modalContent.html('<div class="sevo-spinner"></div>');
-        modal.removeClass('hidden');
-
-        $.ajax({
-            url: sevoOrgsDashboard.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'sevo_get_org_form',
-                nonce: sevoOrgsDashboard.nonce,
-                org_id: orgId || 0,
-            },
-            success: function(response) {
-                if (response.success) {
-                    modalContent.html(response.data.html);
-                } else {
-                    modalContent.html('<p class="text-red-500 text-center">Erro: ' + response.data + '</p>');
-                }
-            },
-            error: function() {
-                modalContent.html('<p class="text-red-500 text-center">Erro de comunicação. Por favor, tente novamente.</p>');
-            }
-        });
-    }
+    // As funções openOrgViewModal e openOrgFormModal agora estão no escopo global
 
     // Event listener para o botão de editar no modal de visualização
     modal.on('click', '.sevo-button-edit', function(e) {
@@ -159,12 +176,17 @@ jQuery(document).ready(function($) {
 
     // Função para fechar o modal
     function closeModal() {
-        modal.addClass('hidden');
+        modal.addClass('hidden').removeClass('show').css('display', 'none');
         modalContent.html(''); // Limpa o conteúdo para a próxima abertura
     }
 
     // Eventos para fechar o modal
     closeButton.on('click', closeModal);
+
+    // Fecha o modal ao clicar no overlay
+    modal.on('click', '.sevo-modal-overlay', function() {
+        closeModal();
+    });
 
     // Fecha o modal se o utilizador clicar fora da área de conteúdo
     modal.on('click', function(e) {

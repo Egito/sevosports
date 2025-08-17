@@ -426,7 +426,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             LEFT JOIN {$wpdb->posts} org ON org_meta.meta_value = org.ID AND org.post_type = 'sevo_organizacao' AND org.post_status = 'publish'
             {$joins}
             WHERE inscr.post_type = 'sevo_inscr' 
-                AND inscr.post_status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')
+                AND inscr.post_status = 'publish'
                 AND evento_meta.meta_value IS NOT NULL 
                 AND evento_meta.meta_value != ''
                 AND {$where}
@@ -445,7 +445,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID AND evento.post_type = 'sevo_evento' AND evento.post_status = 'publish'
             {$joins}
             WHERE inscr.post_type = 'sevo_inscr' 
-                AND inscr.post_status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')
+                AND inscr.post_status = 'publish'
                 AND evento_meta.meta_value IS NOT NULL 
                 AND evento_meta.meta_value != ''
                 AND {$where}
@@ -483,15 +483,12 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             return false;
         }
         
-        $old_status = $inscricao->post_status;
+        $old_status = get_post_meta($inscricao_id, '_sevo_inscr_status', true) ?: 'solicitada';
         
-        // Atualizar status
-        $result = wp_update_post(array(
-            'ID' => $inscricao_id,
-            'post_status' => $new_status
-        ));
+        // Atualizar status no meta campo
+        $result = update_post_meta($inscricao_id, '_sevo_inscr_status', $new_status);
         
-        if (is_wp_error($result)) {
+        if ($result === false) {
             return false;
         }
         
@@ -643,7 +640,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         if (!empty($filters['status']) && $filters['status'] !== '') {
-            $where_conditions[] = $wpdb->prepare('inscr.post_status = %s', sanitize_text_field($filters['status']));
+            $where_conditions[] = $wpdb->prepare('status_meta.meta_value = %s', sanitize_text_field($filters['status']));
         }
         
         if (!empty($filters['ano']) && $filters['ano'] !== '') {
@@ -672,14 +669,15 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $sql = "
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN inscr.post_status = 'solicitada' THEN 1 ELSE 0 END) as solicitadas,
-            SUM(CASE WHEN inscr.post_status = 'aceita' THEN 1 ELSE 0 END) as approved,
-            SUM(CASE WHEN inscr.post_status = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
-            SUM(CASE WHEN inscr.post_status = 'cancelada' THEN 1 ELSE 0 END) as canceladas
+                SUM(CASE WHEN COALESCE(status_meta.meta_value, 'solicitada') = 'solicitada' THEN 1 ELSE 0 END) as solicitadas,
+            SUM(CASE WHEN status_meta.meta_value = 'aceita' THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN status_meta.meta_value = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
+            SUM(CASE WHEN status_meta.meta_value = 'cancelada' THEN 1 ELSE 0 END) as canceladas
             FROM {$wpdb->posts} inscr
             LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
+            LEFT JOIN {$wpdb->postmeta} status_meta ON inscr.ID = status_meta.post_id AND status_meta.meta_key = '_sevo_inscr_status'
             {$joins}
-            WHERE inscr.post_type = 'sevo_inscr' AND {$where}
+            WHERE inscr.post_type = 'sevo_inscr' AND inscr.post_status = 'publish' AND {$where}
         ";
         
         $stats = $wpdb->get_row($sql, ARRAY_A);

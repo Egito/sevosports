@@ -278,6 +278,8 @@ jQuery(document).ready(function($) {
 
         // Edita evento
         editEvent: function(eventId) {
+            console.log('editEvent chamada com parâmetros:', { eventId: eventId, tipo: typeof eventId });
+            
             $.ajax({
                 url: sevoEventosDashboard.ajax_url,
                 type: 'POST',
@@ -287,15 +289,20 @@ jQuery(document).ready(function($) {
                     nonce: sevoEventosDashboard.nonce
                 },
                 success: function(response) {
+                    console.log('editEvent AJAX success:', response);
                     if (response.success) {
-                        $('#sevo-evento-form-modal-container').html(response.data.html).show();
+                        console.log('Modal container encontrado:', $('#sevo-evento-form-modal-container').length);
+                        const $modalContainer = $('#sevo-evento-form-modal-container');
+                        $modalContainer.html(response.data.html).addClass('show').css('display', 'flex');
                         // Fecha o modal de visualização se estiver aberto
                         SevoEventosDashboard.closeEventModal();
                     } else {
+                        console.error('editEvent erro na resposta:', response.data);
                         SevoToaster.showError(response.data || 'Erro ao carregar formulário.');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('editEvent AJAX error:', { xhr, status, error });
                     SevoToaster.showError('Erro ao carregar formulário.');
                 }
             });
@@ -303,7 +310,7 @@ jQuery(document).ready(function($) {
 
         // Fecha modal de formulário
         closeEventFormModal: function() {
-            $('#sevo-evento-form-modal-container').hide().empty();
+            $('#sevo-evento-form-modal-container').removeClass('show').css('display', 'none').empty();
         },
 
         // Submete formulário de evento

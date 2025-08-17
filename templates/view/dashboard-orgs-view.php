@@ -93,9 +93,10 @@ $organizacoes = new WP_Query($args);
     <?php endif; ?>
 
     <!-- Estrutura do Modal (inicialmente oculta) -->
-    <div id="sevo-org-modal" class="sevo-modal-backdrop hidden">
+    <div id="sevo-org-modal" class="sevo-modal hidden">
+        <div class="sevo-modal-overlay"></div>
         <div class="sevo-modal-container">
-            <button id="sevo-modal-close" class="sevo-modal-close-button">&times;</button>
+            <button id="sevo-modal-close" class="sevo-modal-close">&times;</button>
             <div id="sevo-modal-content">
                 <!-- O conteúdo da organização será carregado aqui via AJAX -->
                 <div class="sevo-spinner"></div>
