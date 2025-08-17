@@ -183,8 +183,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
             '_sevo_evento_data_fim_inscricoes' => 'text', 
             '_sevo_evento_data_inicio_evento' => 'text',
             '_sevo_evento_data_fim_evento' => 'text',
-            '_sevo_evento_vagas' => 'int',
-            '_sevo_evento_local' => 'text'
+            '_sevo_evento_vagas' => 'int'
         );
         
         foreach ($meta_fields as $field => $type) {
@@ -199,9 +198,12 @@ class Sevo_Eventos_Dashboard_Shortcode {
             }
         }
         
-        // Salva categoria do evento
-        if (isset($_POST['sevo_evento_categoria']) && !empty($_POST['sevo_evento_categoria'])) {
-            wp_set_post_terms($evento_id, array(intval($_POST['sevo_evento_categoria'])), 'sevo_evento_categoria');
+        // Processar upload de imagem se fornecida
+        if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
+            $attachment_id = $this->process_evento_image($_FILES['featured_image']);
+            if ($attachment_id) {
+                set_post_thumbnail($evento_id, $attachment_id);
+            }
         }
         
         wp_send_json_success(array(
@@ -602,6 +604,73 @@ class Sevo_Eventos_Dashboard_Shortcode {
         }
         
         include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/partials/evento-card.php');
+    }
+    
+    /**
+     * Processa o upload e redimensionamento da imagem do evento.
+     */
+    private function process_evento_image($file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+        }
+
+        // Validar tipo de arquivo
+        $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif');
+        if (!in_array($file['type'], $allowed_types)) {
+            return false;
+        }
+
+        // Upload do arquivo
+        $upload_overrides = array('test_form' => false);
+        $uploaded_file = wp_handle_upload($file, $upload_overrides);
+
+        if (isset($uploaded_file['error'])) {
+            return false;
+        }
+
+        $image_path = $uploaded_file['file'];
+        $image_url = $uploaded_file['url'];
+
+        // Usar o WordPress Image Editor para redimensionar
+        $image_editor = wp_get_image_editor($image_path);
+        if (is_wp_error($image_editor)) {
+            return false;
+        }
+
+        // Redimensionar para 300x300
+        $resize_result = $image_editor->resize(300, 300, true); // true para crop
+        if (is_wp_error($resize_result)) {
+            return false;
+        }
+
+        // Salvar a imagem redimensionada
+        $save_result = $image_editor->save();
+        if (is_wp_error($save_result)) {
+            return false;
+        }
+
+        // Criar attachment no WordPress
+        $attachment = array(
+            'guid' => $save_result['url'],
+            'post_mime_type' => $save_result['mime-type'],
+            'post_title' => preg_replace('/\.[^.]+$/', '', basename($save_result['file'])),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        $attachment_id = wp_insert_attachment($attachment, $save_result['path']);
+        if (is_wp_error($attachment_id)) {
+            return false;
+        }
+
+        // Gerar metadados do attachment
+        $attachment_data = wp_generate_attachment_metadata($attachment_id, $save_result['path']);
+        wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+        return $attachment_id;
     }
 }
 

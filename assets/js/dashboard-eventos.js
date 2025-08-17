@@ -296,6 +296,8 @@ jQuery(document).ready(function($) {
                         $modalContainer.html(response.data.html).addClass('show').css('display', 'flex');
                         // Fecha o modal de visualização se estiver aberto
                         SevoEventosDashboard.closeEventModal();
+                        // Inicializa o upload de imagem
+                        SevoEventosDashboard.initImageUpload();
                     } else {
                         console.error('editEvent erro na resposta:', response.data);
                         SevoToaster.showError(response.data || 'Erro ao carregar formulário.');
@@ -321,10 +323,17 @@ jQuery(document).ready(function($) {
 
             $submitBtn.prop('disabled', true).text('Salvando...');
 
+            // Criar FormData para suportar upload de arquivo
+            const formData = new FormData($form[0]);
+            formData.append('action', 'sevo_save_evento');
+            formData.append('nonce', sevoEventosDashboard.nonce);
+
             $.ajax({
                 url: sevoEventosDashboard.ajax_url,
                 type: 'POST',
-                data: $form.serialize() + '&action=sevo_save_evento&nonce=' + sevoEventosDashboard.nonce,
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     $submitBtn.prop('disabled', false).text(originalText);
                     
@@ -733,6 +742,87 @@ jQuery(document).ready(function($) {
         // Pequeno delay para garantir que o DOM foi atualizado
         setTimeout(initCarousels, 100);
     });
+    
+    // Gerenciamento de upload de imagem
+    function initImageUpload() {
+        // Clique no botão de upload
+        $(document).on('click', '#sevo-upload-btn', function(e) {
+            e.preventDefault();
+            $('#featured_image').click();
+        });
+        
+        // Clique no placeholder da imagem
+        $(document).on('click', '#sevo-image-placeholder', function(e) {
+            e.preventDefault();
+            $('#featured_image').click();
+        });
+        
+        // Mudança no input de arquivo
+        $(document).on('change', '#featured_image', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validação do tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    SevoToaster.showError('Por favor, selecione apenas arquivos de imagem.');
+                    return;
+                }
+                
+                // Validação do tamanho (máximo 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    SevoToaster.showError('A imagem deve ter no máximo 5MB.');
+                    return;
+                }
+                
+                // Preview da imagem
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const $preview = $('#sevo-image-preview');
+                    const $placeholder = $('#sevo-image-placeholder');
+                    const $uploadBtn = $('#sevo-upload-btn');
+                    
+                    // Remove placeholder se existir
+                    $placeholder.remove();
+                    
+                    // Adiciona a imagem de preview
+                    $preview.html(`
+                        <img src="${e.target.result}" alt="Preview da imagem" id="sevo-preview-img">
+                        <button type="button" class="sevo-remove-image" id="sevo-remove-image">&times;</button>
+                    `);
+                    
+                    // Atualiza o texto do botão
+                    $uploadBtn.text('Alterar Imagem');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Remover imagem
+        $(document).on('click', '#sevo-remove-image', function(e) {
+            e.preventDefault();
+            
+            const $preview = $('#sevo-image-preview');
+            const $uploadBtn = $('#sevo-upload-btn');
+            const $fileInput = $('#featured_image');
+            const $imageIdInput = $('#featured_image_id');
+            
+            // Limpa os inputs
+            $fileInput.val('');
+            $imageIdInput.val('');
+            
+            // Restaura o placeholder
+            $preview.html(`
+                <div class="sevo-image-placeholder" id="sevo-image-placeholder">
+                    <span>Clique para adicionar imagem</span>
+                </div>
+            `);
+            
+            // Atualiza o texto do botão
+            $uploadBtn.text('Adicionar Imagem');
+        });
+    }
+    
+    // Inicializa upload de imagem
+    initImageUpload();
     
     // Torna a classe disponível globalmente para uso externo
     window.SevoEventCarousel = SevoEventCarousel;

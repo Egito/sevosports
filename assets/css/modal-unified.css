@@ -1149,6 +1149,38 @@
     flex: 1;
     overflow-y: auto;
     padding: 20px;
+    max-height: calc(90vh - 120px); /* Altura máxima considerando header e footer */
+}
+
+/* Estilo específico para textarea no modal de evento */
+#sevo-evento-form-modal-container textarea {
+    resize: vertical !important;
+    min-height: 120px !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+    box-sizing: border-box !important;
+    line-height: 1.5 !important;
+}
+
+/* Scrollbar personalizada para webkit browsers */
+#sevo-evento-form-modal-container textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+#sevo-evento-form-modal-container textarea::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 4px;
+}
+
+#sevo-evento-form-modal-container textarea::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+#sevo-evento-form-modal-container textarea::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
 }
 
 #sevo-evento-form-modal-container .sevo-modal-footer-form {
@@ -1173,6 +1205,104 @@
     
     #sevo-evento-form-modal-container .sevo-modal-body {
         padding: 15px;
+        max-height: calc(95vh - 100px); /* Ajuste para mobile */
+    }
+    
+    #sevo-evento-form-modal-container textarea {
+        min-height: 100px;
+        max-height: 150px;
+    }
+}
+
+/* Layout de duas colunas para o formulário de evento */
+.sevo-form-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sevo-form-column-left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sevo-form-column-right {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos para upload de imagem */
+.sevo-image-upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sevo-image-preview {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sevo-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sevo-image-placeholder {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.sevo-remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sevo-remove-image:hover {
+    background: rgba(255, 0, 0, 1);
+}
+
+.sevo-upload-btn {
+    align-self: flex-start;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+    .sevo-form-two-columns {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .sevo-image-preview {
+        width: 250px;
+        height: 250px;
+        margin: 0 auto;
     }
 }
 
@@ -1189,6 +1319,22 @@
     
     #sevo-evento-form-modal-container .sevo-modal-title {
         font-size: 1rem !important;
+    }
+    
+    #sevo-evento-form-modal-container .sevo-modal-body {
+        padding: 10px;
+        max-height: calc(100vh - 120px); /* Ajuste para tela cheia */
+    }
+    
+    #sevo-evento-form-modal-container textarea {
+        min-height: 80px;
+        max-height: 120px;
+        font-size: 16px; /* Evita zoom no iOS */
+    }
+    
+    .sevo-image-preview {
+        width: 200px;
+        height: 200px;
     }
 }
 
