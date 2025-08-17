@@ -47,6 +47,7 @@ jQuery(document).ready(function($) {
     let hasMore = true;
 
     function loadTiposEvento(reset = false) {
+        console.log('loadTiposEvento chamada:', { reset, loading, hasMore });
         if (loading || (!hasMore && !reset)) return;
         
         loading = true;
@@ -58,22 +59,33 @@ jQuery(document).ready(function($) {
             container.empty();
         }
 
+        console.log('Fazendo requisição AJAX:', {
+            url: sevoTipoEventoDashboard.ajax_url,
+            action: 'sevo_load_more_tipos_evento',
+            nonce: sevoTipoEventoDashboard.nonce,
+            page: page
+        });
+
         $.post(sevoTipoEventoDashboard.ajax_url, {
             action: 'sevo_load_more_tipos_evento',
             nonce: sevoTipoEventoDashboard.nonce,
             page: page,
         }).done(function(response) {
+            console.log('Resposta AJAX recebida:', response);
             if (response.success && response.data.items) {
                 container.append(response.data.items);
                 hasMore = response.data.hasMore;
                 page++;
+                console.log('Items carregados com sucesso');
             } else {
                 hasMore = false;
                 if (reset) {
                     container.html('<p class="col-span-full text-center">Nenhum tipo de evento encontrado.</p>');
                 }
+                console.log('Nenhum item encontrado ou erro na resposta');
             }
-        }).fail(function() {
+        }).fail(function(xhr, status, error) {
+            console.error('Erro na requisição AJAX:', { xhr, status, error });
             if (reset) {
                  container.html('<p class="col-span-full text-center text-red-500">Erro ao carregar tipos de evento.</p>');
             }
@@ -101,8 +113,9 @@ jQuery(document).ready(function($) {
         });
     }
 
-    // Carregar mais ao rolar (opcional) ou com um botão "Carregar mais"
+    // Carregar mais ao rolar (opcional) ou com um botão "Carregar mais".
     // Aqui, vamos carregar tudo na primeira vez para simplicidade.
+    console.log('Iniciando carregamento de tipos de evento...');
     loadTiposEvento(true);
 
     // Abrir modal para criar

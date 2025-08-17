@@ -100,6 +100,15 @@
     transition: color 0.2s;
 }
 
+/* Botões de ação dos cards */
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
 .sevo-status-badge {
     padding: 6px 12px;
     border-radius: 20px;

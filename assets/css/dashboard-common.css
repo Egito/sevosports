@@ -13,7 +13,7 @@
     color: #333;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, #87ceeb 100%);
     border-radius: 12px;
-    min-height: 100vh;
+    min-height: auto;
 }
 
 /* Containers internos removidos - agora todo conteúdo fica diretamente no sevo-dashboard-wrapper */

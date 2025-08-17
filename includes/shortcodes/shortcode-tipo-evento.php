@@ -268,6 +268,8 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
      * AJAX: Carrega os cards de tipo de evento para o dashboard.
      */
     public function ajax_load_more_tipos_evento() {
+        check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
+        
         $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $args = array(
             'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
