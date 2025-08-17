@@ -338,7 +338,6 @@ function sevo_render_events_sections() {
 }
 ?>
 
-<article class="post-item page-content">
 <div class="sevo-dashboard-wrapper">
     <div class="sevo-dashboard-header">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard de Eventos</h2>
@@ -422,4 +421,3 @@ function sevo_render_events_sections() {
         </button>
     <?php endif; ?>
 </div>
-</article>
