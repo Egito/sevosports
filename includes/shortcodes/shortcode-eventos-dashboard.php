@@ -206,6 +206,11 @@ class Sevo_Eventos_Dashboard_Shortcode {
             }
         }
         
+        // Disparar hook save_post manualmente para integração com fórum
+        $hook_name = 'save_post_' . SEVO_EVENTO_POST_TYPE;
+        // Debug removido - hook funcionando corretamente
+        do_action($hook_name, $evento_id, get_post($evento_id), !$_POST['evento_id']);
+        
         wp_send_json_success(array(
             'message' => 'Evento salvo com sucesso!',
             'evento_id' => $evento_id

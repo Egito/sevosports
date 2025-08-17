@@ -169,8 +169,94 @@ class Sevo_Forum_Integration {
             return;
         }
         
+        // Verificar se o evento tem um tópico associado, se não tiver, criar
+        $topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
+        if (!$topic_id) {
+            $this->create_event_topic($post_id, $post);
+        }
+        
         // Verificar se datas foram alteradas e criar tópicos de notificação
         $this->create_notification_topics($post_id);
+    }
+
+    /**
+     * Cria o tópico inicial para o evento no fórum.
+     */
+    private function create_event_topic($post_id, $post) {
+        $tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
+        if (!$tipo_evento_id) {
+            return;
+        }
+
+        $forum_id = get_post_meta($tipo_evento_id, '_sevo_forum_forum_id', true);
+        if (!$forum_id) {
+            return;
+        }
+
+        global $asgarosforum;
+        $event_name = $post->post_title;
+        $event_description = get_post_meta($post_id, '_sevo_evento_descricao', true);
+        $author_id = $post->post_author;
+        
+        // Criar novo tópico usando a instância do AsgarosForum
+        $topic_ids = null;
+        if (class_exists('AsgarosForum')) {
+            if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
+                $topic_content = $this->generate_event_topic_content($post_id, $event_description);
+                
+                $topic_ids = $asgarosforum->content->insert_topic(
+                    $forum_id, // forum_id
+                    $event_name, // topic name
+                    $topic_content, // topic content
+                    $author_id // author_id
+                );
+            }
+        }
+
+        if ($topic_ids && isset($topic_ids->topic_id)) {
+            update_post_meta($post_id, '_sevo_forum_topic_id', $topic_ids->topic_id);
+        }
+    }
+
+    /**
+     * Gera o conteúdo do tópico do evento.
+     */
+    private function generate_event_topic_content($post_id, $event_description) {
+        $evento_url = get_permalink($post_id);
+        $data_inicio = get_post_meta($post_id, '_sevo_evento_data_inicio_evento', true);
+        $data_fim = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true);
+        $local = get_post_meta($post_id, '_sevo_evento_local', true);
+        
+        $content = "Este é o tópico oficial do evento. Aqui você pode acompanhar as inscrições e discussões relacionadas ao evento.\n\n";
+        
+        // Incluir imagem destacada do evento se existir
+        $thumbnail_id = get_post_thumbnail_id($post_id);
+        if ($thumbnail_id) {
+            $image_url = wp_get_attachment_image_url($thumbnail_id, 'medium');
+            if ($image_url) {
+                $content .= "![Imagem do Evento](" . $image_url . ")\n\n";
+            }
+        }
+        
+        if (!empty($event_description)) {
+            $content .= "**Descrição:**\n" . $event_description . "\n\n";
+        }
+        
+        if (!empty($data_inicio)) {
+            $content .= "**Data de Início:** " . date('d/m/Y H:i', strtotime($data_inicio)) . "\n";
+        }
+        
+        if (!empty($data_fim)) {
+            $content .= "**Data de Fim:** " . date('d/m/Y H:i', strtotime($data_fim)) . "\n";
+        }
+        
+        if (!empty($local)) {
+            $content .= "**Local:** " . $local . "\n";
+        }
+        
+        $content .= "\n**Para mais detalhes e inscrições, acesse:** [" . get_the_title($post_id) . "](" . home_url() . ")";
+        
+        return $content;
     }
 
     /**

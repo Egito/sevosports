@@ -250,22 +250,25 @@ class Sevo_Eventos_CPT_Final {
      */
     private function create_or_update_event_topic($post_id, $post) {
         $tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
+        
         if (!$tipo_evento_id) {
             return;
         }
 
         $forum_id = get_post_meta($tipo_evento_id, '_sevo_forum_forum_id', true);
+        
         if (!$forum_id) {
             return;
         }
 
-        global $asgarosforum;
         $existing_topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
+        
+        global $asgarosforum;
         $event_name = $post->post_title;
         $event_description = get_post_meta($post_id, '_sevo_evento_descricao', true);
         $author_id = $post->post_author;
         
-        // Se já existe um tópico, verificar se precisa atualizar o nome
+        // Verificar se já existe um tópico associado
         if ($existing_topic_id && class_exists('AsgarosForum')) {
             if ($asgarosforum && method_exists($asgarosforum->content, 'get_topic')) {
                 $topic = $asgarosforum->db->get_row($asgarosforum->db->prepare(
@@ -274,7 +277,7 @@ class Sevo_Eventos_CPT_Final {
                 ));
                 
                 if ($topic && is_object($topic) && property_exists($topic, 'name')) {
-                    // Verificar se o nome mudou
+                    // Tópico existe - verificar se o nome mudou
                     if ($topic->name !== $event_name) {
                         // Atualizar o nome do tópico usando consulta SQL direta
                         $asgarosforum->db->update(
@@ -306,13 +309,15 @@ class Sevo_Eventos_CPT_Final {
                     }
                     return; // Tópico existe e foi atualizado se necessário
                 } else {
-                    // Tópico não existe mais, remover meta
+                    // Tópico não existe mais no fórum - remover meta e recriar
                     delete_post_meta($post_id, '_sevo_forum_topic_id');
+                    $existing_topic_id = null; // Forçar criação de novo tópico
                 }
             }
         }
 
-        // Criar novo tópico usando a instância do AsgarosForum
+        // Criar novo tópico (ou recriar se o anterior foi deletado) usando a instância do AsgarosForum
+        
         $topic_ids = null;
         if (class_exists('AsgarosForum')) {
             if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
@@ -332,6 +337,8 @@ class Sevo_Eventos_CPT_Final {
         }
     }
     
+
+
     /**
      * Gera o conteúdo do tópico do evento.
      */
@@ -342,6 +349,15 @@ class Sevo_Eventos_CPT_Final {
         $local = get_post_meta($post_id, '_sevo_evento_local', true);
         
         $content = "Este é o tópico oficial do evento. Aqui você pode acompanhar as inscrições e discussões relacionadas ao evento.\n\n";
+        
+        // Incluir imagem destacada do evento se existir
+        $thumbnail_id = get_post_thumbnail_id($post_id);
+        if ($thumbnail_id) {
+            $image_url = wp_get_attachment_image_url($thumbnail_id, 'medium');
+            if ($image_url) {
+                $content .= "![Imagem do Evento](" . $image_url . ")\n\n";
+            }
+        }
         
         if (!empty($event_description)) {
             $content .= "**Descrição:**\n" . $event_description . "\n\n";
@@ -359,7 +375,7 @@ class Sevo_Eventos_CPT_Final {
             $content .= "**Local:** " . $local . "\n";
         }
         
-        $content .= "\n**Para mais detalhes e inscrições, acesse:** [" . get_the_title($post_id) . "](" . $evento_url . ")";
+        $content .= "\n**Para mais detalhes e inscrições, acesse:** [" . get_the_title($post_id) . "](" . home_url() . ")";
         
         return $content;
     }

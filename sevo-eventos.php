@@ -182,6 +182,7 @@ class Sevo_Eventos_Main {
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
         add_action('wp_enqueue_scripts', array($this, 'register_all_assets'));
         add_action('wp_ajax_get_evento_max_vagas', array($this, 'ajax_get_tipo_evento_max_vagas'));
+
         add_action('admin_menu', array($this, 'add_admin_menu'), 20);
     }
 
@@ -384,7 +385,12 @@ class Sevo_Eventos_Main {
             'sevo-eventos',
             array($this, 'admin_page_callback')
         );
+
+        // Adicionar página de recuperação de tópicos
+
     }
+
+
 
     public function admin_page_callback() {
         // Verificar se o usuário tem permissão de administrador
@@ -522,6 +528,8 @@ class Sevo_Eventos_Main {
         </div>
         <?php
     }
+
+
 }
 
 // Inicializar o plugin

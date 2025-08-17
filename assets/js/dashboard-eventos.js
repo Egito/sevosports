@@ -62,6 +62,8 @@ jQuery(document).ready(function($) {
                 e.preventDefault();
                 e.stopPropagation();
                 const eventId = $(e.currentTarget).data('event-id');
+                console.log('Botão de editar clicado. Event ID:', eventId);
+                console.log('Elemento clicado:', e.currentTarget);
                 SevoEventosDashboard.editEvent(eventId);
             });
 

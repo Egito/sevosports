@@ -249,8 +249,3 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
     </div>
 
 </div>
-
-<!-- Container para o modal de formulário de edição -->
-<div id="sevo-evento-form-modal-container" class="sevo-modal-backdrop" style="display: none;">
-    <!-- O conteúdo do formulário será carregado aqui via AJAX -->
-</div>
