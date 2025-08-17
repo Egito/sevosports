@@ -285,3 +285,34 @@
     
     /* Estilos de botão responsivos movidos para button-colors.css */
 }
+
+/* === ESTADO VAZIO === */
+.sevo-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    grid-column: 1 / -1; /* Ocupa toda a largura do grid */
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.sevo-empty-icon {
+    font-size: 64px;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.sevo-empty-state h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.sevo-empty-state p {
+    font-size: 16px;
+    color: #718096;
+    margin-bottom: 0;
+}

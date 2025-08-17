@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
         }
     }
 
-    const dashboard = $('#sevo-tipo-evento-dashboard');
+    const dashboard = $('.sevo-dashboard-wrapper');
     if (dashboard.length === 0) return;
 
     const container = $('#sevo-tipo-eventos-container');
@@ -72,22 +72,29 @@ jQuery(document).ready(function($) {
             page: page,
         }).done(function(response) {
             console.log('Resposta AJAX recebida:', response);
-            if (response.success && response.data.items) {
-                container.append(response.data.items);
-                hasMore = response.data.hasMore;
-                page++;
-                console.log('Items carregados com sucesso');
+            if (response.success) {
+                if (response.data.items && response.data.items.trim() !== '') {
+                    container.append(response.data.items);
+                    hasMore = response.data.hasMore;
+                    page++;
+                    console.log('Items carregados com sucesso');
+                } else {
+                    hasMore = false;
+                    if (reset && page === 1) {
+                        // Primeira página sem resultados - mostra estado vazio mas mantém a estrutura
+                        container.html('<div class="sevo-empty-state"><div class="sevo-empty-icon"><i class="dashicons dashicons-format-aside"></i></div><h3>Nenhum tipo de evento cadastrado</h3><p>Ainda não há tipos de evento cadastrados no sistema.</p></div>');
+                    }
+                    console.log('Nenhum item encontrado na página', page);
+                }
             } else {
                 hasMore = false;
-                if (reset) {
-                    container.html('<p class="col-span-full text-center">Nenhum tipo de evento encontrado.</p>');
-                }
-                console.log('Nenhum item encontrado ou erro na resposta');
+                console.log('Erro na resposta do servidor:', response);
             }
         }).fail(function(xhr, status, error) {
             console.error('Erro na requisição AJAX:', { xhr, status, error });
+            hasMore = false;
             if (reset) {
-                 container.html('<p class="col-span-full text-center text-red-500">Erro ao carregar tipos de evento.</p>');
+                 container.html('<div class="sevo-empty-state"><div class="sevo-empty-icon"><i class="dashicons dashicons-warning"></i></div><h3>Erro ao carregar</h3><p>Ocorreu um erro ao carregar os tipos de evento. Tente novamente.</p></div>');
             }
         }).always(function() {
             loading = false;
@@ -131,6 +138,25 @@ jQuery(document).ready(function($) {
         }
         const tipoEventoId = $(this).data('tipo-evento-id') || $(this).data('id');
         openViewModal(tipoEventoId);
+    });
+
+    // Event listeners para os botões dos cards
+    $(document).on('click', '.btn-view-tipo-evento', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const tipoEventoId = $(this).data('tipo-evento-id');
+        if (tipoEventoId) {
+            openViewModal(tipoEventoId);
+        }
+    });
+
+    $(document).on('click', '.btn-edit-tipo-evento', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const tipoEventoId = $(this).data('tipo-evento-id');
+        if (tipoEventoId) {
+            openFormModal(tipoEventoId);
+        }
     });
 
     function openViewModal(tipoEventoId) {
