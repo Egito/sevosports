@@ -340,12 +340,12 @@ function sevo_render_events_sections() {
 
 <div class="sevo-dashboard-wrapper">
     <div class="sevo-dashboard-header">
-        <h2>Dashboard de Eventos</h2>
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard de Eventos</h2>
     </div>
-        
-        <!-- Summary Cards -->
-        <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
-        
+    
+    <!-- Summary Cards -->
+    <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
+    
     <!-- Filtros -->
     <div class="sevo-dashboard-filters">
         <div class="sevo-filters-single-row">
@@ -414,11 +414,10 @@ function sevo_render_events_sections() {
     <!-- O conteúdo do formulário será carregado aqui via AJAX -->
 </div>
 
-<!-- Botão Flutuante de Adicionar -->
-<?php if ($can_manage_events): ?>
-    <button id="sevo-create-evento-button" class="sevo-floating-add-button sevo-eventos sevo-animate-in" data-tooltip="Criar Novo Evento">
-        <i class="dashicons dashicons-plus-alt"></i>
-    </button>
-<?php endif; ?>
-
+    <!-- Botão Flutuante de Adicionar -->
+    <?php if ($can_manage_events): ?>
+        <button id="sevo-create-evento-button" class="sevo-floating-add-button sevo-eventos sevo-animate-in" data-tooltip="Criar Novo Evento">
+            <i class="dashicons dashicons-plus-alt"></i>
+        </button>
+    <?php endif; ?>
 </div>

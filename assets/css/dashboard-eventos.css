@@ -4,57 +4,16 @@
  */
 
 /* Reset e Base */
-.sevo-dashboard-eventos {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-    line-height: 1.6;
-    color: #333;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border: 1px solid #e1e5e9;
-}
+/* Container removido - agora usa sevo-dashboard-wrapper do dashboard-common.css */
 
 /* Cabeçalho */
 .sevo-dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.sevo-dashboard-title {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.sevo-dashboard-user-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 5px;
-}
-
-.sevo-user-welcome {
-    font-size: 16px;
-    color: #555;
-}
-
-.sevo-user-role {
-    font-size: 12px;
-    padding: 4px 8px;
-    background: #3498db;
-    color: white;
-    border-radius: 12px;
-    font-weight: 500;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 
@@ -66,6 +25,9 @@
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border: 1px solid #e1e5e9;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .sevo-filters-single-row {
@@ -297,6 +259,9 @@
 /* === SEÇÕES DE EVENTOS === */
 .sevo-events-sections {
     margin-top: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .sevo-event-section {
@@ -652,20 +617,10 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
-    .sevo-dashboard-eventos {
-        margin: 10px;
-        padding: 15px;
-        border-radius: 6px;
-    }
-    
     .sevo-dashboard-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
-    }
-    
-    .sevo-dashboard-user-info {
-        align-items: flex-start;
     }
     
     .sevo-filters-single-row {
@@ -677,11 +632,14 @@
         grid-template-columns: 1fr;
         gap: 15px;
     }
-}
-
-@media (max-width: 480px) {
-    .sevo-dashboard-eventos {
-        margin: 5px;
-        padding: 10px;
+    
+    .sevo-events-sections {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    .sevo-dashboard-filters {
+        margin-left: 10px;
+        margin-right: 10px;
     }
 }

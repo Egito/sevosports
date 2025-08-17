@@ -39,12 +39,14 @@ class Sevo_Eventos_Dashboard_Shortcode {
      * Renderiza o shortcode do dashboard de eventos.
      */
     public function render_dashboard_shortcode($atts) {
-        // Enqueue dos estilos e scripts
+        // Enqueue dos estilos seguindo a ordem estabelecida no guia de identidade visual
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-colors-style');
         wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-summary-cards-style');
+        // Estilo específico do dashboard de eventos (deve vir por último)
         wp_enqueue_style('sevo-eventos-dashboard-style');
-        wp_enqueue_style('sevo-button-colors-style');
         
         // Enqueue dos novos estilos e scripts do carrossel
         // Estilos e scripts do carrossel agora estão integrados ao dashboard-eventos.css e dashboard-eventos.js
