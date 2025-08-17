@@ -70,10 +70,10 @@
 
 .sevo-filters-single-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
+    gap: 15px;
     align-items: end;
-    max-width: 800px;
+    max-width: 100%;
 }
 
 .sevo-filter-group {
@@ -117,6 +117,36 @@
 
 .sevo-filter-button:hover {
     background: #2980b9;
+}
+
+/* Responsividade para filtros */
+@media (max-width: 768px) {
+    .sevo-filters-single-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .sevo-dashboard-filters {
+        padding: 12px;
+    }
+    
+    .sevo-filter-select,
+    .sevo-filter-button {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-filter-label {
+        font-size: 12px;
+    }
+    
+    .sevo-filter-select,
+    .sevo-filter-button {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
 }
 
 /* Grid de Eventos */

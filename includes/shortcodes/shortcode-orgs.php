@@ -111,7 +111,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         }
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-org-form.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-org-edit.php');
         $html = ob_get_clean();
         
         wp_send_json_success(array('html' => $html));

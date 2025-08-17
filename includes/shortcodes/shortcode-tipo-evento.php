@@ -77,7 +77,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
         $tipo_evento = ($tipo_evento_id > 0) ? get_post($tipo_evento_id) : null;
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-tipo-evento-form.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-tipo-evento-edit.php');
         $html = ob_get_clean();
         
         wp_send_json_success(array('html' => $html));

@@ -535,10 +535,10 @@ $is_owner = ($post_author_id == $current_user_id);
 
 ### 11.1 Sistema de Toaster (SevoToaster)
 
-#### 10.1.1 Objetivo
+#### 11.1.1 Objetivo
 Sistema centralizado para exibição de mensagens de feedback ao usuário, substituindo alerts nativos e mensagens HTML estáticas por uma interface moderna e consistente.
 
-#### 10.1.2 Funcionalidades
+#### 11.1.2 Funcionalidades
 - **Tipos de Mensagem**: Sucesso, erro, informação, aviso
 - **Posicionamento**: Canto superior direito da tela
 - **Animações**: Entrada e saída suaves
@@ -546,7 +546,7 @@ Sistema centralizado para exibição de mensagens de feedback ao usuário, subst
 - **Empilhamento**: Múltiplas mensagens simultâneas
 - **Responsividade**: Adaptável a diferentes dispositivos
 
-#### 10.1.3 API JavaScript
+#### 11.1.3 API JavaScript
 ```javascript
 // Métodos disponíveis
 SevoToaster.showSuccess(message, options)
@@ -556,7 +556,7 @@ SevoToaster.showWarning(message, options)
 SevoToaster.clear() // Remove todas as mensagens
 ```
 
-#### 10.1.4 Integração
+#### 11.1.4 Integração
 - **Assets**: `sevo-toaster.css` e `sevo-toaster.js`
 - **Dependências**: Registrado em todos os shortcodes
 - **Compatibilidade**: Funciona com respostas AJAX WordPress
@@ -564,10 +564,10 @@ SevoToaster.clear() // Remove todas as mensagens
 
 ### 11.2 Sistema de Popup (SevoPopup)
 
-#### 10.2.1 Objetivo
+#### 11.2.1 Objetivo
 Sistema centralizado para diálogos interativos, substituindo confirm() nativo e prompts por uma interface moderna que retorna Promises para melhor controle de fluxo.
 
-#### 10.2.2 Funcionalidades
+#### 11.2.2 Funcionalidades
 - **Tipos de Popup**: Confirmação, aviso, perigo, prompt, informativo
 - **Promises**: Retorna Promise para controle assíncrono
 - **Customização**: Títulos, textos de botões, ícones personalizáveis
@@ -575,7 +575,7 @@ Sistema centralizado para diálogos interativos, substituindo confirm() nativo e
 - **Modal**: Overlay com foco capturado
 - **Responsividade**: Interface adaptável
 
-#### 10.2.3 API JavaScript
+#### 11.2.3 API JavaScript
 ```javascript
 // Métodos disponíveis
 SevoPopup.confirm(message, options) // Retorna Promise<boolean>
@@ -586,7 +586,7 @@ SevoPopup.info(message, options) // Retorna Promise<void>
 SevoPopup.custom(config) // Retorna Promise<any>
 ```
 
-#### 10.2.4 Exemplos de Uso
+#### 11.2.4 Exemplos de Uso
 ```javascript
 // Confirmação simples
 SevoPopup.confirm('Deseja continuar?').then(confirmed => {
@@ -774,7 +774,7 @@ O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, qu
 - App mobile companion
 - Integração com redes sociais
 
-### 13.4 Melhorias de Segurança)
+### 13.4 Melhorias de Segurança
 - Implementação de roles personalizados
 - Auditoria de ações
 - Backup automático de dados

@@ -50,7 +50,7 @@ jQuery(document).ready(function($) {
             });
 
             // Botão de visualizar evento
-            $(document).on('click', '.sevo-view-evento', function(e) {
+            $(document).on('click', '.btn-view-event', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 const eventId = $(e.currentTarget).data('event-id');
@@ -58,7 +58,7 @@ jQuery(document).ready(function($) {
             });
 
             // Botão de editar evento
-            $(document).on('click', '.sevo-edit-evento', function(e) {
+            $(document).on('click', '.btn-edit-event', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 const eventId = $(e.currentTarget).data('event-id');
@@ -93,14 +93,14 @@ jQuery(document).ready(function($) {
             });
 
             // Botão de inscrição
-            $(document).on('click', '.sevo-inscribe-evento', function(e) {
+            $(document).on('click', '.btn-inscribe-event', function(e) {
                 e.preventDefault();
                 const eventId = $(e.currentTarget).data('event-id');
                 SevoEventosDashboard.inscribeToEvent(eventId);
             });
 
             // Botão de cancelar inscrição
-            $(document).on('click', '.sevo-cancel-inscricao', function(e) {
+            $(document).on('click', '.btn-cancel-inscription', function(e) {
                 e.preventDefault();
                 const inscricaoId = $(e.currentTarget).data('inscricao-id');
                 SevoEventosDashboard.cancelInscricao(inscricaoId);
@@ -730,23 +730,7 @@ jQuery(document).ready(function($) {
     // Torna a classe disponível globalmente para uso externo
     window.SevoEventCarousel = SevoEventCarousel;
     
-    // Torna as funções disponíveis globalmente
-    window.SevoEventosDashboard = {
-        viewEvent: function(eventId) {
-            SevoEventosDashboard.openEventModal(eventId);
-        },
-        editEvent: function(eventId) {
-            SevoEventosDashboard.openEditModal(eventId);
-        },
-        inscribeEvent: function(eventId) {
-            SevoEventosDashboard.inscribeToEvent(eventId);
-        },
-        cancelInscription: function(inscricaoId) {
-            SevoEventosDashboard.cancelInscricao(inscricaoId);
-        },
-        closeEventModal: function() {
-            SevoEventosDashboard.closeModal();
-        }
-    };
+    // Torna o objeto principal disponível globalmente
+    window.SevoEventosDashboard = SevoEventosDashboard;
     
 });

@@ -247,7 +247,7 @@ function sevo_render_event_card($evento) {
             </div>
             
             <div class="card-actions">
-                <button class="btn-view-event" onclick="SevoEventosDashboard.viewEvent(<?php echo esc_attr($evento['id']); ?>)" title="Ver Detalhes">
+                <button class="btn-view-event" data-event-id="<?php echo esc_attr($evento['id']); ?>" title="Ver Detalhes">
                     <i class="dashicons dashicons-visibility"></i>
                 </button>
                 
@@ -256,11 +256,11 @@ function sevo_render_event_card($evento) {
                 if (is_user_logged_in()): 
                 ?>
                     <?php if ($can_inscribe): ?>
-                        <button class="btn-inscribe-event" onclick="SevoEventosDashboard.inscribeEvent(<?php echo esc_attr($evento['id']); ?>)" title="Inscrever-se">
+                        <button class="btn-inscribe-event" data-event-id="<?php echo esc_attr($evento['id']); ?>" title="Inscrever-se">
                             <i class="dashicons dashicons-plus-alt"></i>
                         </button>
                     <?php elseif ($user_inscricao && $user_inscricao_status === 'solicitada'): ?>
-                        <button class="btn-cancel-inscription" onclick="SevoEventosDashboard.cancelInscription(<?php echo esc_attr($user_inscricao->ID); ?>)" title="Cancelar Inscrição">
+                        <button class="btn-cancel-inscription" data-inscricao-id="<?php echo esc_attr($user_inscricao->ID); ?>" title="Cancelar Inscrição">
                             <i class="dashicons dashicons-dismiss"></i>
                         </button>
                     <?php elseif ($user_inscricao && $user_inscricao_status === 'aceita'): ?>
@@ -283,7 +283,7 @@ function sevo_render_event_card($evento) {
                 <?php endif; ?>
                 
                 <?php if ($can_manage_events): ?>
-                    <button class="btn-edit-event" onclick="SevoEventosDashboard.editEvent(<?php echo esc_attr($evento['id']); ?>)" title="Editar">
+                    <button class="btn-edit-event" data-event-id="<?php echo esc_attr($evento['id']); ?>" title="Editar">
                         <i class="dashicons dashicons-edit"></i>
                     </button>
                 <?php endif; ?>
@@ -347,38 +347,41 @@ function sevo_render_events_sections() {
         <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
         
     <!-- Filtros -->
-    <div class="sevo-filters-container">
-        <div class="sevo-filter-group">
-            <label for="filter-organizacao">Organização:</label>
-            <select id="filter-organizacao" class="sevo-filter-select">
-                <option value="">Todas as organizações</option>
-            </select>
-        </div>
-        
-        <div class="sevo-filter-group">
-            <label for="filter-tipo">Tipo de Evento:</label>
-            <select id="filter-tipo" class="sevo-filter-select">
-                <option value="">Todos os tipos</option>
-            </select>
-        </div>
-        
-        <div class="sevo-filter-group">
-            <label for="filter-status">Status:</label>
-            <select id="filter-status" class="sevo-filter-select">
-                <option value="">Todos os status</option>
-                <option value="inscricoes-abertas">Inscrições Abertas</option>
-                <option value="inscricoes-encerradas">Inscrições Encerradas</option>
-                <option value="em-andamento">Em Andamento</option>
-                <option value="aguardando-inicio">Aguardando Início</option>
-                <option value="encerrado">Encerrado</option>
-            </select>
-        </div>
-        
-        <div class="sevo-filter-group">
-            <button id="clear-filters" class="sevo-clear-filters-btn">
-                <i class="dashicons dashicons-dismiss"></i>
-                Limpar Filtros
-            </button>
+    <div class="sevo-dashboard-filters">
+        <div class="sevo-filters-single-row">
+            <div class="sevo-filter-group">
+                <label for="filter-organizacao" class="sevo-filter-label">Organização:</label>
+                <select id="filter-organizacao" class="sevo-filter-select">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <label for="filter-tipo" class="sevo-filter-label">Tipo:</label>
+                <select id="filter-tipo" class="sevo-filter-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <label for="filter-status" class="sevo-filter-label">Status:</label>
+                <select id="filter-status" class="sevo-filter-select">
+                    <option value="">Todos</option>
+                    <option value="inscricoes-abertas">Abertas</option>
+                    <option value="inscricoes-encerradas">Encerradas</option>
+                    <option value="em-andamento">Em Andamento</option>
+                    <option value="aguardando-inicio">Aguardando</option>
+                    <option value="encerrado">Encerrado</option>
+                </select>
+            </div>
+            
+            <div class="sevo-filter-group">
+                <label class="sevo-filter-label">&nbsp;</label>
+                <button id="clear-filters" class="sevo-filter-button">
+                    <i class="dashicons dashicons-dismiss"></i>
+                    Limpar
+                </button>
+            </div>
         </div>
     </div>
         

@@ -32,12 +32,12 @@ $tipos_de_evento = get_posts(array('post_type' => SEVO_TIPO_EVENTO_POST_TYPE, 'p
 $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hide_empty' => false));
 ?>
 
-<div class="sevo-modal-overlay">
-    <div class="sevo-modal-container">
-        <div class="sevo-modal-header">
-            <h2 class="sevo-modal-title"><?php echo $is_editing ? 'Editar Evento' : 'Criar Novo Evento'; ?></h2>
-            <button type="button" id="sevo-evento-form-modal-close" class="sevo-modal-close">&times;</button>
-        </div>
+<div class="sevo-modal-overlay" onclick="SevoEventosDashboard.closeEventFormModal()"></div>
+<div class="sevo-modal-container">
+    <div class="sevo-modal-header">
+        <h2 class="sevo-modal-title"><?php echo $is_editing ? 'Editar Evento' : 'Criar Novo Evento'; ?></h2>
+        <button type="button" id="sevo-evento-form-modal-close" class="sevo-modal-close">&times;</button>
+    </div>
         
         <form id="sevo-evento-form">
             <input type="hidden" name="evento_id" value="<?php echo esc_attr($post_id); ?>">
@@ -144,5 +144,4 @@ $categorias_evento = get_terms(array('taxonomy' => 'sevo_evento_categoria', 'hid
         </button>
     </div>
 </form>
-    </div>
 </div>

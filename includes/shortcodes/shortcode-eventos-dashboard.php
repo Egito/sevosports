@@ -130,7 +130,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         }
         
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-evento-form.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-evento-edit.php');
         $html = ob_get_clean();
         
         wp_send_json_success(array('html' => $html));

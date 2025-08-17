@@ -28,54 +28,47 @@ $current_user = wp_get_current_user();
     <div class="sevo-dashboard-filters">
         <div class="sevo-filters-single-row">
             <div class="sevo-filter-group">
-                <label for="filter-usuario">Usuário</label>
-                <input type="text" id="filter-usuario" name="usuario" placeholder="Nome do usuário..." class="sevo-filter-input">
+                <label for="filter-usuario">Usuário:</label>
+                <input type="text" id="filter-usuario" name="usuario" placeholder="Nome..." class="sevo-filter-input">
             </div>
             
             <div class="sevo-filter-group">
-                <label for="filter-organizacao">Organização</label>
+                <label for="filter-organizacao">Organização:</label>
                 <select id="filter-organizacao" name="organizacao_id" class="sevo-filter-select">
-                    <option value="">Todas as organizações</option>
+                    <option value="">Todas</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
-                <label for="filter-tipo-evento">Tipo de Evento</label>
-                <select id="filter-tipo-evento" name="tipo_evento_id" class="sevo-filter-select">
-                    <option value="">Todos os tipos</option>
-                </select>
-            </div>
-            
-            <div class="sevo-filter-group">
-                <label for="filter-evento">Evento</label>
+                <label for="filter-evento">Evento:</label>
                 <select id="filter-evento" name="evento_id" class="sevo-filter-select">
-                    <option value="">Todos os eventos</option>
+                    <option value="">Todos</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
-                <label for="filter-ano">Ano</label>
+                <label for="filter-ano">Ano:</label>
                 <select id="filter-ano" name="ano" class="sevo-filter-select">
-                    <option value="">Todos os anos</option>
+                    <option value="">Todos</option>
                 </select>
             </div>
             
             <div class="sevo-filter-group">
-                <label for="filter-mes">Mês</label>
+                <label for="filter-mes">Mês:</label>
                 <select id="filter-mes" name="mes" class="sevo-filter-select">
-                    <option value="">Todos os meses</option>
-                    <option value="1">Janeiro</option>
-                    <option value="2">Fevereiro</option>
-                    <option value="3">Março</option>
-                    <option value="4">Abril</option>
-                    <option value="5">Maio</option>
-                    <option value="6">Junho</option>
-                    <option value="7">Julho</option>
-                    <option value="8">Agosto</option>
-                    <option value="9">Setembro</option>
-                    <option value="10">Outubro</option>
-                    <option value="11">Novembro</option>
-                    <option value="12">Dezembro</option>
+                    <option value="">Todos</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Fev</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Abr</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Ago</option>
+                    <option value="9">Set</option>
+                    <option value="10">Out</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dez</option>
                 </select>
             </div>
             

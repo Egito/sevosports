@@ -122,9 +122,10 @@
 
 .sevo-filters-single-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: 2fr 1.5fr 2fr 1fr 1fr 0.8fr;
+    gap: 12px;
     align-items: end;
+    max-width: 100%;
 }
 
 .sevo-filter-group {
@@ -180,19 +181,50 @@
 }
 
 /* Responsividade para filtros */
+@media (max-width: 1024px) {
+    .sevo-filters-single-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .sevo-dashboard-filters {
-        padding: 15px;
+        padding: 12px;
     }
     
     .sevo-filters-single-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
     
     .sevo-filter-actions {
-        margin-top: 20px;
+        grid-column: 1 / -1;
+        margin-top: 15px;
         justify-content: center;
+    }
+    
+    .sevo-filter-input,
+    .sevo-filter-select {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-filters-single-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .sevo-filter-group label {
+        font-size: 12px;
+    }
+    
+    .sevo-filter-input,
+    .sevo-filter-select {
+        font-size: 12px;
+        padding: 5px 8px;
     }
 }
 
