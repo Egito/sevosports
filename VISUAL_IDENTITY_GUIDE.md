@@ -43,6 +43,26 @@ Este documento estabelece os padrões de design e identidade visual para manter 
 
 ## 📐 Layout e Estrutura
 
+### Container Externo Obrigatório
+**TODOS os dashboards devem implementar um container externo branco** que envolve o `sevo-dashboard-wrapper`:
+
+```html
+<article class="post-item page-content">
+    <div class="sevo-dashboard-wrapper">
+        <!-- Conteúdo do dashboard -->
+    </div>
+</article>
+```
+
+#### Especificações do Container Externo
+- **Background**: `#ffffff`
+- **Border-radius**: `8px`
+- **Box-shadow**: `0 2px 8px rgba(0, 0, 0, 0.1)`
+- **Padding**: `20px`
+- **Border**: `1px solid #e2e8f0`
+- **Transition**: `all 0.3s ease`
+- **Classes obrigatórias**: `post-item page-content`
+
 ### Largura Padrão
 - **Max-width**: `800px` para todas as áreas principais
 - **Margin**: `0 auto` para centralização
@@ -277,6 +297,7 @@ wp_enqueue_style('sevo-summary-cards-style');
 
 Para novos componentes, verificar:
 
+- [ ] **Container externo branco implementado** com classes `post-item page-content`
 - [ ] Tipografia segue os padrões estabelecidos
 - [ ] Largura máxima de 800px implementada
 - [ ] Cards seguem estrutura base com hover effects
