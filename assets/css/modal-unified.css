@@ -1233,63 +1233,188 @@
     flex-direction: column;
 }
 
-/* Estilos para upload de imagem */
+
+
+/* Estilos para upload moderno de imagem */
 .sevo-image-upload-container {
     display: flex;
     flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 20px;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    transition: all 0.3s ease;
+}
+
+.sevo-image-upload-container.sevo-horizontal-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.sevo-horizontal-layout .sevo-upload-actions {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
+    flex: 1;
+    max-width: 200px;
 }
 
 .sevo-image-preview {
     position: relative;
-    width: 300px;
-    height: 300px;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
+    width: 100px;
+    height: 100px;
+    border: 2px dashed #e1e5e9;
+    border-radius: 12px;
     overflow: hidden;
-    background-color: #f9f9f9;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.sevo-image-preview:hover {
+    border-color: #007cba;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 124, 186, 0.15);
 }
 
 .sevo-image-preview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 10px;
 }
 
 .sevo-image-placeholder {
     text-align: center;
-    color: #666;
-    font-size: 14px;
-    cursor: pointer;
+    color: #6c757d;
+    padding: 10px;
+    user-select: none;
+}
+
+.sevo-image-placeholder i.dashicons {
+    font-size: 24px;
+    color: #adb5bd;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.sevo-image-placeholder p {
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 0 5px 0;
+    color: #495057;
+}
+
+.sevo-image-placeholder small {
+    font-size: 10px;
+    color: #6c757d;
+    opacity: 0.8;
 }
 
 .sevo-remove-image {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(255, 0, 0, 0.8);
+    top: 10px;
+    right: 10px;
+    background: rgba(220, 53, 69, 0.9);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 25px;
-    height: 25px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
 }
 
 .sevo-remove-image:hover {
-    background: rgba(255, 0, 0, 1);
+    background: rgba(220, 53, 69, 1);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
 
-.sevo-upload-btn {
-    align-self: flex-start;
+.sevo-upload-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.sevo-upload-actions .sevo-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.sevo-upload-actions .sevo-btn i.dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.sevo-upload-actions .sevo-btn-primary {
+    background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.3);
+}
+
+.sevo-upload-actions .sevo-btn-primary:hover {
+    background: linear-gradient(135deg, #005a87 0%, #004666 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.4);
+}
+
+.sevo-upload-actions .sevo-btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.sevo-upload-actions .sevo-btn-danger:hover {
+    background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+/* Estados de loading */
+.sevo-image-preview.loading {
+    border-color: #007cba;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+}
+
+.sevo-image-preview.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 3px solid #e6f3ff;
+    border-top: 3px solid #007cba;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Responsividade para dispositivos móveis */

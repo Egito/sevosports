@@ -65,28 +65,38 @@ $imagem_url = $is_editing ? $organizacao->imagem_url : '';
                 </select>
             </div>
             
-            <!-- Imagem da Organização -->
+            <!-- Upload de Imagem da Organização -->
             <div class="sevo-form-group-full">
-                <label for="org_imagem_url">Imagem da Organização</label>
-                <div class="sevo-image-upload-container">
-                    <input type="url" id="org_imagem_url" name="imagem_url" value="<?php echo esc_attr($imagem_url); ?>" placeholder="https://" style="margin-bottom: 10px;">
-                    <div class="sevo-upload-buttons">
-                        <button type="button" id="upload-image-btn" class="sevo-btn sevo-btn-secondary">Carregar Imagem</button>
-                        <button type="button" id="remove-image-btn" class="sevo-btn sevo-btn-danger" style="<?php echo !$imagem_url ? 'display: none;' : ''; ?>">Remover</button>
+                <label>Imagem da Organização</label>
+                <div class="sevo-image-upload-container sevo-horizontal-layout">
+                    <div class="sevo-image-preview" id="image-preview-container">
+                        <?php if ($imagem_url): ?>
+                            <img src="<?php echo esc_url($imagem_url); ?>" alt="Imagem atual" id="preview-image">
+                            <button type="button" class="sevo-remove-image" id="remove-image-btn" title="Remover imagem">×</button>
+                        <?php else: ?>
+                            <div class="sevo-image-placeholder" id="image-placeholder">
+                                <i class="dashicons dashicons-camera"></i>
+                                <p>Clique para carregar uma imagem</p>
+                                <small>Recomendado: 300x300 pixels</small>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="sevo-upload-actions">
+                        <button type="button" id="upload-image-btn" class="sevo-btn sevo-btn-primary">
+                            <i class="dashicons dashicons-upload"></i>
+                            <?php echo $imagem_url ? 'Alterar Imagem' : 'Carregar Imagem'; ?>
+                        </button>
+                        <?php if ($imagem_url): ?>
+                            <button type="button" id="remove-image-action" class="sevo-btn sevo-btn-danger">
+                                <i class="dashicons dashicons-trash"></i>
+                                Remover
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <small class="sevo-form-help">Cole uma URL ou carregue uma imagem. A imagem será automaticamente redimensionada para 300x300 pixels.</small>
-                <?php if ($imagem_url): ?>
-                    <div class="sevo-current-image" id="current-image-preview">
-                        <p>Imagem atual:</p>
-                        <img src="<?php echo esc_url($imagem_url); ?>" alt="Imagem atual" style="max-width: 100px; height: auto; border-radius: 4px;">
-                    </div>
-                <?php else: ?>
-                    <div class="sevo-current-image" id="current-image-preview" style="display: none;">
-                        <p>Imagem selecionada:</p>
-                        <img id="preview-img" src="" alt="Preview" style="max-width: 100px; height: auto; border-radius: 4px;">
-                    </div>
-                <?php endif; ?>
+                <input type="hidden" id="org_imagem_url" name="imagem_url" value="<?php echo esc_attr($imagem_url); ?>">
+                <input type="file" id="image-file-input" accept="image/*" style="display: none;">
+                <small class="sevo-form-help">A imagem será automaticamente redimensionada para 300x300 pixels.</small>
             </div>
         </div>
     </div>

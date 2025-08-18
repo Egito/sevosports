@@ -16,6 +16,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         add_action('wp_ajax_nopriv_sevo_get_org_details', array($this, 'ajax_get_org_details'));
         add_action('wp_ajax_sevo_get_org_form', array($this, 'ajax_get_org_form'));
         add_action('wp_ajax_sevo_save_org', array($this, 'ajax_save_org'));
+        add_action('wp_ajax_sevo_upload_org_image', array($this, 'ajax_upload_org_image'));
     }
 
     /**
@@ -35,17 +36,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         wp_enqueue_style('sevo-orgs-dashboard-style');
         wp_enqueue_script('sevo-orgs-dashboard-script');
         
-        // Enqueue media uploader e script de organizações para funcionalidade de upload de imagem
-        wp_enqueue_media();
-        
-        // Garantir que todas as dependências do wp.media estejam carregadas
-        wp_enqueue_script('media-upload');
-        wp_enqueue_script('media-editor');
-        wp_enqueue_script('media-views');
-        wp_enqueue_script('media-models');
-        wp_enqueue_script('media-grid');
-        
-        wp_enqueue_script('sevo-admin-organizacoes', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-organizacoes.js', array('jquery', 'media-upload', 'media-editor', 'media-views', 'media-models', 'media-grid'), SEVO_EVENTOS_VERSION, true);
+        wp_enqueue_script('sevo-admin-organizacoes', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-organizacoes.js', array('jquery'), SEVO_EVENTOS_VERSION, true);
         
         // Localizar script de organizações
         wp_localize_script('sevo-admin-organizacoes', 'sevoOrgAdmin', array(
@@ -185,119 +176,82 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         $status = isset($_POST['sevo_org_status']) ? sanitize_text_field($_POST['sevo_org_status']) : 'ativo';
         update_post_meta($result, 'sevo_org_status', $status);
 
-        // Processar upload de imagem se fornecida
-        if (!empty($_FILES['org_image']['name'])) {
-            $upload_result = $this->process_organization_image($_FILES['org_image'], $result);
-            if (is_wp_error($upload_result)) {
-                wp_send_json_error('Erro ao processar a imagem: ' . $upload_result->get_error_message());
-            }
-        }
+
 
         wp_send_json_success(array('message' => 'Organização salva com sucesso!'));
     }
 
-    /**
-     * Processa e redimensiona a imagem da organização para 300x300 com fundo branco.
-     */
-    private function process_organization_image($file, $post_id)
-    {
-        if (!function_exists('wp_handle_upload')) {
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-        }
-        if (!function_exists('wp_get_image_editor')) {
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
+    public function ajax_upload_org_image() {
+        // Verificar nonce
+        if (!wp_verify_nonce($_POST['nonce'], 'sevo_org_nonce')) {
+            wp_send_json_error('Nonce inválido');
         }
 
+        // Verificar se há arquivo
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            wp_send_json_error('Nenhum arquivo foi enviado ou houve erro no upload');
+        }
+
+        $file = $_FILES['image'];
+        
         // Validar tipo de arquivo
         $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp');
         if (!in_array($file['type'], $allowed_types)) {
-            return new WP_Error('invalid_file_type', 'Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP.');
+            wp_send_json_error('Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP.');
         }
 
-        // Upload do arquivo
-        $upload_overrides = array('test_form' => false);
+        // Validar tamanho (máximo 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            wp_send_json_error('Arquivo muito grande. Máximo 5MB.');
+        }
+
+        // Configurar upload
+        if (!function_exists('wp_handle_upload')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+
+        $upload_overrides = array(
+            'test_form' => false,
+            'unique_filename_callback' => function($dir, $name, $ext) {
+                return 'sevo-org-' . uniqid() . $ext;
+            }
+        );
+
+        // Fazer upload
         $uploaded_file = wp_handle_upload($file, $upload_overrides);
 
         if (isset($uploaded_file['error'])) {
-            return new WP_Error('upload_error', $uploaded_file['error']);
+            wp_send_json_error('Erro no upload: ' . $uploaded_file['error']);
         }
 
-        // Usar uma abordagem mais simples e confiável com o WordPress Image Editor
-        $image_editor = wp_get_image_editor($uploaded_file['file']);
-        if (is_wp_error($image_editor)) {
-            return $image_editor;
-        }
-
-        $target_size = 300;
-        $current_size = $image_editor->get_size();
-        
-        // Calcular o redimensionamento mantendo proporção
-        $ratio = min($target_size / $current_size['width'], $target_size / $current_size['height']);
-        $new_width = intval($current_size['width'] * $ratio);
-        $new_height = intval($current_size['height'] * $ratio);
-        
-        // Redimensionar a imagem mantendo proporção
-        $resize_result = $image_editor->resize($new_width, $new_height, false);
-        if (is_wp_error($resize_result)) {
-            return $resize_result;
-        }
-
-        // Criar canvas branco 300x300 e centralizar a imagem
-        $canvas_result = $image_editor->resize($target_size, $target_size, true);
-        if (is_wp_error($canvas_result)) {
-            // Se falhar o crop, usar método alternativo
-            $upload_dir = wp_upload_dir();
-            $filename = 'org-' . $post_id . '-' . time() . '.jpg';
-            $filepath = $upload_dir['path'] . '/' . $filename;
-            
-            // Salvar a imagem redimensionada diretamente
-            $save_result = $image_editor->save($filepath, 'image/jpeg');
-            if (is_wp_error($save_result)) {
-                return $save_result;
-            }
-            
-            $final_filepath = $save_result['path'];
-        } else {
-            // Salvar a imagem com canvas
-            $upload_dir = wp_upload_dir();
-            $filename = 'org-' . $post_id . '-' . time() . '.jpg';
-            $filepath = $upload_dir['path'] . '/' . $filename;
-            
-            $save_result = $image_editor->save($filepath, 'image/jpeg');
-            if (is_wp_error($save_result)) {
-                return $save_result;
-            }
-            
-            $final_filepath = $save_result['path'];
-        }
-
-        // Criar attachment no WordPress
+        // Criar anexo no WordPress
         $attachment = array(
-            'guid' => $upload_dir['url'] . '/' . basename($final_filepath),
-            'post_mime_type' => 'image/jpeg',
-            'post_title' => 'Imagem da Organização - ' . get_the_title($post_id),
+            'post_mime_type' => $uploaded_file['type'],
+            'post_title' => 'Imagem de Organização',
             'post_content' => '',
             'post_status' => 'inherit'
         );
 
-        $attachment_id = wp_insert_attachment($attachment, $final_filepath, $post_id);
+        $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
+
         if (is_wp_error($attachment_id)) {
-            return $attachment_id;
+            wp_send_json_error('Erro ao criar anexo: ' . $attachment_id->get_error_message());
         }
 
-        // Gerar metadados da imagem
-        $attachment_data = wp_generate_attachment_metadata($attachment_id, $final_filepath);
+        // Gerar metadados do anexo
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+        }
+        
+        $attachment_data = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
         wp_update_attachment_metadata($attachment_id, $attachment_data);
 
-        // Definir como imagem destacada
-        set_post_thumbnail($post_id, $attachment_id);
-
-        // Remover arquivo original se diferente do processado
-        if ($uploaded_file['file'] !== $final_filepath) {
-            @unlink($uploaded_file['file']);
-        }
-
-        return $attachment_id;
+        wp_send_json_success(array(
+            'url' => $uploaded_file['url'],
+            'attachment_id' => $attachment_id
+        ));
     }
+
+
 }
 new Sevo_Orgs_Dashboard_Shortcode_Unified();
