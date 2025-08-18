@@ -1,409 +1,493 @@
 <?php
+/**
+ * CPT Sevo Tipo de Evento - Nova versão usando tabelas customizadas
+ * Esta versão substitui o sistema de CPT do WordPress por tabelas customizadas
+ */
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-/**
- * Classe para o Custom Post Type: Tipos de Eventos.
- * O post type original 'sevo-eventos' foi refatorado para 'sevo-tipo-evento'.
- */
-class Sevo_Tipo_Evento_CPT {
-
-    private $post_type = SEVO_TIPO_EVENTO_POST_TYPE;
-
+class Sevo_Tipo_Evento_CPT_New {
+    
+    private $model;
+    private $org_model;
+    
     public function __construct() {
-        add_action('init', array($this, 'register_post_type'));
-        add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
-        add_action('save_post', array($this, 'save_post_meta'));
+        $this->model = new Sevo_Tipo_Evento_Model();
+        $this->org_model = new Sevo_Organizacao_Model();
         
-        // Adicionar colunas personalizadas na listagem do admin
-        add_filter('manage_' . $this->post_type . '_posts_columns', array($this, 'add_custom_columns'));
-        add_action('manage_' . $this->post_type . '_posts_custom_column', array($this, 'display_custom_columns'), 10, 2);
+        // Hooks para o admin
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('wp_ajax_sevo_create_tipo_evento', array($this, 'ajax_create_tipo_evento'));
+        add_action('wp_ajax_sevo_update_tipo_evento', array($this, 'ajax_update_tipo_evento'));
+        add_action('wp_ajax_sevo_delete_tipo_evento', array($this, 'ajax_delete_tipo_evento'));
+        add_action('wp_ajax_sevo_get_tipo_evento', array($this, 'ajax_get_tipo_evento'));
+        add_action('wp_ajax_sevo_list_tipos_evento', array($this, 'ajax_list_tipos_evento'));
+        add_action('wp_ajax_sevo_get_organizacoes_select', array($this, 'ajax_get_organizacoes_select'));
+        
+        // Enqueue scripts para admin
+        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
     }
-
-    public function register_post_type() {
-        $labels = array(
-            'name'               => 'Tipos de Eventos',
-            'singular_name'      => 'Tipo de Evento',
-            'menu_name'          => 'Tipos de Eventos',
-            'add_new'           => 'Adicionar Novo',
-            'add_new_item'      => 'Adicionar Novo Tipo de Evento',
-            'edit_item'         => 'Editar Tipo de Evento',
-            'new_item'          => 'Novo Tipo de Evento',
-            'view_item'         => 'Ver Tipo de Evento',
-            'search_items'      => 'Buscar Tipos de Eventos',
-            'not_found'         => 'Nenhum tipo de evento encontrado',
-            'not_found_in_trash'=> 'Nenhum tipo de evento encontrado na lixeira'
-        );
-
-        $args = array(
-            'labels'              => $labels,
-            'public'              => true,
-            'publicly_queryable'  => true,
-            'show_ui'             => true,
-            'show_in_menu'        => 'sevo-eventos',
-            'show_in_admin_bar'   => true,
-            'show_in_nav_menus'   => true,
-            'query_var'           => true,
-            'rewrite'             => array('slug' => 'tipos-de-evento'),
-            'capability_type'     => 'post',
-            'map_meta_cap'        => true,
-            'has_archive'         => true,
-            'hierarchical'        => false,
-            'supports'            => array('title', 'editor', 'thumbnail'),
-            'menu_icon'           => 'dashicons-forms' // Ícone alterado para diferenciar
-        );
-
-        register_post_type($this->post_type, $args);
-    }
-
-    public function add_meta_boxes() {
-        add_meta_box(
-            'sevo_tipo_evento_details',
-            'Detalhes do Tipo de Evento',
-            array($this, 'render_meta_box'),
-            $this->post_type,
-            'normal',
-            'high'
+    
+    /**
+     * Adiciona menu no admin
+     */
+    public function add_admin_menu() {
+        add_submenu_page(
+            'sevo-eventos',
+            __('Tipos de Evento', 'sevo-eventos'),
+            __('Tipos de Evento', 'sevo-eventos'),
+            'manage_options',
+            'sevo-tipos-evento',
+            array($this, 'admin_page')
         );
     }
-
-    public function render_meta_box($post) {
-        wp_nonce_field('sevo_tipo_evento_meta_box', 'sevo_tipo_evento_meta_box_nonce');
-
-        // Recuperar valores salvos com as novas chaves
-        $organizacao_id = get_post_meta($post->ID, '_sevo_tipo_evento_organizacao_id', true);
-        $autor_id = get_post_meta($post->ID, '_sevo_tipo_evento_autor_id', true);
-        $max_vagas = get_post_meta($post->ID, '_sevo_tipo_evento_max_vagas', true);
-        $status = get_post_meta($post->ID, '_sevo_tipo_evento_status', true);
-        $tipo_participacao = get_post_meta($post->ID, '_sevo_tipo_evento_participacao', true);
-
-        // Valores padrão
-        $status = $status ?: 'ativo';
-
-        // Buscar organizações
-        $organizacoes = get_posts(array(
-            'post_type' => SEVO_ORG_POST_TYPE,
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ));
-
-        // Buscar usuários com roles específicas
-        $users = get_users(array(
-            'role__in' => array('administrator', 'editor', 'author'),
-            'orderby' => 'display_name',
-            'order' => 'ASC'
-        ));
-
-        // Obter o usuário atual
-        $current_user_id = get_current_user_id();
+    
+    /**
+     * Página de administração dos tipos de evento
+     */
+    public function admin_page() {
         ?>
-        <table class="form-table">
-            <tr>
-                <th><label for="sevo_tipo_evento_organizacao_id">Organização</label></th>
-                <td>
-                    <select id="sevo_tipo_evento_organizacao_id" name="sevo_tipo_evento_organizacao_id" required>
-                        <option value="">Selecione uma organização</option>
-                        <?php foreach ($organizacoes as $org) : ?>
-                            <option value="<?php echo esc_attr($org->ID); ?>" 
-                                    <?php selected($organizacao_id, $org->ID); ?>>
-                                <?php echo esc_html($org->post_title); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="sevo_tipo_evento_autor_id">Autor</label></th>
-                <td>
-                    <select id="sevo_tipo_evento_autor_id" name="sevo_tipo_evento_autor_id" required>
-                        <option value="">Selecione um autor</option>
-                        <?php foreach ($users as $user) : ?>
-                            <option value="<?php echo esc_attr($user->ID); ?>" 
-                                    <?php selected($autor_id ? $autor_id : $current_user_id, $user->ID); ?>>
-                                <?php echo esc_html($user->display_name); ?> 
-                                (<?php echo esc_html(implode(', ', $user->roles)); ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="sevo_tipo_evento_max_vagas">Número Máximo de Vagas</label></th>
-                <td>
-                    <input type="number" id="sevo_tipo_evento_max_vagas" name="sevo_tipo_evento_max_vagas" 
-                           value="<?php echo esc_attr($max_vagas); ?>" min="1" step="1" required>
-                    <p class="description">Defina o número máximo de vagas disponíveis para este tipo de evento. Os eventos criados a partir deste tipo usarão este valor como base.</p>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="sevo_tipo_evento_status">Status</label></th>
-                <td>
-                    <select id="sevo_tipo_evento_status" name="sevo_tipo_evento_status" required>
-                        <option value="ativo" <?php selected($status, 'ativo'); ?>>Ativo</option>
-                        <option value="inativo" <?php selected($status, 'inativo'); ?>>Inativo</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="sevo_tipo_evento_participacao">Tipo de Participação</label></th>
-                <td>
-                    <select id="sevo_tipo_evento_participacao" name="sevo_tipo_evento_participacao" required>
-                        <option value="individual" <?php selected($tipo_participacao, 'individual'); ?>>Individual</option>
-                        <option value="grupo" <?php selected($tipo_participacao, 'grupo'); ?>>Grupo</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
+        <div class="wrap">
+            <h1><?php _e('Tipos de Evento', 'sevo-eventos'); ?>
+                <button type="button" class="page-title-action" id="sevo-add-tipo-btn">
+                    <?php _e('Adicionar Novo', 'sevo-eventos'); ?>
+                </button>
+            </h1>
+            
+            <div id="sevo-tipo-list-container">
+                <!-- Lista será carregada via AJAX -->
+            </div>
+            
+            <!-- Modal para criar/editar tipo de evento -->
+            <div id="sevo-tipo-modal" class="sevo-modal" style="display: none;">
+                <div class="sevo-modal-content">
+                    <div class="sevo-modal-header">
+                        <h2 id="sevo-tipo-modal-title"><?php _e('Novo Tipo de Evento', 'sevo-eventos'); ?></h2>
+                        <span class="sevo-modal-close">&times;</span>
+                    </div>
+                    <div class="sevo-modal-body">
+                        <form id="sevo-tipo-form">
+                            <input type="hidden" id="tipo-id" name="id" value="">
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-nome"><?php _e('Nome:', 'sevo-eventos'); ?></label>
+                                <input type="text" id="tipo-nome" name="nome" required>
+                            </div>
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-descricao"><?php _e('Descrição:', 'sevo-eventos'); ?></label>
+                                <textarea id="tipo-descricao" name="descricao" rows="4"></textarea>
+                            </div>
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-organizacao-id"><?php _e('Organização:', 'sevo-eventos'); ?></label>
+                                <select id="tipo-organizacao-id" name="organizacao_id" required>
+                                    <option value=""><?php _e('Selecione uma organização', 'sevo-eventos'); ?></option>
+                                    <!-- Opções carregadas via AJAX -->
+                                </select>
+                            </div>
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-autor-id"><?php _e('Autor:', 'sevo-eventos'); ?></label>
+                                <select id="tipo-autor-id" name="autor_id" required>
+                                    <option value=""><?php _e('Selecione um autor', 'sevo-eventos'); ?></option>
+                                    <?php
+                                    $users = get_users(array(
+                                        'role__in' => array('administrator', 'editor', 'author'),
+                                        'orderby' => 'display_name',
+                                        'order' => 'ASC'
+                                    ));
+                                    foreach ($users as $user) {
+                                        echo '<option value="' . esc_attr($user->ID) . '">' . esc_html($user->display_name) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-vagas-max"><?php _e('Vagas Máximas:', 'sevo-eventos'); ?></label>
+                                <input type="number" id="tipo-vagas-max" name="vagas_max" min="1" value="50">
+                            </div>
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-participacao"><?php _e('Tipo de Participação:', 'sevo-eventos'); ?></label>
+                                <select id="tipo-participacao" name="tipo_participacao">
+                                    <option value="presencial"><?php _e('Presencial', 'sevo-eventos'); ?></option>
+                                    <option value="online"><?php _e('Online', 'sevo-eventos'); ?></option>
+                                    <option value="hibrido"><?php _e('Híbrido', 'sevo-eventos'); ?></option>
+                                </select>
+                            </div>
+                            
+                            <div class="sevo-form-group">
+                                <label for="tipo-status"><?php _e('Status:', 'sevo-eventos'); ?></label>
+                                <select id="tipo-status" name="status">
+                                    <option value="ativo"><?php _e('Ativo', 'sevo-eventos'); ?></option>
+                                    <option value="inativo"><?php _e('Inativo', 'sevo-eventos'); ?></option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="sevo-modal-footer">
+                        <button type="button" class="button button-secondary" id="sevo-tipo-cancel"><?php _e('Cancelar', 'sevo-eventos'); ?></button>
+                        <button type="button" class="button button-primary" id="sevo-tipo-save"><?php _e('Salvar', 'sevo-eventos'); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+        .sevo-modal {
+            position: fixed;
+            z-index: 100000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .sevo-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 4px;
+        }
+        
+        .sevo-modal-header {
+            padding: 15px 20px;
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sevo-modal-header h2 {
+            margin: 0;
+        }
+        
+        .sevo-modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sevo-modal-close:hover {
+            color: black;
+        }
+        
+        .sevo-modal-body {
+            padding: 20px;
+        }
+        
+        .sevo-modal-footer {
+            padding: 15px 20px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ddd;
+            text-align: right;
+        }
+        
+        .sevo-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .sevo-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .sevo-form-group input,
+        .sevo-form-group select,
+        .sevo-form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .sevo-tipo-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .sevo-tipo-table th,
+        .sevo-tipo-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .sevo-tipo-table th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+        
+        .sevo-tipo-actions {
+            white-space: nowrap;
+        }
+        
+        .sevo-tipo-actions button {
+            margin-right: 5px;
+        }
+        
+        .status-ativo {
+            color: #46b450;
+            font-weight: bold;
+        }
+        
+        .status-inativo {
+            color: #dc3232;
+            font-weight: bold;
+        }
+        </style>
         <?php
     }
-
-    public function save_post_meta($post_id) {
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
-
-        if (!isset($_POST['sevo_tipo_evento_meta_box_nonce']) || !wp_verify_nonce($_POST['sevo_tipo_evento_meta_box_nonce'], 'sevo_tipo_evento_meta_box')) {
-            return;
-        }
-
-        if (!current_user_can('edit_post', $post_id)) {
-            return;
-        }
-
-        if (get_post_type($post_id) !== $this->post_type) {
-            return;
-        }
-
-        // Salvar os campos com as novas chaves
-        if (isset($_POST['sevo_tipo_evento_organizacao_id'])) {
-            $organizacao_id = absint($_POST['sevo_tipo_evento_organizacao_id']);
-            update_post_meta($post_id, '_sevo_tipo_evento_organizacao_id', $organizacao_id);
-        }
-
-        if (isset($_POST['sevo_tipo_evento_autor_id'])) {
-            $autor_id = absint($_POST['sevo_tipo_evento_autor_id']);
-            update_post_meta($post_id, '_sevo_tipo_evento_autor_id', $autor_id);
-        }
-
-        if (isset($_POST['sevo_tipo_evento_max_vagas'])) {
-            $max_vagas = absint($_POST['sevo_tipo_evento_max_vagas']);
-            if ($max_vagas < 1) {
-                $max_vagas = 1;
-            }
-            update_post_meta($post_id, '_sevo_tipo_evento_max_vagas', $max_vagas);
-        }
-
-        if (isset($_POST['sevo_tipo_evento_status'])) {
-            $status = sanitize_text_field($_POST['sevo_tipo_evento_status']);
-            if (in_array($status, array('ativo', 'inativo'))) {
-                update_post_meta($post_id, '_sevo_tipo_evento_status', $status);
-            }
-        }
-
-        if (isset($_POST['sevo_tipo_evento_participacao'])) {
-            $tipo_participacao = sanitize_text_field($_POST['sevo_tipo_evento_participacao']);
-            if (in_array($tipo_participacao, array('individual', 'grupo'))) {
-                update_post_meta($post_id, '_sevo_tipo_evento_participacao', $tipo_participacao);
-            }
-        }
-
-        // Integração com fórum - criar/atualizar fórum para o tipo de evento
-        $this->handle_forum_integration($post_id);
-    }
-
+    
     /**
-     * Gerencia a integração com o fórum para tipos de evento.
+     * Enqueue scripts para admin
      */
-    private function handle_forum_integration($post_id) {
-        $post = get_post($post_id);
-        if (!$post || $post->post_status !== 'publish') {
+    public function admin_enqueue_scripts($hook) {
+        if ($hook !== 'sevo-eventos_page_sevo-tipos-evento') {
             return;
         }
-
-        // Verificar se a organização tem categoria de fórum
-        $organizacao_id = get_post_meta($post_id, '_sevo_tipo_evento_organizacao_id', true);
-        if (!$organizacao_id) {
-            return;
-        }
-
-        // Garantir que a organização tenha uma categoria de fórum
-        $org_post = get_post($organizacao_id);
-        if ($org_post) {
-            $this->ensure_organization_forum_category($organizacao_id, $org_post);
-        }
-
-        // Criar/atualizar fórum para este tipo de evento
-        $this->create_or_update_event_type_forum($post_id, $post);
-    }
-
-    /**
-     * Garante que a organização tenha uma categoria de fórum.
-     */
-    private function ensure_organization_forum_category($org_id, $org_post) {
-        if (!class_exists('AsgarosForum')) {
-            return;
-        }
-
-        global $asgarosforum;
-        $existing_category_id = get_post_meta($org_id, '_sevo_forum_category_id', true);
-        $organization_name = $org_post->post_title;
         
-        // Se já existe uma categoria, verificar se precisa atualizar o nome
-        if ($existing_category_id) {
-            $category = get_term($existing_category_id, 'asgarosforum-category');
-            if ($category && !is_wp_error($category)) {
-                if ($category && is_object($category) && property_exists($category, 'name')) {
-                    // Verificar se o nome mudou
-                    if ($category->name !== $organization_name) {
-                        // Atualizar o nome da categoria
-                        wp_update_term($existing_category_id, 'asgarosforum-category', array(
-                            'name' => $organization_name,
-                            'description' => 'Categoria para discussões da organização: ' . $organization_name,
-                            'slug' => sanitize_title($organization_name)
-                        ));
-                    }
-                    return; // Categoria existe e foi atualizada se necessário
-                } else {
-                    // Categoria não existe mais, remover meta
-                    delete_post_meta($org_id, '_sevo_forum_category_id');
-                }
-            }
-        }
-
-        // Verificar se já existe uma categoria com este nome (evitar duplicatas)
-        $existing_term = get_term_by('name', $organization_name, 'asgarosforum-category');
-        if ($existing_term) {
-            update_post_meta($org_id, '_sevo_forum_category_id', $existing_term->term_id);
-            return;
-        }
-
-        // Criar nova categoria
-        $category_id = wp_insert_term(
-            $organization_name,
-            'asgarosforum-category',
-            array(
-                'description' => 'Categoria para discussões da organização: ' . $organization_name,
-                'slug' => sanitize_title($organization_name)
-            )
+        wp_enqueue_script(
+            'sevo-tipo-admin',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-tipos-evento.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
         );
-
-        if (!is_wp_error($category_id)) {
-            update_post_meta($org_id, '_sevo_forum_category_id', $category_id['term_id']);
-        }
-    }
-
-    /**
-     * Cria ou atualiza fórum para o tipo de evento.
-     */
-    private function create_or_update_event_type_forum($post_id, $post) {
-        $organizacao_id = get_post_meta($post_id, '_sevo_tipo_evento_organizacao_id', true);
-        if (!$organizacao_id) {
-            return;
-        }
-
-        $category_id = get_post_meta($organizacao_id, '_sevo_forum_category_id', true);
-        if (!$category_id) {
-            return;
-        }
-
-        global $asgarosforum;
-        $existing_forum_id = get_post_meta($post_id, '_sevo_forum_forum_id', true);
-        $event_type_name = $post->post_title;
         
-        // Se já existe um fórum, verificar se precisa atualizar o nome
-        if ($existing_forum_id && class_exists('AsgarosForum')) {
-            if ($asgarosforum && method_exists($asgarosforum->content, 'get_forum')) {
-                $forum = $asgarosforum->content->get_forum($existing_forum_id);
-                if ($forum && is_object($forum) && property_exists($forum, 'name')) {
-                    // Verificar se o nome mudou
-                    if ($forum->name !== $event_type_name) {
-                        // Atualizar o nome do fórum usando consulta SQL direta
-                        $asgarosforum->db->update(
-                            $asgarosforum->tables->forums,
-                            array(
-                                'name'         => $event_type_name,
-                                'description'  => 'Discussões sobre o tipo de evento: ' . $event_type_name,
-                                'icon'         => 'fas fa-comments',
-                                'sort'         => 1,
-                                'forum_status' => 'normal',
-                                'parent_id'    => $category_id,
-                                'parent_forum' => 0,
-                            ),
-                            array('id' => $existing_forum_id),
-                            array('%s', '%s', '%s', '%d', '%s', '%d', '%d'),
-                            array('%d')
-                        );
-                    }
-                    return; // Fórum existe e foi atualizado se necessário
-                } else {
-                    // Fórum não existe mais, remover meta
-                    delete_post_meta($post_id, '_sevo_forum_forum_id');
-                }
-            }
+        wp_localize_script('sevo-tipo-admin', 'sevoTipoAdmin', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sevo_tipo_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Tem certeza que deseja excluir este tipo de evento?', 'sevo-eventos'),
+                'error' => __('Erro ao processar solicitação.', 'sevo-eventos'),
+                'success_create' => __('Tipo de evento criado com sucesso!', 'sevo-eventos'),
+                'success_update' => __('Tipo de evento atualizado com sucesso!', 'sevo-eventos'),
+                'success_delete' => __('Tipo de evento excluído com sucesso!', 'sevo-eventos')
+            )
+        ));
+    }
+    
+    /**
+     * AJAX: Criar tipo de evento
+     */
+    public function ajax_create_tipo_evento() {
+        check_ajax_referer('sevo_tipo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
         }
-
-        // Criar novo fórum usando a instância do AsgarosForum
-        $forum_id = 0;
-        if (class_exists('AsgarosForum')) {
-            if ($asgarosforum && method_exists($asgarosforum->content, 'insert_forum')) {
-                $forum_id = $asgarosforum->content->insert_forum(
-                    $category_id, // category_id
-                    $event_type_name,
-                    'Discussões sobre o tipo de evento: ' . $event_type_name,
-                    0, // parent_forum
-                    'fas fa-comments', // icon
-                    1, // order
-                    'normal' // status
-                );
-            }
-        }
-
-        if ($forum_id) {
-            update_post_meta($post_id, '_sevo_forum_forum_id', $forum_id);
+        
+        $data = array(
+            'nome' => sanitize_text_field($_POST['nome']),
+            'descricao' => sanitize_textarea_field($_POST['descricao']),
+            'organizacao_id' => absint($_POST['organizacao_id']),
+            'autor_id' => absint($_POST['autor_id']),
+            'vagas_max' => absint($_POST['vagas_max']),
+            'tipo_participacao' => sanitize_text_field($_POST['tipo_participacao']),
+            'status' => sanitize_text_field($_POST['status'])
+        );
+        
+        $result = $this->model->create($data);
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => __('Tipo de evento criado com sucesso!', 'sevo-eventos'),
+                'id' => $result
+            ));
+        } else {
+            wp_send_json_error(__('Erro ao criar tipo de evento.', 'sevo-eventos'));
         }
     }
-
-    public function add_custom_columns($columns) {
-        $new_columns = array();
-        foreach ($columns as $key => $value) {
-            $new_columns[$key] = $value;
-            if ($key === 'title') {
-                $new_columns['organizacao'] = 'Organização';
-                $new_columns['autor'] = 'Autor';
-                $new_columns['max_vagas'] = 'Vagas';
-                $new_columns['status'] = 'Status';
-                $new_columns['tipo_participacao'] = 'Tipo de Participação';
-            }
+    
+    /**
+     * AJAX: Atualizar tipo de evento
+     */
+    public function ajax_update_tipo_evento() {
+        check_ajax_referer('sevo_tipo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
         }
-        return $new_columns;
+        
+        $id = absint($_POST['id']);
+        $data = array(
+            'nome' => sanitize_text_field($_POST['nome']),
+            'descricao' => sanitize_textarea_field($_POST['descricao']),
+            'organizacao_id' => absint($_POST['organizacao_id']),
+            'autor_id' => absint($_POST['autor_id']),
+            'vagas_max' => absint($_POST['vagas_max']),
+            'tipo_participacao' => sanitize_text_field($_POST['tipo_participacao']),
+            'status' => sanitize_text_field($_POST['status'])
+        );
+        
+        $result = $this->model->update($id, $data);
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => __('Tipo de evento atualizado com sucesso!', 'sevo-eventos')
+            ));
+        } else {
+            wp_send_json_error(__('Erro ao atualizar tipo de evento.', 'sevo-eventos'));
+        }
     }
-
-    public function display_custom_columns($column, $post_id) {
-        switch ($column) {
-            case 'organizacao':
-                $organizacao_id = get_post_meta($post_id, '_sevo_tipo_evento_organizacao_id', true);
-                $organizacao = get_post($organizacao_id);
-                echo $organizacao ? esc_html($organizacao->post_title) : '-';
-                break;
-            case 'autor':
-                $autor_id = get_post_meta($post_id, '_sevo_tipo_evento_autor_id', true);
-                $autor = get_user_by('id', $autor_id);
-                echo $autor ? esc_html($autor->display_name) : '-';
-                break;
-            case 'max_vagas':
-                $max_vagas = get_post_meta($post_id, '_sevo_tipo_evento_max_vagas', true);
-                echo $max_vagas ? esc_html($max_vagas) : '0';
-                break;
-            case 'status':
-                $status = get_post_meta($post_id, '_sevo_tipo_evento_status', true);
-                echo esc_html(ucfirst($status ?: 'ativo'));
-                break;
-            case 'tipo_participacao':
-                $tipo_participacao = get_post_meta($post_id, '_sevo_tipo_evento_participacao', true);
-                echo $tipo_participacao ? esc_html(ucfirst($tipo_participacao)) : '-';
-                break;
+    
+    /**
+     * AJAX: Excluir tipo de evento
+     */
+    public function ajax_delete_tipo_evento() {
+        check_ajax_referer('sevo_tipo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
         }
+        
+        $id = absint($_POST['id']);
+        $result = $this->model->delete($id);
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => __('Tipo de evento excluído com sucesso!', 'sevo-eventos')
+            ));
+        } else {
+            wp_send_json_error(__('Erro ao excluir tipo de evento.', 'sevo-eventos'));
+        }
+    }
+    
+    /**
+     * AJAX: Obter tipo de evento
+     */
+    public function ajax_get_tipo_evento() {
+        check_ajax_referer('sevo_tipo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $id = absint($_POST['id']);
+        $tipo = $this->model->find($id);
+        
+        if ($tipo) {
+            wp_send_json_success($tipo);
+        } else {
+            wp_send_json_error(__('Tipo de evento não encontrado.', 'sevo-eventos'));
+        }
+    }
+    
+    /**
+     * AJAX: Listar tipos de evento
+     */
+    public function ajax_list_tipos_evento() {
+        check_ajax_referer('sevo_tipo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+        $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
+        
+        $tipos = $this->model->get_with_organizacao_paginated($page, $per_page);
+        
+        ob_start();
+        ?>
+        <table class="sevo-tipo-table">
+            <thead>
+                <tr>
+                    <th><?php _e('Nome', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Organização', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Autor', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Vagas Máx.', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Participação', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Status', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Criado em', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Ações', 'sevo-eventos'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($tipos['data'])): ?>
+                    <?php foreach ($tipos['data'] as $tipo): ?>
+                        <tr>
+                            <td><?php echo esc_html($tipo->nome); ?></td>
+                            <td><?php echo esc_html($tipo->organizacao_nome ?: '-'); ?></td>
+                            <td>
+                                <?php 
+                                $autor = get_user_by('id', $tipo->autor_id);
+                                echo $autor ? esc_html($autor->display_name) : '-';
+                                ?>
+                            </td>
+                            <td><?php echo esc_html($tipo->vagas_max); ?></td>
+                            <td><?php echo esc_html(ucfirst($tipo->tipo_participacao)); ?></td>
+                            <td>
+                                <span class="status-<?php echo esc_attr($tipo->status); ?>">
+                                    <?php echo esc_html(ucfirst($tipo->status)); ?>
+                                </span>
+                            </td>
+                            <td><?php echo esc_html(date('d/m/Y H:i', strtotime($tipo->created_at))); ?></td>
+                            <td class="sevo-tipo-actions">
+                                <button type="button" class="button button-small sevo-edit-tipo" data-id="<?php echo esc_attr($tipo->id); ?>">
+                                    <?php _e('Editar', 'sevo-eventos'); ?>
+                                </button>
+                                <button type="button" class="button button-small button-link-delete sevo-delete-tipo" data-id="<?php echo esc_attr($tipo->id); ?>">
+                                    <?php _e('Excluir', 'sevo-eventos'); ?>
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8"><?php _e('Nenhum tipo de evento encontrado.', 'sevo-eventos'); ?></td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+        
+        <?php if ($tipos['total_pages'] > 1): ?>
+            <div class="sevo-pagination">
+                <?php for ($i = 1; $i <= $tipos['total_pages']; $i++): ?>
+                    <button type="button" class="button sevo-page-btn <?php echo $i === $page ? 'button-primary' : ''; ?>" data-page="<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </button>
+                <?php endfor; ?>
+            </div>
+        <?php endif; ?>
+        <?php
+        
+        $html = ob_get_clean();
+        wp_send_json_success(array('html' => $html));
+    }
+    
+    /**
+     * AJAX: Obter organizações para select
+     */
+    public function ajax_get_organizacoes_select() {
+        check_ajax_referer('sevo_tipo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $organizacoes = $this->org_model->get_for_select();
+        
+        ob_start();
+        echo '<option value="">' . __('Selecione uma organização', 'sevo-eventos') . '</option>';
+        foreach ($organizacoes as $org) {
+            echo '<option value="' . esc_attr($org->id) . '">' . esc_html($org->nome) . '</option>';
+        }
+        $html = ob_get_clean();
+        
+        wp_send_json_success(array('html' => $html));
     }
 }

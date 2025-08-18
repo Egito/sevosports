@@ -1,329 +1,441 @@
 <?php
 /**
- * CPT Sevo Organização
+ * CPT Sevo Organização - Nova versão usando tabelas customizadas
+ * Esta versão substitui o sistema de CPT do WordPress por tabelas customizadas
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sevo_Orgs_CPT {
+class Sevo_Orgs_CPT_New {
+    
+    private $model;
+    
     public function __construct() {
-        add_action('init', array($this, 'register_cpt'));
-        add_action('init', array($this, 'register_taxonomy'));
-        add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
-        add_action('save_post', array($this, 'save_meta_boxes'));
+        $this->model = new Sevo_Organizacao_Model();
+        
+        // Manter apenas os hooks necessários para o admin
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('wp_ajax_sevo_create_organizacao', array($this, 'ajax_create_organizacao'));
+        add_action('wp_ajax_sevo_update_organizacao', array($this, 'ajax_update_organizacao'));
+        add_action('wp_ajax_sevo_delete_organizacao', array($this, 'ajax_delete_organizacao'));
+        add_action('wp_ajax_sevo_get_organizacao', array($this, 'ajax_get_organizacao'));
+        add_action('wp_ajax_sevo_list_organizacoes', array($this, 'ajax_list_organizacoes'));
+        
+        // Enqueue scripts para admin
+        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
     }
-
-    private $post_type = SEVO_ORG_POST_TYPE;
-
-    public function register_cpt() {
-        $labels = array(
-            'name'                  => _x('Organizações', 'Post Type General Name', 'sevo-eventos'),
-            'singular_name'         => _x('Organização', 'Post Type Singular Name', 'sevo-eventos'),
-            'menu_name'             => __('Organizações', 'sevo-eventos'),
-            'name_admin_bar'        => __('Organização', 'sevo-eventos'),
-            'archives'              => __('Arquivos de organizações', 'sevo-eventos'),
-            'attributes'            => __('Atributos da organização', 'sevo-eventos'),
-            'parent_item_colon'     => __('Organização pai:', 'sevo-eventos'),
-            'all_items'             => __('Todas as organizações', 'sevo-eventos'),
-            'add_new_item'          => __('Adicionar nova organização', 'sevo-eventos'),
-            'add_new'               => __('Nova organização', 'sevo-eventos'),
-            'new_item'              => __('Nova organização', 'sevo-eventos'),
-            'edit_item'             => __('Editar organização', 'sevo-eventos'),
-            'update_item'           => __('Atualizar organização', 'sevo-eventos'),
-            'view_item'             => __('Ver organização', 'sevo-eventos'),
-            'view_items'            => __('Ver organizações', 'sevo-eventos'),
-            'search_items'          => __('Buscar organizações', 'sevo-eventos'),
-            'not_found'             => __('Não encontrado', 'sevo-eventos'),
-            'not_found_in_trash'    => __('Não encontrado na lixeira', 'sevo-eventos'),
-            'featured_image'        => __('Imagem destacada', 'sevo-eventos'),
-            'set_featured_image'    => __('Definir imagem destacada', 'sevo-eventos'),
-            'remove_featured_image' => __('Remover imagem destacada', 'sevo-eventos'),
-            'use_featured_image'    => __('Usar como imagem destacada', 'sevo-eventos'),
-            'insert_into_item'      => __('Inserir na organização', 'sevo-eventos'),
-            'uploaded_to_this_item' => __('Enviado para esta organização', 'sevo-eventos'),
-            'items_list'            => __('Lista de organizações', 'sevo-eventos'),
-            'items_list_navigation' => __('Navegação da lista de organizações', 'sevo-eventos'),
-            'filter_items_list'     => __('Filtrar lista de organizações', 'sevo-eventos'),
-        );
-
-        $args = array(
-            'label'                 => __('Organização', 'sevo-eventos'),
-            'description'           => __('CPT para Organizações', 'sevo-eventos'),
-            'labels'                => $labels,
-            'supports'              => array('title', 'editor', 'thumbnail'),
-            'public'                => true,
-            'show_ui'               => true,
-            'show_in_menu'          => 'sevo-eventos',
-            'menu_icon'             => 'dashicons-building',
-            'show_in_admin_bar'     => true,
-            'show_in_nav_menus'     => true,
-            'can_export'            => true,
-            'has_archive'           => true,
-            'exclude_from_search'   => false,
-            'publicly_queryable'    => true,
-            'capability_type'       => 'post',
-            'map_meta_cap'        => true,
-        );
-        register_post_type($this->post_type, $args);
-    }
-
-    public function register_taxonomy() {
-        $labels = array(
-            'name'                       => _x('Categorias de Organização', 'taxonomy general name', 'sevo-eventos'),
-            'singular_name'              => _x('Categoria de Organização', 'taxonomy singular name', 'sevo-eventos'),
-            'search_items'               => __('Buscar categorias', 'sevo-eventos'),
-            'all_items'                  => __('Todas as categorias', 'sevo-eventos'),
-            'parent_item'                => __('Categoria pai', 'sevo-eventos'),
-            'parent_item_colon'          => __('Categoria pai:', 'sevo-eventos'),
-            'edit_item'                  => __('Editar categoria', 'sevo-eventos'),
-            'update_item'                => __('Atualizar categoria', 'sevo-eventos'),
-            'add_new_item'               => __('Adicionar nova categoria', 'sevo-eventos'),
-            'new_item_name'              => __('Nome da nova categoria', 'sevo-eventos'),
-            'menu_name'                  => __('Categorias', 'sevo-eventos'),
-        );
-
-        $args = array(
-            'hierarchical'          => true,
-            'labels'                => $labels,
-            'show_ui'               => true,
-            'show_admin_column'     => true,
-            'query_var'             => true,
-            'rewrite'               => array('slug' => 'organizacao-categoria'),
-        );
-        register_taxonomy('sevo_org_categoria', array($this->post_type), $args);
-    }
-
-    public function add_meta_boxes() {
-        add_meta_box(
-            'sevo_org_info',
-            __('Informações da Organização', 'sevo-eventos'),
-            array($this, 'render_org_info_meta_box'),
-            $this->post_type,
-            'normal',
-            'high'
-        );
-
-        add_meta_box(
-            'sevo_org_contato',
-            __('Informações de Contato', 'sevo-eventos'),
-            array($this, 'render_contato_meta_box'),
-            $this->post_type,
-            'side'
-        );
-
-        add_meta_box(
-            'sevo_org_eventos',
-            __('Eventos Relacionados', 'sevo-eventos'),
-            array($this, 'render_eventos_meta_box'),
-            $this->post_type,
-            'normal',
-            'high'
+    
+    /**
+     * Adiciona menu no admin
+     */
+    public function add_admin_menu() {
+        add_submenu_page(
+            'sevo-eventos',
+            __('Organizações', 'sevo-eventos'),
+            __('Organizações', 'sevo-eventos'),
+            'manage_options',
+            'sevo-organizacoes',
+            array($this, 'admin_page')
         );
     }
-
-    public function render_eventos_meta_box($post) {
-        $eventos = get_posts(array(
-            'post_type' => 'sevo_evento',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ));
-
-        $selected_eventos = get_post_meta($post->ID, 'sevo_org_eventos', true);
-        if (!is_array($selected_eventos)) {
-            $selected_eventos = array();
-        }
+    
+    /**
+     * Página de administração das organizações
+     */
+    public function admin_page() {
         ?>
-        <div class="sevo-meta-box">
-            <div class="sevo-meta-field">
-                <label><?php _e('Selecione os eventos:', 'sevo-eventos'); ?></label>
-                <?php foreach ($eventos as $evento) : ?>
-                    <div>
-                        <input type="checkbox"
-                               name="sevo_org_eventos[]"
-                               value="<?php echo $evento->ID; ?>"
-                               <?php checked(in_array($evento->ID, $selected_eventos)); ?>>
-                        <?php echo esc_html($evento->post_title); ?>
+        <div class="wrap">
+            <h1><?php _e('Organizações', 'sevo-eventos'); ?>
+                <button type="button" class="page-title-action" id="sevo-add-org-btn">
+                    <?php _e('Adicionar Nova', 'sevo-eventos'); ?>
+                </button>
+            </h1>
+            
+            <div id="sevo-org-list-container">
+                <!-- Lista será carregada via AJAX -->
+            </div>
+            
+            <!-- Modal para criar/editar organização -->
+            <div id="sevo-org-modal" class="sevo-modal" style="display: none;">
+                <div class="sevo-modal-content">
+                    <div class="sevo-modal-header">
+                        <h2 id="sevo-org-modal-title"><?php _e('Nova Organização', 'sevo-eventos'); ?></h2>
+                        <span class="sevo-modal-close">&times;</span>
                     </div>
-                <?php endforeach; ?>
+                    <?php 
+                    // Incluir o template do modal
+                    $organizacao = null; // Para modo de criação
+                    include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-org-edit.php');
+                    ?>
+                    <div class="sevo-modal-footer">
+                        <button type="button" class="button button-secondary" id="sevo-org-cancel"><?php _e('Cancelar', 'sevo-eventos'); ?></button>
+                        <button type="button" class="button button-primary" id="sevo-org-save"><?php _e('Salvar', 'sevo-eventos'); ?></button>
+                    </div>
+                </div>
             </div>
         </div>
-        <?php
-    }
-
-    public function render_org_info_meta_box($post) {
-        wp_nonce_field('sevo_org_info_nonce', 'sevo_org_info_nonce');
         
-        $cnpj = get_post_meta($post->ID, 'sevo_org_cnpj', true);
-        $endereco = get_post_meta($post->ID, 'sevo_org_endereco', true);
-        $cidade = get_post_meta($post->ID, 'sevo_org_cidade', true);
-        $estado = get_post_meta($post->ID, 'sevo_org_estado', true);
-        $cep = get_post_meta($post->ID, 'sevo_org_cep', true);
-        $status = get_post_meta($post->ID, 'sevo_org_status', true);
-        if (empty($status)) {
-            $status = 'ativo'; // Valor padrão
+        <style>
+        .sevo-modal {
+            position: fixed;
+            z-index: 9999999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
         }
-        ?>
-        <div class="sevo-meta-box">
-            <div class="sevo-meta-field">
-                <label for="sevo_org_cnpj"><?php _e('CNPJ:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_org_cnpj" value="<?php echo esc_attr($cnpj); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_endereco"><?php _e('Endereço:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_org_endereco" value="<?php echo esc_attr($endereco); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_cidade"><?php _e('Cidade:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_org_cidade" value="<?php echo esc_attr($cidade); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_estado"><?php _e('Estado:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_org_estado" value="<?php echo esc_attr($estado); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_cep"><?php _e('CEP:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_org_cep" value="<?php echo esc_attr($cep); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_status"><?php _e('Status:', 'sevo-eventos'); ?></label>
-                <select name="sevo_org_status" id="sevo_org_status">
-                    <option value="ativo" <?php selected($status, 'ativo'); ?>><?php _e('Ativo', 'sevo-eventos'); ?></option>
-                    <option value="inativo" <?php selected($status, 'inativo'); ?>><?php _e('Inativo', 'sevo-eventos'); ?></option>
-                </select>
-            </div>
-        </div>
-        <?php
-    }
-
-    public function render_contato_meta_box($post) {
-        $telefone = get_post_meta($post->ID, 'sevo_org_telefone', true);
-        $email = get_post_meta($post->ID, 'sevo_org_email', true);
-        $site = get_post_meta($post->ID, 'sevo_org_site', true);
-        ?>
-        <div class="sevo-meta-box">
-            <div class="sevo-meta-field">
-                <label for="sevo_org_telefone"><?php _e('Telefone:', 'sevo-eventos'); ?></label>
-                <input type="text" name="sevo_org_telefone" value="<?php echo esc_attr($telefone); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_email"><?php _e('Email:', 'sevo-eventos'); ?></label>
-                <input type="email" name="sevo_org_email" value="<?php echo esc_attr($email); ?>">
-            </div>
-            
-            <div class="sevo-meta-field">
-                <label for="sevo_org_site"><?php _e('Site:', 'sevo-eventos'); ?></label>
-                <input type="url" name="sevo_org_site" value="<?php echo esc_attr($site); ?>">
-            </div>
-        </div>
-        <?php
-    }
-
-    public function save_meta_boxes($post_id) {
-        if (!isset($_POST['sevo_org_info_nonce']) || 
-            !wp_verify_nonce($_POST['sevo_org_info_nonce'], 'sevo_org_info_nonce')) {
-            return;
-        }
-
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-        if (!current_user_can('edit_post', $post_id)) return;
-
-        $fields = array(
-            'sevo_org_cnpj',
-            'sevo_org_endereco',
-            'sevo_org_cidade',
-            'sevo_org_estado',
-            'sevo_org_cep',
-            'sevo_org_telefone',
-            'sevo_org_email',
-            'sevo_org_site',
-            'sevo_org_status'
-        );
-
-        foreach ($fields as $field) {
-            if (isset($_POST[$field])) {
-                update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
-            }
-        }
-
-        // Integração com fórum - criar/atualizar categoria para a organização
-        $this->handle_forum_integration($post_id);
-    }
-
-    /**
-     * Gerencia a integração com o fórum para organizações.
-     */
-    private function handle_forum_integration($post_id) {
-        $post = get_post($post_id);
-        if (!$post || $post->post_status !== 'publish') {
-            return;
-        }
-
-        // Criar/atualizar categoria de fórum para esta organização
-        $this->create_or_update_organization_forum_category($post_id, $post);
-    }
-
-    /**
-     * Cria ou atualiza categoria de fórum para a organização.
-     */
-    private function create_or_update_organization_forum_category($post_id, $post) {
-        if (!class_exists('AsgarosForum')) {
-            return;
-        }
-
-        global $asgarosforum;
-        $existing_category_id = get_post_meta($post_id, '_sevo_forum_category_id', true);
-        $organization_name = $post->post_title;
         
-        // Se já existe uma categoria, verificar se precisa atualizar o nome
-        if ($existing_category_id) {
-            $category = get_term($existing_category_id, 'asgarosforum-category');
-            if ($category && !is_wp_error($category)) {
-                if ($category && is_object($category) && property_exists($category, 'name')) {
-                    // Verificar se o nome mudou
-                    if ($category->name !== $organization_name) {
-                        // Atualizar o nome da categoria
-                        wp_update_term($existing_category_id, 'asgarosforum-category', array(
-                            'name' => $organization_name,
-                            'description' => 'Categoria para discussões da organização: ' . $organization_name,
-                            'slug' => sanitize_title($organization_name)
-                        ));
-                    }
-                    return; // Categoria existe e foi atualizada se necessário
-                } else {
-                    // Categoria não existe mais, remover meta
-                    delete_post_meta($post_id, '_sevo_forum_category_id');
-                }
-            }
+        .sevo-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 4px;
         }
-
-        // Verificar se já existe uma categoria com este nome (evitar duplicatas)
-        $existing_term = get_term_by('name', $organization_name, 'asgarosforum-category');
-        if ($existing_term) {
-            update_post_meta($post_id, '_sevo_forum_category_id', $existing_term->term_id);
+        
+        .sevo-modal-header {
+            padding: 15px 20px;
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sevo-modal-header h2 {
+            margin: 0;
+        }
+        
+        .sevo-modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sevo-modal-close:hover {
+            color: black;
+        }
+        
+        .sevo-modal-body {
+            padding: 20px;
+        }
+        
+        .sevo-modal-footer {
+            padding: 15px 20px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ddd;
+            text-align: right;
+        }
+        
+        .sevo-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .sevo-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .sevo-form-group input,
+        .sevo-form-group select,
+        .sevo-form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .sevo-org-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .sevo-org-table th,
+        .sevo-org-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .sevo-org-table th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+        
+        .sevo-org-actions {
+            white-space: nowrap;
+        }
+        
+        .sevo-org-actions button {
+            margin-right: 5px;
+        }
+        </style>
+        <?php
+    }
+    
+    /**
+     * Enqueue scripts para admin
+     */
+    public function admin_enqueue_scripts($hook) {
+        // Verificar se estamos na página de organizações
+        if (strpos($hook, 'sevo-organizacoes') === false) {
             return;
         }
-
-        // Criar nova categoria
-        $category_id = wp_insert_term(
-            $organization_name,
-            'asgarosforum-category',
-            array(
-                'description' => 'Categoria para discussões da organização: ' . $organization_name,
-                'slug' => sanitize_title($organization_name)
-            )
-        );
-
-        if (!is_wp_error($category_id)) {
-            update_post_meta($post_id, '_sevo_forum_category_id', $category_id['term_id']);
+        
+        // Script de organizações é carregado pelo shortcode
+        // Removido daqui para evitar conflitos de carregamento duplo
+    }
+    
+    /**
+     * AJAX: Criar organização
+     */
+    public function ajax_create_organizacao() {
+        check_ajax_referer('sevo_org_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
         }
+        
+        $data = array(
+            'titulo' => sanitize_text_field($_POST['titulo']),
+            'descricao' => sanitize_textarea_field($_POST['descricao']),
+            'autor_id' => absint($_POST['autor_id']),
+            'status' => sanitize_text_field($_POST['status']),
+            'imagem_url' => $this->process_image_url($_POST['imagem_url'])
+        );
+        
+        $result = $this->model->create_validated($data);
+        
+        if ($result['success']) {
+            wp_send_json_success(array(
+                'message' => __('Organização criada com sucesso!', 'sevo-eventos'),
+                'id' => $result['id']
+            ));
+        } else {
+            wp_send_json_error(implode('. ', $result['errors']));
+        }
+    }
+    
+    /**
+     * AJAX: Atualizar organização
+     */
+    public function ajax_update_organizacao() {
+        check_ajax_referer('sevo_org_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $id = absint($_POST['org_id']);
+        $data = array(
+            'titulo' => sanitize_text_field($_POST['titulo']),
+            'descricao' => sanitize_textarea_field($_POST['descricao']),
+            'autor_id' => absint($_POST['autor_id']),
+            'status' => sanitize_text_field($_POST['status']),
+            'imagem_url' => $this->process_image_url($_POST['imagem_url'])
+        );
+        
+        $result = $this->model->update_validated($id, $data);
+        
+        if ($result['success']) {
+            wp_send_json_success(array(
+                'message' => __('Organização atualizada com sucesso!', 'sevo-eventos')
+            ));
+        } else {
+            wp_send_json_error(implode('. ', $result['errors']));
+        }
+    }
+    
+    /**
+     * Processa URL da imagem e redimensiona para 300x300
+     */
+    private function process_image_url($image_url) {
+        if (empty($image_url)) {
+            return '';
+        }
+        
+        $image_url = esc_url_raw($image_url);
+        
+        // Se for uma URL externa, tentamos fazer o download e redimensionar
+        if (filter_var($image_url, FILTER_VALIDATE_URL)) {
+            return $this->resize_external_image($image_url);
+        }
+        
+        return $image_url;
+    }
+    
+    /**
+     * Redimensiona imagem externa para 300x300
+     */
+    private function resize_external_image($image_url) {
+        // Verifica se a função de manipulação de imagem está disponível
+        if (!function_exists('wp_get_image_editor')) {
+            return $image_url; // Retorna URL original se não puder processar
+        }
+        
+        // Faz o download da imagem
+        $temp_file = download_url($image_url);
+        
+        if (is_wp_error($temp_file)) {
+            return $image_url; // Retorna URL original se não conseguir baixar
+        }
+        
+        // Carrega o editor de imagem
+        $image_editor = wp_get_image_editor($temp_file);
+        
+        if (is_wp_error($image_editor)) {
+            unlink($temp_file);
+            return $image_url;
+        }
+        
+        // Redimensiona para 300x300 (crop)
+        $image_editor->resize(300, 300, true);
+        
+        // Gera nome único para o arquivo
+        $upload_dir = wp_upload_dir();
+        $filename = 'org-' . uniqid() . '.jpg';
+        $new_file_path = $upload_dir['path'] . '/' . $filename;
+        
+        // Salva a imagem redimensionada
+        $saved = $image_editor->save($new_file_path, 'image/jpeg');
+        
+        // Remove arquivo temporário
+        unlink($temp_file);
+        
+        if (is_wp_error($saved)) {
+            return $image_url;
+        }
+        
+        // Retorna a URL da nova imagem
+        return $upload_dir['url'] . '/' . $filename;
+    }
+    
+    /**
+     * AJAX: Deletar organização
+     */
+    public function ajax_delete_organizacao() {
+        check_ajax_referer('sevo_org_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $id = absint($_POST['id']);
+        $result = $this->model->delete($id);
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => __('Organização excluída com sucesso!', 'sevo-eventos')
+            ));
+        } else {
+            wp_send_json_error(__('Erro ao excluir organização.', 'sevo-eventos'));
+        }
+    }
+    
+    /**
+     * AJAX: Obter organização
+     */
+    public function ajax_get_organizacao() {
+        check_ajax_referer('sevo_org_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $id = absint($_POST['id']);
+        $organizacao = $this->model->find($id);
+        
+        if ($organizacao) {
+            wp_send_json_success($organizacao);
+        } else {
+            wp_send_json_error(__('Organização não encontrada.', 'sevo-eventos'));
+        }
+    }
+    
+    /**
+     * AJAX: Listar organizações
+     */
+    public function ajax_list_organizacoes() {
+        check_ajax_referer('sevo_org_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+        
+        $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+        $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
+        
+        $organizacoes = $this->model->paginate($page, $per_page);
+        
+        ob_start();
+        ?>
+        <table class="sevo-org-table">
+            <thead>
+                <tr>
+                    <th><?php _e('Nome', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Autor', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Cidade', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Status', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Criado em', 'sevo-eventos'); ?></th>
+                    <th><?php _e('Ações', 'sevo-eventos'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($organizacoes['data'])): ?>
+                    <?php foreach ($organizacoes['data'] as $org): ?>
+                        <tr>
+                            <td><?php echo esc_html($org->nome); ?></td>
+                            <td>
+                                <?php 
+                                $autor = get_user_by('id', $org->autor_id);
+                                echo $autor ? esc_html($autor->display_name) : '-';
+                                ?>
+                            </td>
+                            <td><?php echo esc_html($org->cidade ?: '-'); ?></td>
+                            <td>
+                                <span class="status-<?php echo esc_attr($org->status); ?>">
+                                    <?php echo esc_html(ucfirst($org->status)); ?>
+                                </span>
+                            </td>
+                            <td><?php echo esc_html(date('d/m/Y H:i', strtotime($org->created_at))); ?></td>
+                            <td class="sevo-org-actions">
+                                <button type="button" class="button button-small sevo-edit-org" data-id="<?php echo esc_attr($org->id); ?>">
+                                    <?php _e('Editar', 'sevo-eventos'); ?>
+                                </button>
+                                <button type="button" class="button button-small button-link-delete sevo-delete-org" data-id="<?php echo esc_attr($org->id); ?>">
+                                    <?php _e('Excluir', 'sevo-eventos'); ?>
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="6"><?php _e('Nenhuma organização encontrada.', 'sevo-eventos'); ?></td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+        
+        <?php if ($organizacoes['total_pages'] > 1): ?>
+            <div class="sevo-pagination">
+                <?php for ($i = 1; $i <= $organizacoes['total_pages']; $i++): ?>
+                    <button type="button" class="button sevo-page-btn <?php echo $i === $page ? 'button-primary' : ''; ?>" data-page="<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </button>
+                <?php endfor; ?>
+            </div>
+        <?php endif; ?>
+        <?php
+        
+        $html = ob_get_clean();
+        wp_send_json_success(array('html' => $html));
     }
 }

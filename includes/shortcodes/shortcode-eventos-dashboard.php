@@ -233,46 +233,37 @@ class Sevo_Eventos_Dashboard_Shortcode {
         $user_id = get_current_user_id();
         
         // Verifica se o evento existe
-        $evento = get_post($evento_id);
-        if (!$evento || $evento->post_type !== SEVO_EVENTO_POST_TYPE) {
+        global $wpdb;
+        $evento = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sevo_eventos WHERE id = %d",
+            $evento_id
+        ));
+        
+        if (!$evento) {
             wp_send_json_error('Evento não encontrado.');
         }
         
         // Verifica período de inscrições
-        $data_inicio_insc = get_post_meta($evento_id, '_sevo_evento_data_inicio_inscricoes', true);
-        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
         $hoje = current_time('Y-m-d');
         
-        if ($data_inicio_insc && $hoje < $data_inicio_insc) {
+        if ($evento->data_inicio_inscricoes && $hoje < $evento->data_inicio_inscricoes) {
             wp_send_json_error('As inscrições ainda não foram abertas para este evento.');
         }
         
-        if ($data_fim_insc && $hoje > $data_fim_insc) {
+        if ($evento->data_fim_inscricoes && $hoje > $evento->data_fim_inscricoes) {
             wp_send_json_error('O período de inscrições para este evento já foi encerrado.');
         }
         
         // Verifica se já está inscrito (incluindo inscrições canceladas)
-        $existing = get_posts(array(
-            'post_type' => SEVO_INSCR_POST_TYPE,
-            'meta_query' => array(
-                array(
-                    'key' => '_sevo_inscr_evento_id',
-                    'value' => $evento_id,
-                    'compare' => '='
-                ),
-                array(
-                    'key' => '_sevo_inscr_user_id',
-                    'value' => $user_id,
-                    'compare' => '='
-                )
-            ),
-            'posts_per_page' => 1
+        $existing = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sevo_inscricoes WHERE evento_id = %d AND usuario_id = %d",
+            $evento_id,
+            $user_id
         ));
         
-        if (!empty($existing)) {
-            $inscricao_existente = $existing[0];
-            $status_atual = get_post_meta($inscricao_existente->ID, '_sevo_inscr_status', true);
-            $cancel_count = intval(get_post_meta($inscricao_existente->ID, '_sevo_inscr_cancel_count', true));
+        if ($existing) {
+            $status_atual = $existing->status;
+            $cancel_count = intval($existing->cancel_count);
             
             // Se já está ativa, não pode se inscrever novamente
             if ($status_atual === 'solicitada' || $status_atual === 'aceita') {
@@ -286,34 +277,43 @@ class Sevo_Eventos_Dashboard_Shortcode {
                 }
                 
                 // Reativa a inscrição existente
-                update_post_meta($inscricao_existente->ID, '_sevo_inscr_status', 'solicitada');
-                update_post_meta($inscricao_existente->ID, '_sevo_inscr_data', current_time('mysql'));
+                $wpdb->update(
+                    $wpdb->prefix . 'sevo_inscricoes',
+                    array(
+                        'status' => 'solicitada',
+                        'data_inscricao' => current_time('mysql')
+                    ),
+                    array('id' => $existing->id),
+                    array('%s', '%s'),
+                    array('%d')
+                );
                 
                 wp_send_json_success(array(
                     'message' => 'Inscrição reativada com sucesso!',
-                    'inscricao_id' => $inscricao_existente->ID
+                    'inscricao_id' => $existing->id
                 ));
                 return;
             }
         }
         
         // Cria nova inscrição
-        $inscricao_id = wp_insert_post(array(
-            'post_type' => SEVO_INSCR_POST_TYPE,
-            'post_status' => 'publish',
-            'post_title' => 'Inscrição - ' . get_the_title($evento_id) . ' - ' . get_userdata($user_id)->display_name
-        ));
+        $result = $wpdb->insert(
+            $wpdb->prefix . 'sevo_inscricoes',
+            array(
+                'evento_id' => $evento_id,
+                'usuario_id' => $user_id,
+                'data_inscricao' => current_time('mysql'),
+                'status' => 'solicitada',
+                'cancel_count' => 0
+            ),
+            array('%d', '%d', '%s', '%s', '%d')
+        );
         
-        if (is_wp_error($inscricao_id)) {
+        if ($result === false) {
             wp_send_json_error('Erro ao criar inscrição.');
         }
         
-        // Salva metadados da inscrição com nomes corretos
-        update_post_meta($inscricao_id, '_sevo_inscr_evento_id', $evento_id);
-        update_post_meta($inscricao_id, '_sevo_inscr_user_id', $user_id);
-        update_post_meta($inscricao_id, '_sevo_inscr_data', current_time('mysql'));
-        update_post_meta($inscricao_id, '_sevo_inscr_status', 'solicitada');
-        update_post_meta($inscricao_id, '_sevo_inscr_cancel_count', 0);
+        $inscricao_id = $wpdb->insert_id;
         
         wp_send_json_success(array(
             'message' => 'Inscrição realizada com sucesso!',
@@ -335,38 +335,51 @@ class Sevo_Eventos_Dashboard_Shortcode {
         $user_id = get_current_user_id();
         
         // Verifica se a inscrição existe e pertence ao usuário
-        $inscricao = get_post($inscricao_id);
-        if (!$inscricao || $inscricao->post_type !== SEVO_INSCR_POST_TYPE) {
+        global $wpdb;
+        $inscricao = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sevo_inscricoes WHERE id = %d",
+            $inscricao_id
+        ));
+        
+        if (!$inscricao) {
             wp_send_json_error('Inscrição não encontrada.');
         }
         
-        $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscr_user_id', true);
-        if ($inscricao_user_id != $user_id && !current_user_can('manage_options')) {
+        if ($inscricao->usuario_id != $user_id && !current_user_can('manage_options')) {
             wp_send_json_error('Você não tem permissão para cancelar esta inscrição.');
         }
         
         // Verifica se a inscrição pode ser cancelada
-        $status_atual = get_post_meta($inscricao_id, '_sevo_inscr_status', true);
-        if ($status_atual === 'cancelada') {
+        if ($inscricao->status === 'cancelada') {
             wp_send_json_error('Esta inscrição já foi cancelada.');
         }
         
         // Verifica período de inscrições do evento
-        $evento_id = get_post_meta($inscricao_id, '_sevo_inscr_evento_id', true);
-        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
+        $evento = $wpdb->get_row($wpdb->prepare(
+            "SELECT data_fim_inscricoes FROM {$wpdb->prefix}sevo_eventos WHERE id = %d",
+            $inscricao->evento_id
+        ));
         $hoje = current_time('Y-m-d');
         
-        if ($data_fim_insc && $hoje > $data_fim_insc) {
+        if ($evento->data_fim_inscricoes && $hoje > $evento->data_fim_inscricoes) {
             wp_send_json_error('Não é possível cancelar a inscrição após o período de inscrições.');
         }
         
         // Incrementa o contador de cancelamentos
-        $cancel_count = intval(get_post_meta($inscricao_id, '_sevo_inscr_cancel_count', true));
+        $cancel_count = intval($inscricao->cancel_count);
         $cancel_count++;
         
         // Atualiza o status da inscrição e contador
-        update_post_meta($inscricao_id, '_sevo_inscr_status', 'cancelada');
-        update_post_meta($inscricao_id, '_sevo_inscr_cancel_count', $cancel_count);
+        $wpdb->update(
+            $wpdb->prefix . 'sevo_inscricoes',
+            array(
+                'status' => 'cancelada',
+                'cancel_count' => $cancel_count
+            ),
+            array('id' => $inscricao_id),
+            array('%s', '%d'),
+            array('%d')
+        );
         
         $message = 'Inscrição cancelada com sucesso!';
         if ($cancel_count >= 3) {
@@ -376,7 +389,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         wp_send_json_success(array(
             'message' => $message,
             'cancel_count' => $cancel_count,
-            'evento_id' => $evento_id
+            'evento_id' => $inscricao->evento_id
         ));
     }
 
@@ -421,35 +434,29 @@ class Sevo_Eventos_Dashboard_Shortcode {
         $filter_type = sanitize_text_field($_POST['filter_type']);
         $options = array();
         
+        global $wpdb;
+        
         switch ($filter_type) {
             case 'organizacao':
-                $orgs = get_posts(array(
-                    'post_type' => SEVO_ORG_POST_TYPE,
-                    'posts_per_page' => -1,
-                    'post_status' => 'publish',
-                    'orderby' => 'title',
-                    'order' => 'ASC'
-                ));
+                $orgs = $wpdb->get_results(
+                    "SELECT id, nome FROM {$wpdb->prefix}sevo_organizacoes WHERE status = 'ativo' ORDER BY nome ASC"
+                );
                 foreach ($orgs as $org) {
                     $options[] = array(
-                        'value' => $org->ID,
-                        'label' => $org->post_title
+                        'value' => $org->id,
+                        'label' => $org->nome
                     );
                 }
                 break;
                 
             case 'tipo_evento':
-                $tipos = get_posts(array(
-                    'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
-                    'posts_per_page' => -1,
-                    'post_status' => 'publish',
-                    'orderby' => 'title',
-                    'order' => 'ASC'
-                ));
+                $tipos = $wpdb->get_results(
+                    "SELECT id, titulo FROM {$wpdb->prefix}sevo_tipos_evento WHERE status = 'ativo' ORDER BY titulo ASC"
+                );
                 foreach ($tipos as $tipo) {
                     $options[] = array(
-                        'value' => $tipo->ID,
-                        'label' => $tipo->post_title
+                        'value' => $tipo->id,
+                        'label' => $tipo->titulo
                     );
                 }
                 break;
@@ -466,14 +473,14 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         // Filtro por organização
         if (!empty($filters['organizacao'])) {
+            global $wpdb;
             // Buscar tipos de evento da organização
-            $tipos_org = get_posts(array(
-                'post_type' => SEVO_TIPO_EVENTO_POST_TYPE,
-                'meta_key' => '_sevo_tipo_evento_organizacao_id',
-                'meta_value' => $filters['organizacao'],
-                'posts_per_page' => -1,
-                'fields' => 'ids'
-            ));
+            $tipos_org = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}sevo_tipos_evento WHERE organizacao_id = %d AND status = 'ativo'",
+                    $filters['organizacao']
+                )
+            );
             
             if (!empty($tipos_org)) {
                 $meta_query[] = array(

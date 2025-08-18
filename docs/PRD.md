@@ -3,9 +3,9 @@
 
 ### Informações Gerais
 - **Nome do Produto**: Sevo Eventos
-- **Versão**: 3.0
+- **Versão**: 3.1
 - **Autor**: Egito Salvador
-- **Descrição**: Plugin WordPress para gerenciamento completo de organizações esportivas, tipos de eventos, eventos e inscrições com integração a fórum de discussões.
+- **Descrição**: Plugin WordPress para gerenciamento completo de organizações esportivas, tipos de eventos, eventos e inscrições com integração a fórum de discussões. Versão 3.1 implementa tabelas customizadas otimizadas para melhor performance.
 - **URI**: http://www.sevosports.com
 
 ---
@@ -25,46 +25,56 @@ O Sevo Eventos é um plugin WordPress desenvolvido para facilitar o gerenciament
 ## 2. Funcionalidades Principais
 
 ### 2.1 Gestão de Organizações
-- **CPT**: `sevo-orgs`
-- **Capacidades**: Utiliza capacidades padrão do WordPress (`capability_type => 'post'`, `map_meta_cap => true`)
+- **Estrutura**: Tabela customizada `sevo_organizacoes`
+- **Campos**: id, nome, descricao, contato_email, contato_telefone, endereco, status, data_criacao, data_atualizacao
+- **Capacidades**: Controle de acesso via capabilities do WordPress (`edit_posts` e `manage_options`)
 - **Funcionalidades**:
-  - Criação e edição de organizações
-  - Campos personalizados para informações de contato
+  - Criação e edição de organizações via dashboard
+  - Campos estruturados para informações de contato
   - Integração automática com fórum (criação de categorias)
   - Dashboard público para visualização
   - Modal para exibição de detalhes
+  - Performance otimizada com consultas diretas ao banco
 
 ### 2.2 Gestão de Tipos de Evento
-- **CPT**: `sevo-tipo-evento`
-- **Capacidades**: Capacidades padrão do WordPress
+- **Estrutura**: Tabela customizada `sevo_tipos_evento`
+- **Campos**: id, titulo, descricao, organizacao_id, max_vagas, tipos_participacao, status, data_criacao, data_atualizacao
+- **Relacionamentos**: Foreign key para `sevo_organizacoes.id`
 - **Funcionalidades**:
   - CRUD completo via dashboard
-  - Associação obrigatória com organização
+  - Associação obrigatória com organização via relacionamento direto
   - Definição de número máximo de vagas
   - Tipos de participação configuráveis
   - Integração com fórum (criação de sub-fóruns)
   - Controle de acesso: `edit_posts` e `manage_options`
+  - Consultas otimizadas com JOINs eficientes
 
 ### 2.3 Gestão de Eventos
-- **CPT**: `sevo-evento`
-- **Capacidades**: Capacidades padrão do WordPress
+- **Estrutura**: Tabela customizada `sevo_eventos`
+- **Campos**: id, titulo, descricao, tipo_evento_id, data_inicio_inscricao, data_fim_inscricao, data_inicio_evento, data_fim_evento, vagas, status, data_criacao, data_atualizacao
+- **Relacionamentos**: Foreign key para `sevo_tipos_evento.id`
 - **Funcionalidades**:
   - CRUD completo via dashboard
-  - Associação com tipo de evento e organização
-  - Gestão de datas de inscrição
-  - Controle de vagas baseado no tipo de evento
+  - Associação com tipo de evento via relacionamento direto
+  - Gestão de datas de inscrição e evento
+  - Controle de vagas herdado do tipo de evento
   - Sistema de status (ativo/inativo)
   - Criação automática de tópicos no fórum
   - Controle de acesso: `is_user_logged_in()` e `manage_options`
+  - Performance melhorada com índices otimizados
 
 ### 2.4 Sistema de Inscrições
-- **CPT**: `sevo_inscr`
-- **Capacidades**: Criação desabilitada (`'create_posts' => 'do_not_allow'`)
+- **Estrutura**: Tabela customizada `sevo_inscricoes`
+- **Campos**: id, evento_id, user_id, status, comentarios, contador_cancelamentos, data_inscricao, data_atualizacao
+- **Relacionamentos**: Foreign key para `sevo_eventos.id` e `wp_users.ID`
+- **Status**: 'solicitada', 'cancelada', 'aceita', 'rejeitada'
 - **Funcionalidades**:
-  - Status personalizados: 'solicitada', 'cancelada', 'aceita', 'rejeitada'
-  - Sistema de log de comentários
+  - Sistema de inscrições com controle de status
+  - Log de comentários e histórico de ações
+  - Contador de cancelamentos por usuário
   - Gestão via dashboard de eventos
   - Controle de acesso: `is_user_logged_in()`
+  - Consultas otimizadas para relatórios e estatísticas
 
 ---
 
@@ -152,7 +162,8 @@ sevo/
 │   ├── css/ (estilos dos dashboards e landing page)
 │   └── js/ (scripts JavaScript)
 ├── includes/
-│   ├── cpt/ (Custom Post Types)
+│   ├── cpt/ (Custom Post Types - mantidos para compatibilidade)
+│   ├── database/ (estrutura e migração de tabelas customizadas)
 │   └── shortcodes/ (handlers de shortcodes)
 └── templates/
     ├── modals/ (templates de modais)
@@ -163,9 +174,31 @@ sevo/
 ### 4.2 Tecnologias Utilizadas
 - **Backend**: PHP 7.4+, WordPress 5.0+
 - **Frontend**: HTML5, CSS3, JavaScript (jQuery)
-- **Database**: MySQL (via WordPress)
+- **Database**: MySQL com tabelas customizadas otimizadas
+- **ORM**: WordPress $wpdb para consultas diretas
 - **AJAX**: WordPress AJAX API
 - **Security**: WordPress Nonces, Capability Checks
+- **Performance**: Índices otimizados e consultas com JOINs eficientes
+
+### 4.3 Estrutura de Banco de Dados
+
+#### 4.3.1 Tabelas Customizadas
+- **sevo_organizacoes**: Dados das organizações esportivas
+- **sevo_tipos_evento**: Tipos de eventos com relacionamento para organizações
+- **sevo_eventos**: Eventos específicos com relacionamento para tipos
+- **sevo_inscricoes**: Inscrições de usuários em eventos
+
+#### 4.3.2 Relacionamentos
+- `sevo_tipos_evento.organizacao_id` → `sevo_organizacoes.id`
+- `sevo_eventos.tipo_evento_id` → `sevo_tipos_evento.id`
+- `sevo_inscricoes.evento_id` → `sevo_eventos.id`
+- `sevo_inscricoes.user_id` → `wp_users.ID`
+
+#### 4.3.3 Índices e Performance
+- Índices primários em todas as tabelas
+- Índices de foreign keys para JOINs otimizados
+- Índices compostos para consultas frequentes
+- Status indexado para filtragem rápida
 
 ---
 
@@ -696,19 +729,19 @@ Categoria: Eventos - Organização A
 
 1. **Criação de Categoria** (Organização)
    - Usar: `$asgarosforum->content->insert_category()`
-   - Armazenar ID em: `_sevo_forum_category_id`
+   - Armazenar ID em: campo `forum_category_id` da tabela `sevo_organizacoes`
 
 2. **Criação de Fórum** (Tipo de Evento)
    - Usar: `$asgarosforum->content->insert_forum()`
-   - Armazenar ID em: `_sevo_forum_forum_id`
+   - Armazenar ID em: campo `forum_forum_id` da tabela `sevo_tipos_evento`
 
 3. **Criação de Tópico** (Evento)
    - Usar: `$asgarosforum->content->insert_topic()`
-   - Armazenar ID em: `_sevo_forum_topic_id`
+   - Armazenar ID em: campo `forum_topic_id` da tabela `sevo_eventos`
 
 4. **Criação de Post** (Inscrição)
    - Usar: `$asgarosforum->content->insert_post()`
-   - Armazenar ID em: `_sevo_forum_post_id`
+   - Armazenar ID em: campo `forum_post_id` da tabela `sevo_inscricoes`
 
 #### Sistema de Log de Inscrições
 
@@ -745,28 +778,39 @@ O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, qu
    - Removida a função `create_sub_forum_for_event` que não é mais necessária
    - Atualizada a função `handle_event_forum_creation_and_topics` para não criar sub-fóruns
 
-#### Meta Fields Corretos
-- **Organização**: `_sevo_forum_category_id` (ID da categoria do fórum)
-- **Tipo de Evento**: `_sevo_forum_forum_id` (ID do fórum)
-- **Evento**: `_sevo_forum_topic_id` (ID do tópico)
-- **Inscrição**: Posts são criados diretamente no tópico do evento via Asgaros Forum API
+#### Campos de Integração com Fórum
+- **Organização**: `forum_category_id` na tabela `sevo_organizacoes` (ID da categoria do fórum)
+- **Tipo de Evento**: `forum_forum_id` na tabela `sevo_tipos_evento` (ID do fórum)
+- **Evento**: `forum_topic_id` na tabela `sevo_eventos` (ID do tópico)
+- **Inscrição**: `forum_post_id` na tabela `sevo_inscricoes` (ID do post no fórum)
+
+#### Vantagens da Nova Estrutura
+- **Performance**: Consultas diretas sem necessidade de meta queries
+- **Integridade**: Foreign keys garantem consistência dos dados
+- **Escalabilidade**: Índices otimizados para consultas de fórum
+- **Manutenção**: Estrutura mais limpa e organizada
 
 ---
 
 ## 13. Roadmap e Melhorias Futuras
 
-### 13.1 Versão 3.1 (Em Desenvolvimento)
-- **Summary Cards Interativos**: Navegação rápida entre dashboards
-- **Dashboard de Inscrições**: Interface completa para validação e gestão
-- **Dashboard de Inscrições Pessoais**: Para usuários visualizarem suas inscrições
-- **Sistema de Permissões Granular**: Controle refinado de acesso
-- **Verificação de Propriedade**: Autores limitados aos próprios eventos
+### 13.1 Versão 3.1 (Implementada)
+- **✅ Migração para Tabelas Customizadas**: Substituição completa dos Custom Post Types por tabelas otimizadas
+- **✅ Performance Otimizada**: Consultas diretas ao banco com índices otimizados
+- **✅ Relacionamentos Estruturados**: Foreign keys para integridade referencial
+- **✅ Summary Cards Interativos**: Navegação rápida entre dashboards
+- **✅ Dashboard de Inscrições**: Interface completa para validação e gestão
+- **✅ Dashboard de Inscrições Pessoais**: Para usuários visualizarem suas inscrições
+- **✅ Sistema de Permissões Granular**: Controle refinado de acesso
+- **✅ Verificação de Propriedade**: Autores limitados aos próprios eventos
 
 ### 13.2 Versão 3.2 (Planejada)
 - Sistema de notificações por email
-- Relatórios avançados
-- API REST personalizada
+- Relatórios avançados com consultas otimizadas
+- API REST personalizada para integração externa
 - Integração com calendários externos
+- Cache inteligente para consultas frequentes
+- Backup automático das tabelas customizadas
 
 ### 13.3 Versão 3.3 (Planejada)
 - Sistema de pagamentos para inscrições
@@ -799,6 +843,13 @@ O código estava criando **sub-fóruns** para eventos em vez de **tópicos**, qu
 ---
 
 **Documento criado em**: Dezembro 2024  
-**Última atualização**: Versão 3.0  
+**Última atualização**: Versão 3.1 - Janeiro 2025  
 **Responsável**: Egito Salvador  
 **Status**: Ativo em Produção
+
+### Changelog Versão 3.1
+- **Migração Completa**: Substituição de Custom Post Types por tabelas customizadas
+- **Performance**: Melhoria significativa na velocidade de consultas
+- **Estrutura**: Relacionamentos otimizados com foreign keys
+- **Escalabilidade**: Preparação para grandes volumes de dados
+- **Compatibilidade**: Mantida compatibilidade com funcionalidades existentes

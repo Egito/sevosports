@@ -139,8 +139,12 @@ jQuery(document).ready(function($) {
         const saveButton = $(this).find('#sevo-save-org-button');
         const originalText = saveButton.text();
         
+        // Determina se é criação ou edição
+        const orgId = formData.get('org_id');
+        const action = orgId && orgId !== '0' ? 'sevo_update_organizacao' : 'sevo_create_organizacao';
+        
         // Adiciona os dados AJAX necessários
-        formData.append('action', 'sevo_save_org');
+        formData.append('action', action);
         formData.append('nonce', sevoOrgsDashboard.nonce);
         
         saveButton.text('A guardar...').prop('disabled', true);

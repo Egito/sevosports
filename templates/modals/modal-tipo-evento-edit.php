@@ -1,7 +1,7 @@
 <?php
 /**
  * Template do formulário modal para criar/editar tipos de evento.
- * Este template é carregado via AJAX.
+ * Versão atualizada para usar tabelas customizadas.
  */
 
 if (!defined('ABSPATH')) {
@@ -10,32 +10,17 @@ if (!defined('ABSPATH')) {
 
 // Determina se é edição ou criação
 $is_editing = isset($tipo_evento) && $tipo_evento;
-$tipo_id = $is_editing ? $tipo_evento->ID : 0;
-$post_title = $is_editing ? $tipo_evento->post_title : '';
-$post_content = $is_editing ? $tipo_evento->post_content : '';
+$tipo_id = $is_editing ? $tipo_evento->id : 0;
+$titulo = $is_editing ? $tipo_evento->titulo : '';
+$descricao = $is_editing ? $tipo_evento->descricao : '';
+$organizacao_id = $is_editing ? $tipo_evento->organizacao_id : 0;
+$status = $is_editing ? $tipo_evento->status : 'ativo';
+$imagem_url = $is_editing ? $tipo_evento->imagem_url : '';
 
-// Buscar organizações
-$organizacoes = get_posts(array(
-    'post_type' => SEVO_ORG_POST_TYPE,
-    'posts_per_page' => -1,
-    'orderby' => 'title',
-    'order' => 'ASC'
-));
+// Carregar organizações para o select
+$organizacao_model = new Sevo_Organizacao_Model();
+$organizacoes = $organizacao_model->get_active();
 
-// Buscar usuários com roles específicas
-$users = get_users(array(
-    'role__in' => array('administrator', 'editor', 'author'),
-    'orderby' => 'display_name',
-    'order' => 'ASC'
-));
-
-// Recuperar valores salvos
-$organizacao_id = $is_editing ? get_post_meta($tipo_id, '_sevo_tipo_evento_organizacao_id', true) : '';
-$autor_id = $is_editing ? get_post_meta($tipo_id, '_sevo_tipo_evento_autor_id', true) : get_current_user_id();
-$max_vagas = $is_editing ? get_post_meta($tipo_id, '_sevo_tipo_evento_max_vagas', true) : '';
-$status = $is_editing ? get_post_meta($tipo_id, '_sevo_tipo_evento_status', true) : 'ativo';
-$participacao = $is_editing ? get_post_meta($tipo_id, '_sevo_tipo_evento_participacao', true) : 'individual';
-$tipo_thumbnail_url = $is_editing ? get_the_post_thumbnail_url($tipo_id, 'medium') : '';
 ?>
 
 <form id="sevo-tipo-evento-form">
@@ -47,86 +32,161 @@ $tipo_thumbnail_url = $is_editing ? get_the_post_thumbnail_url($tipo_id, 'medium
         <div class="sevo-form-grid">
             <!-- Título do Tipo de Evento -->
             <div class="sevo-form-group-full">
-                <label for="post_title">Título do Tipo de Evento</label>
-                <input type="text" id="post_title" name="post_title" value="<?php echo esc_attr($post_title); ?>" required>
-            </div>
-            
-            <!-- Imagem do Tipo de Evento -->
-            <div class="sevo-form-group-full">
-                <label for="tipo_image">Imagem do Tipo de Evento</label>
-                <input type="file" id="tipo_image" name="tipo_image" accept="image/*">
-                <small class="sevo-form-help">A imagem será redimensionada para 300x300 pixels com fundo branco automaticamente.</small>
-                <?php if ($is_editing && $tipo_thumbnail_url) : ?>
-                    <div class="sevo-current-image">
-                        <p><strong>Imagem atual:</strong></p>
-                        <img src="<?php echo esc_url($tipo_thumbnail_url); ?>" alt="Imagem atual" style="max-width: 150px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                <?php endif; ?>
+                <label for="tipo_titulo">Nome do Tipo de Evento *</label>
+                <input type="text" id="tipo_titulo" name="titulo" value="<?php echo esc_attr($titulo); ?>" required>
             </div>
             
             <!-- Organização -->
             <div class="sevo-form-group">
-                <label for="_sevo_tipo_evento_organizacao_id">Organização</label>
-                <select name="_sevo_tipo_evento_organizacao_id" required>
-                    <option value="">Selecione...</option>
-                    <?php foreach ($organizacoes as $org) : ?>
-                        <option value="<?php echo esc_attr($org->ID); ?>" <?php selected($organizacao_id, $org->ID); ?>>
-                            <?php echo esc_html($org->post_title); ?>
+                <label for="tipo_organizacao_id">Organização *</label>
+                <select id="tipo_organizacao_id" name="organizacao_id" required>
+                    <option value="">Selecione uma organização</option>
+                    <?php foreach ($organizacoes as $org): ?>
+                        <option value="<?php echo esc_attr($org->id); ?>" <?php selected($organizacao_id, $org->id); ?>>
+                            <?php echo esc_html($org->titulo); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
-
-            <!-- Autor -->
-            <div class="sevo-form-group">
-                <label for="_sevo_tipo_evento_autor_id">Autor</label>
-                <select name="_sevo_tipo_evento_autor_id" required>
-                    <option value="">Selecione...</option>
-                    <?php foreach ($users as $user) : ?>
-                        <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($autor_id, $user->ID); ?>>
-                            <?php echo esc_html($user->display_name); ?> (<?php echo esc_html(implode(', ', $user->roles)); ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <!-- Máximo de Vagas -->
-            <div class="sevo-form-group">
-                <label for="_sevo_tipo_evento_max_vagas">Nº Máximo de Vagas</label>
-                <input type="number" name="_sevo_tipo_evento_max_vagas" value="<?php echo esc_attr($max_vagas); ?>" min="1" required>
-            </div>
-
+            
             <!-- Status -->
             <div class="sevo-form-group">
-                <label for="_sevo_tipo_evento_status">Status</label>
-                <select name="_sevo_tipo_evento_status" required>
+                <label for="tipo_status">Status *</label>
+                <select id="tipo_status" name="status" required>
                     <option value="ativo" <?php selected($status, 'ativo'); ?>>Ativo</option>
                     <option value="inativo" <?php selected($status, 'inativo'); ?>>Inativo</option>
                 </select>
             </div>
-
-            <!-- Tipo de Participação -->
-            <div class="sevo-form-group">
-                <label for="_sevo_tipo_evento_participacao">Tipo de Participação</label>
-                 <select name="_sevo_tipo_evento_participacao" required>
-                    <option value="individual" <?php selected($participacao, 'individual'); ?>>Individual</option>
-                    <option value="grupo" <?php selected($participacao, 'grupo'); ?>>Grupo</option>
-                </select>
-            </div>
-
+            
             <!-- Descrição -->
             <div class="sevo-form-group-full">
-                <label for="post_content">Descrição</label>
-                <textarea id="post_content" name="post_content" rows="4"><?php echo esc_textarea($post_content); ?></textarea>
+                <label for="tipo_descricao">Descrição</label>
+                <textarea id="tipo_descricao" name="descricao" rows="4"><?php echo esc_textarea($descricao); ?></textarea>
+            </div>
+            
+            <!-- URL da Imagem -->
+            <div class="sevo-form-group-full">
+                <label for="tipo_imagem_url">URL da Imagem</label>
+                <input type="url" id="tipo_imagem_url" name="imagem_url" value="<?php echo esc_attr($imagem_url); ?>" placeholder="https://">
+                <small class="sevo-form-help">Cole aqui a URL de uma imagem para o tipo de evento.</small>
+                <?php if ($imagem_url): ?>
+                    <div class="sevo-current-image">
+                        <p>Imagem atual:</p>
+                        <img src="<?php echo esc_url($imagem_url); ?>" alt="Imagem atual" style="max-width: 100px; height: auto; border-radius: 4px;">
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-
+    
     <div class="sevo-modal-footer">
-        <button type="button" id="sevo-modal-close" class="sevo-button-secondary">Cancelar</button>
-        <button type="submit" class="sevo-button-primary">
-            <i class="fas fa-save mr-2"></i>
-            <?php echo $is_editing ? 'Atualizar' : 'Criar'; ?> Tipo de Evento
+        <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoTiposEventoAdmin.closeModal()">
+            Cancelar
+        </button>
+        <button type="submit" class="sevo-btn sevo-btn-primary">
+            <?php echo $is_editing ? 'Atualizar' : 'Criar'; ?>
         </button>
     </div>
 </form>
+
+<style>
+.sevo-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sevo-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.sevo-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.sevo-form-group input,
+.sevo-form-group select,
+.sevo-form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.sevo-form-group input:focus,
+.sevo-form-group select:focus,
+.sevo-form-group textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.sevo-form-help {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+}
+
+.sevo-current-image {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.sevo-current-image p {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.sevo-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    background: #f1f1f1;
+    border-top: 1px solid #ddd;
+}
+
+.sevo-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.sevo-btn-primary {
+    background: #0073aa;
+    color: white;
+}
+
+.sevo-btn-primary:hover {
+    background: #005a87;
+}
+
+.sevo-btn-secondary {
+    background: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.sevo-btn-secondary:hover {
+    background: #e1e1e1;
+}
+
+@media (max-width: 768px) {
+    .sevo-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

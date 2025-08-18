@@ -34,6 +34,32 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
 
         wp_enqueue_style('sevo-orgs-dashboard-style');
         wp_enqueue_script('sevo-orgs-dashboard-script');
+        
+        // Enqueue media uploader e script de organizações para funcionalidade de upload de imagem
+        wp_enqueue_media();
+        
+        // Garantir que todas as dependências do wp.media estejam carregadas
+        wp_enqueue_script('media-upload');
+        wp_enqueue_script('media-editor');
+        wp_enqueue_script('media-views');
+        wp_enqueue_script('media-models');
+        wp_enqueue_script('media-grid');
+        
+        wp_enqueue_script('sevo-admin-organizacoes', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-organizacoes.js', array('jquery', 'media-upload', 'media-editor', 'media-views', 'media-models', 'media-grid'), SEVO_EVENTOS_VERSION, true);
+        
+        // Localizar script de organizações
+        wp_localize_script('sevo-admin-organizacoes', 'sevoOrgAdmin', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sevo_org_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Tem certeza que deseja excluir esta organização?', 'sevo-eventos'),
+                'error' => __('Erro ao processar solicitação.', 'sevo-eventos'),
+                'success_create' => __('Organização criada com sucesso!', 'sevo-eventos'),
+                'success_update' => __('Organização atualizada com sucesso!', 'sevo-eventos'),
+                'success_delete' => __('Organização excluída com sucesso!', 'sevo-eventos')
+            )
+        ));
+        
         wp_enqueue_style('dashicons');
         wp_enqueue_style('sevo-toaster-style');
         wp_enqueue_script('sevo-toaster-script');
@@ -105,8 +131,10 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         $organizacao = null;
 
         if ($org_id > 0) {
-            $organizacao = get_post($org_id);
-            if (!$organizacao || $organizacao->post_type !== SEVO_ORG_POST_TYPE) {
+            // Usar o modelo das tabelas customizadas
+            $organizacao_model = new Sevo_Organizacao_Model();
+            $organizacao = $organizacao_model->find($org_id);
+            if (!$organizacao) {
                 wp_send_json_error('Organização não encontrada.');
             }
         }
@@ -131,9 +159,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         $post_title = sanitize_text_field($_POST['post_title']);
         $post_content = wp_kses_post($_POST['post_content']);
         
-        if (empty($post_title)) {
-            wp_send_json_error('O título da organização é obrigatório.');
-        }
+
 
         $post_data = array(
             'post_title' => $post_title,

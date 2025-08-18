@@ -194,7 +194,10 @@ class Sevo_Eventos_Main {
     }
 
     private function load_files() {
-        // Carregar os arquivos dos Custom Post Types refatorados
+        // Carregar sistema de banco de dados customizado
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/database/init.php';
+        
+        // Carregar os arquivos dos Custom Post Types usando tabelas customizadas
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-org.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-tipo-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-evento.php';
@@ -212,11 +215,11 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-summary-cards.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-asgaros-comments.php';
 
-        // Inicializar as classes CPT
-        new Sevo_Orgs_CPT();
-        new Sevo_Tipo_Evento_CPT();
-        new Sevo_Eventos_CPT_Final();
-        new Sevo_Inscricoes_CPT();
+        // Inicializar as classes dos Custom Post Types (versões com tabelas customizadas)
+        new Sevo_Orgs_CPT_New();
+        new Sevo_Tipo_Evento_CPT_New();
+        new Sevo_Evento_CPT_New();
+        new Sevo_Inscricao_CPT_New();
         
         // Inicializar shortcodes
         new Sevo_Eventos_Dashboard_Shortcode();
@@ -233,7 +236,14 @@ class Sevo_Eventos_Main {
             wp_send_json_error('ID do tipo de evento não fornecido.');
         }
         $tipo_evento_id = absint($_POST['tipo_evento_id']);
-        $max_vagas = get_post_meta($tipo_evento_id, '_sevo_tipo_evento_max_vagas', true);
+        
+        // Buscar max_vagas da tabela customizada sevo_tipos_evento
+        global $wpdb;
+        $max_vagas = $wpdb->get_var($wpdb->prepare(
+            "SELECT max_vagas FROM {$wpdb->prefix}sevo_tipos_evento WHERE id = %d",
+            $tipo_evento_id
+        ));
+        
         wp_send_json_success(array('max_vagas' => $max_vagas ?: 0));
     }
 
@@ -400,22 +410,29 @@ class Sevo_Eventos_Main {
             wp_die(__('Você não tem permissão para acessar esta página.'));
         }
         
-        // Obter contadores para cada CPT
-        $orgs_count = wp_count_posts(SEVO_ORG_POST_TYPE);
-        $tipos_count = wp_count_posts(SEVO_TIPO_EVENTO_POST_TYPE);
-        $eventos_count = wp_count_posts(SEVO_EVENTO_POST_TYPE);
-        $inscricoes_count = wp_count_posts(SEVO_INSCR_POST_TYPE);
+        global $wpdb;
         
-        // Contar apenas posts publicados para CPTs normais (sem rascunhos)
-        $total_orgs = ($orgs_count->publish ?? 0);
-        $total_tipos = ($tipos_count->publish ?? 0);
-        $total_eventos = ($eventos_count->publish ?? 0);
+        // Obter contadores das tabelas customizadas
+        $total_orgs = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_organizacoes WHERE status = 'ativo'");
+        $total_tipos = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_tipos_evento WHERE status = 'ativo'");
+        $total_eventos = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_eventos WHERE status = 'ativo'");
+        $total_inscricoes = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_inscricoes WHERE status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')");
         
-        // Para inscrições, incluir apenas os status personalizados válidos (sem rascunhos)
-        $total_inscricoes = ($inscricoes_count->solicitada ?? 0) + 
-                           ($inscricoes_count->aceita ?? 0) + 
-                           ($inscricoes_count->rejeitada ?? 0) + 
-                           ($inscricoes_count->cancelada ?? 0);
+        // Obter contadores detalhados das inscrições por status
+        $inscricoes_count = $wpdb->get_row("
+            SELECT 
+                SUM(CASE WHEN status = 'aceita' THEN 1 ELSE 0 END) as aceita,
+                SUM(CASE WHEN status = 'solicitada' THEN 1 ELSE 0 END) as solicitada,
+                SUM(CASE WHEN status = 'rejeitada' THEN 1 ELSE 0 END) as rejeitada,
+                SUM(CASE WHEN status = 'cancelada' THEN 1 ELSE 0 END) as cancelada
+            FROM {$wpdb->prefix}sevo_inscricoes
+        ");
+        
+        // Garantir que os valores sejam inteiros
+        $total_orgs = (int) $total_orgs;
+        $total_tipos = (int) $total_tipos;
+        $total_eventos = (int) $total_eventos;
+        $total_inscricoes = (int) $total_inscricoes;
         ?>
         
         <div class="wrap">

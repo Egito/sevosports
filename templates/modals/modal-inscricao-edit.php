@@ -1,43 +1,42 @@
 <?php
 /**
- * Template do Modal de Edição de Inscrição
- * Este template é carregado via AJAX para editar uma inscrição
+ * Template do formulário modal para criar/editar inscrições.
+ * Versão atualizada para usar tabelas customizadas.
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Verificar se os dados da inscrição foram passados
-if (!isset($inscricao) || !$inscricao) {
-    // Usar toaster para exibir erro e fechar modal
-    echo '<script>'
-        . 'if (typeof SevoToaster !== "undefined") {'
-        . 'SevoToaster.showError("Dados da inscrição não encontrados.");'
-        . '}'
-        . 'if (typeof SevoDashboard !== "undefined" && typeof SevoDashboard.closeEditModal === "function") {'
-        . 'setTimeout(function() { SevoDashboard.closeEditModal(); }, 100);'
-        . '}'
-        . '</script>';
-    return;
-}
+// Determina se é edição ou criação
+$is_editing = isset($inscricao) && $inscricao;
 
-// Buscar dados relacionados
-$evento = get_post($inscricao->evento_id);
-$usuario = get_userdata($inscricao->usuario_id);
-$evento_data = get_post_meta($inscricao->evento_id, '_sevo_evento_data', true);
-$evento_tipo_id = get_post_meta($inscricao->evento_id, '_sevo_evento_tipo_evento_id', true);
-$tipo_evento = get_post($evento_tipo_id);
-
-// Buscar organização
-$organizacao_id = '';
-$organizacao_nome = '';
-if ($tipo_evento) {
-    $organizacao_id = get_post_meta($tipo_evento->ID, '_sevo_tipo_evento_organizacao_id', true);
-    if ($organizacao_id) {
-        $organizacao = get_post($organizacao_id);
-        $organizacao_nome = $organizacao ? $organizacao->post_title : '';
+if ($is_editing) {
+    // Buscar dados relacionados usando modelos
+    $evento_model = new Sevo_Evento_Model();
+    $evento = $evento_model->get_with_relations($inscricao->evento_id);
+    $evento = $evento ? $evento[0] : null; // get_with_relations retorna array
+    
+    $usuario = get_userdata($inscricao->user_id);
+    
+    if (!$evento || !$usuario) {
+        echo '<script>'
+            . 'if (typeof SevoToaster !== "undefined") {'
+            . 'SevoToaster.showError("Dados da inscrição não encontrados.");'
+            . '}'
+            . 'if (typeof SevoDashboard !== "undefined" && typeof SevoDashboard.closeEditModal === "function") {'
+            . 'setTimeout(function() { SevoDashboard.closeEditModal(); }, 100);'
+            . '}'
+            . '</script>';
+        return;
     }
+} else {
+    // Carregar eventos para o select
+    $evento_model = new Sevo_Evento_Model();
+$eventos = $evento_model->get_with_relations();
+    
+    // Carregar usuários para o select
+    $users = get_users(array('orderby' => 'display_name', 'order' => 'ASC'));
 }
 
 // Status possíveis conforme PRD
@@ -51,104 +50,161 @@ $status_options = array(
 
 <div class="sevo-modal-content">
     <div class="sevo-modal-header">
-        <h3>Editar Inscrição #<?php echo esc_html($inscricao->inscricao_id); ?></h3>
+        <h3><?php echo $is_editing ? 'Editar Inscrição #' . esc_html($inscricao->id) : 'Nova Inscrição'; ?></h3>
         <button type="button" class="sevo-modal-close" onclick="SevoDashboard.closeEditModal()">&times;</button>
     </div>
     
     <div class="sevo-modal-body">
         <form id="sevo-edit-inscricao-form" class="sevo-form">
-            <input type="hidden" name="inscricao_id" value="<?php echo esc_attr($inscricao->inscricao_id); ?>">
+            <?php if ($is_editing): ?>
+                <input type="hidden" name="inscricao_id" value="<?php echo esc_attr($inscricao->id); ?>">
+            <?php endif; ?>
             
-            <!-- Informações do Usuário -->
-            <div class="sevo-form-section">
-                <h4>👤 Informações do Usuário</h4>
-                <div class="sevo-form-row">
-                    <div class="sevo-form-group">
-                        <label for="edit-usuario-nome">Nome do Usuário</label>
-                        <input type="text" id="edit-usuario-nome" name="usuario_nome" 
-                               value="<?php echo esc_attr($usuario ? $usuario->display_name : ''); ?>" 
-                               class="sevo-form-control" readonly>
-                        <small class="sevo-form-help">Nome do usuário não pode ser alterado</small>
-                    </div>
-                    <div class="sevo-form-group">
-                        <label for="edit-usuario-email">Email do Usuário</label>
-                        <input type="email" id="edit-usuario-email" name="usuario_email" 
-                               value="<?php echo esc_attr($usuario ? $usuario->user_email : ''); ?>" 
-                               class="sevo-form-control" readonly>
-                        <small class="sevo-form-help">Email do usuário não pode ser alterado</small>
+            <?php if ($is_editing): ?>
+                <!-- Informações do Usuário -->
+                <div class="sevo-form-section">
+                    <h4>👤 Informações do Usuário</h4>
+                    <div class="sevo-form-row">
+                        <div class="sevo-form-group">
+                            <label for="edit-usuario-nome">Nome do Usuário</label>
+                            <input type="text" id="edit-usuario-nome" name="usuario_nome" 
+                                   value="<?php echo esc_attr($usuario ? $usuario->display_name : ''); ?>" 
+                                   class="sevo-form-control" readonly>
+                            <small class="sevo-form-help">Nome do usuário não pode ser alterado</small>
+                        </div>
+                        <div class="sevo-form-group">
+                            <label for="edit-usuario-email">Email do Usuário</label>
+                            <input type="email" id="edit-usuario-email" name="usuario_email" 
+                                   value="<?php echo esc_attr($usuario ? $usuario->user_email : ''); ?>" 
+                                   class="sevo-form-control" readonly>
+                            <small class="sevo-form-help">Email do usuário não pode ser alterado</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Informações do Evento -->
-            <div class="sevo-form-section">
-                <h4>🎯 Informações do Evento</h4>
-                <div class="sevo-form-row">
-                    <div class="sevo-form-group">
-                        <label for="edit-evento-nome">Nome do Evento</label>
-                        <input type="text" id="edit-evento-nome" name="evento_nome" 
-                               value="<?php echo esc_attr($evento ? $evento->post_title : ''); ?>" 
-                               class="sevo-form-control" readonly>
+                
+                <!-- Informações do Evento -->
+                <div class="sevo-form-section">
+                    <h4>🎯 Informações do Evento</h4>
+                    <div class="sevo-form-row">
+                        <div class="sevo-form-group">
+                            <label for="edit-evento-nome">Nome do Evento</label>
+                            <input type="text" id="edit-evento-nome" name="evento_nome" 
+                                   value="<?php echo esc_attr($evento ? $evento->titulo : ''); ?>" 
+                                   class="sevo-form-control" readonly>
+                        </div>
+                        <div class="sevo-form-group">
+                            <label for="edit-evento-data">Data do Evento</label>
+                            <input type="text" id="edit-evento-data" name="evento_data" 
+                                   value="<?php echo esc_attr($evento && $evento->data_inicio ? date('d/m/Y', strtotime($evento->data_inicio)) : ''); ?>" 
+                                   class="sevo-form-control" readonly>
+                        </div>
                     </div>
-                    <div class="sevo-form-group">
-                        <label for="edit-evento-data">Data do Evento</label>
-                        <input type="text" id="edit-evento-data" name="evento_data" 
-                               value="<?php echo esc_attr($evento_data ? date('d/m/Y', strtotime($evento_data)) : ''); ?>" 
-                               class="sevo-form-control" readonly>
+                    <div class="sevo-form-row">
+                        <div class="sevo-form-group">
+                            <label for="edit-tipo-evento">Tipo de Evento</label>
+                            <input type="text" id="edit-tipo-evento" name="tipo_evento" 
+                                   value="<?php echo esc_attr($evento ? $evento->tipo_titulo : ''); ?>" 
+                                   class="sevo-form-control" readonly>
+                        </div>
+                        <div class="sevo-form-group">
+                            <label for="edit-organizacao">Organização</label>
+                            <input type="text" id="edit-organizacao" name="organizacao" 
+                                   value="<?php echo esc_attr($evento ? $evento->organizacao_titulo : ''); ?>" 
+                                   class="sevo-form-control" readonly>
+                        </div>
                     </div>
                 </div>
-                <div class="sevo-form-row">
-                    <div class="sevo-form-group">
-                        <label for="edit-tipo-evento">Tipo de Evento</label>
-                        <input type="text" id="edit-tipo-evento" name="tipo_evento" 
-                               value="<?php echo esc_attr($tipo_evento ? $tipo_evento->post_title : ''); ?>" 
-                               class="sevo-form-control" readonly>
-                    </div>
-                    <div class="sevo-form-group">
-                        <label for="edit-organizacao">Organização</label>
-                        <input type="text" id="edit-organizacao" name="organizacao" 
-                               value="<?php echo esc_attr($organizacao_nome); ?>" 
-                               class="sevo-form-control" readonly>
+                
+                <!-- Status da Inscrição -->
+                <div class="sevo-form-section">
+                    <h4>📋 Status da Inscrição</h4>
+                    <div class="sevo-form-row">
+                        <div class="sevo-form-group">
+                            <label for="edit-status">Status *</label>
+                            <select id="edit-status" name="status" class="sevo-form-control" required>
+                                <?php foreach ($status_options as $value => $label): ?>
+                                    <option value="<?php echo esc_attr($value); ?>" 
+                                            <?php selected($inscricao->status, $value); ?>>
+                                        <?php echo esc_html($label); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="sevo-form-help">Selecione o novo status da inscrição</small>
+                        </div>
+                        <div class="sevo-form-group">
+                            <label for="edit-data-inscricao">Data da Inscrição</label>
+                            <input type="text" id="edit-data-inscricao" name="data_inscricao" 
+                                   value="<?php echo esc_attr(date('d/m/Y H:i', strtotime($inscricao->created_at))); ?>" 
+                                   class="sevo-form-control" readonly>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Status da Inscrição -->
-            <div class="sevo-form-section">
-                <h4>📋 Status da Inscrição</h4>
-                <div class="sevo-form-row">
+                
+                <!-- Observações -->
+                <div class="sevo-form-section">
+                    <h4>💬 Observações</h4>
                     <div class="sevo-form-group">
-                        <label for="edit-status">Status *</label>
-                        <select id="edit-status" name="status" class="sevo-form-control" required>
-                            <?php foreach ($status_options as $value => $label): ?>
-                                <option value="<?php echo esc_attr($value); ?>" 
-                                        <?php selected($inscricao->status, $value); ?>>
-                                    <?php echo esc_html($label); ?>
+                        <label for="edit-observacoes">Observações</label>
+                        <textarea id="edit-observacoes" name="observacoes" 
+                                  class="sevo-form-control" rows="3" 
+                                  placeholder="Observações sobre a inscrição..."><?php echo esc_textarea($inscricao->observacoes); ?></textarea>
+                        <small class="sevo-form-help">Observações sobre esta inscrição</small>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Formulário para nova inscrição -->
+                <div class="sevo-form-section">
+                    <h4>👤 Selecionar Usuário</h4>
+                    <div class="sevo-form-group">
+                        <label for="new-user-id">Usuário *</label>
+                        <select id="new-user-id" name="user_id" class="sevo-form-control" required>
+                            <option value="">Selecione um usuário...</option>
+                            <?php foreach ($users as $user): ?>
+                                <option value="<?php echo esc_attr($user->ID); ?>">
+                                    <?php echo esc_html($user->display_name . ' (' . $user->user_email . ')'); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small class="sevo-form-help">Selecione o novo status da inscrição</small>
+                    </div>
+                </div>
+                
+                <div class="sevo-form-section">
+                    <h4>🎯 Selecionar Evento</h4>
+                    <div class="sevo-form-group">
+                        <label for="new-evento-id">Evento *</label>
+                        <select id="new-evento-id" name="evento_id" class="sevo-form-control" required>
+                            <option value="">Selecione um evento...</option>
+                            <?php foreach ($eventos as $evento_option): ?>
+                                <option value="<?php echo esc_attr($evento_option->id); ?>">
+                                    <?php echo esc_html($evento_option->organizacao_titulo . ' - ' . $evento_option->tipo_titulo . ' - ' . $evento_option->titulo); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="sevo-form-section">
+                    <h4>📋 Status e Observações</h4>
+                    <div class="sevo-form-row">
+                        <div class="sevo-form-group">
+                            <label for="new-status">Status *</label>
+                            <select id="new-status" name="status" class="sevo-form-control" required>
+                                <?php foreach ($status_options as $value => $label): ?>
+                                    <option value="<?php echo esc_attr($value); ?>" <?php selected('pendente', $value); ?>>
+                                        <?php echo esc_html($label); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
                     <div class="sevo-form-group">
-                        <label for="edit-data-inscricao">Data da Inscrição</label>
-                        <input type="text" id="edit-data-inscricao" name="data_inscricao" 
-                               value="<?php echo esc_attr(date('d/m/Y H:i', strtotime($inscricao->data_inscricao))); ?>" 
-                               class="sevo-form-control" readonly>
+                        <label for="new-observacoes">Observações</label>
+                        <textarea id="new-observacoes" name="observacoes" 
+                                  class="sevo-form-control" rows="3" 
+                                  placeholder="Observações sobre a inscrição..."></textarea>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Comentário/Observação -->
-            <div class="sevo-form-section">
-                <h4>💬 Comentário da Alteração</h4>
-                <div class="sevo-form-group">
-                    <label for="edit-comentario">Comentário (opcional)</label>
-                    <textarea id="edit-comentario" name="comentario" 
-                              class="sevo-form-control" rows="3" 
-                              placeholder="Adicione um comentário sobre esta alteração..."></textarea>
-                    <small class="sevo-form-help">Este comentário será registrado no histórico da inscrição</small>
-                </div>
-            </div>
+            <?php endif; ?>
             
             <!-- Botões de Ação -->
             <div class="sevo-form-actions">
@@ -156,7 +212,7 @@ $status_options = array(
                     Cancelar
                 </button>
                 <button type="submit" class="sevo-btn sevo-btn-primary">
-                    💾 Salvar Alterações
+                    <?php echo $is_editing ? '💾 Salvar Alterações' : '➕ Criar Inscrição'; ?>
                 </button>
             </div>
         </form>

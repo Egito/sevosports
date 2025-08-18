@@ -1,44 +1,30 @@
 <?php
 /**
- * View para o Dashboard de Organizações.
- * Este template é incluído pelo shortcode [sevo-orgs-dashboard].
+ * View para o dashboard de Organizações.
+ * Versão atualizada para usar tabelas customizadas.
  */
 
-if (!defined('ABSPATH')) {
+if (!defined('ABSPATH') || !is_user_logged_in()) {
     exit;
 }
 
-// Verifica se o usuário tem permissão para ver organizações inativas
-$can_manage_orgs = current_user_can('manage_options');
+// Parâmetros de paginação
+$current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+$per_page = 10;
 
-// Define meta_query baseado nas permissões
-$meta_query = array();
-if (!$can_manage_orgs) {
-    // Usuários sem permissão só veem organizações ativas ou sem status definido
-    $meta_query[] = array(
-        'relation' => 'OR',
-        array(
-            'key' => 'sevo_org_status',
-            'value' => 'ativo',
-            'compare' => '='
-        ),
-        array(
-            'key' => 'sevo_org_status',
-            'compare' => 'NOT EXISTS'
-        )
-    );
-}
+// Usar o modelo para buscar organizações com estatísticas
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model.php';
+$org_model = new Sevo_Organizacao_Model();
 
-// Busca organizações baseado nas permissões
-$args = array(
-    'post_type' => SEVO_ORG_POST_TYPE,
-    'posts_per_page' => -1,
-    'post_status' => 'publish',
-    'orderby' => 'title',
-    'order' => 'ASC',
-    'meta_query' => $meta_query,
-);
-$organizacoes = new WP_Query($args);
+// Preparar filtros
+$search = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
+$filters = [];
+
+// Buscar organizações com estatísticas
+$result = $org_model->get_with_full_stats($current_page, $per_page, $search, $filters);
+$organizacoes = $result['data'];
+$total_items = $result['total'];
+$total_pages = $result['total_pages'];
 ?>
 
 <div class="sevo-dashboard-wrapper">
@@ -49,45 +35,45 @@ $organizacoes = new WP_Query($args);
     <!-- Summary Cards -->
     <?php echo function_exists('sevo_get_summary_cards') ? sevo_get_summary_cards() : ''; ?>
     
-    <?php if ($organizacoes->have_posts()) : ?>
+    <?php if (!empty($organizacoes)) : ?>
         <div class="sevo-grid">
-            <?php while ($organizacoes->have_posts()) : $organizacoes->the_post(); 
-                $org_status = get_post_meta(get_the_ID(), 'sevo_org_status', true);
-                $org_status = !empty($org_status) ? $org_status : 'ativo';
+            <?php foreach ($organizacoes as $organizacao) : 
+                // As estatísticas já vêm do modelo
+                $tipos_count = $organizacao->tipos_count;
+                $eventos_count = $organizacao->eventos_count;
+                
+                $status_class = ($organizacao->status === 'ativo') ? 'status-ativo' : 'status-inativo';
+                $status_text = ($organizacao->status === 'ativo') ? 'Ativo' : 'Inativo';
             ?>
-                <div class="sevo-card org-card" data-org-id="<?php echo get_the_ID(); ?>">
-                    <div class="sevo-card-image" style="background-image: url('<?php echo get_the_post_thumbnail_url(get_the_ID(), 'medium_large'); ?>');">
+                <div class="sevo-card org-card" data-org-id="<?php echo esc_attr($organizacao->id); ?>">
+                    <div class="sevo-card-image" style="background-image: url('<?php echo esc_url($organizacao->imagem_url ?: ''); ?>');">
                         <div class="sevo-card-overlay"></div>
                         <div class="sevo-card-status">
-                            <span class="sevo-status-badge status-<?php echo esc_attr($org_status); ?>">
-                                <?php echo ucfirst($org_status); ?>
+                            <span class="sevo-status-badge <?php echo esc_attr($status_class); ?>">
+                                <?php echo esc_html($status_text); ?>
                             </span>
                         </div>
                     </div>
                     <div class="sevo-card-content">
-                        <h3 class="sevo-card-title"><?php the_title(); ?></h3>
+                        <h3 class="sevo-card-title"><?php echo esc_html($organizacao->titulo); ?></h3>
                         <p class="sevo-card-description">
-                           <?php
-                           $excerpt = get_the_excerpt();
-                           echo wp_trim_words($excerpt, 15, '...');
-                           ?>
+                           <?php echo esc_html(wp_trim_words($organizacao->descricao, 15, '...')); ?>
                         </p>
                         
                         <div class="card-actions">
-                            <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr(get_the_ID()); ?>)" title="Ver Detalhes">
+                            <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Ver Detalhes">
                                 <i class="dashicons dashicons-visibility"></i>
                             </button>
                             <?php if (current_user_can('manage_options')): ?>
-                                <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr(get_the_ID()); ?>)" title="Editar">
+                                <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Editar">
                                     <i class="dashicons dashicons-edit"></i>
                                 </button>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         </div>
-        <?php wp_reset_postdata(); ?>
     <?php else : ?>
         <p>Nenhuma organização encontrada.</p>
     <?php endif; ?>

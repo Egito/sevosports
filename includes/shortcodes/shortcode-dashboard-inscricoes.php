@@ -358,39 +358,35 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Se não pode gerenciar todas, mostrar apenas as próprias
         if (!$can_manage_all) {
-            $where_conditions[] = $wpdb->prepare('inscr.post_author = %d', get_current_user_id());
+            $where_conditions[] = $wpdb->prepare('i.usuario_id = %d', get_current_user_id());
         }
         
         // Aplicar filtros apenas se não estiverem vazios
         if (!empty($filters['evento_id']) && $filters['evento_id'] !== '') {
-            $where_conditions[] = $wpdb->prepare('evento_meta.meta_value = %d', intval($filters['evento_id']));
+            $where_conditions[] = $wpdb->prepare('i.evento_id = %d', intval($filters['evento_id']));
         }
         
         if (!empty($filters['status']) && $filters['status'] !== '') {
-            $where_conditions[] = $wpdb->prepare('status_meta.meta_value = %s', sanitize_text_field($filters['status']));
+            $where_conditions[] = $wpdb->prepare('i.status = %s', sanitize_text_field($filters['status']));
         }
         
         if (!empty($filters['ano']) && $filters['ano'] !== '') {
-            $where_conditions[] = $wpdb->prepare('YEAR(inscr.post_date) = %d', intval($filters['ano']));
+            $where_conditions[] = $wpdb->prepare('YEAR(i.data_inscricao) = %d', intval($filters['ano']));
         }
         
         if (!empty($filters['mes']) && $filters['mes'] !== '') {
-            $where_conditions[] = $wpdb->prepare('MONTH(inscr.post_date) = %d', intval($filters['mes']));
+            $where_conditions[] = $wpdb->prepare('MONTH(i.data_inscricao) = %d', intval($filters['mes']));
         }
         
         if (!empty($filters['organizacao_id']) && $filters['organizacao_id'] !== '' && $can_manage_all) {
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} org_meta_filter ON evento.ID = org_meta_filter.post_id AND org_meta_filter.meta_key = '_sevo_evento_tipo_evento_id'";
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_org_meta_filter ON org_meta_filter.meta_value = tipo_org_meta_filter.post_id AND tipo_org_meta_filter.meta_key = '_sevo_tipo_evento_organizacao_id'";
-            $where_conditions[] = $wpdb->prepare('tipo_org_meta_filter.meta_value = %d', intval($filters['organizacao_id']));
+            $where_conditions[] = $wpdb->prepare('o.id = %d', intval($filters['organizacao_id']));
         }
 
         if (!empty($filters['tipo_evento_id']) && $filters['tipo_evento_id'] !== '' && $can_manage_all) {
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_meta_filter ON evento.ID = tipo_meta_filter.post_id AND tipo_meta_filter.meta_key = '_sevo_evento_tipo_evento_id'";
-            $where_conditions[] = $wpdb->prepare('tipo_meta_filter.meta_value = %d', intval($filters['tipo_evento_id']));
+            $where_conditions[] = $wpdb->prepare('te.id = %d', intval($filters['tipo_evento_id']));
         }
 
         if (!empty($filters['usuario']) && $filters['usuario'] !== '') {
-            $join_tables[] = "LEFT JOIN {$wpdb->users} u ON inscr.post_author = u.ID";
             $where_conditions[] = $wpdb->prepare('(u.display_name LIKE %s OR u.user_email LIKE %s OR u.user_login LIKE %s)', 
                 '%' . $wpdb->esc_like($filters['usuario']) . '%',
                 '%' . $wpdb->esc_like($filters['usuario']) . '%',
@@ -401,36 +397,30 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $joins = implode(' ', $join_tables);
         $where = implode(' AND ', $where_conditions);
         
-        // Query principal
+        // Query principal usando tabelas customizadas
         $sql = "
             SELECT 
-                inscr.ID as inscricao_id,
-                inscr.post_author as usuario_id,
-                inscr.post_date as data_inscricao,
-                COALESCE(status_meta.meta_value, 'solicitada') as status,
-                evento_meta.meta_value as evento_id,
-                evento.post_title as evento_nome,
-                evento_data.meta_value as evento_data,
-                tipo_evento_meta.meta_value as tipo_evento_id,
-                tipo_evento.post_title as tipo_evento_nome,
-                org_meta.meta_value as organizacao_id,
-                org.post_title as organizacao_nome
-            FROM {$wpdb->posts} inscr
-            LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
-            LEFT JOIN {$wpdb->postmeta} status_meta ON inscr.ID = status_meta.post_id AND status_meta.meta_key = '_sevo_inscr_status'
-            LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID AND evento.post_type = 'sevo_evento' AND evento.post_status = 'publish'
-            LEFT JOIN {$wpdb->postmeta} evento_data ON evento.ID = evento_data.post_id AND evento_data.meta_key = '_sevo_evento_data'
-            LEFT JOIN {$wpdb->postmeta} tipo_evento_meta ON evento.ID = tipo_evento_meta.post_id AND tipo_evento_meta.meta_key = '_sevo_evento_tipo_evento_id'
-            LEFT JOIN {$wpdb->posts} tipo_evento ON tipo_evento_meta.meta_value = tipo_evento.ID AND tipo_evento.post_type = 'sevo_tipo_evento' AND tipo_evento.post_status = 'publish'
-            LEFT JOIN {$wpdb->postmeta} org_meta ON tipo_evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'
-            LEFT JOIN {$wpdb->posts} org ON org_meta.meta_value = org.ID AND org.post_type = 'sevo_organizacao' AND org.post_status = 'publish'
+                i.id as inscricao_id,
+                i.usuario_id,
+                i.data_inscricao,
+                i.status,
+                i.evento_id,
+                e.titulo as evento_nome,
+                e.data_inicio as evento_data,
+                te.id as tipo_evento_id,
+                te.titulo as tipo_evento_nome,
+                o.id as organizacao_id,
+                o.titulo as organizacao_nome,
+                u.display_name as usuario_nome,
+                u.user_email as usuario_email
+            FROM {$wpdb->prefix}sevo_inscricoes i
+            LEFT JOIN {$wpdb->prefix}sevo_eventos e ON i.evento_id = e.id
+            LEFT JOIN {$wpdb->prefix}sevo_tipos_evento te ON e.tipo_evento_id = te.id
+            LEFT JOIN {$wpdb->prefix}sevo_organizacoes o ON te.organizacao_id = o.id
+            LEFT JOIN {$wpdb->users} u ON i.usuario_id = u.ID
             {$joins}
-            WHERE inscr.post_type = 'sevo_inscr' 
-                AND inscr.post_status = 'publish'
-                AND evento_meta.meta_value IS NOT NULL 
-                AND evento_meta.meta_value != ''
-                AND {$where}
-            ORDER BY inscr.post_date DESC
+            WHERE {$where}
+            ORDER BY i.data_inscricao DESC
             LIMIT {$per_page} OFFSET {$offset}
         ";
         
@@ -438,28 +428,22 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Query para contar total
         $count_sql = "
-            SELECT COUNT(DISTINCT inscr.ID)
-            FROM {$wpdb->posts} inscr
-            LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
-            LEFT JOIN {$wpdb->postmeta} status_meta ON inscr.ID = status_meta.post_id AND status_meta.meta_key = '_sevo_inscr_status'
-            LEFT JOIN {$wpdb->posts} evento ON evento_meta.meta_value = evento.ID AND evento.post_type = 'sevo_evento' AND evento.post_status = 'publish'
+            SELECT COUNT(i.id)
+            FROM {$wpdb->prefix}sevo_inscricoes i
+            LEFT JOIN {$wpdb->prefix}sevo_eventos e ON i.evento_id = e.id
+            LEFT JOIN {$wpdb->prefix}sevo_tipos_evento te ON e.tipo_evento_id = te.id
+            LEFT JOIN {$wpdb->prefix}sevo_organizacoes o ON te.organizacao_id = o.id
+            LEFT JOIN {$wpdb->users} u ON i.usuario_id = u.ID
             {$joins}
-            WHERE inscr.post_type = 'sevo_inscr' 
-                AND inscr.post_status = 'publish'
-                AND evento_meta.meta_value IS NOT NULL 
-                AND evento_meta.meta_value != ''
-                AND {$where}
+            WHERE {$where}
         ";
         
         $total = $wpdb->get_var($count_sql);
         
-        // Enriquecer dados das inscrições
+        // Garantir valores padrão
         foreach ($inscricoes as &$inscricao) {
-            $user = get_userdata($inscricao->usuario_id);
-            $inscricao->usuario_nome = $user ? $user->display_name : 'Usuário não encontrado';
-            $inscricao->usuario_email = $user ? $user->user_email : '';
-            
-            // Os nomes já vêm da consulta SQL, mas vamos garantir valores padrão
+            $inscricao->usuario_nome = $inscricao->usuario_nome ?: 'Usuário não encontrado';
+            $inscricao->usuario_email = $inscricao->usuario_email ?: '';
             $inscricao->evento_nome = $inscricao->evento_nome ?: 'Evento não encontrado';
             $inscricao->tipo_evento_nome = $inscricao->tipo_evento_nome ?: 'Tipo não definido';
             $inscricao->organizacao_nome = $inscricao->organizacao_nome ?: 'Organização não definida';
@@ -478,24 +462,36 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
      * Atualizar status da inscrição e registrar comentário no evento.
      */
     private function update_inscricao_status($inscricao_id, $new_status, $reason = '') {
-        $inscricao = get_post($inscricao_id);
-        if (!$inscricao || $inscricao->post_type !== 'sevo_inscr') {
+        global $wpdb;
+        
+        // Buscar inscrição na tabela customizada
+        $inscricao = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sevo_inscricoes WHERE id = %d",
+            $inscricao_id
+        ));
+        
+        if (!$inscricao) {
             return false;
         }
         
-        $old_status = get_post_meta($inscricao_id, '_sevo_inscr_status', true) ?: 'solicitada';
+        $old_status = $inscricao->status;
         
-        // Atualizar status no meta campo
-        $result = update_post_meta($inscricao_id, '_sevo_inscr_status', $new_status);
+        // Atualizar status na tabela customizada
+        $result = $wpdb->update(
+            $wpdb->prefix . 'sevo_inscricoes',
+            array('status' => $new_status),
+            array('id' => $inscricao_id),
+            array('%s'),
+            array('%d')
+        );
         
         if ($result === false) {
             return false;
         }
         
         // Registrar comentário no evento
-        $evento_id = get_post_meta($inscricao_id, '_sevo_inscr_evento_id', true);
-        if ($evento_id) {
-            $this->add_status_change_comment($evento_id, $inscricao_id, $old_status, $new_status, $reason);
+        if ($inscricao->evento_id) {
+            $this->add_status_change_comment($inscricao->evento_id, $inscricao_id, $old_status, $new_status, $reason);
         }
         
         // Disparar hook customizado
@@ -604,13 +600,12 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Anos disponíveis
         $anos_sql = "
-            SELECT DISTINCT YEAR(post_date) as ano
-            FROM {$wpdb->posts}
-            WHERE post_type = 'sevo_inscr'
+            SELECT DISTINCT YEAR(i.data_inscricao) as ano
+            FROM {$wpdb->prefix}sevo_inscricoes i
         ";
         
         if (!$can_manage_all) {
-            $anos_sql .= $wpdb->prepare(' AND post_author = %d', get_current_user_id());
+            $anos_sql .= $wpdb->prepare(' WHERE i.usuario_id = %d', get_current_user_id());
         }
         
         $anos_sql .= ' ORDER BY ano DESC';
@@ -627,57 +622,51 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         global $wpdb;
         
         $where_conditions = array('1=1');
-        $join_tables = array();
         
         // Se não pode gerenciar todas, mostrar apenas as próprias
         if (!$can_manage_all) {
-            $where_conditions[] = $wpdb->prepare('inscr.post_author = %d', get_current_user_id());
+            $where_conditions[] = $wpdb->prepare('i.usuario_id = %d', get_current_user_id());
         }
         
         // Aplicar filtros apenas se não estiverem vazios
         if (!empty($filters['evento_id']) && $filters['evento_id'] !== '') {
-            $where_conditions[] = $wpdb->prepare('evento_meta.meta_value = %d', intval($filters['evento_id']));
+            $where_conditions[] = $wpdb->prepare('i.evento_id = %d', intval($filters['evento_id']));
         }
         
         if (!empty($filters['status']) && $filters['status'] !== '') {
-            $where_conditions[] = $wpdb->prepare('status_meta.meta_value = %s', sanitize_text_field($filters['status']));
+            $where_conditions[] = $wpdb->prepare('i.status = %s', sanitize_text_field($filters['status']));
         }
         
         if (!empty($filters['ano']) && $filters['ano'] !== '') {
-            $where_conditions[] = $wpdb->prepare('YEAR(inscr.post_date) = %d', intval($filters['ano']));
+            $where_conditions[] = $wpdb->prepare('YEAR(i.data_inscricao) = %d', intval($filters['ano']));
         }
         
         if (!empty($filters['mes']) && $filters['mes'] !== '') {
-            $where_conditions[] = $wpdb->prepare('MONTH(inscr.post_date) = %d', intval($filters['mes']));
+            $where_conditions[] = $wpdb->prepare('MONTH(i.data_inscricao) = %d', intval($filters['mes']));
         }
         
         if (!empty($filters['organizacao']) && $filters['organizacao'] !== '' && $can_manage_all) {
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} org_meta ON evento.ID = org_meta.post_id AND org_meta.meta_key = '_sevo_evento_tipo_evento_id'";
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_org_meta ON org_meta.meta_value = tipo_org_meta.post_id AND tipo_org_meta.meta_key = '_sevo_tipo_evento_organizacao_id'";
-            $where_conditions[] = $wpdb->prepare('tipo_org_meta.meta_value = %d', intval($filters['organizacao']));
+            $where_conditions[] = $wpdb->prepare('te.organizacao_id = %d', intval($filters['organizacao']));
         }
         
         if (!empty($filters['tipo_evento']) && $filters['tipo_evento'] !== '' && $can_manage_all) {
-            $join_tables[] = "LEFT JOIN {$wpdb->postmeta} tipo_meta ON evento.ID = tipo_meta.post_id AND tipo_meta.meta_key = '_sevo_evento_tipo_evento_id'";
-            $where_conditions[] = $wpdb->prepare('tipo_meta.meta_value = %d', intval($filters['tipo_evento']));
+            $where_conditions[] = $wpdb->prepare('e.tipo_evento_id = %d', intval($filters['tipo_evento']));
         }
         
-        $joins = implode(' ', $join_tables);
         $where = implode(' AND ', $where_conditions);
         
         // Query para estatísticas
         $sql = "
             SELECT 
                 COUNT(*) as total,
-                SUM(CASE WHEN COALESCE(status_meta.meta_value, 'solicitada') = 'solicitada' THEN 1 ELSE 0 END) as solicitadas,
-            SUM(CASE WHEN status_meta.meta_value = 'aceita' THEN 1 ELSE 0 END) as approved,
-            SUM(CASE WHEN status_meta.meta_value = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
-            SUM(CASE WHEN status_meta.meta_value = 'cancelada' THEN 1 ELSE 0 END) as canceladas
-            FROM {$wpdb->posts} inscr
-            LEFT JOIN {$wpdb->postmeta} evento_meta ON inscr.ID = evento_meta.post_id AND evento_meta.meta_key = '_sevo_inscr_evento_id'
-            LEFT JOIN {$wpdb->postmeta} status_meta ON inscr.ID = status_meta.post_id AND status_meta.meta_key = '_sevo_inscr_status'
-            {$joins}
-            WHERE inscr.post_type = 'sevo_inscr' AND inscr.post_status = 'publish' AND {$where}
+                SUM(CASE WHEN i.status = 'solicitada' THEN 1 ELSE 0 END) as solicitadas,
+                SUM(CASE WHEN i.status = 'aceita' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN i.status = 'rejeitada' THEN 1 ELSE 0 END) as rejected,
+                SUM(CASE WHEN i.status = 'cancelada' THEN 1 ELSE 0 END) as canceladas
+            FROM {$wpdb->prefix}sevo_inscricoes i
+            LEFT JOIN {$wpdb->prefix}sevo_eventos e ON i.evento_id = e.id
+            LEFT JOIN {$wpdb->prefix}sevo_tipos_evento te ON e.tipo_evento_id = te.id
+            WHERE {$where}
         ";
         
         $stats = $wpdb->get_row($sql, ARRAY_A);

@@ -18,125 +18,47 @@ $can_manage_events = current_user_can('manage_options');
 
 // Função para buscar eventos organizados por seções
 function sevo_get_eventos_by_sections() {
-    // Busca todos os eventos
-    $args = array(
-        'post_type' => SEVO_EVENTO_POST_TYPE,
-        'posts_per_page' => -1,
-        'post_status' => 'publish',
-        'orderby' => 'meta_value',
-        'meta_key' => '_sevo_evento_data_inicio_evento',
-        'order' => 'ASC'
-    );
-    $eventos = new WP_Query($args);
+    // Usar o modelo para buscar eventos organizados por seções
+    require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+    $evento_model = new Sevo_Evento_Model();
     
-    $sections = array(
+    $eventos_by_sections = $evento_model->get_by_sections();
+    
+    // Configuração das seções com metadados de exibição
+    $sections_config = array(
         'inscricoes_abertas' => array(
             'title' => 'Inscrições Abertas',
             'icon' => 'dashicons-yes-alt',
-            'class' => 'inscricoes-abertas',
-            'eventos' => array()
+            'class' => 'inscricoes-abertas'
         ),
         'em_andamento' => array(
             'title' => 'Em Andamento',
             'icon' => 'dashicons-clock',
-            'class' => 'em-andamento', 
-            'eventos' => array()
+            'class' => 'em-andamento'
         ),
         'inscricoes_encerradas' => array(
             'title' => 'Inscrições Encerradas',
             'icon' => 'dashicons-dismiss',
-            'class' => 'inscricoes-encerradas',
-            'eventos' => array()
+            'class' => 'inscricoes-encerradas'
         ),
         'aguardando_inicio' => array(
             'title' => 'Aguardando Início',
             'icon' => 'dashicons-hourglass',
-            'class' => 'aguardando-inicio',
-            'eventos' => array()
+            'class' => 'aguardando-inicio'
         ),
         'encerrados' => array(
             'title' => 'Encerrados',
             'icon' => 'dashicons-archive',
-            'class' => 'encerrados',
-            'eventos' => array()
+            'class' => 'encerrados'
         )
     );
     
-    if ($eventos->have_posts()) {
-        while ($eventos->have_posts()) {
-            $eventos->the_post();
-            $evento_id = get_the_ID();
-            
-            // Dados do evento
-            $data_inicio = get_post_meta($evento_id, '_sevo_evento_data_inicio_evento', true);
-            $data_fim = get_post_meta($evento_id, '_sevo_evento_data_fim_evento', true);
-            $data_inicio_insc = get_post_meta($evento_id, '_sevo_evento_data_inicio_inscricoes', true);
-            $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
-            $local = get_post_meta($evento_id, '_sevo_evento_local', true);
-            $tipo_evento_id = get_post_meta($evento_id, '_sevo_evento_tipo_evento_id', true);
-            $tipo_evento = $tipo_evento_id ? get_the_title($tipo_evento_id) : '';
-            
-            // Busca a organização através do tipo de evento
-            $org_id = $tipo_evento_id ? get_post_meta($tipo_evento_id, '_sevo_tipo_evento_organizacao_id', true) : '';
-            $org_name = $org_id ? get_the_title($org_id) : '';
-            
-            // Imagem do evento ou padrão
-            $thumbnail_url = get_the_post_thumbnail_url($evento_id, 'medium_large');
-            if (!$thumbnail_url) {
-                $thumbnail_url = SEVO_EVENTOS_PLUGIN_URL . 'assets/images/default-evento.svg';
-            }
-            
-            // Formata as datas
-            $data_inicio_formatted = $data_inicio ? date_i18n('d/m/Y', strtotime($data_inicio)) : '';
-            $data_fim_formatted = $data_fim ? date_i18n('d/m/Y', strtotime($data_fim)) : '';
-            
-            // Determina o status do evento
-            $today = current_time('Y-m-d');
-            $status_section = 'aguardando_inicio'; // padrão
-            
-            // Lógica para determinar a seção
-            if ($data_inicio_insc && $data_fim_insc) {
-                if ($today >= $data_inicio_insc && $today <= $data_fim_insc) {
-                    $status_section = 'inscricoes_abertas';
-                } elseif ($today > $data_fim_insc) {
-                    if ($data_inicio && $today >= $data_inicio) {
-                        if ($data_fim && $today <= $data_fim) {
-                            $status_section = 'em_andamento';
-                        } elseif ($data_fim && $today > $data_fim) {
-                            $status_section = 'encerrados';
-                        } else {
-                            $status_section = 'inscricoes_encerradas';
-                        }
-                    } else {
-                        $status_section = 'inscricoes_encerradas';
-                    }
-                }
-            } elseif ($data_inicio && $data_fim) {
-                if ($today >= $data_inicio && $today <= $data_fim) {
-                    $status_section = 'em_andamento';
-                } elseif ($today > $data_fim) {
-                    $status_section = 'encerrados';
-                }
-            }
-            
-            // Monta o array do evento
-            $evento_data = array(
-                'id' => $evento_id,
-                'title' => get_the_title(),
-                'excerpt' => get_the_excerpt(),
-                'thumbnail_url' => $thumbnail_url,
-                'tipo_evento' => $tipo_evento,
-                'org_name' => $org_name,
-                'data_inicio_formatted' => $data_inicio_formatted,
-                'data_fim_formatted' => $data_fim_formatted,
-                'local' => $local,
-                'status_section' => $status_section
-            );
-            
-            // Adiciona o evento à seção correspondente
-            $sections[$status_section]['eventos'][] = $evento_data;
-        }
-        wp_reset_postdata();
+    // Combinar dados dos eventos com configuração das seções
+    $sections = array();
+    foreach ($sections_config as $key => $config) {
+        $sections[$key] = array_merge($config, array(
+            'eventos' => isset($eventos_by_sections[$key]) ? $eventos_by_sections[$key] : array()
+        ));
     }
     
     return $sections;
@@ -156,51 +78,27 @@ function sevo_render_event_card($evento) {
     $inscricoes_abertas = false;
     
     if (is_user_logged_in()) {
-        // Verifica período de inscrições
-        $data_inicio_insc = get_post_meta($evento_id, '_sevo_evento_data_inicio_inscricoes', true);
-        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
+        // Usa o modelo para verificar se o usuário pode se inscrever
+        $evento_model = new Sevo_Evento_Model();
+        $inscricao_model = new Sevo_Inscricao_Model();
         
-        $hoje = new DateTime();
-        $inicio_insc = $data_inicio_insc ? new DateTime($data_inicio_insc) : null;
-        $fim_insc = $data_fim_insc ? new DateTime($data_fim_insc) : null;
-        $inscricoes_abertas = ($inicio_insc && $fim_insc && $hoje >= $inicio_insc && $hoje <= $fim_insc);
+        $can_inscribe = $evento_model->can_user_register($evento_id, $user_id);
         
-        // Verifica se já está inscrito (usando nomes corretos dos campos)
-        $user_inscricao_query = new WP_Query(array(
-            'post_type' => SEVO_INSCR_POST_TYPE,
-            'post_status' => 'publish',
-            'posts_per_page' => 1,
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key' => '_sevo_inscr_evento_id',
-                    'value' => $evento_id,
-                    'compare' => '='
-                ),
-                array(
-                    'key' => '_sevo_inscr_user_id',
-                    'value' => $user_id,
-                    'compare' => '='
-                )
-            ),
-            'orderby' => 'date',
-            'order' => 'DESC'
-        ));
+        // Busca a inscrição do usuário para obter detalhes
+        $user_inscricao = $inscricao_model->first(['usuario_id' => $user_id, 'evento_id' => $evento_id]);
         
-        if ($user_inscricao_query->have_posts()) {
-            $user_inscricao = $user_inscricao_query->posts[0];
-            $user_inscricao_status = get_post_meta($user_inscricao->ID, '_sevo_inscr_status', true);
-            $cancel_count = (int) get_post_meta($user_inscricao->ID, '_sevo_inscr_cancel_count', true);
-            
-            // Se está cancelada e dentro do período, pode se inscrever novamente (se não atingiu limite)
-            if ($user_inscricao_status === 'cancelada' && $inscricoes_abertas && $cancel_count < 3) {
-                $can_inscribe = true;
-            }
-        } else {
-            // Não tem inscrição, pode se inscrever se período estiver aberto
-            if ($inscricoes_abertas) {
-                $can_inscribe = true;
-            }
+        if ($user_inscricao) {
+            $user_inscricao_status = $user_inscricao->status;
+            $cancel_count = (int) $user_inscricao->cancel_count;
+        }
+        
+        // Verifica se as inscrições estão abertas
+        $evento_data = $evento_model->find($evento_id);
+        if ($evento_data) {
+            $hoje = new DateTime();
+            $inicio_insc = $evento_data->data_inicio_inscricoes ? new DateTime($evento_data->data_inicio_inscricoes) : null;
+            $fim_insc = $evento_data->data_fim_inscricoes ? new DateTime($evento_data->data_fim_inscricoes) : null;
+            $inscricoes_abertas = ($inicio_insc && $fim_insc && $hoje >= $inicio_insc && $hoje <= $fim_insc);
         }
     }
     
@@ -260,7 +158,7 @@ function sevo_render_event_card($evento) {
                             <i class="dashicons dashicons-plus-alt"></i>
                         </button>
                     <?php elseif ($user_inscricao && $user_inscricao_status === 'solicitada'): ?>
-                        <button class="btn-cancel-inscription" data-inscricao-id="<?php echo esc_attr($user_inscricao->ID); ?>" title="Cancelar Inscrição">
+                        <button class="btn-cancel-inscription" data-inscricao-id="<?php echo esc_attr($user_inscricao->id); ?>" title="Cancelar Inscrição">
                             <i class="dashicons dashicons-dismiss"></i>
                         </button>
                     <?php elseif ($user_inscricao && $user_inscricao_status === 'aceita'): ?>

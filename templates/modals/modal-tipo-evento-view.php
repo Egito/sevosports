@@ -1,145 +1,239 @@
 <?php
 /**
- * View para o conteúdo do modal de um Tipo de Evento.
- * Este template é carregado via AJAX.
+ * Template do modal para visualizar tipos de evento.
+ * Versão atualizada para usar tabelas customizadas.
  */
 
-if (!defined('ABSPATH') || !isset($tipo_evento)) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
-// Coleta os dados do tipo de evento
-$tipo_id = $tipo_evento->ID;
-$tipo_title = $tipo_evento->post_title;
-$tipo_description = apply_filters('the_content', $tipo_evento->post_content);
-$tipo_thumbnail_url = get_the_post_thumbnail_url($tipo_id, 'large');
+// Verifica se o tipo de evento foi passado
+if (!isset($tipo_evento) || !$tipo_evento) {
+    echo '<p>Tipo de evento não encontrado.</p>';
+    return;
+}
 
-// Busca dados da organização associada
-$organizacao_id = get_post_meta($tipo_id, '_sevo_tipo_evento_organizacao_id', true);
-$organizacao_title = $organizacao_id ? get_the_title($organizacao_id) : 'N/D';
-
-// Busca outros metadados
-$max_vagas = get_post_meta($tipo_id, '_sevo_tipo_evento_max_vagas', true);
-$status = get_post_meta($tipo_id, '_sevo_tipo_evento_status', true);
-$tipo_participacao = get_post_meta($tipo_id, '_sevo_tipo_evento_participacao', true);
-$autor_id = get_post_meta($tipo_id, '_sevo_tipo_evento_autor_id', true);
-$autor_name = $autor_id ? get_userdata($autor_id)->display_name : 'N/D';
-
-// Busca os eventos associados a este tipo
-$eventos = get_posts(array(
-    'post_type' => SEVO_EVENTO_POST_TYPE,
-    'posts_per_page' => -1,
-    'meta_key' => '_sevo_evento_tipo_evento_id',
-    'meta_value' => $tipo_id
-));
-
-// Link para o fórum do tipo de evento
-$forum_category_id = get_post_meta($tipo_id, '_sevo_forum_category_id', true);
-$forum_url = '#';
-if ($forum_category_id && class_exists('AsgarosForum')) {
-    // Método mais seguro para obter a página do fórum
-    global $asgarosforum;
-    if ($asgarosforum && method_exists($asgarosforum, 'get_link')) {
-        $forum_url = $asgarosforum->get_link('forum', $forum_category_id);
-    } else {
-        // Fallback: tentar obter a página do fórum de forma alternativa
-        $forum_page_id = get_option('asgarosforum_pageid');
-        if ($forum_page_id) {
-            $forum_url = get_permalink($forum_page_id) . 'viewforum/' . $forum_category_id . '/';
-        }
-    }
+// Buscar dados da organização
+$organizacao = null;
+if ($tipo_evento->organizacao_id) {
+    $organizacao_model = new Sevo_Organizacao_Model();
+    $organizacao = $organizacao_model->find($tipo_evento->organizacao_id);
 }
 
 ?>
 
-<div class="sevo-modal-header">
-    <?php if ($tipo_thumbnail_url) : ?>
-        <img src="<?php echo esc_url($tipo_thumbnail_url); ?>" alt="<?php echo esc_attr($tipo_title); ?>" class="sevo-modal-image" style="max-width: 300px; max-height: 300px; border: 1px solid #ddd; border-radius: 8px; display: block; margin: 0 auto;">
-    <?php endif; ?>
-</div>
-
 <div class="sevo-modal-body">
-    <h2 class="sevo-modal-title"><?php echo esc_html($tipo_title); ?></h2>
+    <h2 class="sevo-modal-title"><?php echo esc_html($tipo_evento->titulo); ?></h2>
     
-    <!-- Container Superior: Informações e CPTs Relacionados -->
-    <div class="sevo-modal-content-grid">
-        <!-- Coluna de Informações Básicas -->
-        <div class="sevo-modal-info-column">
-            <h4><i class="fas fa-info-circle"></i> Informações</h4>
-            
-            <!-- Organização -->
-            <div class="sevo-info-item">
-                <strong><i class="fas fa-building"></i> Organização:</strong>
-                <span><?php echo esc_html($organizacao_title); ?></span>
+    <div class="sevo-tipo-evento-details">
+        <!-- Imagem do Tipo de Evento -->
+        <?php if (!empty($tipo_evento->imagem_url)): ?>
+            <div class="sevo-tipo-evento-image">
+                <img src="<?php echo esc_url($tipo_evento->imagem_url); ?>" alt="<?php echo esc_attr($tipo_evento->titulo); ?>" class="sevo-tipo-evento-logo">
             </div>
-            
-            <!-- Autor -->
-            <div class="sevo-info-item">
-                <strong><i class="fas fa-user"></i> Autor:</strong>
-                <span><?php echo esc_html($autor_name); ?></span>
-            </div>
-            
-            <!-- Vagas Máximas -->
-            <div class="sevo-info-item">
-                <strong><i class="fas fa-users"></i> Vagas Máximas:</strong>
-                <span><?php echo esc_html($max_vagas ?: 'Não definido'); ?></span>
-            </div>
-            
-            <!-- Status -->
-            <div class="sevo-info-item">
-                <strong><i class="fas fa-toggle-<?php echo $status === 'ativo' ? 'on' : 'off'; ?>"></i> Status:</strong>
-                <span class="sevo-status-badge sevo-status-<?php echo esc_attr($status ?: 'ativo'); ?>">
-                    <?php echo esc_html(ucfirst($status ?: 'ativo')); ?>
-                </span>
-            </div>
-            
-            <!-- Tipo de Participação -->
-            <div class="sevo-info-item">
-                <strong><i class="fas fa-handshake"></i> Tipo de Participação:</strong>
-                <span><?php echo esc_html(ucfirst($tipo_participacao ?: 'individual')); ?></span>
-            </div>
-        </div>
-
-        <!-- Coluna de CPTs Relacionados -->
-        <div class="sevo-modal-info-column">
-            <h4><i class="fas fa-calendar"></i> Eventos Criados</h4>
-            <div class="sevo-info-item" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
-                <?php if (!empty($eventos)) : ?>
-                    <ul class="sevo-eventos-list">
-                        <?php foreach ($eventos as $evento) : ?>
-                            <li>
-                                <a href="#" class="sevo-evento-link" data-evento-id="<?php echo esc_attr($evento->ID); ?>">
-                                    <?php echo esc_html($evento->post_title); ?>
-                                </a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php else : ?>
-                    <p class="sevo-no-items">Nenhum evento criado ainda.</p>
+        <?php endif; ?>
+        
+        <!-- Informações Básicas -->
+        <div class="sevo-tipo-evento-info">
+            <div class="sevo-info-grid">
+                <!-- Status -->
+                <div class="sevo-info-item">
+                    <label>Status:</label>
+                    <span class="sevo-status sevo-status-<?php echo esc_attr($tipo_evento->status); ?>">
+                        <?php echo ucfirst(esc_html($tipo_evento->status)); ?>
+                    </span>
+                </div>
+                
+                <!-- Data de Criação -->
+                <div class="sevo-info-item">
+                    <label>Criado em:</label>
+                    <span><?php echo date('d/m/Y H:i', strtotime($tipo_evento->data_criacao)); ?></span>
+                </div>
+                
+                <!-- Organização -->
+                <div class="sevo-info-item">
+                    <label>Organização:</label>
+                    <span>
+                        <?php if ($organizacao): ?>
+                            <a href="#" onclick="SevoOrgsAdmin.viewOrganizacao(<?php echo $organizacao->id; ?>)" class="sevo-link">
+                                <?php echo esc_html($organizacao->titulo); ?>
+                            </a>
+                        <?php else: ?>
+                            <em>Organização não encontrada</em>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <!-- Data de Atualização -->
+                <?php if ($tipo_evento->data_atualizacao && $tipo_evento->data_atualizacao !== $tipo_evento->data_criacao): ?>
+                    <div class="sevo-info-item">
+                        <label>Atualizado em:</label>
+                        <span><?php echo date('d/m/Y H:i', strtotime($tipo_evento->data_atualizacao)); ?></span>
+                    </div>
                 <?php endif; ?>
             </div>
-        </div>
-    </div>
-
-    <!-- Container Inferior: Descrição -->
-    <div class="sevo-modal-description-container" style="margin-top: 20px;">
-        <h4><i class="fas fa-align-left"></i> Descrição</h4>
-        <div class="sevo-modal-description-scrollable" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 4px; background-color: #f9f9f9;">
-            <?php if (!empty($tipo_description)) : ?>
-                <?php echo wp_kses_post($tipo_description); ?>
-            <?php else : ?>
-                <p class="sevo-no-description">Nenhuma descrição disponível.</p>
+            
+            <!-- Descrição -->
+            <?php if (!empty($tipo_evento->descricao)): ?>
+                <div class="sevo-info-item sevo-info-full">
+                    <label>Descrição:</label>
+                    <div class="sevo-descricao"><?php echo nl2br(esc_html($tipo_evento->descricao)); ?></div>
+                </div>
             <?php endif; ?>
         </div>
     </div>
-
 </div>
 
 <div class="sevo-modal-footer">
-    <?php if (sevo_check_user_permission('edit_tipo_evento')): ?>
-        <button class="sevo-modal-button sevo-button-edit" data-tipo-evento-id="<?php echo esc_attr($tipo_id); ?>">
-            <i class="fas fa-edit mr-2"></i>
-            Editar Tipo de Evento
-        </button>
-    <?php endif; ?>
+    <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoTiposEventoAdmin.closeModal()">
+        Fechar
+    </button>
+    <button type="button" class="sevo-btn sevo-btn-primary" onclick="SevoTiposEventoAdmin.editTipoEvento(<?php echo $tipo_evento->id; ?>)">
+        Editar
+    </button>
 </div>
+
+<style>
+.sevo-tipo-evento-details {
+    padding: 20px;
+}
+
+.sevo-tipo-evento-image {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sevo-tipo-evento-logo {
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sevo-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sevo-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sevo-info-item label {
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+.sevo-info-item span,
+.sevo-info-item div {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.sevo-info-item a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.sevo-info-item a:hover {
+    text-decoration: underline;
+}
+
+.sevo-link {
+    color: #0073aa;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sevo-link:hover {
+    text-decoration: underline;
+}
+
+.sevo-info-full {
+    grid-column: 1 / -1;
+}
+
+.sevo-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.sevo-status-ativo {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.sevo-status-inativo {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.sevo-descricao {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 4px solid #0073aa;
+}
+
+.sevo-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    background: #f1f1f1;
+    border-top: 1px solid #ddd;
+}
+
+.sevo-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.sevo-btn-primary {
+    background: #0073aa;
+    color: white;
+}
+
+.sevo-btn-primary:hover {
+    background: #005a87;
+}
+
+.sevo-btn-secondary {
+    background: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.sevo-btn-secondary:hover {
+    background: #e1e1e1;
+}
+
+@media (max-width: 768px) {
+    .sevo-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sevo-tipo-evento-details {
+        padding: 15px;
+    }
+}
+</style>

@@ -328,4 +328,38 @@ class Sevo_Forum_Integration {
             }
         }
     }
+    
+    /**
+     * Adiciona um comentário de log de inscrição no tópico do evento
+     */
+    public function add_inscription_log_comment($evento_id, $comment_content) {
+        if (!class_exists('AsgarosForum')) {
+            return false;
+        }
+        
+        // Buscar o ID do tópico do evento
+        $topic_id = get_post_meta($evento_id, '_sevo_forum_topic_id', true);
+        
+        if (!$topic_id) {
+            return false;
+        }
+        
+        // Usar o autor do sistema (admin) para posts automáticos
+        $author_id = 1; // ID do admin
+        
+        global $asgarosforum;
+        if ($asgarosforum && method_exists($asgarosforum->content, 'insert_post')) {
+            return $asgarosforum->content->insert_post($topic_id, $comment_content, $author_id);
+        }
+        
+        return false;
+    }
+}
+
+/**
+ * Função global para adicionar comentários de log de inscrição
+ */
+function sevo_add_inscription_log_comment($evento_id, $comment_content) {
+    $forum_integration = new Sevo_Forum_Integration();
+    return $forum_integration->add_inscription_log_comment($evento_id, $comment_content);
 }

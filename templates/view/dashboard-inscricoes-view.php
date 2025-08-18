@@ -18,6 +18,40 @@ $is_super_admin = is_super_admin();
 $is_admin = current_user_can('manage_options');
 $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
 $current_user = wp_get_current_user();
+
+// Usar o modelo para buscar inscrições
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Inscricao_Model.php';
+$inscricao_model = new Sevo_Inscricao_Model();
+
+// Parâmetros de paginação
+$paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+$per_page = 10;
+
+// Preparar filtros
+$search = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
+$status_filter = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';
+$evento_filter = isset($_GET['evento_id']) ? intval($_GET['evento_id']) : 0;
+$org_filter = isset($_GET['organizacao_id']) ? intval($_GET['organizacao_id']) : 0;
+
+$filters = [];
+if (!empty($search)) {
+    $filters['search'] = $search;
+}
+if (!empty($status_filter)) {
+    $filters['status'] = $status_filter;
+}
+if (!empty($evento_filter)) {
+    $filters['evento_id'] = $evento_filter;
+}
+if (!empty($org_filter)) {
+    $filters['organizacao_id'] = $org_filter;
+}
+
+// Buscar inscrições com paginação
+$result = $inscricao_model->get_paginated($paged, $per_page, $filters);
+$inscricoes = $result['items'];
+$total_items = $result['total'];
+$total_pages = $result['total_pages'];
 ?>
 
 <div class="sevo-dashboard-wrapper">
@@ -100,7 +134,64 @@ $current_user = wp_get_current_user();
                 </tr>
             </thead>
             <tbody id="inscricoes-tbody">
-                <!-- Conteúdo será carregado via AJAX -->
+                <?php if (!empty($inscricoes)) : ?>
+                    <?php foreach ($inscricoes as $inscricao) : ?>
+                        <?php
+                        $status_class = 'status-' . $inscricao->status;
+                        $status_text = ucfirst($inscricao->status);
+                        
+                        // Formatação da data
+                        $data_formatted = $inscricao->data_inscricao ? date('d/m/Y H:i', strtotime($inscricao->data_inscricao)) : '';
+                        ?>
+                        <tr data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" class="<?php echo esc_attr($status_class); ?>">
+                            <td class="inscricao-id"><?php echo esc_html($inscricao->id); ?></td>
+                            <?php if ($can_manage_all): ?>
+                                <td class="usuario-nome"><?php echo esc_html($inscricao->user_name); ?></td>
+                            <?php endif; ?>
+                            <td class="evento-nome"><?php echo esc_html($inscricao->evento_titulo); ?></td>
+                            <td class="evento-data"><?php echo esc_html($inscricao->data_evento ? date('d/m/Y', strtotime($inscricao->data_evento)) : ''); ?></td>
+                            <td class="organizacao-nome"><?php echo esc_html($inscricao->organizacao_nome); ?></td>
+                            <td class="data-inscricao"><?php echo esc_html($data_formatted); ?></td>
+                            <td class="acoes">
+                                <?php if ($can_manage_all): ?>
+                                    <div class="action-buttons">
+                                        <?php if ($inscricao->status === 'solicitada'): ?>
+                                            <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" 
+                                                    data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Aprovar">
+                                                ✓
+                                            </button>
+                                            <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" 
+                                                    data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Reprovar">
+                                                ✗
+                                            </button>
+                                        <?php endif; ?>
+                                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
+                                                data-evento-id="<?php echo esc_attr($inscricao->evento_id); ?>" title="Ver Detalhes do Evento">
+                                            👁
+                                        </button>
+                                        <?php if ($is_super_admin): ?>
+                                            <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" 
+                                                    data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Editar Inscrição">
+                                                ✏️
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
+                                            data-evento-id="<?php echo esc_attr($inscricao->evento_id); ?>" title="Ver Evento">
+                                        Ver Evento
+                                    </button>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="<?php echo $can_manage_all ? '7' : '6'; ?>" class="no-data">
+                            Nenhuma inscrição encontrada.
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
         
@@ -109,16 +200,32 @@ $current_user = wp_get_current_user();
         </div>
     </div>
 
-    <!-- Indicador de carregamento para scroll infinito -->
-    <div class="sevo-infinite-loading" id="infinite-loading" style="display: none;">
-        <div class="sevo-spinner"></div>
-        <p>Carregando mais inscrições...</p>
-    </div>
-    
-    <!-- Indicador de fim da lista -->
-    <div class="sevo-end-of-list" id="end-of-list" style="display: none;">
-        <p>Todas as inscrições foram carregadas.</p>
-    </div>
+    <!-- Paginação -->
+    <?php if ($total_pages > 1): ?>
+        <div class="sevo-pagination">
+            <?php
+            $pagination_args = array(
+                'base' => add_query_arg('paged', '%#%'),
+                'format' => '',
+                'prev_text' => '&laquo; Anterior',
+                'next_text' => 'Próxima &raquo;',
+                'total' => $total_pages,
+                'current' => $paged,
+                'show_all' => false,
+                'end_size' => 1,
+                'mid_size' => 2,
+                'type' => 'plain',
+                'add_args' => array(
+                    'search' => $search,
+                    'status_filter' => $status_filter,
+                    'evento_filter' => $evento_filter,
+                    'org_filter' => $org_filter
+                )
+            );
+            echo paginate_links($pagination_args);
+            ?>
+        </div>
+    <?php endif; ?>
     </div>
 </div>
 
@@ -146,49 +253,7 @@ $current_user = wp_get_current_user();
 
 
 
-<script type="text/template" id="inscricao-row-template">
-    <tr data-inscricao-id="{{inscricao_id}}">
-        <td class="inscricao-id">{{inscricao_id}}</td>
-        <?php if ($can_manage_all): ?>
-            <td class="usuario-nome">{{usuario_nome}}</td>
-        <?php endif; ?>
-        <td class="evento-nome">{{evento_nome}}</td>
-        <td class="evento-data">{{evento_data_formatted}}</td>
-        <td class="organizacao-nome">{{organizacao_nome}}</td>
-        <td class="data-inscricao">{{data_inscricao_formatted}}</td>
-        <td class="acoes">
-            <?php if ($can_manage_all): ?>
-                <div class="action-buttons">
-                    {{#if_status_solicitada}}
-                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" 
-                                data-inscricao-id="{{inscricao_id}}" title="Aprovar">
-                            ✓
-                        </button>
-                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" 
-                                data-inscricao-id="{{inscricao_id}}" title="Reprovar">
-                            ✗
-                        </button>
-                    {{/if_status_solicitada}}
-                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
-                            data-evento-id="{{evento_id}}" title="Ver Detalhes do Evento">
-                        👁
-                    </button>
-                    <?php if ($is_super_admin): ?>
-                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" 
-                                data-inscricao-id="{{inscricao_id}}" title="Editar Inscrição">
-                            ✏️
-                        </button>
-                    <?php endif; ?>
-                </div>
-            <?php else: ?>
-                <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
-                        data-evento-id="{{evento_id}}" title="Ver Evento">
-                    Ver Evento
-                </button>
-            <?php endif; ?>
-        </td>
-    </tr>
-</script>
+
 
 <!-- Modal do Evento -->
 <div id="sevo-event-modal" class="sevo-modal" style="display: none;">

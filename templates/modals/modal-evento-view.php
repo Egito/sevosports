@@ -1,54 +1,50 @@
 <?php
 /**
- * View para o conteúdo do modal de um único Evento.
- * Este template é carregado via AJAX e preenchido com dados do evento.
+ * Template do modal para visualizar detalhes de eventos.
+ * Versão atualizada para usar tabelas customizadas.
  */
 
-if (!defined('ABSPATH') || !isset($evento)) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
-// Coleta todos os metadados necessários do evento
-$post_id = $evento->ID;
-$evento_title = $evento->post_title;
-$evento_description = apply_filters('the_content', $evento->post_content);
-$evento_thumbnail_url = get_the_post_thumbnail_url($post_id, 'large');
+// Verifica se o evento foi passado
+if (!isset($evento) || !$evento) {
+    echo '<p>Evento não encontrado.</p>';
+    return;
+}
 
-// Coleta dados do Tipo de Evento pai
-$tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
-$tipo_evento = $tipo_evento_id ? get_post($tipo_evento_id) : null;
-$tipo_evento_title = $tipo_evento ? $tipo_evento->post_title : 'N/D';
+// Busca dados do tipo de evento e organização
+global $wpdb;
+$tipo_evento_data = null;
+$organizacao_data = null;
 
-// Coleta dados da Organização pai
-$organizacao_id = $tipo_evento ? get_post_meta($tipo_evento->ID, '_sevo_tipo_evento_organizacao_id', true) : null;
-$organizacao_title = $organizacao_id ? get_the_title($organizacao_id) : 'N/D';
-$organizacao_thumbnail_url = $organizacao_id ? get_the_post_thumbnail_url($organizacao_id, 'large') : null;
+if ($evento->tipo_evento_id) {
+    $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+    $tipo_evento_data = $tipo_evento_model->get_with_organizacao($evento->tipo_evento_id);
+}
 
-// Coleta dados de vagas e datas
-$vagas = get_post_meta($post_id, '_sevo_evento_vagas', true);
-$local = get_post_meta($post_id, '_sevo_evento_local', true);
-$data_inicio_insc = get_post_meta($post_id, '_sevo_evento_data_inicio_inscricoes', true);
-$data_fim_insc = get_post_meta($post_id, '_sevo_evento_data_fim_inscricoes', true);
-$data_inicio_evento = get_post_meta($post_id, '_sevo_evento_data_inicio_evento', true);
-$data_fim_evento = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true);
+// Formatação de datas
+$data_criacao_formatada = $evento->data_criacao ? date_i18n('d/m/Y H:i', strtotime($evento->data_criacao)) : 'N/A';
+$data_inicio_insc_formatada = $evento->data_inicio_inscricao ? date_i18n('d/m/Y H:i', strtotime($evento->data_inicio_inscricao)) : 'N/A';
+$data_fim_insc_formatada = $evento->data_fim_inscricao ? date_i18n('d/m/Y H:i', strtotime($evento->data_fim_inscricao)) : 'N/A';
+$data_evento_formatada = $evento->data_evento ? date_i18n('d/m/Y', strtotime($evento->data_evento)) : 'N/A';
+$hora_evento_formatada = $evento->hora_evento ? date_i18n('H:i', strtotime($evento->hora_evento)) : 'N/A';
 
-// Coleta regras/detalhes do evento
-$evento_regras = get_post_meta($post_id, '_sevo_evento_regras', true);
+// Status formatado
+$status_labels = [
+    'ativo' => 'Ativo',
+    'inativo' => 'Inativo',
+    'cancelado' => 'Cancelado'
+];
+$status_formatado = $status_labels[$evento->status] ?? 'Desconhecido';
+$status_class = 'status-' . $evento->status;
 
-// Busca inscrições reais
-$inscricoes_query = new WP_Query(array(
-    'post_type' => SEVO_INSCR_POST_TYPE,
-    'post_status' => 'publish',
-    'posts_per_page' => -1,
-    'meta_query' => array(
-        array(
-            'key' => '_sevo_inscr_evento_id',
-            'value' => $post_id,
-            'compare' => '='
-        )
-    )
-));
-$total_inscricoes = $inscricoes_query->found_posts;
+// Busca inscrições do evento
+$inscricao_model = new Sevo_Inscricao_Model();
+$inscricoes = $inscricao_model->get_by_evento($evento->id);
+
+$total_inscricoes = count($inscricoes);
 
 // Verifica se o usuário atual tem inscrição
 $user_id = get_current_user_id();
@@ -56,45 +52,19 @@ $user_inscricao = null;
 $user_inscricao_status = null;
 
 if ($user_id) {
-    $user_inscricao_query = new WP_Query(array(
-        'post_type' => SEVO_INSCR_POST_TYPE,
-        'post_status' => 'publish',
-        'posts_per_page' => 1,
-        'meta_query' => array(
-            'relation' => 'AND',
-            array(
-                'key' => '_sevo_inscr_evento_id',
-                'value' => $post_id,
-                'compare' => '='
-            ),
-            array(
-                'key' => '_sevo_inscr_user_id',
-                'value' => $user_id,
-                'compare' => '='
-            )
-        )
-    ));
-    
-    if ($user_inscricao_query->have_posts()) {
-        $user_inscricao = $user_inscricao_query->posts[0];
-        $user_inscricao_status = get_post_meta($user_inscricao->ID, '_sevo_inscr_status', true);
-    }
-}
-
-// Link para o tópico do evento
-$topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
-$forum_url = '#';
-if ($topic_id && class_exists('AsgarosForum')) {
-    global $asgarosforum;
-    if ($asgarosforum && method_exists($asgarosforum->rewrite, 'get_link')) {
-        $forum_url = $asgarosforum->rewrite->get_link('topic', $topic_id);
+    foreach ($inscricoes as $inscricao) {
+        if ($inscricao->user_id == $user_id) {
+            $user_inscricao = $inscricao;
+            $user_inscricao_status = $inscricao->status;
+            break;
+        }
     }
 }
 
 // Lógica de status da inscrição
 $hoje = new DateTime();
-$inicio_insc = $data_inicio_insc ? new DateTime($data_inicio_insc) : null;
-$fim_insc = $data_fim_insc ? new DateTime($data_fim_insc) : null;
+$inicio_insc = $evento->data_inicio_inscricao ? new DateTime($evento->data_inicio_inscricao) : null;
+$fim_insc = $evento->data_fim_inscricao ? new DateTime($evento->data_fim_inscricao) : null;
 $status_inscricao = ($inicio_insc && $fim_insc && $hoje >= $inicio_insc && $hoje <= $fim_insc) ? 'abertas' : 'fechadas';
 
 // Verifica permissões
@@ -106,7 +76,7 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
     <!-- Cabeçalho do Modal -->
     <div class="sevo-modal-header-evento">
         <div class="header-left">
-            <h3 class="sevo-modal-title"><?php echo esc_html($evento_title); ?></h3>
+            <h3 class="sevo-modal-title"><?php echo esc_html($evento->titulo); ?></h3>
             
             <div class="sevo-modal-status-bar">
                 <?php if ($status_inscricao === 'abertas'): ?>
@@ -131,8 +101,8 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
             </div>
         </div>
         
-        <?php if ($evento_thumbnail_url): ?>
-            <img src="<?php echo esc_url($evento_thumbnail_url); ?>" alt="<?php echo esc_attr($evento_title); ?>" class="sevo-modal-image">
+        <?php if ($evento->imagem_url): ?>
+            <img src="<?php echo esc_url($evento->imagem_url); ?>" alt="<?php echo esc_attr($evento->titulo); ?>" class="sevo-modal-image">
         <?php endif; ?>
     </div>
 
@@ -146,32 +116,32 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-building"></i> Organização:</strong>
-                    <span><?php echo esc_html($organizacao_title); ?></span>
+                    <span><?php echo esc_html($tipo_evento_data ? $tipo_evento_data->organizacao_titulo : 'N/D'); ?></span>
                 </div>
                 
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-groups"></i> Inscrições:</strong>
-                    <span><?php echo esc_html($total_inscricoes); ?> / <?php echo $vagas ? esc_html($vagas) : '∞'; ?></span>
+                    <span><?php echo esc_html($total_inscricoes); ?> / <?php echo $evento->vagas ? esc_html($evento->vagas) : '∞'; ?></span>
                 </div>
                 
-                <?php if ($local): ?>
+                <?php if ($evento->local): ?>
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-location"></i> Local:</strong>
-                    <span><?php echo esc_html($local); ?></span>
+                    <span><?php echo esc_html($evento->local); ?></span>
                 </div>
                 <?php endif; ?>
                 
-                <?php if ($data_inicio_insc && $data_fim_insc): ?>
+                <?php if ($evento->data_inicio_inscricao && $evento->data_fim_inscricao): ?>
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-calendar-alt"></i> Período de Inscrições:</strong>
-                    <span><?php echo date_i18n('d/m/Y', strtotime($data_inicio_insc)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_insc)); ?></span>
+                    <span><?php echo $data_inicio_insc_formatada; ?> - <?php echo $data_fim_insc_formatada; ?></span>
                 </div>
                 <?php endif; ?>
                 
-                <?php if ($data_inicio_evento && $data_fim_evento): ?>
+                <?php if ($evento->data_evento): ?>
                 <div class="sevo-info-item">
-                    <strong><i class="dashicons dashicons-flag"></i> Período do Evento:</strong>
-                    <span><?php echo date_i18n('d/m/Y', strtotime($data_inicio_evento)); ?> - <?php echo date_i18n('d/m/Y', strtotime($data_fim_evento)); ?></span>
+                    <strong><i class="dashicons dashicons-flag"></i> Data do Evento:</strong>
+                    <span><?php echo $data_evento_formatada; ?> às <?php echo $hora_evento_formatada; ?></span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -180,25 +150,21 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
             <div class="sevo-modal-inscricoes-lista">
                 <h4><i class="fas fa-users"></i> Lista de Inscritos</h4>
                 <div class="sevo-inscricoes-container">
-                    <?php if ($inscricoes_query->have_posts()) : ?>
+                    <?php if (!empty($inscricoes)) : ?>
                         <div class="sevo-inscricoes-list">
-                            <?php while ($inscricoes_query->have_posts()) : $inscricoes_query->the_post(); ?>
+                            <?php foreach ($inscricoes as $inscricao) : ?>
                                 <?php 
-                                $inscricao_id = get_the_ID();
-                                $inscricao_user_id = get_post_meta($inscricao_id, '_sevo_inscr_user_id', true);
-                                $inscricao_status = get_post_meta($inscricao_id, '_sevo_inscr_status', true);
-                                $user_data = get_userdata($inscricao_user_id);
-                                $user_name = $user_data ? $user_data->display_name : 'Usuário não encontrado';
+                                $user_name = $inscricao->user_name ?: 'Usuário não encontrado';
                                 
                                 // Define a classe CSS baseada no status
                                 $status_class = '';
                                 $status_text = '';
-                                switch($inscricao_status) {
-                                    case 'aceita':
+                                switch($inscricao->status) {
+                                    case 'confirmada':
                                         $status_class = 'status-aceita';
-                                        $status_text = 'Aceita';
+                                        $status_text = 'Confirmada';
                                         break;
-                                    case 'solicitada':
+                                    case 'pendente':
                                         $status_class = 'status-solicitada';
                                         $status_text = 'Pendente';
                                         break;
@@ -212,16 +178,15 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                                         break;
                                     default:
                                         $status_class = 'status-indefinido';
-                                        $status_text = ucfirst($inscricao_status ?: 'Indefinido');
+                                        $status_text = ucfirst($inscricao->status ?: 'Indefinido');
                                 }
                                 ?>
                                 <div class="sevo-inscricao-item">
                                     <span class="sevo-inscricao-nome"><?php echo esc_html($user_name); ?></span>
                                     <span class="sevo-inscricao-status <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_text); ?></span>
                                 </div>
-                            <?php endwhile; ?>
+                            <?php endforeach; ?>
                         </div>
-                        <?php wp_reset_postdata(); ?>
                     <?php else : ?>
                         <p class="sevo-no-items">Nenhuma inscrição encontrada para este evento.</p>
                     <?php endif; ?>
@@ -232,16 +197,17 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
         <!-- Container Inferior: Descrição/Regras -->
         <div class="sevo-modal-bottom-container">
             <div class="sevo-modal-description-content">
-                <?php if ($evento_description): ?>
+                <?php if ($evento->descricao): ?>
                     <div class="sevo-description-section">
                         <h5>Descrição do Evento</h5>
-                        <?php echo wp_kses_post($evento_description); ?>
+                        <?php echo wp_kses_post(wpautop($evento->descricao)); ?>
                     </div>
                 <?php endif; ?>
                 
-                <?php if ($evento_regras): ?>
+                <?php if ($evento->regras): ?>
                     <div class="sevo-regras-section">
-                        <?php echo wp_kses_post($evento_regras); ?>
+                        <h5>Regras do Evento</h5>
+                        <?php echo wp_kses_post(wpautop($evento->regras)); ?>
                     </div>
                 <?php endif; ?>
             </div>
