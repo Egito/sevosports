@@ -197,6 +197,9 @@ class Sevo_Eventos_Main {
         // Carregar sistema de banco de dados customizado
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/database/init.php';
         
+        // Carregar sistema de backup
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/backup/Sevo_Backup_Manager.php';
+        
         // Carregar os arquivos dos Custom Post Types usando tabelas customizadas
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-org.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-tipo-evento.php';
