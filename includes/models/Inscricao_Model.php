@@ -20,7 +20,8 @@ class Sevo_Inscricao_Model extends Sevo_Base_Model {
         'evento_id',
         'usuario_id',
         'status',
-        'observacoes'
+        'observacoes',
+        'cancel_count'
     ];
     
     public function __construct() {
@@ -290,33 +291,107 @@ class Sevo_Inscricao_Model extends Sevo_Base_Model {
             }
         }
         
-        return $this->update_validated($id, ['status' => 'aceita']);
+        $result = $this->update_validated($id, ['status' => 'aceita']);
+        
+        // Integração com fórum - adicionar log de aceitação
+        if ($result['success'] && function_exists('sevo_add_inscription_log_comment')) {
+            $user = get_userdata($inscricao->usuario_id);
+            $admin_user = wp_get_current_user();
+            
+            $comment_content = sprintf(
+                "✅ Inscrição ACEITA\n\nParticipante: %s (%s)\nAção realizada por: %s\nStatus anterior: %s\nNovo status: Aceita",
+                $user ? $user->display_name : 'Usuário não encontrado',
+                $user ? $user->user_email : '',
+                $admin_user->display_name,
+                ucfirst($inscricao->status)
+            );
+            
+            sevo_add_inscription_log_comment($inscricao->evento_id, $comment_content);
+        }
+        
+        return $result;
     }
     
     /**
      * Rejeita uma inscrição
      */
     public function reject($id, $observacoes = '') {
+        $inscricao = $this->find($id);
+        
+        if (!$inscricao) {
+            return ['success' => false, 'errors' => ['Inscrição não encontrada']];
+        }
+        
         $data = ['status' => 'rejeitada'];
         
         if ($observacoes) {
             $data['observacoes'] = $observacoes;
         }
         
-        return $this->update_validated($id, $data);
+        $result = $this->update_validated($id, $data);
+        
+        // Integração com fórum - adicionar log de rejeição
+        if ($result['success'] && function_exists('sevo_add_inscription_log_comment')) {
+            $user = get_userdata($inscricao->usuario_id);
+            $admin_user = wp_get_current_user();
+            
+            $comment_content = sprintf(
+                "❌ Inscrição REJEITADA\n\nParticipante: %s (%s)\nAção realizada por: %s\nStatus anterior: %s\nNovo status: Rejeitada",
+                $user ? $user->display_name : 'Usuário não encontrado',
+                $user ? $user->user_email : '',
+                $admin_user->display_name,
+                ucfirst($inscricao->status)
+            );
+            
+            if (!empty($observacoes)) {
+                $comment_content .= "\nMotivo: " . $observacoes;
+            }
+            
+            sevo_add_inscription_log_comment($inscricao->evento_id, $comment_content);
+        }
+        
+        return $result;
     }
     
     /**
      * Cancela uma inscrição
      */
     public function cancel($id, $observacoes = '') {
+        $inscricao = $this->find($id);
+        
+        if (!$inscricao) {
+            return ['success' => false, 'errors' => ['Inscrição não encontrada']];
+        }
+        
         $data = ['status' => 'cancelada'];
         
         if ($observacoes) {
             $data['observacoes'] = $observacoes;
         }
         
-        return $this->update_validated($id, $data);
+        $result = $this->update_validated($id, $data);
+        
+        // Integração com fórum - adicionar log de cancelamento
+        if ($result['success'] && function_exists('sevo_add_inscription_log_comment')) {
+            $user = get_userdata($inscricao->usuario_id);
+            $admin_user = wp_get_current_user();
+            
+            $comment_content = sprintf(
+                "🚫 Inscrição CANCELADA\n\nParticipante: %s (%s)\nAção realizada por: %s\nStatus anterior: %s\nNovo status: Cancelada",
+                $user ? $user->display_name : 'Usuário não encontrado',
+                $user ? $user->user_email : '',
+                $admin_user->display_name,
+                ucfirst($inscricao->status)
+            );
+            
+            if (!empty($observacoes)) {
+                $comment_content .= "\nMotivo: " . $observacoes;
+            }
+            
+            sevo_add_inscription_log_comment($inscricao->evento_id, $comment_content);
+        }
+        
+        return $result;
     }
     
     /**
@@ -408,5 +483,105 @@ class Sevo_Inscricao_Model extends Sevo_Base_Model {
             'current_page' => $page,
             'total_pages' => ceil($total / $per_page)
         ];
+    }
+    
+    /**
+     * Verifica se o usuário atingiu o limite de cancelamentos para um evento
+     */
+    public function user_reached_cancel_limit($evento_id, $usuario_id, $limit = 3) {
+        $inscricao = $this->first([
+            'evento_id' => $evento_id,
+            'usuario_id' => $usuario_id
+        ]);
+        
+        if (!$inscricao) {
+            return false;
+        }
+        
+        // Verificar se o campo cancel_count existe, se não existir, retornar false
+        if (!property_exists($inscricao, 'cancel_count')) {
+            $this->ensure_cancel_count_field();
+            // Recarregar a inscrição após adicionar o campo
+            $inscricao = $this->first([
+                'evento_id' => $evento_id,
+                'usuario_id' => $usuario_id
+            ]);
+        }
+        
+        return (int) ($inscricao->cancel_count ?? 0) >= $limit;
+    }
+    
+    /**
+     * Incrementa o contador de cancelamentos
+     */
+    public function increment_cancel_count($evento_id, $usuario_id) {
+        $inscricao = $this->first([
+            'evento_id' => $evento_id,
+            'usuario_id' => $usuario_id
+        ]);
+        
+        if ($inscricao) {
+            // Verificar se o campo cancel_count existe
+            if (!property_exists($inscricao, 'cancel_count')) {
+                $this->ensure_cancel_count_field();
+                // Recarregar a inscrição após adicionar o campo
+                $inscricao = $this->first([
+                    'evento_id' => $evento_id,
+                    'usuario_id' => $usuario_id
+                ]);
+            }
+            
+            $new_count = (int) ($inscricao->cancel_count ?? 0) + 1;
+            $this->update($inscricao->id, ['cancel_count' => $new_count]);
+            return $new_count;
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Garante que o campo cancel_count existe na tabela
+     */
+    private function ensure_cancel_count_field() {
+        global $wpdb;
+        
+        $table_name = $wpdb->prefix . 'sevo_inscricoes';
+        
+        // Verificar se o campo cancel_count existe
+        $column_exists = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+                 WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'cancel_count'",
+                DB_NAME,
+                $table_name
+            )
+        );
+        
+        // Se o campo não existe, adicionar
+        if (empty($column_exists)) {
+            $wpdb->query("ALTER TABLE $table_name ADD COLUMN cancel_count int(11) DEFAULT 0");
+        }
+    }
+    
+    /**
+     * Obtém o contador de cancelamentos atual
+     */
+    public function get_cancel_count($evento_id, $usuario_id) {
+        $inscricao = $this->first([
+            'evento_id' => $evento_id,
+            'usuario_id' => $usuario_id
+        ]);
+        
+        if (!$inscricao) {
+            return 0;
+        }
+        
+        // Verificar se o campo cancel_count existe
+        if (!property_exists($inscricao, 'cancel_count')) {
+            $this->ensure_cancel_count_field();
+            return 0; // Retornar 0 para novos registros
+        }
+        
+        return (int) ($inscricao->cancel_count ?? 0);
     }
 }

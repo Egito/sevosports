@@ -1,0 +1,228 @@
+/**
+ * Correções de CSS para botões do plugin SEVO
+ * Resolve conflitos com estilos do WordPress que causam azul sobre azul
+ */
+
+/* Força especificidade para botões SEVO */
+.sevo-btn,
+.sevo-btn-primary,
+.sevo-btn-secondary,
+.sevo-btn-info,
+.sevo-btn-success,
+.sevo-btn-warning,
+.sevo-btn-danger {
+    color: #fff !important;
+    text-decoration: none !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    box-shadow: none !important;
+}
+
+/* Botão primário - azul com texto branco */
+.sevo-btn-primary {
+    background-color: #007cba !important;
+    color: #ffffff !important;
+}
+
+.sevo-btn-primary:hover,
+.sevo-btn-primary:focus {
+    background-color: #005a87 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Botão secundário - cinza com texto branco */
+.sevo-btn-secondary {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.sevo-btn-secondary:hover,
+.sevo-btn-secondary:focus {
+    background-color: #545b62 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Botão info - azul claro com texto branco */
+.sevo-btn-info {
+    background-color: #17a2b8 !important;
+    color: #ffffff !important;
+}
+
+.sevo-btn-info:hover,
+.sevo-btn-info:focus {
+    background-color: #138496 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Botão sucesso - verde com texto branco */
+.sevo-btn-success {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.sevo-btn-success:hover,
+.sevo-btn-success:focus {
+    background-color: #218838 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Botão warning - amarelo com texto escuro */
+.sevo-btn-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.sevo-btn-warning:hover,
+.sevo-btn-warning:focus {
+    background-color: #e0a800 !important;
+    color: #212529 !important;
+    text-decoration: none !important;
+}
+
+/* Botão danger - vermelho com texto branco */
+.sevo-btn-danger {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.sevo-btn-danger:hover,
+.sevo-btn-danger:focus {
+    background-color: #c82333 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Botões específicos do dashboard */
+.btn-view-event {
+    background-color: #17a2b8 !important;
+    color: #ffffff !important;
+}
+
+.btn-view-event:hover,
+.btn-view-event:focus {
+    background-color: #138496 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+.btn-edit-event {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.btn-edit-event:hover,
+.btn-edit-event:focus {
+    background-color: #218838 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+.btn-inscribe-event {
+    background-color: #007cba !important;
+    color: #ffffff !important;
+}
+
+.btn-inscribe-event:hover,
+.btn-inscribe-event:focus {
+    background-color: #005a87 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+.btn-cancel-inscription {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.btn-cancel-inscription:hover,
+.btn-cancel-inscription:focus {
+    background-color: #c82333 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Sobrescreve estilos do WordPress que podem interferir */
+.wp-admin .sevo-btn,
+.wp-admin .sevo-btn-primary,
+.wp-admin .sevo-btn-secondary,
+.wp-admin .sevo-btn-info,
+.wp-admin .sevo-btn-success,
+.wp-admin .sevo-btn-warning,
+.wp-admin .sevo-btn-danger,
+.wp-admin .btn-view-event,
+.wp-admin .btn-edit-event,
+.wp-admin .btn-inscribe-event,
+.wp-admin .btn-cancel-inscription {
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* Garante que links dentro dos botões mantenham a cor correta */
+.sevo-btn a,
+.sevo-btn-primary a,
+.sevo-btn-secondary a,
+.sevo-btn-info a,
+.sevo-btn-success a,
+.sevo-btn-warning a,
+.sevo-btn-danger a,
+.btn-view-event a,
+.btn-edit-event a,
+.btn-inscribe-event a,
+.btn-cancel-inscription a {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+/* Botões pequenos */
+.sevo-btn-sm {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+}
+
+/* Botões grandes */
+.sevo-btn-lg {
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+}
+
+/* Estados desabilitados */
+.sevo-btn:disabled,
+.sevo-btn.disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+/* Correção para botões em modais */
+.sevo-modal .sevo-btn,
+.sevo-modal .btn-view-event,
+.sevo-modal .btn-edit-event,
+.sevo-modal .btn-inscribe-event,
+.sevo-modal .btn-cancel-inscription {
+    margin: 0 5px !important;
+}
+
+/* Correção para botões em tabelas */
+.sevo-table .sevo-btn,
+.sevo-table .btn-view-event,
+.sevo-table .btn-edit-event,
+.sevo-table .btn-inscribe-event,
+.sevo-table .btn-cancel-inscription {
+    margin: 2px !important;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+}

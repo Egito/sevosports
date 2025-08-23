@@ -37,7 +37,7 @@ $status_formatado = $status_labels[$inscricao->status] ?? 'Desconhecido';
 $status_class = 'status-' . $inscricao->status;
 
 // Formatação de datas
-$data_inscricao_formatada = $inscricao->data_inscricao ? date_i18n('d/m/Y H:i', strtotime($inscricao->data_inscricao)) : 'N/A';
+$data_inscricao_formatada = $inscricao->created_at ? date_i18n('d/m/Y H:i', strtotime($inscricao->created_at)) : 'N/A';
 $data_evento_formatada = $evento->data_evento ? date_i18n('d/m/Y', strtotime($evento->data_evento)) : 'N/A';
 $hora_evento_formatada = $evento->hora_evento ? date_i18n('H:i', strtotime($evento->hora_evento)) : 'N/A';
 ?>

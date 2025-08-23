@@ -317,6 +317,85 @@ jQuery(document).ready(function($) {
             $('#sevo-evento-form-modal-container').removeClass('show').css('display', 'none').empty();
         },
 
+        // Inicializa upload de imagem para modal de evento
+        initImageUpload: function() {
+            // Clique no botão de upload do evento
+            $(document).off('click', '#evento-upload-image-btn').on('click', '#evento-upload-image-btn', function(e) {
+                e.preventDefault();
+                $('#evento-image-file-input').click();
+            });
+            
+            // Clique no placeholder da imagem do evento
+            $(document).off('click', '#evento-image-placeholder').on('click', '#evento-image-placeholder', function(e) {
+                e.preventDefault();
+                $('#evento-image-file-input').click();
+            });
+            
+            // Mudança no input de arquivo do evento
+            $(document).off('change', '#evento-image-file-input').on('change', '#evento-image-file-input', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validação do tipo de arquivo
+                    if (!file.type.startsWith('image/')) {
+                        SevoToaster.showError('Por favor, selecione apenas arquivos de imagem.');
+                        return;
+                    }
+                    
+                    // Validação do tamanho (máximo 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        SevoToaster.showError('A imagem deve ter no máximo 5MB.');
+                        return;
+                    }
+                    
+                    // Preview da imagem
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const $preview = $('#evento-image-preview-container');
+                        const $uploadBtn = $('#evento-upload-image-btn');
+                        
+                        // Adiciona a imagem de preview
+                        $preview.html(`
+                            <img src="${e.target.result}" alt="Preview da imagem" id="evento-preview-image">
+                            <button type="button" class="sevo-remove-image" id="evento-remove-image-btn" title="Remover imagem">×</button>
+                        `);
+                        
+                        // Atualiza o texto do botão
+                        $uploadBtn.html('<i class="dashicons dashicons-upload"></i> Alterar Imagem');
+                        
+                        // Limpa o campo hidden para que o PHP processe o arquivo
+                        $('#evento_imagem_url').val('');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Remover imagem do evento
+            $(document).off('click', '#evento-remove-image-btn, #evento-remove-image-action').on('click', '#evento-remove-image-btn, #evento-remove-image-action', function(e) {
+                e.preventDefault();
+                
+                const $preview = $('#evento-image-preview-container');
+                const $uploadBtn = $('#evento-upload-image-btn');
+                const $fileInput = $('#evento-image-file-input');
+                const $imageUrlInput = $('#evento_imagem_url');
+                
+                // Limpa os inputs
+                $fileInput.val('');
+                $imageUrlInput.val('');
+                
+                // Restaura o placeholder
+                $preview.html(`
+                    <div class="sevo-image-placeholder" id="evento-image-placeholder">
+                        <i class="dashicons dashicons-camera"></i>
+                        <p>Clique para carregar uma imagem</p>
+                        <small>Recomendado: 800x400 pixels</small>
+                    </div>
+                `);
+                
+                // Atualiza o texto do botão
+                $uploadBtn.html('<i class="dashicons dashicons-upload"></i> Carregar Imagem');
+            });
+        },
+
         // Submete formulário de evento
         submitEventForm: function(form) {
             const $form = $(form);
@@ -364,7 +443,7 @@ jQuery(document).ready(function($) {
         // Inscreve em evento
         inscribeToEvent: function(eventId) {
             // Encontra o botão de inscrição para este evento
-            const inscribeBtn = document.querySelector(`button[onclick*="inscribeEvent(${eventId})"]`);
+            const inscribeBtn = document.querySelector(`.btn-inscribe-event[data-event-id="${eventId}"]`);
             
             $.ajax({
                 url: sevoEventosDashboard.ajax_url,
@@ -379,21 +458,16 @@ jQuery(document).ready(function($) {
                         SevoToaster.showSuccess(response.data.message);
                         
                         // Atualiza o botão dinamicamente
-                        if (inscribeBtn) {
+                        if (inscribeBtn && response.data.inscricao_id) {
                             // Muda para botão de cancelar inscrição
                             inscribeBtn.className = 'btn-cancel-inscription';
                             inscribeBtn.innerHTML = '<i class="dashicons dashicons-dismiss"></i>';
                             inscribeBtn.title = 'Cancelar Inscrição';
                             
-                            // Atualiza o onclick para cancelar inscrição
-                            // Assume que a resposta contém o ID da inscrição
-                            if (response.data.inscricao_id) {
-                                inscribeBtn.setAttribute('onclick', `SevoEventosDashboard.cancelInscription(${response.data.inscricao_id})`);
-                            }
+                            // Remove o data-event-id e adiciona data-inscricao-id
+                            inscribeBtn.removeAttribute('data-event-id');
+                            inscribeBtn.setAttribute('data-inscricao-id', response.data.inscricao_id);
                         }
-                        
-                        // Recarrega o modal para mostrar o novo status
-                        SevoEventosDashboard.openEventModal(eventId);
                     } else {
                         SevoToaster.showError(response.data || 'Erro ao se inscrever.');
                     }
@@ -416,7 +490,7 @@ jQuery(document).ready(function($) {
                 }
 
                 // Encontra o botão de cancelamento para esta inscrição
-                const cancelBtn = document.querySelector(`button[onclick*="cancelInscription(${inscricaoId})"]`);
+                const cancelBtn = document.querySelector(`.btn-cancel-inscription[data-inscricao-id="${inscricaoId}"]`);
                 
                 $.ajax({
                     url: sevoEventosDashboard.ajax_url,
@@ -437,13 +511,9 @@ jQuery(document).ready(function($) {
                                 cancelBtn.innerHTML = '<i class="dashicons dashicons-plus-alt"></i>';
                                 cancelBtn.title = 'Inscrever-se';
                                 
-                                // Atualiza o onclick para inscrever novamente
-                                cancelBtn.setAttribute('onclick', `SevoEventosDashboard.inscribeEvent(${response.data.evento_id})`);
-                            }
-                            
-                            // Recarrega o modal para mostrar o novo status
-                            if (response.data.evento_id) {
-                                SevoEventosDashboard.openEventModal(response.data.evento_id);
+                                // Remove o data-inscricao-id e adiciona data-event-id
+                                cancelBtn.removeAttribute('data-inscricao-id');
+                                cancelBtn.setAttribute('data-event-id', response.data.evento_id);
                             }
                         } else {
                             SevoToaster.showError(response.data || 'Erro ao cancelar inscrição.');

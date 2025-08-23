@@ -52,6 +52,13 @@ class Sevo_Evento_Model extends Sevo_Base_Model {
      * Busca eventos com dados relacionados
      */
     public function get_with_relations() {
+        $where_clause = "";
+        
+        // Se não for superadmin, filtrar apenas eventos ativos
+        if (!current_user_can('manage_options')) {
+            $where_clause = "WHERE e.status = 'ativo'";
+        }
+        
         $sql = "
             SELECT e.*, 
                    te.titulo as tipo_evento_titulo,
@@ -62,10 +69,22 @@ class Sevo_Evento_Model extends Sevo_Base_Model {
             FROM {$this->table_name} e
             LEFT JOIN {$this->wpdb->prefix}sevo_tipos_evento te ON e.tipo_evento_id = te.id
             LEFT JOIN {$this->wpdb->prefix}sevo_organizacoes o ON te.organizacao_id = o.id
+            {$where_clause}
             ORDER BY e.data_inicio_evento ASC
         ";
         
-        return $this->wpdb->get_results($sql);
+        $results = $this->wpdb->get_results($sql);
+        
+        // Debug temporário - remover após teste
+        if (current_user_can('manage_options')) {
+            error_log('SEVO DEBUG - SQL: ' . $sql);
+            error_log('SEVO DEBUG - Resultados encontrados: ' . count($results));
+            if ($this->wpdb->last_error) {
+                error_log('SEVO DEBUG - Erro SQL: ' . $this->wpdb->last_error);
+            }
+        }
+        
+        return $results;
     }
     
     /**
@@ -94,6 +113,7 @@ class Sevo_Evento_Model extends Sevo_Base_Model {
      */
     public function get_by_sections() {
         $eventos = $this->get_with_relations();
+        
         $now = current_time('mysql');
         
         $sections = [
@@ -147,15 +167,21 @@ class Sevo_Evento_Model extends Sevo_Base_Model {
             return ['can_register' => false, 'reason' => 'Período de inscrições encerrado'];
         }
         
-        // Verificar se já está inscrito
-        $inscricao_exists = $this->wpdb->get_var($this->wpdb->prepare(
-            "SELECT id FROM {$this->wpdb->prefix}sevo_inscricoes WHERE evento_id = %d AND usuario_id = %d",
+        // Verificar se já está inscrito (apenas inscrições ativas)
+        $inscricao_ativa = $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT id FROM {$this->wpdb->prefix}sevo_inscricoes WHERE evento_id = %d AND usuario_id = %d AND status IN ('solicitada', 'aceita')",
             $evento_id,
             $user_id
         ));
         
-        if ($inscricao_exists) {
+        if ($inscricao_ativa) {
             return ['can_register' => false, 'reason' => 'Usuário já inscrito neste evento'];
+        }
+        
+        // Verificar limite de cancelamentos
+        $inscricao_model = new Sevo_Inscricao_Model();
+        if ($inscricao_model->user_reached_cancel_limit($evento_id, $user_id, 3)) {
+            return ['can_register' => false, 'reason' => 'Limite de cancelamentos atingido (máximo 3)'];
         }
         
         // Verificar vagas disponíveis

@@ -133,7 +133,7 @@ $status_options = array(
                         </div>
                         <div class="sevo-form-group">
                             <label for="edit-data-inscricao">Data da Inscrição</label>
-                            <input type="text" id="edit-data-inscricao" name="data_inscricao" 
+                            <input type="text" id="edit-data-inscricao" name="created_at" 
                                    value="<?php echo esc_attr(date('d/m/Y H:i', strtotime($inscricao->created_at))); ?>" 
                                    class="sevo-form-control" readonly>
                         </div>

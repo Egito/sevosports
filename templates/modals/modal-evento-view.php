@@ -19,17 +19,21 @@ global $wpdb;
 $tipo_evento_data = null;
 $organizacao_data = null;
 
+// Carrega os modelos necessários
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Inscricao_Model.php';
+
 if ($evento->tipo_evento_id) {
     $tipo_evento_model = new Sevo_Tipo_Evento_Model();
     $tipo_evento_data = $tipo_evento_model->get_with_organizacao($evento->tipo_evento_id);
 }
 
 // Formatação de datas
-$data_criacao_formatada = $evento->data_criacao ? date_i18n('d/m/Y H:i', strtotime($evento->data_criacao)) : 'N/A';
-$data_inicio_insc_formatada = $evento->data_inicio_inscricao ? date_i18n('d/m/Y H:i', strtotime($evento->data_inicio_inscricao)) : 'N/A';
-$data_fim_insc_formatada = $evento->data_fim_inscricao ? date_i18n('d/m/Y H:i', strtotime($evento->data_fim_inscricao)) : 'N/A';
-$data_evento_formatada = $evento->data_evento ? date_i18n('d/m/Y', strtotime($evento->data_evento)) : 'N/A';
-$hora_evento_formatada = $evento->hora_evento ? date_i18n('H:i', strtotime($evento->hora_evento)) : 'N/A';
+$data_criacao_formatada = $evento->created_at ? date_i18n('d/m/Y H:i', strtotime($evento->created_at)) : 'N/A';
+$data_inicio_insc_formatada = $evento->data_inicio_inscricoes ? date_i18n('d/m/Y H:i', strtotime($evento->data_inicio_inscricoes)) : 'N/A';
+$data_fim_insc_formatada = $evento->data_fim_inscricoes ? date_i18n('d/m/Y H:i', strtotime($evento->data_fim_inscricoes)) : 'N/A';
+$data_inicio_evento_formatada = $evento->data_inicio_evento ? date_i18n('d/m/Y H:i', strtotime($evento->data_inicio_evento)) : 'N/A';
+$data_fim_evento_formatada = $evento->data_fim_evento ? date_i18n('d/m/Y H:i', strtotime($evento->data_fim_evento)) : 'N/A';
 
 // Status formatado
 $status_labels = [
@@ -42,7 +46,7 @@ $status_class = 'status-' . $evento->status;
 
 // Busca inscrições do evento
 $inscricao_model = new Sevo_Inscricao_Model();
-$inscricoes = $inscricao_model->get_by_evento($evento->id);
+$inscricoes = $inscricao_model->get_evento_inscricoes_with_users($evento->id);
 
 $total_inscricoes = count($inscricoes);
 
@@ -53,7 +57,7 @@ $user_inscricao_status = null;
 
 if ($user_id) {
     foreach ($inscricoes as $inscricao) {
-        if ($inscricao->user_id == $user_id) {
+        if ($inscricao->usuario_id == $user_id) {
             $user_inscricao = $inscricao;
             $user_inscricao_status = $inscricao->status;
             break;
@@ -63,8 +67,8 @@ if ($user_id) {
 
 // Lógica de status da inscrição
 $hoje = new DateTime();
-$inicio_insc = $evento->data_inicio_inscricao ? new DateTime($evento->data_inicio_inscricao) : null;
-$fim_insc = $evento->data_fim_inscricao ? new DateTime($evento->data_fim_inscricao) : null;
+$inicio_insc = $evento->data_inicio_inscricoes ? new DateTime($evento->data_inicio_inscricoes) : null;
+$fim_insc = $evento->data_fim_inscricoes ? new DateTime($evento->data_fim_inscricoes) : null;
 $status_inscricao = ($inicio_insc && $fim_insc && $hoje >= $inicio_insc && $hoje <= $fim_insc) ? 'abertas' : 'fechadas';
 
 // Verifica permissões
@@ -131,17 +135,23 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                 </div>
                 <?php endif; ?>
                 
-                <?php if ($evento->data_inicio_inscricao && $evento->data_fim_inscricao): ?>
+                <?php if ($evento->data_inicio_inscricoes && $evento->data_fim_inscricoes): ?>
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-calendar-alt"></i> Período de Inscrições:</strong>
                     <span><?php echo $data_inicio_insc_formatada; ?> - <?php echo $data_fim_insc_formatada; ?></span>
                 </div>
                 <?php endif; ?>
                 
-                <?php if ($evento->data_evento): ?>
+                <?php if ($evento->data_inicio_evento): ?>
                 <div class="sevo-info-item">
                     <strong><i class="dashicons dashicons-flag"></i> Data do Evento:</strong>
-                    <span><?php echo $data_evento_formatada; ?> às <?php echo $hora_evento_formatada; ?></span>
+                    <span>
+                        <?php if ($evento->data_fim_evento && $evento->data_inicio_evento !== $evento->data_fim_evento): ?>
+                            <?php echo $data_inicio_evento_formatada; ?> - <?php echo $data_fim_evento_formatada; ?>
+                        <?php else: ?>
+                            <?php echo $data_inicio_evento_formatada; ?>
+                        <?php endif; ?>
+                    </span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -154,7 +164,7 @@ $can_inscribe = is_user_logged_in() && $status_inscricao === 'abertas';
                         <div class="sevo-inscricoes-list">
                             <?php foreach ($inscricoes as $inscricao) : ?>
                                 <?php 
-                                $user_name = $inscricao->user_name ?: 'Usuário não encontrado';
+                                $user_name = $inscricao->usuario_nome ?: 'Usuário não encontrado';
                                 
                                 // Define a classe CSS baseada no status
                                 $status_class = '';

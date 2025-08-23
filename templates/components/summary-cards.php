@@ -34,13 +34,9 @@ function sevo_get_summary_cards() {
     $secoes_posts = wp_count_posts(SEVO_TIPO_EVENTO_POST_TYPE);
     $secoes_count = isset($secoes_posts->publish) ? $secoes_posts->publish : 0;
     
-    // Total de Inscrições (CPT sevo_inscr)
-    $inscricoes_posts = wp_count_posts('sevo_inscr');
-    $total_inscritos = isset($inscricoes_posts->publish) ? $inscricoes_posts->publish : 0;
-    // Incluir também inscrições com outros status se necessário
-    if (isset($inscricoes_posts->pending)) $total_inscritos += $inscricoes_posts->pending;
-    if (isset($inscricoes_posts->draft)) $total_inscritos += $inscricoes_posts->draft;
-    if (isset($inscricoes_posts->private)) $total_inscritos += $inscricoes_posts->private;
+    // Total de Inscrições (tabela customizada)
+    global $wpdb;
+    $total_inscritos = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_inscricoes WHERE status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')");
     
     // Seções com inscrições abertas
     $inscricoes_abertas = new WP_Query(array(

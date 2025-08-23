@@ -42,6 +42,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         // Enqueue dos estilos seguindo a ordem estabelecida no guia de identidade visual
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-button-colors-style');
+        wp_enqueue_style('sevo-button-fixes-style');
         wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-summary-cards-style');
@@ -96,8 +97,11 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('ID do evento inválido.');
         }
         
-        $evento = get_post($evento_id);
-        if (!$evento || $evento->post_type !== SEVO_EVENTO_POST_TYPE) {
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+        $evento_model = new Sevo_Evento_Model();
+        
+        $evento = $evento_model->find($evento_id);
+        if (!$evento) {
             wp_send_json_error('Evento não encontrado.');
         }
         
@@ -122,11 +126,14 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('Você não tem permissão para editar eventos.');
         }
         
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+        $evento_model = new Sevo_Evento_Model();
+        
         // Carrega o evento se for edição
         $evento = null;
         if ($evento_id > 0) {
-            $evento = get_post($evento_id);
-            if (!$evento || $evento->post_type !== SEVO_EVENTO_POST_TYPE) {
+            $evento = $evento_model->find($evento_id);
+            if (!$evento) {
                 wp_send_json_error('Evento não encontrado.');
             }
         }
@@ -149,73 +156,60 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('Você não tem permissão para salvar eventos.');
         }
         
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+        $evento_model = new Sevo_Evento_Model();
+        
         $evento_id = isset($_POST['evento_id']) ? intval($_POST['evento_id']) : 0;
-        $title = sanitize_text_field($_POST['post_title']);
-        $content = wp_kses_post($_POST['post_content']);
         
-        if (empty($title)) {
-            wp_send_json_error('O título do evento é obrigatório.');
-        }
-        
-        // Dados do post
-        $post_data = array(
-            'post_title' => $title,
-            'post_content' => $content,
-            'post_type' => SEVO_EVENTO_POST_TYPE,
-            'post_status' => 'publish'
+        // Preparar dados para o modelo
+        $data = array(
+            'titulo' => sanitize_text_field($_POST['titulo']),
+            'descricao' => wp_kses_post($_POST['descricao']),
+            'tipo_evento_id' => isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0,
+            'data_inicio_inscricoes' => isset($_POST['data_inicio_inscricao']) ? sanitize_text_field($_POST['data_inicio_inscricao']) : '',
+            'data_fim_inscricoes' => isset($_POST['data_fim_inscricao']) ? sanitize_text_field($_POST['data_fim_inscricao']) : '',
+            'data_inicio_evento' => isset($_POST['data_inicio']) ? sanitize_text_field($_POST['data_inicio']) : '',
+            'data_fim_evento' => isset($_POST['data_fim']) ? sanitize_text_field($_POST['data_fim']) : '',
+            'vagas' => isset($_POST['max_participantes']) ? intval($_POST['max_participantes']) : 0,
+            'status' => isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'ativo'
         );
-        
-        if ($evento_id) {
-            $post_data['ID'] = $evento_id;
-            $result = wp_update_post($post_data);
-        } else {
-            $result = wp_insert_post($post_data);
-        }
-        
-        if (is_wp_error($result)) {
-            wp_send_json_error('Erro ao salvar evento: ' . $result->get_error_message());
-        }
-        
-        $evento_id = $evento_id ? $evento_id : $result;
-        
-        // Salva os metadados - usando os nomes corretos dos campos do formulário
-        $meta_fields = array(
-            '_sevo_evento_tipo_evento_id' => 'int',
-            '_sevo_evento_data_inicio_inscricoes' => 'text',
-            '_sevo_evento_data_fim_inscricoes' => 'text', 
-            '_sevo_evento_data_inicio_evento' => 'text',
-            '_sevo_evento_data_fim_evento' => 'text',
-            '_sevo_evento_vagas' => 'int'
-        );
-        
-        foreach ($meta_fields as $field => $type) {
-            if (isset($_POST[$field])) {
-                $value = $_POST[$field];
-                if ($type === 'int') {
-                    $value = intval($value);
-                } else {
-                    $value = sanitize_text_field($value);
-                }
-                update_post_meta($evento_id, $field, $value);
-            }
-        }
         
         // Processar upload de imagem se fornecida
-        if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
-            $attachment_id = $this->process_evento_image($_FILES['featured_image']);
+        if (isset($_FILES['evento-image-file-input']) && $_FILES['evento-image-file-input']['error'] === UPLOAD_ERR_OK) {
+            $attachment_id = $this->process_evento_image($_FILES['evento-image-file-input']);
             if ($attachment_id) {
-                set_post_thumbnail($evento_id, $attachment_id);
+                $data['imagem_url'] = wp_get_attachment_url($attachment_id);
+            }
+        } elseif (isset($_POST['imagem_url']) && !empty($_POST['imagem_url'])) {
+            // Se não é um data URL (preview), salva a URL
+            $imagem_url = sanitize_text_field($_POST['imagem_url']);
+            if (!str_starts_with($imagem_url, 'data:')) {
+                $data['imagem_url'] = $imagem_url;
             }
         }
         
-        // Disparar hook save_post manualmente para integração com fórum
-        $hook_name = 'save_post_' . SEVO_EVENTO_POST_TYPE;
-        // Debug removido - hook funcionando corretamente
-        do_action($hook_name, $evento_id, get_post($evento_id), !$_POST['evento_id']);
+        if ($evento_id > 0) {
+            // Atualizar evento existente
+            $result = $evento_model->update_validated($evento_id, $data);
+        } else {
+            // Criar novo evento
+            $result = $evento_model->create_validated($data);
+            if ($result['success']) {
+                $evento_id = $result['id'];
+            }
+        }
+        
+        if (!$result['success']) {
+            wp_send_json_error(implode(', ', $result['errors']));
+        }
+        
+        // Disparar hook personalizado para integração
+        do_action('sevo_evento_saved', $evento_id, $result['data'], !$_POST['evento_id']);
         
         wp_send_json_success(array(
             'message' => 'Evento salvo com sucesso!',
-            'evento_id' => $evento_id
+            'evento_id' => $evento_id,
+            'evento' => $result['data']
         ));
     }
 
@@ -263,28 +257,23 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         if ($existing) {
             $status_atual = $existing->status;
-            $cancel_count = intval($existing->cancel_count);
             
             // Se já está ativa, não pode se inscrever novamente
             if ($status_atual === 'solicitada' || $status_atual === 'aceita') {
                 wp_send_json_error('Você já está inscrito neste evento.');
             }
             
-            // Se foi cancelada, verifica se pode se inscrever novamente
+            // Se foi cancelada, pode se inscrever novamente
             if ($status_atual === 'cancelada') {
-                if ($cancel_count >= 3) {
-                    wp_send_json_error('Você atingiu o limite máximo de 3 cancelamentos para este evento.');
-                }
                 
                 // Reativa a inscrição existente
                 $wpdb->update(
                     $wpdb->prefix . 'sevo_inscricoes',
                     array(
-                        'status' => 'solicitada',
-                        'data_inscricao' => current_time('mysql')
+                        'status' => 'solicitada'
                     ),
                     array('id' => $existing->id),
-                    array('%s', '%s'),
+                    array('%s'),
                     array('%d')
                 );
                 
@@ -302,11 +291,9 @@ class Sevo_Eventos_Dashboard_Shortcode {
             array(
                 'evento_id' => $evento_id,
                 'usuario_id' => $user_id,
-                'data_inscricao' => current_time('mysql'),
-                'status' => 'solicitada',
-                'cancel_count' => 0
+                'status' => 'solicitada'
             ),
-            array('%d', '%d', '%s', '%s', '%d')
+            array('%d', '%d', '%s')
         );
         
         if ($result === false) {
@@ -366,29 +353,22 @@ class Sevo_Eventos_Dashboard_Shortcode {
         }
         
         // Incrementa o contador de cancelamentos
-        $cancel_count = intval($inscricao->cancel_count);
-        $cancel_count++;
+        $inscricao_model = new Sevo_Inscricao_Model();
+        $inscricao_model->increment_cancel_count($inscricao->evento_id, $user_id);
         
-        // Atualiza o status da inscrição e contador
+        // Atualiza o status da inscrição
         $wpdb->update(
             $wpdb->prefix . 'sevo_inscricoes',
             array(
-                'status' => 'cancelada',
-                'cancel_count' => $cancel_count
+                'status' => 'cancelada'
             ),
             array('id' => $inscricao_id),
-            array('%s', '%d'),
+            array('%s'),
             array('%d')
         );
         
-        $message = 'Inscrição cancelada com sucesso!';
-        if ($cancel_count >= 3) {
-            $message .= ' Você atingiu o limite máximo de cancelamentos para este evento.';
-        }
-        
         wp_send_json_success(array(
-            'message' => $message,
-            'cancel_count' => $cancel_count,
+            'message' => 'Inscrição cancelada com sucesso!',
             'evento_id' => $inscricao->evento_id
         ));
     }
@@ -469,129 +449,79 @@ class Sevo_Eventos_Dashboard_Shortcode {
      * Obtém eventos filtrados
      */
     private function get_filtered_eventos($filters) {
-        $meta_query = array();
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+        $evento_model = new Sevo_Evento_Model();
+        
+        $model_filters = array();
         
         // Filtro por organização
         if (!empty($filters['organizacao'])) {
-            global $wpdb;
-            // Buscar tipos de evento da organização
-            $tipos_org = $wpdb->get_col(
-                $wpdb->prepare(
-                    "SELECT id FROM {$wpdb->prefix}sevo_tipos_evento WHERE organizacao_id = %d AND status = 'ativo'",
-                    $filters['organizacao']
-                )
-            );
-            
-            if (!empty($tipos_org)) {
-                $meta_query[] = array(
-                    'key' => '_sevo_evento_tipo_evento_id',
-                    'value' => $tipos_org,
-                    'compare' => 'IN'
-                );
-            } else {
-                return array(); // Se não há tipos para a organização, retorna vazio
-            }
+            $model_filters['organizacao_id'] = $filters['organizacao'];
         }
         
         // Filtro por tipo de evento
         if (!empty($filters['tipo_evento'])) {
-            $meta_query[] = array(
-                'key' => '_sevo_evento_tipo_evento_id',
-                'value' => $filters['tipo_evento'],
-                'compare' => '='
-            );
+            $model_filters['tipo_evento_id'] = $filters['tipo_evento'];
         }
         
         // Filtro por status/período
         if (!empty($filters['status'])) {
-            $today = current_time('Y-m-d');
-            
-            switch ($filters['status']) {
-                case 'inscricoes_abertas':
-                    $meta_query[] = array(
-                        'relation' => 'AND',
-                        array(
-                            'key' => '_sevo_evento_data_inicio_inscricoes',
-                            'value' => $today,
-                            'compare' => '<=',
-                            'type' => 'DATE'
-                        ),
-                        array(
-                            'key' => '_sevo_evento_data_fim_inscricoes',
-                            'value' => $today,
-                            'compare' => '>=',
-                            'type' => 'DATE'
-                        )
-                    );
-                    break;
-                    
-                case 'em_andamento':
-                    $meta_query[] = array(
-                        'relation' => 'AND',
-                        array(
-                            'key' => '_sevo_evento_data_inicio_evento',
-                            'value' => $today,
-                            'compare' => '<=',
-                            'type' => 'DATE'
-                        ),
-                        array(
-                            'key' => '_sevo_evento_data_fim_evento',
-                            'value' => $today,
-                            'compare' => '>=',
-                            'type' => 'DATE'
-                        )
-                    );
-                    break;
-                    
-                case 'encerrados':
-                    $meta_query[] = array(
-                        'key' => '_sevo_evento_data_fim_evento',
-                        'value' => $today,
-                        'compare' => '<',
-                        'type' => 'DATE'
-                    );
-                    break;
-            }
+            $model_filters['status'] = $filters['status'];
         }
         
-        $query = new WP_Query(array(
-            'post_type' => SEVO_EVENTO_POST_TYPE,
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'meta_query' => $meta_query,
-            'orderby' => 'meta_value',
-            'meta_key' => '_sevo_evento_data_inicio_evento',
-            'order' => 'ASC',
-            'fields' => 'ids'
-        ));
+        // Usar o método get_paginated do modelo para obter eventos filtrados
+        $result = $evento_model->get_paginated(1, -1, $model_filters);
         
-        return $query->posts;
+        // Extrair apenas os IDs dos eventos
+        $evento_ids = array();
+        foreach ($result['items'] as $evento) {
+            $evento_ids[] = $evento->id;
+        }
+        
+        return $evento_ids;
     }
 
     /**
      * Renderiza um card de evento
      */
     private function render_evento_card($evento_id) {
-        $evento = get_post($evento_id);
-        $data_inicio = get_post_meta($evento_id, '_sevo_evento_data_inicio_evento', true);
-        $data_fim = get_post_meta($evento_id, '_sevo_evento_data_fim_evento', true);
-        $data_inicio_insc = get_post_meta($evento_id, '_sevo_evento_data_inicio_inscricoes', true);
-        $data_fim_insc = get_post_meta($evento_id, '_sevo_evento_data_fim_inscricoes', true);
-        $local = get_post_meta($evento_id, '_sevo_evento_local', true);
-        $tipo_evento_id = get_post_meta($evento_id, '_sevo_evento_tipo_evento_id', true);
-        $tipo_evento = $tipo_evento_id ? get_the_title($tipo_evento_id) : '';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
         
-        // Busca a organização através do tipo de evento
-        $org_id = $tipo_evento_id ? get_post_meta($tipo_evento_id, '_sevo_tipo_evento_organizacao_id', true) : '';
-        $org_name = $org_id ? get_the_title($org_id) : '';
+        $evento_model = new Sevo_Evento_Model();
+        $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+        
+        $evento = $evento_model->find($evento_id);
+        if (!$evento) {
+            return;
+        }
+        
+        // Buscar dados do tipo de evento e organização
+        $tipo_evento = null;
+        $org_name = '';
+        if ($evento->tipo_evento_id) {
+            $tipo_evento = $tipo_evento_model->find($evento->tipo_evento_id);
+            if ($tipo_evento && $tipo_evento->organizacao_id) {
+                require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model.php';
+                $org_model = new Sevo_Organizacao_Model();
+                $organizacao = $org_model->find($tipo_evento->organizacao_id);
+                $org_name = $organizacao ? $organizacao->titulo : '';
+            }
+        }
         
         // Imagem do evento ou padrão
-        $thumbnail_url = get_the_post_thumbnail_url($evento_id, 'medium_large');
+        $thumbnail_url = $evento->imagem_url;
         if (!$thumbnail_url) {
             $thumbnail_url = SEVO_EVENTOS_PLUGIN_URL . 'assets/images/default-evento.svg';
         }
         
         // Formata as datas
+        $data_inicio = $evento->data_inicio_evento;
+        $data_fim = $evento->data_fim_evento;
+        $data_inicio_insc = $evento->data_inicio_inscricoes;
+        $data_fim_insc = $evento->data_fim_inscricoes;
+        $local = $evento->local ?? '';
+        
         $data_inicio_formatted = $data_inicio ? date_i18n('d/m/Y', strtotime($data_inicio)) : '';
         $data_fim_formatted = $data_fim ? date_i18n('d/m/Y', strtotime($data_fim)) : '';
         
@@ -617,7 +547,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
             }
         }
         
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/partials/evento-card.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/components/evento-card.php');
     }
     
     /**

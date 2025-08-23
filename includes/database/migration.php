@@ -148,6 +148,7 @@ class Sevo_Database_Migration {
             usuario_id bigint(20) unsigned NOT NULL,
             status varchar(20) DEFAULT 'solicitada',
             observacoes text,
+            cancel_count int(11) DEFAULT 0,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),

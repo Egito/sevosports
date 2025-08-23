@@ -14,6 +14,7 @@ $tipo_id = $is_editing ? $tipo_evento->id : 0;
 $titulo = $is_editing ? $tipo_evento->titulo : '';
 $descricao = $is_editing ? $tipo_evento->descricao : '';
 $organizacao_id = $is_editing ? $tipo_evento->organizacao_id : 0;
+$max_vagas = $is_editing ? $tipo_evento->max_vagas : '';
 $status = $is_editing ? $tipo_evento->status : 'ativo';
 $imagem_url = $is_editing ? $tipo_evento->imagem_url : '';
 
@@ -49,6 +50,13 @@ $organizacoes = $organizacao_model->get_active();
                 </select>
             </div>
             
+            <!-- Número Máximo de Vagas -->
+            <div class="sevo-form-group">
+                <label for="tipo_max_vagas">Número Máximo de Vagas</label>
+                <input type="number" id="tipo_max_vagas" name="max_vagas" value="<?php echo esc_attr($max_vagas); ?>" min="1" placeholder="Deixe vazio para ilimitadas">
+                <small class="sevo-form-help">Deixe vazio para vagas ilimitadas</small>
+            </div>
+            
             <!-- Status -->
             <div class="sevo-form-group">
                 <label for="tipo_status">Status *</label>
@@ -64,17 +72,38 @@ $organizacoes = $organizacao_model->get_active();
                 <textarea id="tipo_descricao" name="descricao" rows="4"><?php echo esc_textarea($descricao); ?></textarea>
             </div>
             
-            <!-- URL da Imagem -->
-            <div class="sevo-form-group-full">
-                <label for="tipo_imagem_url">URL da Imagem</label>
-                <input type="url" id="tipo_imagem_url" name="imagem_url" value="<?php echo esc_attr($imagem_url); ?>" placeholder="https://">
-                <small class="sevo-form-help">Cole aqui a URL de uma imagem para o tipo de evento.</small>
-                <?php if ($imagem_url): ?>
-                    <div class="sevo-current-image">
-                        <p>Imagem atual:</p>
-                        <img src="<?php echo esc_url($imagem_url); ?>" alt="Imagem atual" style="max-width: 100px; height: auto; border-radius: 4px;">
+            <!-- Upload de Imagem do Tipo de Evento -->
+            <div class="sevo-form-group">
+                <label>Imagem do Tipo de Evento</label>
+                <div class="sevo-image-upload-container sevo-horizontal-layout">
+                    <div class="sevo-image-preview" id="tipo-image-preview-container">
+                        <?php if ($imagem_url): ?>
+                            <img src="<?php echo esc_url($imagem_url); ?>" alt="Imagem atual" id="tipo-preview-image">
+                            <button type="button" class="sevo-remove-image" id="tipo-remove-image-btn" title="Remover imagem">×</button>
+                        <?php else: ?>
+                            <div class="sevo-image-placeholder" id="tipo-image-placeholder">
+                                <i class="dashicons dashicons-camera"></i>
+                                <p>Clique para carregar uma imagem</p>
+                                <small>Recomendado: 300x300 pixels</small>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                    <div class="sevo-upload-actions">
+                        <button type="button" id="tipo-upload-image-btn" class="sevo-btn sevo-btn-primary">
+                            <i class="dashicons dashicons-upload"></i>
+                            <?php echo $imagem_url ? 'Alterar Imagem' : 'Carregar Imagem'; ?>
+                        </button>
+                        <?php if ($imagem_url): ?>
+                            <button type="button" id="tipo-remove-image-action" class="sevo-btn sevo-btn-danger">
+                                <i class="dashicons dashicons-trash"></i>
+                                Remover
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <input type="hidden" id="tipo_imagem_url" name="imagem_url" value="<?php echo esc_attr($imagem_url); ?>">
+                <input type="file" id="tipo-image-file-input" accept="image/*" style="display: none;">
+                <small class="sevo-form-help">A imagem será automaticamente redimensionada para 300x300 pixels.</small>
             </div>
         </div>
     </div>

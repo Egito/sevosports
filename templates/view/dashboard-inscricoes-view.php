@@ -129,7 +129,7 @@ $total_pages = $result['total_pages'];
                     <th class="sortable" data-sort="evento_nome">Evento</th>
                     <th class="sortable" data-sort="evento_data">Data do Evento</th>
                     <th class="sortable" data-sort="organizacao_nome">Organização</th>
-                    <th class="sortable" data-sort="data_inscricao">Data da Inscrição</th>
+                    <th class="sortable" data-sort="created_at">Data da Inscrição</th>
                     <th class="no-sort">Ações</th>
                 </tr>
             </thead>
@@ -141,7 +141,7 @@ $total_pages = $result['total_pages'];
                         $status_text = ucfirst($inscricao->status);
                         
                         // Formatação da data
-                        $data_formatted = $inscricao->data_inscricao ? date('d/m/Y H:i', strtotime($inscricao->data_inscricao)) : '';
+                        $data_formatted = $inscricao->created_at ? date('d/m/Y H:i', strtotime($inscricao->created_at)) : '';
                         ?>
                         <tr data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" class="<?php echo esc_attr($status_class); ?>">
                             <td class="inscricao-id"><?php echo esc_html($inscricao->id); ?></td>

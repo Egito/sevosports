@@ -129,10 +129,9 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_inscricoes() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        // Verificar se é superadmin ou admin primeiro
+        // Superadmin e administradores podem ver todas as inscrições
         $is_super_admin = is_super_admin();
         $is_admin = current_user_can('manage_options');
-        // Superadmin e administradores podem ver todas as inscrições
         $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
         $can_view_own = sevo_check_user_permission('view_own_inscricoes');
         
@@ -182,10 +181,9 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_filter_options() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        // Verificar se é superadmin ou admin primeiro
+        // Superadmin e administradores podem ver todas as inscrições
         $is_super_admin = is_super_admin();
         $is_admin = current_user_can('manage_options');
-        // Superadmin e administradores podem ver todas as inscrições
         $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
         
         if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
@@ -205,11 +203,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         try {
             $filters = isset($_POST['filters']) ? $_POST['filters'] : [];
-            // Verificar se é superadmin ou admin primeiro
-            $is_super_admin = is_super_admin();
-            $is_admin = current_user_can('manage_options');
             // Superadmin e administradores podem ver todas as inscrições
-            $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
+            $is_super_admin = is_super_admin();
+        $is_admin = current_user_can('manage_options');
+        $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
             
             if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
                 wp_die('Permissão negada.');
@@ -270,22 +267,19 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Buscar dados da inscrição
         $inscricao = $wpdb->get_row($wpdb->prepare("
-            SELECT p.*, 
-                   pm_evento.meta_value as evento_id,
-                   pm_usuario.meta_value as usuario_id,
-                   pm_status.meta_value as status,
-                   pm_comentario.meta_value as comentario,
-                   e.post_title as evento_nome,
+            SELECT i.id,
+                   i.created_at,
+                   i.evento_id,
+                   i.usuario_id,
+                   i.status,
+                   i.observacoes as comentario,
+                   e.titulo as evento_titulo,
                    u.display_name as usuario_nome,
                    u.user_email as usuario_email
-            FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm_evento ON p.ID = pm_evento.post_id AND pm_evento.meta_key = '_sevo_inscr_evento_id'
-            LEFT JOIN {$wpdb->postmeta} pm_usuario ON p.ID = pm_usuario.post_id AND pm_usuario.meta_key = '_sevo_inscr_usuario_id'
-            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_sevo_inscr_status'
-            LEFT JOIN {$wpdb->postmeta} pm_comentario ON p.ID = pm_comentario.post_id AND pm_comentario.meta_key = '_sevo_inscr_comentario'
-            LEFT JOIN {$wpdb->posts} e ON pm_evento.meta_value = e.ID
-            LEFT JOIN {$wpdb->users} u ON pm_usuario.meta_value = u.ID
-            WHERE p.ID = %d AND p.post_type = 'sevo_inscr'
+            FROM {$wpdb->prefix}sevo_inscricoes i
+            LEFT JOIN {$wpdb->prefix}sevo_eventos e ON i.evento_id = e.id
+            LEFT JOIN {$wpdb->users} u ON i.usuario_id = u.ID
+            WHERE i.id = %d
         ", $inscricao_id));
         
         if (!$inscricao) {
@@ -323,21 +317,31 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         // Verificar se a inscrição existe
-        $inscricao = get_post($inscricao_id);
-        if (!$inscricao || $inscricao->post_type !== 'sevo_inscr') {
+        $inscricao = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}sevo_inscricoes WHERE id = %d",
+            $inscricao_id
+        ));
+        
+        if (!$inscricao) {
             wp_send_json_error('Inscrição não encontrada.');
         }
         
-        // Atualizar meta fields
-        update_post_meta($inscricao_id, '_sevo_inscr_status', $status);
-        update_post_meta($inscricao_id, '_sevo_inscr_comentario', $comentario);
+        // Atualizar na tabela customizada
+        $result = $wpdb->update(
+            $wpdb->prefix . 'sevo_inscricoes',
+            array(
+                'status' => $status,
+                'observacoes' => $comentario,
+                'updated_at' => current_time('mysql')
+            ),
+            array('id' => $inscricao_id),
+            array('%s', '%s', '%s'),
+            array('%d')
+        );
         
-        // Atualizar data de modificação
-        wp_update_post(array(
-            'ID' => $inscricao_id,
-            'post_modified' => current_time('mysql'),
-            'post_modified_gmt' => current_time('mysql', 1)
-        ));
+        if ($result === false) {
+            wp_send_json_error('Erro ao atualizar inscrição.');
+        }
         
         wp_send_json_success(array(
             'message' => 'Inscrição atualizada com sucesso!',
@@ -371,11 +375,11 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         if (!empty($filters['ano']) && $filters['ano'] !== '') {
-            $where_conditions[] = $wpdb->prepare('YEAR(i.data_inscricao) = %d', intval($filters['ano']));
+            $where_conditions[] = $wpdb->prepare('YEAR(i.created_at) = %d', intval($filters['ano']));
         }
         
         if (!empty($filters['mes']) && $filters['mes'] !== '') {
-            $where_conditions[] = $wpdb->prepare('MONTH(i.data_inscricao) = %d', intval($filters['mes']));
+            $where_conditions[] = $wpdb->prepare('MONTH(i.created_at) = %d', intval($filters['mes']));
         }
         
         if (!empty($filters['organizacao_id']) && $filters['organizacao_id'] !== '' && $can_manage_all) {
@@ -402,7 +406,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             SELECT 
                 i.id as inscricao_id,
                 i.usuario_id,
-                i.data_inscricao,
+                i.created_at,
                 i.status,
                 i.evento_id,
                 e.titulo as evento_nome,
@@ -420,7 +424,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             LEFT JOIN {$wpdb->users} u ON i.usuario_id = u.ID
             {$joins}
             WHERE {$where}
-            ORDER BY i.data_inscricao DESC
+            ORDER BY i.created_at DESC
             LIMIT {$per_page} OFFSET {$offset}
         ";
         
@@ -600,7 +604,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Anos disponíveis
         $anos_sql = "
-            SELECT DISTINCT YEAR(i.data_inscricao) as ano
+            SELECT DISTINCT YEAR(i.created_at) as ano
             FROM {$wpdb->prefix}sevo_inscricoes i
         ";
         
@@ -638,11 +642,11 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         if (!empty($filters['ano']) && $filters['ano'] !== '') {
-            $where_conditions[] = $wpdb->prepare('YEAR(i.data_inscricao) = %d', intval($filters['ano']));
+            $where_conditions[] = $wpdb->prepare('YEAR(i.created_at) = %d', intval($filters['ano']));
         }
         
         if (!empty($filters['mes']) && $filters['mes'] !== '') {
-            $where_conditions[] = $wpdb->prepare('MONTH(i.data_inscricao) = %d', intval($filters['mes']));
+            $where_conditions[] = $wpdb->prepare('MONTH(i.created_at) = %d', intval($filters['mes']));
         }
         
         if (!empty($filters['organizacao']) && $filters['organizacao'] !== '' && $can_manage_all) {
@@ -731,7 +735,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 $inscricao->organizacao_nome,
                 $inscricao->tipo_evento_nome,
                 $inscricao->status,
-                $inscricao->data_inscricao
+                $inscricao->created_at
             ];
             
             fputcsv($file, $row);

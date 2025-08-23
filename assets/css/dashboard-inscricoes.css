@@ -245,12 +245,13 @@
 }
 
 .sevo-btn-primary {
-    background: #3498db;
-    color: white;
+    background: #3498db !important;
+    color: white !important;
 }
 
 .sevo-btn-primary:hover {
-    background: #2980b9;
+    background: #2980b9 !important;
+    color: white !important;
 }
 
 .sevo-btn-secondary {
@@ -290,12 +291,13 @@
 }
 
 .sevo-btn-info {
-    background: #3498db;
-    color: white;
+    background: #3498db !important;
+    color: white !important;
 }
 
 .sevo-btn-info:hover {
-    background: #2980b9;
+    background: #2980b9 !important;
+    color: white !important;
 }
 
 .sevo-btn-sm {

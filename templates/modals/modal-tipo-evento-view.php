@@ -48,7 +48,7 @@ if ($tipo_evento->organizacao_id) {
                 <!-- Data de Criação -->
                 <div class="sevo-info-item">
                     <label>Criado em:</label>
-                    <span><?php echo date('d/m/Y H:i', strtotime($tipo_evento->data_criacao)); ?></span>
+                    <span><?php echo date('d/m/Y H:i', strtotime($tipo_evento->created_at)); ?></span>
                 </div>
                 
                 <!-- Organização -->
@@ -65,11 +65,19 @@ if ($tipo_evento->organizacao_id) {
                     </span>
                 </div>
                 
+                <!-- Número Máximo de Vagas -->
+                <div class="sevo-info-item">
+                    <label>Número Máximo de Vagas:</label>
+                    <span>
+                        <?php echo $tipo_evento->max_vagas ? esc_html($tipo_evento->max_vagas) : 'Ilimitadas'; ?>
+                    </span>
+                </div>
+                
                 <!-- Data de Atualização -->
-                <?php if ($tipo_evento->data_atualizacao && $tipo_evento->data_atualizacao !== $tipo_evento->data_criacao): ?>
+                <?php if ($tipo_evento->updated_at && $tipo_evento->updated_at !== $tipo_evento->created_at): ?>
                     <div class="sevo-info-item">
                         <label>Atualizado em:</label>
-                        <span><?php echo date('d/m/Y H:i', strtotime($tipo_evento->data_atualizacao)); ?></span>
+                        <span><?php echo date('d/m/Y H:i', strtotime($tipo_evento->updated_at)); ?></span>
                     </div>
                 <?php endif; ?>
             </div>

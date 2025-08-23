@@ -67,14 +67,14 @@ function sevo_get_eventos_by_sections() {
 // Função para renderizar um card de evento
 function sevo_render_event_card($evento) {
     $can_manage_events = current_user_can('manage_options');
-    $evento_id = $evento['id'];
+    $evento_id = $evento->id;
     
     // Verifica se o usuário pode se inscrever
     $user_id = get_current_user_id();
     $can_inscribe = false;
     $user_inscricao = null;
     $user_inscricao_status = null;
-    $cancel_count = 0;
+
     $inscricoes_abertas = false;
     
     if (is_user_logged_in()) {
@@ -82,14 +82,14 @@ function sevo_render_event_card($evento) {
         $evento_model = new Sevo_Evento_Model();
         $inscricao_model = new Sevo_Inscricao_Model();
         
-        $can_inscribe = $evento_model->can_user_register($evento_id, $user_id);
+        $can_register_result = $evento_model->can_user_register($evento_id, $user_id);
+        $can_inscribe = $can_register_result['can_register'] ?? false;
         
         // Busca a inscrição do usuário para obter detalhes
         $user_inscricao = $inscricao_model->first(['usuario_id' => $user_id, 'evento_id' => $evento_id]);
         
         if ($user_inscricao) {
             $user_inscricao_status = $user_inscricao->status;
-            $cancel_count = (int) $user_inscricao->cancel_count;
         }
         
         // Verifica se as inscrições estão abertas
@@ -104,84 +104,83 @@ function sevo_render_event_card($evento) {
     
     ob_start();
     ?>
-    <div class="sevo-event-card" data-event-id="<?php echo esc_attr($evento['id']); ?>">
-        <div class="card-image" style="background-image: url('<?php echo esc_url($evento['thumbnail_url']); ?>')">
+    <div class="sevo-event-card" data-event-id="<?php echo esc_attr($evento->id); ?>">
+        <div class="card-image" style="background-image: url('<?php echo esc_url($evento->imagem_url ?: ''); ?>')">
             <div class="card-overlay"></div>
         </div>
         <div class="card-content">
-            <h3 class="card-title"><?php echo esc_html($evento['title']); ?></h3>
+            <h3 class="card-title"><?php echo esc_html($evento->titulo); ?></h3>
             <p class="card-description">
-                <?php echo wp_trim_words($evento['excerpt'], 15, '...'); ?>
+                <?php echo wp_trim_words($evento->descricao, 15, '...'); ?>
             </p>
             
             <div class="card-meta">
-                <?php if ($evento['tipo_evento']): ?>
+                <?php if ($evento->tipo_evento_titulo): ?>
                     <div class="meta-item">
                         <i class="meta-icon dashicons dashicons-category"></i>
-                        <span><?php echo esc_html($evento['tipo_evento']); ?></span>
+                        <span><?php echo esc_html($evento->tipo_evento_titulo); ?></span>
                     </div>
                 <?php endif; ?>
                 
-                <?php if ($evento['org_name']): ?>
+                <?php if ($evento->organizacao_titulo): ?>
                     <div class="meta-item">
                         <i class="meta-icon dashicons dashicons-building"></i>
-                        <span><?php echo esc_html($evento['org_name']); ?></span>
+                        <span><?php echo esc_html($evento->organizacao_titulo); ?></span>
                     </div>
                 <?php endif; ?>
                 
-                <?php if ($evento['data_inicio_formatted']): ?>
+                <?php if ($evento->data_inicio_evento): ?>
                     <div class="meta-item">
                         <i class="meta-icon dashicons dashicons-calendar-alt"></i>
-                        <span><?php echo esc_html($evento['data_inicio_formatted']); ?></span>
+                        <span><?php echo esc_html(date('d/m/Y', strtotime($evento->data_inicio_evento))); ?></span>
                     </div>
                 <?php endif; ?>
                 
-                <?php if ($evento['local']): ?>
+                <?php if ($evento->vagas): ?>
                     <div class="meta-item">
-                        <i class="meta-icon dashicons dashicons-location"></i>
-                        <span><?php echo esc_html($evento['local']); ?></span>
+                        <i class="meta-icon dashicons dashicons-groups"></i>
+                        <span><?php echo esc_html($evento->vagas . ' vagas'); ?></span>
                     </div>
                 <?php endif; ?>
             </div>
             
             <div class="card-actions">
-                <button class="btn-view-event" data-event-id="<?php echo esc_attr($evento['id']); ?>" title="Ver Detalhes">
+                <button class="btn-view-event" data-event-id="<?php echo esc_attr($evento->id); ?>" title="Ver Detalhes">
                     <i class="dashicons dashicons-visibility"></i>
                 </button>
                 
                 <?php 
-                // Só mostra botões de inscrição se o usuário estiver logado
-                if (is_user_logged_in()): 
+                // Só mostra botões de inscrição se o usuário estiver logado e as inscrições estiverem abertas
+                if (is_user_logged_in() && $inscricoes_abertas): 
                 ?>
                     <?php if ($can_inscribe): ?>
-                        <button class="btn-inscribe-event" data-event-id="<?php echo esc_attr($evento['id']); ?>" title="Inscrever-se">
+                        <button class="btn-inscribe-event" data-event-id="<?php echo esc_attr($evento->id); ?>" title="Inscrever-se">
                             <i class="dashicons dashicons-plus-alt"></i>
                         </button>
                     <?php elseif ($user_inscricao && $user_inscricao_status === 'solicitada'): ?>
                         <button class="btn-cancel-inscription" data-inscricao-id="<?php echo esc_attr($user_inscricao->id); ?>" title="Cancelar Inscrição">
                             <i class="dashicons dashicons-dismiss"></i>
                         </button>
-                    <?php elseif ($user_inscricao && $user_inscricao_status === 'aceita'): ?>
+                    <?php endif; ?>
+                <?php endif; ?>
+                
+                <?php 
+                // Mostra status da inscrição independente do período
+                if (is_user_logged_in() && $user_inscricao): 
+                ?>
+                    <?php if ($user_inscricao_status === 'aceita'): ?>
                         <button class="btn-inscribed" title="Inscrito" disabled>
                             <i class="dashicons dashicons-yes-alt"></i>
                         </button>
-                    <?php elseif ($user_inscricao && $user_inscricao_status === 'rejeitada'): ?>
+                    <?php elseif ($user_inscricao_status === 'rejeitada'): ?>
                         <button class="btn-rejected" title="Inscrição Rejeitada" disabled>
                             <i class="dashicons dashicons-no-alt"></i>
                         </button>
-                    <?php elseif ($user_inscricao && $user_inscricao_status === 'cancelada' && $cancel_count >= 3): ?>
-                        <button class="btn-blocked" title="Limite de cancelamentos atingido" disabled>
-                            <i class="dashicons dashicons-lock"></i>
-                        </button>
-                    <?php elseif (!$inscricoes_abertas): ?>
-                        <!-- Não mostra botão quando período de inscrições está encerrado -->
                     <?php endif; ?>
-                <?php else: ?>
-                    <!-- Não mostra botões de inscrição para usuários não logados -->
                 <?php endif; ?>
                 
                 <?php if ($can_manage_events): ?>
-                    <button class="btn-edit-event" data-event-id="<?php echo esc_attr($evento['id']); ?>" title="Editar">
+                    <button class="btn-edit-event" data-event-id="<?php echo esc_attr($evento->id); ?>" title="Editar">
                         <i class="dashicons dashicons-edit"></i>
                     </button>
                 <?php endif; ?>

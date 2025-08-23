@@ -308,6 +308,14 @@ class Sevo_Eventos_Main {
             SEVO_EVENTOS_VERSION
         );
 
+        // Estilo para correção de conflitos de cores dos botões
+        wp_register_style(
+            'sevo-button-fixes-style',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-fixes.css',
+            array('sevo-button-colors-style'),
+            SEVO_EVENTOS_VERSION
+        );
+
         // Estilo para o sistema de Toaster
         wp_register_style(
             'sevo-toaster-style',
