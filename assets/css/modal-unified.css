@@ -62,10 +62,10 @@
     border: 2px solid #2196f3;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);
-    max-width: 98%;
-    width: 95vw;
-    max-height: 95vh;
-    height: 90vh;
+    max-width: 85%;
+    width: 80vw;
+    max-height: 80vh;
+    height: 75vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1490,5 +1490,59 @@
     .sevo-modal-footer-form button {
         width: 100%;
         margin: 2px 0;
+    }
+}
+
+/* === RESPONSIVIDADE PARA MODAL DE EVENTO === */
+@media (max-width: 1200px) {
+    .sevo-modal-evento-view {
+        width: 90vw;
+        height: 80vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .sevo-modal-evento-view {
+        width: 95vw;
+        height: 85vh;
+        max-width: 95%;
+    }
+    
+    .sevo-modal-top-container {
+        flex-direction: column;
+        height: 50%;
+    }
+    
+    .sevo-modal-evento-dados,
+    .sevo-modal-inscricoes-lista {
+        width: 100%;
+        flex: 1;
+    }
+    
+    .sevo-modal-title {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-modal-evento-view {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100%;
+        border-radius: 0;
+    }
+    
+    .sevo-modal-header-evento {
+        border-radius: 0;
+        padding: 8px;
+    }
+    
+    .sevo-modal-title {
+        font-size: 0.8rem;
+    }
+    
+    .sevo-status-badge, .sevo-user-status {
+        font-size: 8px;
+        padding: 2px 6px;
     }
 }

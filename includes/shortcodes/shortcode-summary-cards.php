@@ -78,119 +78,95 @@ class Sevo_Summary_Cards_Shortcode {
      * @return array Array com dados dos cards
      */
     private function get_cards_data($show) {
-        // Total de Organizações
-        $orgs_posts = wp_count_posts(SEVO_ORG_POST_TYPE);
-        $orgs_count = isset($orgs_posts->publish) ? $orgs_posts->publish : 0;
+        global $wpdb;
         
-        // Total de Eventos
-        $eventos_posts = wp_count_posts(SEVO_EVENTO_POST_TYPE);
-        $eventos_count = isset($eventos_posts->publish) ? $eventos_posts->publish : 0;
+        // Total de Organizações (tabela customizada)
+        $orgs_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_organizacoes WHERE status = 'ativo'");
         
-        // Total de Seções
-        $secoes_posts = wp_count_posts(SEVO_TIPO_EVENTO_POST_TYPE);
-        $secoes_count = isset($secoes_posts->publish) ? $secoes_posts->publish : 0;
+        // Total de Tipos de Evento (tabela customizada)
+        $tipos_evento_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_tipos_evento WHERE status = 'ativo'");
+        
+        // Total de Eventos (tabela customizada)
+        $eventos_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_eventos WHERE status = 'ativo'");
         
         // Total de Inscrições (tabela customizada)
-        global $wpdb;
         $total_inscritos = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sevo_inscricoes WHERE status IN ('solicitada', 'aceita', 'rejeitada', 'cancelada')");
         
-        // Seções com inscrições abertas
-        $inscricoes_abertas = new WP_Query(array(
-            'post_type' => SEVO_EVENTO_POST_TYPE,
-            'posts_per_page' => -1,
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key' => '_sevo_evento_data_inicio_inscricoes',
-                    'value' => date('Y-m-d'),
-                    'compare' => '<=',
-                    'type' => 'DATE'
-                ),
-                array(
-                    'key' => '_sevo_evento_data_fim_inscricoes',
-                    'value' => date('Y-m-d'),
-                    'compare' => '>=',
-                    'type' => 'DATE'
-                )
+        // Eventos com inscrições abertas
+        $inscricoes_abertas = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}sevo_eventos 
+                 WHERE status = 'ativo' 
+                 AND data_inicio_inscricoes <= %s 
+                 AND data_fim_inscricoes >= %s",
+                current_time('mysql'),
+                current_time('mysql')
             )
-        ));
+        );
         
-        // Seções em andamento
-        $em_andamento = new WP_Query(array(
-            'post_type' => SEVO_EVENTO_POST_TYPE,
-            'posts_per_page' => -1,
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key' => '_sevo_evento_data_inicio_evento',
-                    'value' => date('Y-m-d'),
-                    'compare' => '<=',
-                    'type' => 'DATE'
-                ),
-                array(
-                    'key' => '_sevo_evento_data_fim_evento',
-                    'value' => date('Y-m-d'),
-                    'compare' => '>=',
-                    'type' => 'DATE'
-                )
+        // Eventos em andamento
+        $em_andamento = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}sevo_eventos 
+                 WHERE status = 'ativo' 
+                 AND data_inicio_evento <= %s 
+                 AND data_fim_evento >= %s",
+                current_time('mysql'),
+                current_time('mysql')
             )
-        ));
+        );
         
-        // Seções futuras
-        $eventos_futuros = new WP_Query(array(
-            'post_type' => SEVO_EVENTO_POST_TYPE,
-            'posts_per_page' => -1,
-            'meta_query' => array(
-                array(
-                    'key' => '_sevo_evento_data_inicio_evento',
-                    'value' => date('Y-m-d'),
-                    'compare' => '>',
-                    'type' => 'DATE'
-                )
+        // Eventos futuros
+        $eventos_futuros = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}sevo_eventos 
+                 WHERE status = 'ativo' 
+                 AND data_inicio_evento > %s",
+                current_time('mysql')
             )
-        ));
+        );
         
         // Definir todos os cards disponíveis
         $all_cards = array(
             'orgs' => array(
                 'title' => 'Organizações',
-                'count' => $orgs_count,
+                'count' => $orgs_count ?: 0,
                 'icon' => 'dashicons-groups',
                 'class' => 'sevo-card-green'
             ),
             'secoes' => array(
-                'title' => 'Seções',
-                'count' => $secoes_count,
+                'title' => 'Tipos de Evento',
+                'count' => $tipos_evento_count ?: 0,
                 'icon' => 'dashicons-category',
                 'class' => 'sevo-card-blue'
             ),
             'eventos' => array(
                 'title' => 'Eventos',
-                'count' => $eventos_count,
+                'count' => $eventos_count ?: 0,
                 'icon' => 'dashicons-calendar-alt',
                 'class' => 'sevo-card-purple'
             ),
             'inscricoes' => array(
                 'title' => 'Inscrições',
-                'count' => $total_inscritos,
+                'count' => $total_inscritos ?: 0,
                 'icon' => 'dashicons-admin-users',
                 'class' => 'sevo-card-orange'
             ),
             'abertas' => array(
                 'title' => 'Inscrições Abertas',
-                'count' => $inscricoes_abertas->found_posts,
+                'count' => $inscricoes_abertas ?: 0,
                 'icon' => 'dashicons-yes-alt',
                 'class' => 'sevo-card-green-light'
             ),
             'andamento' => array(
                 'title' => 'Em Andamento',
-                'count' => $em_andamento->found_posts,
+                'count' => $em_andamento ?: 0,
                 'icon' => 'dashicons-clock',
                 'class' => 'sevo-card-yellow'
             ),
             'futuras' => array(
                 'title' => 'Eventos Futuros',
-                'count' => $eventos_futuros->found_posts,
+                'count' => $eventos_futuros ?: 0,
                 'icon' => 'dashicons-calendar',
                 'class' => 'sevo-card-red'
             )

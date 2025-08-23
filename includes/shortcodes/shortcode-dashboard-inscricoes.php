@@ -71,7 +71,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             wp_enqueue_style(
                 'sevo-dashboard-inscricoes',
                 SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-inscricoes.css',
-                array(),
+                array('dashicons'),
                 SEVO_EVENTOS_VERSION
             );
             wp_enqueue_style(

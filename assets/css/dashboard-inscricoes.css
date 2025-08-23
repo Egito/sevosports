@@ -180,6 +180,28 @@
     font-weight: 500;
 }
 
+/* Botão de limpar filtros com ícone */
+#clear-filters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding: 8px 12px;
+}
+
+#clear-filters i.dashicons {
+    font-size: 18px;
+    line-height: 1;
+    display: inline-block;
+    width: auto;
+    height: auto;
+}
+
+#clear-filters:hover {
+    background: #7f8c8d !important;
+    transform: scale(1.05);
+}
+
 /* Responsividade para filtros */
 @media (max-width: 1024px) {
     .sevo-filters-single-row {
@@ -298,6 +320,35 @@
 .sevo-btn-info:hover {
     background: #2980b9 !important;
     color: white !important;
+}
+
+/* === ESTILOS PARA DASHICONS EM BOTÕES === */
+.sevo-btn i.dashicons,
+.sevo-btn .dashicons {
+    font-family: dashicons !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+}
+
+/* Garantir que dashicons apareçam para usuários normais */
+.sevo-card-actions .sevo-btn i.dashicons,
+.sevo-filter-actions .sevo-btn i.dashicons {
+    font-family: dashicons !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    speak: none !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
 }
 
 .sevo-btn-sm {
