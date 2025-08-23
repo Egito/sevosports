@@ -18,7 +18,7 @@ $data_inicio_inscricao = $is_editing ? $evento->data_inicio_inscricoes : '';
 $data_fim_inscricao = $is_editing ? $evento->data_fim_inscricoes : '';
 $data_inicio = $is_editing ? $evento->data_inicio_evento : '';
 $data_fim = $is_editing ? $evento->data_fim_evento : '';
-$max_participantes = $is_editing ? $evento->max_participantes : '';
+$max_participantes = $is_editing ? $evento->vagas : '';
 $status = $is_editing ? $evento->status : 'ativo';
 $imagem_url = $is_editing ? $evento->imagem_url : '';
 
@@ -166,3 +166,390 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
         </div>
     </form>
 </div>
+
+<style>
+/* === LAYOUT APRIMORADO DO MODAL DE EDIÇÃO DE EVENTO === */
+
+/* Container principal do modal */
+.sevo-modal-container {
+    max-width: 95vw;
+    width: 900px;
+    max-height: 95vh;
+    margin: 20px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabeçalho estilizado */
+.sevo-modal-body h2.sevo-modal-title {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin: -20px -20px 25px -20px;
+    padding: 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Grid do formulário com layout mais equilibrado */
+.sevo-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 0;
+}
+
+/* Campos que ocupam toda a largura */
+.sevo-form-group-full {
+    grid-column: 1 / -1;
+}
+
+/* Estilização dos grupos de formulário */
+.sevo-form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Labels estilizados */
+.sevo-form-group label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Indicador de campo obrigatório */
+.sevo-form-group label::after {
+    content: '';
+}
+
+.sevo-form-group label[for*="required"]::after,
+label:has(+ input[required])::after,
+label[for="evento_titulo"]::after,
+label[for="evento_tipo_evento_id"]::after,
+label[for="evento_status"]::after,
+label[for="evento_data_inicio_inscricao"]::after,
+label[for="evento_data_fim_inscricao"]::after,
+label[for="evento_data_inicio"]::after,
+label[for="evento_data_fim"]::after {
+    content: '*';
+    color: #e74c3c;
+    font-weight: bold;
+    margin-left: 3px;
+}
+
+/* Campos de entrada estilizados */
+.sevo-form-group input,
+.sevo-form-group select,
+.sevo-form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+    box-sizing: border-box;
+}
+
+/* Estados de foco */
+.sevo-form-group input:focus,
+.sevo-form-group select:focus,
+.sevo-form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Textarea específico */
+.sevo-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+}
+
+/* Texto de ajuda */
+.sevo-form-help {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* === SEÇÃO DE UPLOAD DE IMAGEM === */
+.sevo-image-upload-container {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.sevo-image-upload-container:hover {
+    border-color: #667eea;
+    background: #f0f3ff;
+}
+
+.sevo-horizontal-layout {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    text-align: left;
+}
+
+.sevo-image-preview {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sevo-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sevo-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sevo-image-placeholder:hover {
+    color: #667eea;
+    transform: scale(1.05);
+}
+
+.sevo-image-placeholder i {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.sevo-upload-actions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* === FOOTER DO MODAL === */
+.sevo-modal-footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 1px solid #dee2e6;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Botões estilizados */
+.sevo-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.sevo-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.sevo-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.sevo-btn-secondary {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #dee2e6;
+}
+
+.sevo-btn-secondary:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+}
+
+.sevo-btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+}
+
+.sevo-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+    .sevo-modal-container {
+        width: 95vw;
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .sevo-form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .sevo-modal-body h2.sevo-modal-title {
+        font-size: 1.1rem;
+        margin: -20px -15px 20px -15px;
+        padding: 15px;
+    }
+    
+    .sevo-horizontal-layout {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .sevo-image-preview {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .sevo-modal-footer {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .sevo-btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-modal-container {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        border-radius: 0;
+        max-height: 100vh;
+    }
+    
+    .sevo-modal-body {
+        padding: 15px;
+    }
+    
+    .sevo-form-group input,
+    .sevo-form-group select,
+    .sevo-form-group textarea {
+        padding: 10px 12px;
+        font-size: 16px; /* Evita zoom no iOS */
+    }
+    
+    .sevo-modal-body h2.sevo-modal-title {
+        margin: -15px -15px 15px -15px;
+        border-radius: 0;
+    }
+}
+
+/* === ANIMAÇÕES === */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sevo-modal-container {
+    animation: slideInUp 0.3s ease-out;
+}
+
+/* === MELHORIAS VISUAIS === */
+.sevo-form-group input[type="date"] {
+    color: #495057;
+}
+
+.sevo-form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    color: #667eea;
+    cursor: pointer;
+}
+
+.sevo-form-group select {
+    cursor: pointer;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+    appearance: none;
+}
+
+/* Hover effects para campos */
+.sevo-form-group input:hover,
+.sevo-form-group select:hover,
+.sevo-form-group textarea:hover {
+    border-color: #667eea;
+    background: white;
+}
+
+/* Loading state para botões */
+.sevo-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.sevo-btn.loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

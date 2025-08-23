@@ -11,21 +11,20 @@
         // Configurações
         config: {
             currentPage: 1,
-            itemsPerPage: 25,
+            itemsPerPage: 50, // Aumentado para melhor performance
             totalItems: 0,
             hasMoreItems: true,
-            sortBy: 'data_inscricao',
+            sortBy: 'created_at',
             sortOrder: 'desc',
             isLoading: false,
             isLoadingMore: false,
             allInscricoes: [],
             filters: {
-                evento: '',
+                evento_id: '',
                 status: '',
-                ano: '',
-                mes: '',
-                organizacao: '',
-                tipo_evento: '',
+                periodo: '', // Formato: YYYY-MM
+                organizacao_id: '',
+                tipo_evento_id: '',
                 usuario: ''
             }
         },
@@ -76,15 +75,18 @@
         // Vinculação de eventos
         bindEvents: function() {
             // Filtros simplificados - aplicação automática
-            $('#filter-usuario').on('input', this.handleFilterChange.bind(this));
+            $('#filter-usuario').on('input', this.debounce(this.handleFilterChange.bind(this), 500));
             $('#filter-organizacao').on('change', this.handleFilterChange.bind(this));
             $('#filter-tipo-evento').on('change', this.handleFilterChange.bind(this));
             $('#filter-evento').on('change', this.handleFilterChange.bind(this));
-            $('#filter-ano').on('change', this.handleFilterChange.bind(this));
-            $('#filter-mes').on('change', this.handleFilterChange.bind(this));
+            $('#filter-status').on('change', this.handleFilterChange.bind(this));
+            $('#filter-periodo').on('change', this.handleFilterChange.bind(this)); // Período único YYYY-MM
             
             // Limpar filtros
             $('#clear-filters').on('click', this.resetFilters.bind(this));
+
+            // Ações de cancelamento próprio
+            $(document).on('click', '.cancel-own-btn', this.handleCancelOwn.bind(this));
 
 
 
@@ -125,25 +127,88 @@
             this.loadFilterOptions();
         },
 
-        // Manipular mudança de filtros com limpeza automática
-        handleFilterChange: function(e) {
-            const changedField = $(e.target);
-            const fieldId = changedField.attr('id');
-            
-            // Se um filtro foi selecionado, limpar os outros
-            if (changedField.val() && changedField.val() !== '') {
-                $('#filter-usuario, #filter-organizacao, #filter-tipo-evento, #filter-evento, #filter-ano, #filter-mes').each(function() {
-                    if ($(this).attr('id') !== fieldId) {
-                        $(this).val('');
+        // Carregar opções dos filtros
+        loadFilterOptions: function() {
+            $.ajax({
+                url: sevoDashboardInscricoes.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sevo_dashboard_get_filter_options',
+                    nonce: sevoDashboardInscricoes.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        this.populateFilterOptions(response.data);
                     }
+                },
+                error: () => {
+                    console.error('Erro ao carregar opções de filtros');
+                }
+            });
+        },
+
+        // Popular opções dos filtros
+        populateFilterOptions: function(options) {
+            // Eventos
+            const $eventoSelect = $('#filter-evento');
+            $eventoSelect.empty().append('<option value="">Todos os eventos</option>');
+            if (options.eventos) {
+                options.eventos.forEach(evento => {
+                    $eventoSelect.append(`<option value="${evento.id}">${this.escapeHtml(evento.evento_titulo)}</option>`);
                 });
             }
             
-            // Aplicar filtros automaticamente após um pequeno delay
-            clearTimeout(this.filterTimeout);
-            this.filterTimeout = setTimeout(() => {
-                this.applyFilters(e);
-            }, 300);
+            // Organizações
+            const $orgSelect = $('#filter-organizacao');
+            $orgSelect.empty().append('<option value="">Todas as organizações</option>');
+            if (options.organizacoes) {
+                options.organizacoes.forEach(org => {
+                    $orgSelect.append(`<option value="${org.id}">${this.escapeHtml(org.organizacao_titulo)}</option>`);
+                });
+            }
+            
+            // Tipos de evento
+            const $tipoSelect = $('#filter-tipo-evento');
+            $tipoSelect.empty().append('<option value="">Todos os tipos</option>');
+            if (options.tipos_evento) {
+                options.tipos_evento.forEach(tipo => {
+                    $tipoSelect.append(`<option value="${tipo.id}">${this.escapeHtml(tipo.tipo_evento_titulo)}</option>`);
+                });
+            }
+            
+            // Períodos disponíveis
+            const $periodoSelect = $('#filter-periodo');
+            $periodoSelect.empty().append('<option value="">Todos os períodos</option>');
+            if (options.periodos) {
+                options.periodos.forEach(periodo => {
+                    const [ano, mes] = periodo.periodo.split('-');
+                    const meses = {
+                        '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr',
+                        '05': 'Mai', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+                        '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez'
+                    };
+                    const label = `${meses[mes]} ${ano}`;
+                    $periodoSelect.append(`<option value="${periodo.periodo}">${label}</option>`);
+                });
+            }
+        },
+
+        // Debounce helper para evitar muitas requisições
+        debounce: function(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        },
+
+        // Manipular mudança de filtros
+        handleFilterChange: function(e) {
+            this.applyFilters();
         },
 
         // Carregar dados iniciais
@@ -154,38 +219,38 @@
         },
 
         // Aplicar filtros
-        applyFilters: function(e) {
-            if (e && e.preventDefault) {
-                e.preventDefault();
-            }
-            
-            // Coletar valores dos filtros, garantindo que valores vazios sejam tratados
+        applyFilters: function() {
+            // Coletar valores dos filtros
             this.config.filters = {
                 evento_id: $('#filter-evento').val() || '',
-                ano: $('#filter-ano').val() || '',
-                mes: $('#filter-mes').val() || '',
+                status: $('#filter-status').val() || '',
+                periodo: $('#filter-periodo').val() || '', // YYYY-MM
                 organizacao_id: $('#filter-organizacao').val() || '',
                 tipo_evento_id: $('#filter-tipo-evento').val() || '',
-                usuario: $('#filter-usuario').val() || ''
+                usuario: $('#filter-usuario').val().trim() || ''
             };
 
-            // Remover filtros vazios para evitar problemas na query
+            // Remover filtros vazios
             Object.keys(this.config.filters).forEach(key => {
-                if (this.config.filters[key] === '' || this.config.filters[key] === null || this.config.filters[key] === undefined) {
+                if (!this.config.filters[key]) {
                     delete this.config.filters[key];
                 }
             });
 
-            console.log('Filtros aplicados:', this.config.filters); // Debug
+            console.log('Filtros aplicados:', this.config.filters);
 
             // Resetar scroll infinito
+            this.resetPagination();
+            this.loadInscricoes(true);
+            this.loadStats();
+        },
+
+        // Resetar paginação
+        resetPagination: function() {
             this.config.currentPage = 1;
             this.config.hasMoreItems = true;
             this.config.allInscricoes = [];
-
-            // Recarregar dados
-            this.loadInscricoes(true);
-            this.loadStats();
+            this.elements.endOfList?.hide();
         },
 
         // Resetar filtros
@@ -194,27 +259,18 @@
             
             // Limpar campos de filtro
             $('#filter-evento').val('');
-            $('#filter-ano').val('');
-            $('#filter-mes').val('');
+            $('#filter-status').val('');
+            $('#filter-periodo').val('');
             $('#filter-organizacao').val('');
             $('#filter-tipo-evento').val('');
             $('#filter-usuario').val('');
             
-            // Limpar filtros
-            this.config.filters = {
-                evento_id: '',
-                ano: '',
-                mes: '',
-                organizacao_id: '',
-                tipo_evento_id: '',
-                usuario: ''
-            };
+            // Limpar objeto de filtros
+            this.config.filters = {};
 
-            // Resetar página
-            this.config.currentPage = 1;
-
-            // Recarregar dados
-            this.loadInscricoes();
+            // Resetar paginação e recarregar
+            this.resetPagination();
+            this.loadInscricoes(true);
             this.loadStats();
         },
 
@@ -236,10 +292,8 @@
             const sortBy = $th.data('sort');
 
             if (this.config.sortBy === sortBy) {
-                // Alternar ordem
                 this.config.sortOrder = this.config.sortOrder === 'asc' ? 'desc' : 'asc';
             } else {
-                // Nova coluna
                 this.config.sortBy = sortBy;
                 this.config.sortOrder = 'asc';
             }
@@ -248,10 +302,8 @@
             $('#inscricoes-table th').removeClass('sort-asc sort-desc');
             $th.addClass('sort-' + this.config.sortOrder);
 
-            // Recarregar dados com scroll infinito
-            this.config.currentPage = 1;
-            this.config.hasMoreItems = true;
-            this.config.allInscricoes = [];
+            // Resetar e recarregar
+            this.resetPagination();
             this.loadInscricoes(true);
         },
 
@@ -289,21 +341,15 @@
 
         // Carregar inscrições (inicial)
         loadInscricoes: function(reset = true) {
-            if (this.config.isLoading) {
-                return;
-            }
+            if (this.config.isLoading) return;
 
             if (reset) {
-                this.config.currentPage = 1;
-                this.config.allInscricoes = [];
-                this.config.hasMoreItems = true;
-                this.elements.endOfList.hide();
+                this.resetPagination();
+                $('.sevo-inscricoes-list').empty();
             }
 
             this.config.isLoading = true;
-            // Forçar apresentação da tabela
-            this.elements.tableLoading.hide();
-            this.elements.table.show();
+            this.showLoading();
 
             const ajaxData = {
                 action: 'sevo_dashboard_get_inscricoes',
@@ -330,15 +376,18 @@
                             this.config.allInscricoes = inscricoes;
                             this.renderInscricoes(inscricoes, true);
                         } else {
-                            this.config.allInscricoes = this.config.allInscricoes.concat(inscricoes);
+                            this.config.allInscricoes = [...this.config.allInscricoes, ...inscricoes];
                             this.appendInscricoes(inscricoes);
                         }
                         
-                        // Verificar se há mais itens
                         this.config.hasMoreItems = inscricoes.length === this.config.itemsPerPage;
                         
-                        if (!this.config.hasMoreItems) {
-                            this.elements.endOfList.show();
+                        if (!this.config.hasMoreItems && this.config.allInscricoes.length > 0) {
+                            this.showEndOfList();
+                        }
+                        
+                        if (this.config.allInscricoes.length === 0) {
+                            this.showNoResults();
                         }
                     } else {
                         this.showError(response.data || 'Erro ao carregar inscrições');
@@ -347,20 +396,20 @@
                 error: (xhr, status, error) => {
                     this.config.isLoading = false;
                     this.hideLoading();
-                    this.showError('Erro de conexão ao carregar inscrições: ' + error);
+                    this.showError('Erro de conexão: ' + error);
                 }
             });
         },
 
         // Carregar mais inscrições (scroll infinito)
         loadMoreInscricoes: function() {
-            if (this.config.isLoadingMore || !this.config.hasMoreItems) {
+            if (this.config.isLoadingMore || !this.config.hasMoreItems || this.config.isLoading) {
                 return;
             }
 
             this.config.isLoadingMore = true;
             this.config.currentPage++;
-            this.elements.infiniteLoading.show();
+            this.showInfiniteLoading();
 
             const ajaxData = {
                 action: 'sevo_dashboard_get_inscricoes',
@@ -378,36 +427,34 @@
                 data: ajaxData,
                 success: (response) => {
                     this.config.isLoadingMore = false;
-                    this.elements.infiniteLoading.hide();
+                    this.hideInfiniteLoading();
 
                     if (response.success) {
                         const inscricoes = response.data.inscricoes || [];
                         
                         if (inscricoes.length > 0) {
-                            this.config.allInscricoes = this.config.allInscricoes.concat(inscricoes);
+                            this.config.allInscricoes = [...this.config.allInscricoes, ...inscricoes];
                             this.appendInscricoes(inscricoes);
                         }
                         
-                        // Verificar se há mais itens
                         this.config.hasMoreItems = inscricoes.length === this.config.itemsPerPage;
                         
                         if (!this.config.hasMoreItems) {
-                            this.elements.endOfList.show();
+                            this.showEndOfList();
                         }
                     }
                 },
                 error: () => {
                     this.config.isLoadingMore = false;
-                    this.elements.infiniteLoading.hide();
-                    this.config.currentPage--; // Reverter página em caso de erro
+                    this.hideInfiniteLoading();
+                    this.config.currentPage--; // Reverter em caso de erro
                 }
             });
         },
 
-        // Renderizar inscrições
+        // Renderizar inscrições como cards
         renderInscricoes: function(inscricoes, reset = true) {
-            const $tbody = this.elements.tableBody;
-            const template = $('#inscricao-row-template').html();
+            const $container = $('.sevo-inscricoes-list');
 
             if (!inscricoes || inscricoes.length === 0) {
                 if (reset) {
@@ -417,44 +464,217 @@
             }
 
             this.hideNoResults();
-            this.elements.table.show();
 
             if (reset) {
-                let html = '';
-                inscricoes.forEach(inscricao => {
-                    html += this.renderInscricaoRow(inscricao, template);
-                });
-                $tbody.html(html);
+                $container.empty();
             }
-        },
 
-        // Adicionar inscrições ao final da lista (scroll infinito)
-        appendInscricoes: function(inscricoes) {
-            const $tbody = this.elements.tableBody;
-            const template = $('#inscricao-row-template').html();
-
-            let html = '';
             inscricoes.forEach(inscricao => {
-                html += this.renderInscricaoRow(inscricao, template);
+                $container.append(this.createInscricaoCard(inscricao));
             });
-
-            $tbody.append(html);
         },
 
-        // Função para detectar scroll infinito
+        // Adicionar inscrições ao final da lista
+        appendInscricoes: function(inscricoes) {
+            const $container = $('.sevo-inscricoes-list');
+            
+            inscricoes.forEach(inscricao => {
+                $container.append(this.createInscricaoCard(inscricao));
+            });
+        },
+
+        // Criar card de inscrição
+        createInscricaoCard: function(inscricao) {
+            const statusClass = 'status-' + (inscricao.status || 'indefinido');
+            const statusLabels = {
+                'solicitada': 'Solicitada',
+                'aceita': 'Aceita',
+                'rejeitada': 'Rejeitada',
+                'cancelada': 'Cancelada'
+            };
+            const statusDisplay = statusLabels[inscricao.status] || 'Indefinido';
+            
+            const dataEvento = inscricao.data_inicio_evento ? 
+                new Date(inscricao.data_inicio_evento).toLocaleDateString('pt-BR') : 'Data não definida';
+            const dataInscricao = inscricao.created_at ? 
+                new Date(inscricao.created_at).toLocaleDateString('pt-BR') + ' ' + 
+                new Date(inscricao.created_at).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) : '';
+            
+            const canManage = sevoDashboardInscricoes.canManageAll;
+            const currentUserId = sevoDashboardInscricoes.currentUserId;
+            const canCancel = ['solicitada', 'aceita'].includes(inscricao.status) && 
+                             inscricao.usuario_id == currentUserId;
+            
+            let actionsHtml = '';
+            
+            if (canManage) {
+                if (inscricao.status === 'solicitada') {
+                    actionsHtml += `
+                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" 
+                                data-inscricao-id="${inscricao.id}" title="Aprovar Inscrição">
+                            <i class="dashicons dashicons-yes"></i>
+                        </button>
+                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" 
+                                data-inscricao-id="${inscricao.id}" title="Rejeitar Inscrição">
+                            <i class="dashicons dashicons-no"></i>
+                        </button>
+                    `;
+                }
+                actionsHtml += `
+                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
+                            data-evento-id="${inscricao.evento_id}" title="Ver Detalhes do Evento">
+                        <i class="dashicons dashicons-visibility"></i>
+                    </button>
+                `;
+                if (sevoDashboardInscricoes.canManageAll) {
+                    actionsHtml += `
+                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" 
+                                data-inscricao-id="${inscricao.id}" title="Editar Inscrição">
+                            <i class="dashicons dashicons-edit"></i>
+                        </button>
+                    `;
+                }
+            } else {
+                actionsHtml += `
+                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
+                            data-evento-id="${inscricao.evento_id}" title="Ver Detalhes do Evento">
+                        <i class="dashicons dashicons-visibility"></i>
+                    </button>
+                `;
+                if (canCancel) {
+                    actionsHtml += `
+                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger cancel-own-btn" 
+                                data-inscricao-id="${inscricao.id}" title="Cancelar Minha Inscrição">
+                            <i class="dashicons dashicons-dismiss"></i>
+                        </button>
+                    `;
+                }
+            }
+            
+            return `
+                <div class="sevo-inscricao-card" data-inscricao-id="${inscricao.id}" data-status="${inscricao.status}">
+                    <div class="sevo-card-image">
+                        ${inscricao.evento_imagem ? 
+                            `<img src="${inscricao.evento_imagem}" alt="${this.escapeHtml(inscricao.evento_titulo)}">` :
+                            '<div class="sevo-card-placeholder"><i class="dashicons dashicons-calendar-alt"></i></div>'
+                        }
+                    </div>
+                    
+                    <div class="sevo-card-content">
+                        <div class="sevo-card-header">
+                            <h3 class="sevo-card-title">${this.escapeHtml(inscricao.evento_titulo || 'Evento')}</h3>
+                            <span class="sevo-status-badge ${statusClass}">${statusDisplay}</span>
+                        </div>
+                        
+                        <div class="sevo-card-info">
+                            <div class="sevo-info-row">
+                                <div class="sevo-info-item">
+                                    <i class="dashicons dashicons-calendar"></i>
+                                    <span title="${dataEvento}">${dataEvento}</span>
+                                </div>
+                                <div class="sevo-info-item">
+                                    <i class="dashicons dashicons-building"></i>
+                                    <span title="${this.escapeHtml(inscricao.organizacao_titulo || '')}">${this.escapeHtml(inscricao.organizacao_titulo || 'N/A')}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sevo-info-row">
+                                <div class="sevo-info-item">
+                                    <i class="dashicons dashicons-category"></i>
+                                    <span title="${this.escapeHtml(inscricao.tipo_evento_titulo || '')}">${this.escapeHtml(inscricao.tipo_evento_titulo || 'N/A')}</span>
+                                </div>
+                                ${canManage ? `
+                                    <div class="sevo-info-item">
+                                        <i class="dashicons dashicons-admin-users"></i>
+                                        <span title="${this.escapeHtml(inscricao.usuario_nome || '')}">${this.escapeHtml(inscricao.usuario_nome || 'N/A')}</span>
+                                    </div>
+                                ` : `
+                                    <div class="sevo-info-item">
+                                        <i class="dashicons dashicons-clock"></i>
+                                        <span title="${dataInscricao}">${dataInscricao}</span>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sevo-card-actions">
+                        <div class="${canManage ? 'sevo-admin-actions' : 'sevo-user-actions'}">
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        // Função para detectar scroll infinito otimizada
         handleScroll: function() {
-            if (this.config.isLoadingMore || !this.config.hasMoreItems) {
+            if (this.config.isLoadingMore || !this.config.hasMoreItems || this.config.isLoading) {
                 return;
             }
 
             const scrollTop = $(window).scrollTop();
             const windowHeight = $(window).height();
             const documentHeight = $(document).height();
-            const threshold = 200; // Pixels antes do fim da página
+            const threshold = 300; // Pixels antes do fim
 
             if (scrollTop + windowHeight >= documentHeight - threshold) {
                 this.loadMoreInscricoes();
             }
+        },
+
+        // Helpers para loading states
+        showLoading: function() {
+            $('.sevo-table-loading').show();
+            $('.sevo-inscricoes-list').hide();
+        },
+
+        hideLoading: function() {
+            $('.sevo-table-loading').hide();
+            $('.sevo-inscricoes-list').show();
+        },
+
+        showInfiniteLoading: function() {
+            $('#infinite-loading').show();
+        },
+
+        hideInfiniteLoading: function() {
+            $('#infinite-loading').hide();
+        },
+
+        showEndOfList: function() {
+            $('#end-of-list').show();
+        },
+
+        showNoResults: function() {
+            $('.sevo-no-inscricoes').show();
+            $('.sevo-inscricoes-list').hide();
+        },
+
+        hideNoResults: function() {
+            $('.sevo-no-inscricoes').hide();
+            $('.sevo-inscricoes-list').show();
+        },
+
+        showError: function(message) {
+            if (typeof SevoToaster !== 'undefined') {
+                SevoToaster.showError(message);
+            } else {
+                alert('Erro: ' + message);
+            }
+        },
+
+        // Helper para escape HTML
+        escapeHtml: function(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
         },
 
         // Renderizar linha de inscrição
@@ -539,7 +759,7 @@
                 const $select = $('#filter-evento');
                 $select.empty().append('<option value="">Todos os eventos</option>');
                 options.eventos.forEach(evento => {
-                    $select.append(`<option value="${evento.id}">${this.escapeHtml(evento.titulo)}</option>`);
+                    $select.append(`<option value="${evento.id}">${this.escapeHtml(evento.evento_titulo)}</option>`);
                 });
             }
 
@@ -548,7 +768,7 @@
                 const $select = $('#filter-organizacao');
                 $select.empty().append('<option value="">Todas as organizações</option>');
                 options.organizacoes.forEach(org => {
-                    $select.append(`<option value="${org.id}">${this.escapeHtml(org.nome)}</option>`);
+                    $select.append(`<option value="${org.id}">${this.escapeHtml(org.organizacao_titulo)}</option>`);
                 });
             }
 
@@ -557,16 +777,23 @@
                 const $select = $('#filter-tipo-evento');
                 $select.empty().append('<option value="">Todos os tipos</option>');
                 options.tipos_evento.forEach(tipo => {
-                    $select.append(`<option value="${tipo.id}">${this.escapeHtml(tipo.nome)}</option>`);
+                    $select.append(`<option value="${tipo.id}">${this.escapeHtml(tipo.tipo_evento_titulo)}</option>`);
                 });
             }
 
-            // Usuários (apenas para admins)
-            if (options.usuarios) {
-                const $select = $('#filter-usuario');
-                $select.empty().append('<option value="">Todos os usuários</option>');
-                options.usuarios.forEach(usuario => {
-                    $select.append(`<option value="${usuario.id}">${this.escapeHtml(usuario.nome)}</option>`);
+            // Períodos disponíveis
+            if (options.periodos) {
+                const $select = $('#filter-periodo');
+                $select.empty().append('<option value="">Todos os períodos</option>');
+                options.periodos.forEach(periodo => {
+                    const [ano, mes] = periodo.periodo.split('-');
+                    const meses = {
+                        '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr',
+                        '05': 'Mai', '06': 'Jun', '07': 'Jul', '08': 'Ago',
+                        '09': 'Set', '10': 'Out', '11': 'Nov', '12': 'Dez'
+                    };
+                    const label = `${meses[mes]} ${ano}`;
+                    $select.append(`<option value="${periodo.periodo}">${label}</option>`);
                 });
             }
         },
@@ -647,7 +874,7 @@
                 type: 'POST',
                 data: {
                     action: 'sevo_get_evento_view',
-                    event_id: eventId,
+                    evento_id: eventId,
                     nonce: ajaxData.eventViewNonce || ajaxData.nonce
                 },
                 success: function(response) {
@@ -1046,6 +1273,62 @@
         'cancelada': 'Cancelada'
             };
             return labels[status] || status;
+        },
+
+        // Manipular cancelamento próprio
+        handleCancelOwn: function(e) {
+            e.preventDefault();
+            const inscricaoId = $(e.currentTarget).data('inscricao-id');
+            
+            this.showModal(
+                'Cancelar Inscrição',
+                'Tem certeza que deseja cancelar sua inscrição? Esta ação não pode ser desfeita.',
+                () => this.cancelOwnInscricao(inscricaoId)
+            );
+        },
+
+        // Cancelar própria inscrição
+        cancelOwnInscricao: function(inscricaoId) {
+            $.ajax({
+                url: sevoDashboardInscricoes.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sevo_dashboard_cancel_own_inscricao',
+                    nonce: sevoDashboardInscricoes.nonce,
+                    inscricao_id: inscricaoId
+                },
+                success: (response) => {
+                    if (response.success) {
+                        if (typeof SevoToaster !== 'undefined') {
+                            SevoToaster.showSuccess('Inscrição cancelada com sucesso!');
+                        }
+                        this.refreshData();
+                    } else {
+                        this.showError(response.data || 'Erro ao cancelar inscrição');
+                    }
+                },
+                error: () => {
+                    this.showError('Erro de conexão ao cancelar inscrição');
+                }
+            });
+        },
+
+        // Mostrar modal de confirmação
+        showModal: function(title, message, onConfirm) {
+            $('#modal-title').text(title);
+            $('#modal-message').text(message);
+            $('#confirmation-modal').show();
+            
+            $('#modal-confirm').off('click').on('click', () => {
+                this.closeModal();
+                if (onConfirm) onConfirm();
+            });
+        },
+
+        // Fechar modal
+        closeModal: function() {
+            $('#confirmation-modal').hide();
+            $('#modal-confirm').off('click');
         }
     };
 
