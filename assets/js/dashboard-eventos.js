@@ -902,4 +902,9 @@ jQuery(document).ready(function($) {
     // Torna o objeto principal disponível globalmente
     window.SevoEventosDashboard = SevoEventosDashboard;
     
+    // Alias para compatibilidade com templates que usam SevoEventosAdmin
+    window.SevoEventosAdmin = {
+        closeModal: SevoEventosDashboard.closeEventFormModal
+    };
+    
 });

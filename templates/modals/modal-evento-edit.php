@@ -28,7 +28,7 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
 
 ?>
 
-<div class="sevo-modal-overlay" onclick="SevoEventosAdmin.closeModal()"></div>
+<div class="sevo-modal-overlay" onclick="SevoEventosDashboard.closeEventFormModal()"></div>
 <div class="sevo-modal-container">
     <form id="sevo-evento-form">
         <input type="hidden" name="evento_id" value="<?php echo esc_attr($evento_id); ?>">
@@ -157,7 +157,7 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
     </div>
     
         <div class="sevo-modal-footer">
-            <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoEventosAdmin.closeModal()">
+            <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoEventosDashboard.closeEventFormModal()">
                 Cancelar
             </button>
             <button type="submit" class="sevo-btn sevo-btn-primary">

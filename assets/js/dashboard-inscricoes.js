@@ -113,6 +113,9 @@
             $(document).on('click', '#cancel-edit-btn', this.closeEditModal.bind(this));
             $(document).on('click', '.sevo-modal-close', this.closeEditModal.bind(this));
             $(document).on('click', '.sevo-modal-backdrop', this.closeEditModal.bind(this));
+            
+            // Handler de submit do formulário de edição
+            $(document).on('submit', '#sevo-edit-inscricao-form', this.handleFormSubmit.bind(this));
 
             // Toast
             $(document).on('click', '.sevo-toast-close', this.closeToast.bind(this));
@@ -1038,6 +1041,12 @@
                 modal.classList.remove('show');
             }
             this.currentEditId = null;
+        },
+
+        // Handler de submit do formulário
+        handleFormSubmit: function(e) {
+            e.preventDefault();
+            this.saveEdit();
         },
 
         // Salvar edição

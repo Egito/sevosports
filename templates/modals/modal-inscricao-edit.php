@@ -48,6 +48,7 @@ $status_options = array(
 );
 ?>
 
+<div class="sevo-modal-overlay" onclick="SevoDashboard.closeEditModal()"></div>
 <div class="sevo-modal-content">
     <div class="sevo-modal-header">
         <h3><?php echo $is_editing ? 'Editar Inscrição #' . esc_html($inscricao->id) : 'Nova Inscrição'; ?></h3>
@@ -220,6 +221,18 @@ $status_options = array(
 </div>
 
 <style>
+/* === OVERLAY PARA FECHAR MODAL === */
+.sevo-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    cursor: pointer;
+}
+
 .sevo-modal-content {
     background: white;
     border-radius: 8px;
@@ -228,6 +241,8 @@ $status_options = array(
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1000;
 }
 
 .sevo-modal-header {
