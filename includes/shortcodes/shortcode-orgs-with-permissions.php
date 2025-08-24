@@ -1,13 +1,14 @@
 <?php
 /**
  * Shortcode handler para o dashboard de Organizações [sevo-orgs-dashboard]
- * e para o AJAX que carrega os detalhes no modal.
+ * com controle de permissões organizacionais
  */
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sevo_Orgs_Dashboard_Shortcode_Unified
+class Sevo_Orgs_Dashboard_Shortcode_With_Permissions
 {
     public function __construct()
     {
@@ -24,12 +25,17 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
      */
     public function render_dashboard_shortcode()
     {
+        // Verificar se usuário está logado
+        if (!is_user_logged_in()) {
+            return '<div class="sevo-error">Você precisa estar logado para acessar esta página.</div>';
+        }
+        
         // Enqueue dos estilos seguindo a ordem estabelecida no guia de identidade visual
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
-    wp_enqueue_style('sevo-button-colors-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
-    wp_enqueue_style('sevo-button-fixes-style');
-    wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
-    wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-colors-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-fixes-style');
+        wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-summary-cards-style');
         // Estilo específico do dashboard de organizações (deve vir por último)
         wp_enqueue_style('sevo-dashboard-orgs', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-orgs.css', array(), SEVO_EVENTOS_VERSION);
@@ -67,7 +73,7 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         }
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-orgs-view.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-orgs-view-with-permissions.php');
         return ob_get_clean();
     }
 
@@ -89,6 +95,12 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         if (!$organizacao) {
             wp_send_json_error('Organização não encontrada.');
         }
+        
+        // Verificar se usuário tem permissão para ver esta organização
+        $user_id = get_current_user_id();
+        if (!user_can($user_id, 'manage_options') && !sevo_user_can_manage_organization($user_id, $org_id)) {
+            wp_send_json_error('Você não tem permissão para acessar esta organização.');
+        }
 
         ob_start();
         // Passa a variável $organizacao para o template do modal
@@ -105,17 +117,28 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
     {
         check_ajax_referer('sevo_org_nonce', 'nonce');
 
-        sevo_check_permission_or_die('edit_org');
-
         $org_id = isset($_POST['org_id']) ? intval($_POST['org_id']) : 0;
         $organizacao = null;
+        $user_id = get_current_user_id();
 
+        // Verificar permissões
         if ($org_id > 0) {
+            // Para edição, verificar se usuário pode gerenciar esta organização específica
+            if (!sevo_user_can_manage_organization($user_id, $org_id)) {
+                wp_send_json_error('Você não tem permissão para editar esta organização.');
+            }
+            
             // Usar o modelo das tabelas customizadas
             $organizacao_model = new Sevo_Organizacao_Model();
             $organizacao = $organizacao_model->find($org_id);
             if (!$organizacao) {
                 wp_send_json_error('Organização não encontrada.');
+            }
+        } else {
+            // Para criação, verificar se usuário pode criar organizações
+            // Apenas administradores podem criar organizações
+            if (!user_can($user_id, 'manage_options')) {
+                wp_send_json_error('Você não tem permissão para criar organizações.');
             }
         }
 
@@ -133,13 +156,26 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
     {
         check_ajax_referer('sevo_org_nonce', 'nonce');
 
-        sevo_check_permission_or_die('create_org');
-
         $org_id = isset($_POST['org_id']) ? intval($_POST['org_id']) : 0;
         $titulo = sanitize_text_field($_POST['titulo']);
         $descricao = wp_kses_post($_POST['descricao']);
         $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'ativo';
         $imagem_url = isset($_POST['imagem_url']) ? esc_url($_POST['imagem_url']) : '';
+        $user_id = get_current_user_id();
+
+        // Verificar permissões
+        if ($org_id > 0) {
+            // Para edição, verificar se usuário pode gerenciar esta organização específica
+            if (!sevo_user_can_manage_organization($user_id, $org_id)) {
+                wp_send_json_error('Você não tem permissão para editar esta organização.');
+            }
+        } else {
+            // Para criação, verificar se usuário pode criar organizações
+            // Apenas administradores podem criar organizações
+            if (!user_can($user_id, 'manage_options')) {
+                wp_send_json_error('Você não tem permissão para criar organizações.');
+            }
+        }
 
         $organizacao_model = new Sevo_Organizacao_Model();
         
@@ -238,7 +274,5 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
             'attachment_id' => $attachment_id
         ));
     }
-
-
 }
-new Sevo_Orgs_Dashboard_Shortcode_Unified();
+new Sevo_Orgs_Dashboard_Shortcode_With_Permissions();

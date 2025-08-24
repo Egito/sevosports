@@ -1,13 +1,14 @@
 <?php
 /**
  * Shortcode handler para o dashboard de Inscrições [sevo_dashboard_inscricoes]
+ * com controle de permissões organizacionais
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sevo_Dashboard_Inscricoes_Shortcode {
+class Sevo_Dashboard_Inscricoes_Shortcode_With_Permissions {
     
     public function __construct() {
         add_shortcode('sevo_dashboard_inscricoes', array($this, 'render_dashboard'));
@@ -37,9 +38,11 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             return '<div class="sevo-dashboard-error"><p>Você precisa estar logado para acessar o dashboard de inscrições.</p><p><a href="' . wp_login_url(get_permalink()) . '">Fazer login</a></p></div>';
         }
         
-        // Verificar permissões
-        $can_manage_all = sevo_check_user_permission('manage_inscricoes');
-        $can_view_own = sevo_check_user_permission('view_own_inscricoes');
+        $user_id = get_current_user_id();
+        
+        // Verificar permissões organizacionais
+        $can_manage_all = user_can($user_id, 'manage_options');
+        $can_view_own = true; // Todos os usuários logados podem ver suas próprias inscrições
         
         if (!$can_manage_all && !$can_view_own) {
             return '<div class="sevo-dashboard-error"><p>Você não tem permissão para acessar este dashboard.</p></div>';
@@ -47,7 +50,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Incluir o template
         ob_start();
-        include SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-inscricoes-view.php';
+        include SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-inscricoes-view-with-permissions.php';
         return ob_get_clean();
     }
     
@@ -108,7 +111,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('sevo_dashboard_inscricoes_nonce'),
                 'eventViewNonce' => wp_create_nonce('sevo_eventos_dashboard_nonce'),
-                'canManageAll' => sevo_check_user_permission('manage_inscricoes'),
+                'canManageAll' => user_can(get_current_user_id(), 'manage_options'),
                 'currentUserId' => get_current_user_id(),
                 'strings' => array(
                     'confirmApprove' => 'Tem certeza que deseja aprovar esta inscrição?',
@@ -133,11 +136,11 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_inscricoes() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        // Superadmin e administradores podem ver todas as inscrições
-        $is_super_admin = is_super_admin();
-        $is_admin = current_user_can('manage_options');
-        $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
-        $can_view_own = sevo_check_user_permission('view_own_inscricoes');
+        $user_id = get_current_user_id();
+        
+        // Administradores podem ver todas as inscrições
+        $can_manage_all = user_can($user_id, 'manage_options');
+        $can_view_own = true;
         
         if (!$can_manage_all && !$can_view_own) {
             wp_die('Permissão negada.');
@@ -147,7 +150,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $per_page = intval($_POST['per_page'] ?? 25);
         $filters = $_POST['filters'] ?? array();
         
-        $result = $this->get_inscricoes_data($page, $per_page, $filters, $can_manage_all);
+        $result = $this->get_inscricoes_data($page, $per_page, $filters, $can_manage_all, $user_id);
         
         wp_send_json_success($result);
     }
@@ -158,7 +161,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_update_inscricao() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        if (!sevo_check_user_permission('manage_inscricoes')) {
+        $user_id = get_current_user_id();
+        
+        // Somente administradores podem atualizar status
+        if (!user_can($user_id, 'manage_options')) {
             wp_die('Permissão negada.');
         }
         
@@ -168,6 +174,11 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         if (!$inscricao_id || !in_array($new_status, array('solicitada', 'aceita', 'rejeitada', 'cancelada'))) {
             wp_send_json_error('Dados inválidos.');
+        }
+        
+        // Verificar se o usuário tem permissão para gerenciar esta inscrição
+        if (!sevo_user_can_manage_organization($user_id, $this->get_inscricao_organization_id($inscricao_id))) {
+            wp_send_json_error('Você não tem permissão para gerenciar esta inscrição.');
         }
         
         $result = $this->update_inscricao_status($inscricao_id, $new_status, $reason);
@@ -185,16 +196,16 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_filter_options() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        // Superadmin e administradores podem ver todas as inscrições
-        $is_super_admin = is_super_admin();
-        $is_admin = current_user_can('manage_options');
-        $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
+        $user_id = get_current_user_id();
         
-        if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
+        // Administradores podem ver todas as inscrições
+        $can_manage_all = user_can($user_id, 'manage_options');
+        
+        if (!$can_manage_all && !true) {
             wp_die('Permissão negada.');
         }
         
-        $options = $this->get_filter_options($can_manage_all);
+        $options = $this->get_filter_options($can_manage_all, $user_id);
         
         wp_send_json_success($options);
     }
@@ -206,17 +217,17 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
         try {
+            $user_id = get_current_user_id();
             $filters = isset($_POST['filters']) ? $_POST['filters'] : [];
-            // Superadmin e administradores podem ver todas as inscrições
-            $is_super_admin = is_super_admin();
-        $is_admin = current_user_can('manage_options');
-        $can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
             
-            if (!$can_manage_all && !sevo_check_user_permission('view_own_inscricoes')) {
+            // Administradores podem ver todas as inscrições
+            $can_manage_all = user_can($user_id, 'manage_options');
+            
+            if (!$can_manage_all && !true) {
                 wp_die('Permissão negada.');
             }
             
-            $stats = $this->get_inscricoes_stats($filters, $can_manage_all);
+            $stats = $this->get_inscricoes_stats($filters, $can_manage_all, $user_id);
             
             wp_send_json_success($stats);
             
@@ -231,7 +242,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_export_inscricoes() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        if (!sevo_check_user_permission('manage_inscricoes')) {
+        $user_id = get_current_user_id();
+        
+        // Somente administradores podem exportar
+        if (!user_can($user_id, 'manage_options')) {
             wp_die('Permissão negada.');
         }
         
@@ -239,7 +253,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             $filters = isset($_POST['filters']) ? $_POST['filters'] : [];
             $format = isset($_POST['format']) ? sanitize_text_field($_POST['format']) : 'csv';
             
-            $export_url = $this->generate_export_file($filters, $format);
+            $export_url = $this->generate_export_file($filters, $format, $user_id);
             
             wp_send_json_success([
                 'download_url' => $export_url,
@@ -257,14 +271,21 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_get_inscricao_edit() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        if (!is_super_admin()) {
-            wp_send_json_error('Acesso negado. Apenas superadmin pode editar inscrições.');
+        $user_id = get_current_user_id();
+        
+        if (!user_can($user_id, 'manage_options')) {
+            wp_send_json_error('Acesso negado. Apenas administradores podem editar inscrições.');
         }
         
         $inscricao_id = intval($_POST['inscricao_id'] ?? 0);
         
         if (!$inscricao_id) {
             wp_send_json_error('ID da inscrição não fornecido.');
+        }
+        
+        // Verificar se o usuário tem permissão para gerenciar esta inscrição
+        if (!sevo_user_can_manage_organization($user_id, $this->get_inscricao_organization_id($inscricao_id))) {
+            wp_send_json_error('Você não tem permissão para gerenciar esta inscrição.');
         }
         
         global $wpdb;
@@ -304,8 +325,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function ajax_save_inscricao_edit() {
         check_ajax_referer('sevo_dashboard_inscricoes_nonce', 'nonce');
         
-        if (!is_super_admin()) {
-            wp_send_json_error('Acesso negado. Apenas superadmin pode editar inscrições.');
+        $user_id = get_current_user_id();
+        
+        if (!user_can($user_id, 'manage_options')) {
+            wp_send_json_error('Acesso negado. Apenas administradores podem editar inscrições.');
         }
         
         $inscricao_id = intval($_POST['inscricao_id'] ?? 0);
@@ -316,11 +339,17 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
             wp_send_json_error('ID da inscrição não fornecido.');
         }
         
+        // Verificar se o usuário tem permissão para gerenciar esta inscrição
+        if (!sevo_user_can_manage_organization($user_id, $this->get_inscricao_organization_id($inscricao_id))) {
+            wp_send_json_error('Você não tem permissão para gerenciar esta inscrição.');
+        }
+        
         if (!in_array($status, ['solicitada', 'aceita', 'rejeitada', 'cancelada'])) {
             wp_send_json_error('Status inválido.');
         }
         
         // Verificar se a inscrição existe
+        global $wpdb;
         $inscricao = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}sevo_inscricoes WHERE id = %d",
             $inscricao_id
@@ -491,7 +520,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     /**
      * Buscar dados das inscrições com filtros e paginação.
      */
-    private function get_inscricoes_data($page, $per_page, $filters, $can_manage_all) {
+    private function get_inscricoes_data($page, $per_page, $filters, $can_manage_all, $user_id) {
         global $wpdb;
         
         $offset = ($page - 1) * $per_page;
@@ -500,7 +529,18 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         
         // Se não pode gerenciar todas, mostrar apenas as próprias
         if (!$can_manage_all) {
-            $where_conditions[] = $wpdb->prepare('i.usuario_id = %d', get_current_user_id());
+            $where_conditions[] = $wpdb->prepare('i.usuario_id = %d', $user_id);
+        } else {
+            // Filtrar por organizações que o usuário pode gerenciar
+            $accessible_orgs = sevo_user_get_accessible_organizations($user_id);
+            if (!empty($accessible_orgs)) {
+                $org_ids = wp_list_pluck($accessible_orgs, 'id');
+                $org_ids_str = implode(',', array_map('intval', $org_ids));
+                $where_conditions[] = "te.organizacao_id IN ({$org_ids_str})";
+            } else {
+                // Se não tem organizações acessíveis, não mostrar nada
+                $where_conditions[] = '1=0';
+            }
         }
         
         // Aplicar filtros apenas se não estiverem vazios
@@ -521,7 +561,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         if (!empty($filters['organizacao_id']) && $filters['organizacao_id'] !== '' && $can_manage_all) {
-            $where_conditions[] = $wpdb->prepare('o.id = %d', intval($filters['organizacao_id']));
+            // Verificar se o usuário tem acesso a esta organização
+            if (sevo_user_can_manage_organization($user_id, intval($filters['organizacao_id']))) {
+                $where_conditions[] = $wpdb->prepare('o.id = %d', intval($filters['organizacao_id']));
+            }
         }
 
         if (!empty($filters['tipo_evento_id']) && $filters['tipo_evento_id'] !== '' && $can_manage_all) {
@@ -747,7 +790,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     /**
      * Buscar opções para os filtros.
      */
-    private function get_filter_options($can_manage_all) {
+    private function get_filter_options($can_manage_all, $user_id) {
         global $wpdb;
         
         $options = array();
@@ -760,7 +803,18 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         ";
         
         if (!$can_manage_all) {
-            $eventos_sql .= $wpdb->prepare(' WHERE i.usuario_id = %d', get_current_user_id());
+            $eventos_sql .= $wpdb->prepare(' WHERE i.usuario_id = %d', $user_id);
+        } else {
+            // Filtrar por organizações que o usuário pode gerenciar
+            $accessible_orgs = sevo_user_get_accessible_organizations($user_id);
+            if (!empty($accessible_orgs)) {
+                $org_ids = wp_list_pluck($accessible_orgs, 'id');
+                $org_ids_str = implode(',', array_map('intval', $org_ids));
+                $eventos_sql .= " WHERE te.organizacao_id IN ({$org_ids_str})";
+            } else {
+                // Se não tem organizações acessíveis, não mostrar nada
+                $eventos_sql .= " WHERE 1=0";
+            }
         }
         
         $eventos_sql .= ' ORDER BY e.titulo';
@@ -768,14 +822,27 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         $options['eventos'] = $wpdb->get_results($eventos_sql);
         
         // Organizações
-        $options['organizacoes'] = $wpdb->get_results("
-            SELECT DISTINCT o.id, o.titulo as organizacao_titulo
-            FROM {$wpdb->prefix}sevo_organizacoes o
-            INNER JOIN {$wpdb->prefix}sevo_tipos_evento te ON te.organizacao_id = o.id
-            INNER JOIN {$wpdb->prefix}sevo_eventos e ON e.tipo_evento_id = te.id
-            INNER JOIN {$wpdb->prefix}sevo_inscricoes i ON i.evento_id = e.id
-            ORDER BY o.titulo
-        ");
+        if ($can_manage_all) {
+            $accessible_orgs = sevo_user_get_accessible_organizations($user_id);
+            if (!empty($accessible_orgs)) {
+                $org_ids = wp_list_pluck($accessible_orgs, 'id');
+                $org_ids_str = implode(',', array_map('intval', $org_ids));
+                
+                $options['organizacoes'] = $wpdb->get_results("
+                    SELECT DISTINCT o.id, o.titulo as organizacao_titulo
+                    FROM {$wpdb->prefix}sevo_organizacoes o
+                    INNER JOIN {$wpdb->prefix}sevo_tipos_evento te ON te.organizacao_id = o.id
+                    INNER JOIN {$wpdb->prefix}sevo_eventos e ON e.tipo_evento_id = te.id
+                    INNER JOIN {$wpdb->prefix}sevo_inscricoes i ON i.evento_id = e.id
+                    WHERE o.id IN ({$org_ids_str})
+                    ORDER BY o.titulo
+                ");
+            } else {
+                $options['organizacoes'] = array();
+            }
+        } else {
+            $options['organizacoes'] = array();
+        }
         
         // Tipos de evento
         $options['tipos_evento'] = $wpdb->get_results("
@@ -794,7 +861,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         ";
         
         if (!$can_manage_all) {
-            $periodos_sql .= $wpdb->prepare(' WHERE i.usuario_id = %d', get_current_user_id());
+            $periodos_sql .= $wpdb->prepare(' WHERE i.usuario_id = %d', $user_id);
         }
         
         $periodos_sql .= ' ORDER BY periodo DESC';
@@ -807,14 +874,25 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     /**
      * Buscar estatísticas das inscrições
      */
-    private function get_inscricoes_stats($filters, $can_manage_all) {
+    private function get_inscricoes_stats($filters, $can_manage_all, $user_id) {
         global $wpdb;
         
         $where_conditions = array('1=1');
         
         // Se não pode gerenciar todas, mostrar apenas as próprias
         if (!$can_manage_all) {
-            $where_conditions[] = $wpdb->prepare('i.usuario_id = %d', get_current_user_id());
+            $where_conditions[] = $wpdb->prepare('i.usuario_id = %d', $user_id);
+        } else {
+            // Filtrar por organizações que o usuário pode gerenciar
+            $accessible_orgs = sevo_user_get_accessible_organizations($user_id);
+            if (!empty($accessible_orgs)) {
+                $org_ids = wp_list_pluck($accessible_orgs, 'id');
+                $org_ids_str = implode(',', array_map('intval', $org_ids));
+                $where_conditions[] = "te.organizacao_id IN ({$org_ids_str})";
+            } else {
+                // Se não tem organizações acessíveis, não mostrar nada
+                $where_conditions[] = '1=0';
+            }
         }
         
         // Aplicar filtros apenas se não estiverem vazios
@@ -835,7 +913,10 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         }
         
         if (!empty($filters['organizacao_id']) && $filters['organizacao_id'] !== '' && $can_manage_all) {
-            $where_conditions[] = $wpdb->prepare('te.organizacao_id = %d', intval($filters['organizacao_id']));
+            // Verificar se o usuário tem acesso a esta organização
+            if (sevo_user_can_manage_organization($user_id, intval($filters['organizacao_id']))) {
+                $where_conditions[] = $wpdb->prepare('te.organizacao_id = %d', intval($filters['organizacao_id']));
+            }
         }
         
         if (!empty($filters['tipo_evento']) && $filters['tipo_evento'] !== '' && $can_manage_all) {
@@ -872,8 +953,9 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     /**
      * Gerar arquivo de exportação
      */
-    private function generate_export_file($filters, $format) {
-        $inscricoes_data = $this->get_inscricoes_data(1, -1, $filters, true);
+    private function generate_export_file($filters, $format, $user_id) {
+        $can_manage_all = user_can($user_id, 'manage_options');
+        $inscricoes_data = $this->get_inscricoes_data(1, -1, $filters, $can_manage_all, $user_id);
         
         $upload_dir = wp_upload_dir();
         $filename = 'inscricoes_export_' . date('Y-m-d_H-i-s') . '.' . $format;
@@ -912,13 +994,13 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         // Dados
         foreach ($inscricoes as $inscricao) {
             $row = [
-                $inscricao->inscricao_id,
+                $inscricao->id,
                 $inscricao->usuario_nome,
                 $inscricao->usuario_email,
-                $inscricao->evento_nome,
-                $inscricao->evento_data,
-                $inscricao->organizacao_nome,
-                $inscricao->tipo_evento_nome,
+                $inscricao->evento_titulo,
+                $inscricao->data_inicio_evento,
+                $inscricao->organizacao_titulo,
+                $inscricao->tipo_evento_titulo,
                 $inscricao->status,
                 $inscricao->created_at
             ];
@@ -929,8 +1011,24 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
         fclose($file);
     }
     
-
+    /**
+     * Obter a organização de uma inscrição
+     */
+    private function get_inscricao_organization_id($inscricao_id) {
+        global $wpdb;
+        
+        $org_id = $wpdb->get_var($wpdb->prepare("
+            SELECT o.id
+            FROM {$wpdb->prefix}sevo_inscricoes i
+            LEFT JOIN {$wpdb->prefix}sevo_eventos e ON i.evento_id = e.id
+            LEFT JOIN {$wpdb->prefix}sevo_tipos_evento te ON e.tipo_evento_id = te.id
+            LEFT JOIN {$wpdb->prefix}sevo_organizacoes o ON te.organizacao_id = o.id
+            WHERE i.id = %d
+        ", $inscricao_id));
+        
+        return $org_id ? intval($org_id) : 0;
+    }
 }
 
 // Inicializar o shortcode
-new Sevo_Dashboard_Inscricoes_Shortcode();
+new Sevo_Dashboard_Inscricoes_Shortcode_With_Permissions();

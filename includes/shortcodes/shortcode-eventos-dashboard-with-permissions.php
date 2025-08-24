@@ -1,14 +1,14 @@
 <?php
 /**
  * Shortcode handler para o Dashboard de Eventos [sevo-eventos-dashboard]
- * Exibe uma página com summary cards no topo e lista de eventos com filtros
+ * com controle de permissões organizacionais
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sevo_Eventos_Dashboard_Shortcode {
+class Sevo_Eventos_Dashboard_Shortcode_With_Permissions {
     public function __construct() {
         add_shortcode('sevo-eventos-dashboard', array($this, 'render_dashboard_shortcode'));
         
@@ -39,6 +39,11 @@ class Sevo_Eventos_Dashboard_Shortcode {
      * Renderiza o shortcode do dashboard de eventos.
      */
     public function render_dashboard_shortcode($atts) {
+        // Verificar se usuário está logado
+        if (!is_user_logged_in()) {
+            return '<div class="sevo-error">Você precisa estar logado para acessar esta página.</div>';
+        }
+        
         // Enqueue dos estilos seguindo a ordem estabelecida no guia de identidade visual
         wp_enqueue_style('sevo-dashboard-common-style', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
         wp_enqueue_style('sevo-button-colors-style');
@@ -81,7 +86,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         }
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-eventos-view.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-eventos-view-with-permissions.php');
         return ob_get_clean();
     }
 
@@ -97,12 +102,25 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('ID do evento inválido.');
         }
         
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
-        $evento_model = new Sevo_Evento_Model();
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model_With_Permissions.php';
+        $evento_model = new Sevo_Evento_Model_With_Permissions();
         
         $evento = $evento_model->find($evento_id);
         if (!$evento) {
             wp_send_json_error('Evento não encontrado.');
+        }
+        
+        // Verificar se usuário tem permissão para ver este evento
+        $user_id = get_current_user_id();
+        if (!user_can($user_id, 'manage_options')) {
+            // Carregar modelo de tipo de evento para verificar organização
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+            $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+            $tipo_evento = $tipo_evento_model->find($evento->tipo_evento_id);
+            
+            if ($tipo_evento && !sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
+                wp_send_json_error('Você não tem permissão para acessar este evento.');
+            }
         }
         
         // Carrega o template de visualização do evento
@@ -119,15 +137,17 @@ class Sevo_Eventos_Dashboard_Shortcode {
     public function ajax_get_evento_form() {
         check_ajax_referer('sevo_eventos_dashboard_nonce', 'nonce');
         
-        $evento_id = isset($_POST['evento_id']) ? intval($_POST['evento_id']) : 0;
+        $user_id = get_current_user_id();
         
-        // Verifica permissões
-        if (!current_user_can('manage_options')) {
+        // Verificar permissões
+        if (!user_can($user_id, 'manage_options') && !user_can($user_id, 'edit_posts')) {
             wp_send_json_error('Você não tem permissão para editar eventos.');
         }
         
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
-        $evento_model = new Sevo_Evento_Model();
+        $evento_id = isset($_POST['evento_id']) ? intval($_POST['evento_id']) : 0;
+        
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model_With_Permissions.php';
+        $evento_model = new Sevo_Evento_Model_With_Permissions();
         
         // Carrega o evento se for edição
         $evento = null;
@@ -135,6 +155,18 @@ class Sevo_Eventos_Dashboard_Shortcode {
             $evento = $evento_model->find($evento_id);
             if (!$evento) {
                 wp_send_json_error('Evento não encontrado.');
+            }
+            
+            // Verificar se usuário tem permissão para editar este evento
+            if (!user_can($user_id, 'manage_options')) {
+                // Carregar modelo de tipo de evento para verificar organização
+                require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+                $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+                $tipo_evento = $tipo_evento_model->find($evento->tipo_evento_id);
+                
+                if ($tipo_evento && !sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
+                    wp_send_json_error('Você não tem permissão para editar este evento.');
+                }
             }
         }
         
@@ -151,21 +183,38 @@ class Sevo_Eventos_Dashboard_Shortcode {
     public function ajax_save_evento() {
         check_ajax_referer('sevo_eventos_dashboard_nonce', 'nonce');
         
-        // Verifica permissões
-        if (!current_user_can('manage_options')) {
+        $user_id = get_current_user_id();
+        
+        // Verificar permissões
+        if (!user_can($user_id, 'manage_options') && !user_can($user_id, 'edit_posts')) {
             wp_send_json_error('Você não tem permissão para salvar eventos.');
         }
         
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
-        $evento_model = new Sevo_Evento_Model();
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model_With_Permissions.php';
+        $evento_model = new Sevo_Evento_Model_With_Permissions();
         
         $evento_id = isset($_POST['evento_id']) ? intval($_POST['evento_id']) : 0;
+        
+        // Verificar se usuário tem permissão para criar/editar na organização do tipo de evento
+        $tipo_evento_id = isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0;
+        if ($tipo_evento_id > 0) {
+            // Carregar modelo de tipo de evento para verificar organização
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+            $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+            $tipo_evento = $tipo_evento_model->find($tipo_evento_id);
+            
+            if ($tipo_evento && !user_can($user_id, 'manage_options')) {
+                if (!sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
+                    wp_send_json_error('Você não tem permissão para criar/editar eventos nesta organização.');
+                }
+            }
+        }
         
         // Preparar dados para o modelo
         $data = array(
             'titulo' => sanitize_text_field($_POST['titulo']),
             'descricao' => wp_kses_post($_POST['descricao']),
-            'tipo_evento_id' => isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0,
+            'tipo_evento_id' => $tipo_evento_id,
             'data_inicio_inscricoes' => isset($_POST['data_inicio_inscricao']) ? sanitize_text_field($_POST['data_inicio_inscricao']) : '',
             'data_fim_inscricoes' => isset($_POST['data_fim_inscricao']) ? sanitize_text_field($_POST['data_fim_inscricao']) : '',
             'data_inicio_evento' => isset($_POST['data_inicio']) ? sanitize_text_field($_POST['data_inicio']) : '',
@@ -235,6 +284,18 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         if (!$evento) {
             wp_send_json_error('Evento não encontrado.');
+        }
+        
+        // Verificar se usuário tem permissão para se inscrever (mesma organização)
+        if (!user_can($user_id, 'manage_options')) {
+            // Carregar modelo de tipo de evento para verificar organização
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+            $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+            $tipo_evento = $tipo_evento_model->find($evento->tipo_evento_id);
+            
+            if ($tipo_evento && !sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
+                wp_send_json_error('Você não tem permissão para se inscrever neste evento.');
+            }
         }
         
         // Verifica período de inscrições
@@ -379,6 +440,8 @@ class Sevo_Eventos_Dashboard_Shortcode {
     public function ajax_filter_eventos() {
         check_ajax_referer('sevo_eventos_dashboard_nonce', 'nonce');
         
+        $user_id = get_current_user_id();
+        
         $filters = array(
             'organizacao' => sanitize_text_field($_POST['organizacao'] ?? ''),
             'tipo_evento' => sanitize_text_field($_POST['tipo_evento'] ?? ''),
@@ -386,12 +449,12 @@ class Sevo_Eventos_Dashboard_Shortcode {
             'periodo' => sanitize_text_field($_POST['periodo'] ?? '')
         );
         
-        $eventos = $this->get_filtered_eventos($filters);
+        $eventos = $this->get_filtered_eventos($filters, $user_id);
         
         ob_start();
         if (!empty($eventos)) {
             foreach ($eventos as $evento_id) {
-                $this->render_evento_card($evento_id);
+                $this->render_evento_card($evento_id, $user_id);
             }
         } else {
             echo '<div class="sevo-empty-state">';
@@ -416,12 +479,14 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         global $wpdb;
         
+        $user_id = get_current_user_id();
+        
         switch ($filter_type) {
             case 'organizacao':
-                $orgs = $wpdb->get_results(
-                    "SELECT id, nome FROM {$wpdb->prefix}sevo_organizacoes WHERE status = 'ativo' ORDER BY nome ASC"
-                );
-                foreach ($orgs as $org) {
+                // Carregar organizações acessíveis ao usuário
+                $organizations = sevo_user_get_accessible_organizations($user_id);
+                
+                foreach ($organizations as $org) {
                     $options[] = array(
                         'value' => $org->id,
                         'label' => $org->titulo
@@ -430,9 +495,11 @@ class Sevo_Eventos_Dashboard_Shortcode {
                 break;
                 
             case 'tipo_evento':
-                $tipos = $wpdb->get_results(
-                    "SELECT id, titulo FROM {$wpdb->prefix}sevo_tipos_evento WHERE status = 'ativo' ORDER BY titulo ASC"
-                );
+                // Carregar tipos de evento acessíveis ao usuário
+                require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model_With_Permissions.php';
+                $tipo_evento_model = new Sevo_Tipo_Evento_Model_With_Permissions();
+                $tipos = $tipo_evento_model->get_active_for_user($user_id);
+                
                 foreach ($tipos as $tipo) {
                     $options[] = array(
                         'value' => $tipo->id,
@@ -448,9 +515,9 @@ class Sevo_Eventos_Dashboard_Shortcode {
     /**
      * Obtém eventos filtrados
      */
-    private function get_filtered_eventos($filters) {
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
-        $evento_model = new Sevo_Evento_Model();
+    private function get_filtered_eventos($filters, $user_id) {
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model_With_Permissions.php';
+        $evento_model = new Sevo_Evento_Model_With_Permissions();
         
         $model_filters = array();
         
@@ -470,7 +537,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         }
         
         // Usar o método get_paginated do modelo para obter eventos filtrados
-        $result = $evento_model->get_paginated(1, -1, $model_filters);
+        $result = $evento_model->get_paginated(1, -1, '', $model_filters);
         
         // Extrair apenas os IDs dos eventos
         $evento_ids = array();
@@ -484,12 +551,12 @@ class Sevo_Eventos_Dashboard_Shortcode {
     /**
      * Renderiza um card de evento
      */
-    private function render_evento_card($evento_id) {
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+    private function render_evento_card($evento_id, $user_id) {
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model_With_Permissions.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model_With_Permissions.php';
         
-        $evento_model = new Sevo_Evento_Model();
-        $tipo_evento_model = new Sevo_Tipo_Evento_Model();
+        $evento_model = new Sevo_Evento_Model_With_Permissions();
+        $tipo_evento_model = new Sevo_Tipo_Evento_Model_With_Permissions();
         
         $evento = $evento_model->find($evento_id);
         if (!$evento) {
@@ -502,11 +569,17 @@ class Sevo_Eventos_Dashboard_Shortcode {
         if ($evento->tipo_evento_id) {
             $tipo_evento = $tipo_evento_model->find($evento->tipo_evento_id);
             if ($tipo_evento && $tipo_evento->organizacao_id) {
-                require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model.php';
-                $org_model = new Sevo_Organizacao_Model();
+                require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model_With_Permissions.php';
+                $org_model = new Sevo_Organizacao_Model_With_Permissions();
                 $organizacao = $org_model->find($tipo_evento->organizacao_id);
                 $org_name = $organizacao ? $organizacao->titulo : '';
             }
+        }
+        
+        // Verificar se usuário pode editar este evento
+        $can_edit = false;
+        if ($tipo_evento && sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
+            $can_edit = true;
         }
         
         // Imagem do evento ou padrão
@@ -547,7 +620,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
             }
         }
         
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/components/evento-card.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/components/evento-card-with-permissions.php');
     }
     
     /**
@@ -619,5 +692,4 @@ class Sevo_Eventos_Dashboard_Shortcode {
 }
 
 // Inicializa o shortcode
-new Sevo_Eventos_Dashboard_Shortcode();
-?>
+new Sevo_Eventos_Dashboard_Shortcode_With_Permissions();

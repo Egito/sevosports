@@ -167,6 +167,105 @@ function sevo_check_permission_or_die($action, $user_id = null, $post_id = null,
     return true;
 }
 
+/**
+ * Verifica se usuário pode gerenciar uma organização específica
+ * 
+ * @param int $user_id ID do usuário
+ * @param int $org_id ID da organização
+ * @return bool True se o usuário pode gerenciar a organização, false caso contrário
+ */
+function sevo_user_can_manage_organization($user_id, $org_id) {
+    // Administradores podem gerenciar todas as organizações
+    if (user_can($user_id, 'manage_options')) {
+        return true;
+    }
+    
+    // Carregar o modelo de usuários-organizações
+    if (!class_exists('Sevo_Usuario_Organizacao_Model')) {
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Usuario_Organizacao_Model.php';
+    }
+    
+    $model = new Sevo_Usuario_Organizacao_Model();
+    return $model->can_user_manage_organization($user_id, $org_id);
+}
+
+/**
+ * Verifica se usuário pode criar conteúdo em uma organização específica
+ * 
+ * @param int $user_id ID do usuário
+ * @param int $org_id ID da organização
+ * @return bool True se o usuário pode criar conteúdo na organização, false caso contrário
+ */
+function sevo_user_can_create_in_organization($user_id, $org_id) {
+    // Administradores podem criar em todas as organizações
+    if (user_can($user_id, 'manage_options')) {
+        return true;
+    }
+    
+    // Carregar o modelo de usuários-organizações
+    if (!class_exists('Sevo_Usuario_Organizacao_Model')) {
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Usuario_Organizacao_Model.php';
+    }
+    
+    $model = new Sevo_Usuario_Organizacao_Model();
+    return $model->can_user_create_for_organization($user_id, $org_id);
+}
+
+/**
+ * Obtém organizações acessíveis para um usuário específico
+ * 
+ * @param int $user_id ID do usuário
+ * @return array Lista de organizações acessíveis
+ */
+function sevo_user_get_accessible_organizations($user_id) {
+    // Administradores veem todas as organizações
+    if (user_can($user_id, 'manage_options')) {
+        if (!class_exists('Sevo_Organizacao_Model')) {
+            require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model.php';
+        }
+        $org_model = new Sevo_Organizacao_Model();
+        return $org_model->get_active();
+    }
+    
+    // Carregar o modelo de usuários-organizações
+    if (!class_exists('Sevo_Usuario_Organizacao_Model')) {
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Usuario_Organizacao_Model.php';
+    }
+    
+    $model = new Sevo_Usuario_Organizacao_Model();
+    return $model->get_available_organizations_for_user($user_id);
+}
+
+/**
+ * Filtra query por organizações acessíveis ao usuário
+ * 
+ * @param string $query Query SQL a ser filtrada
+ * @param int $user_id ID do usuário
+ * @param string $org_field Nome do campo de organização na query
+ * @return string Query filtrada
+ */
+function sevo_filter_query_by_user_organizations($query, $user_id, $org_field = 'o.id') {
+    // Administradores veem tudo
+    if (user_can($user_id, 'manage_options')) {
+        return $query;
+    }
+    
+    // Obter organizações acessíveis
+    $organizations = sevo_user_get_accessible_organizations($user_id);
+    
+    if (empty($organizations)) {
+        // Se usuário não tem organizações, não mostrar nada
+        return $query . " AND 1=0";
+    }
+    
+    // Extrair IDs das organizações
+    $org_ids = wp_list_pluck($organizations, 'id');
+    $org_ids_str = implode(',', array_map('intval', $org_ids));
+    
+    // Adicionar condição à query
+    return $query . " AND {$org_field} IN ({$org_ids_str})";
+}
+
 class Sevo_Eventos_Main {
     private static $instance = null;
     
@@ -220,12 +319,13 @@ class Sevo_Eventos_Main {
         }
 
         // Incluir handlers de shortcode unificados
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-dashboard-inscricoes.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos-dashboard.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento-with-permissions.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs-with-permissions.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-dashboard-inscricoes-with-permissions.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos-dashboard-with-permissions.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-summary-cards.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-asgaros-comments.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-papeis.php';
 
         // Inicializar as classes dos Custom Post Types (versões com tabelas customizadas)
         $this->org_cpt = new Sevo_Orgs_CPT_New();
@@ -234,8 +334,12 @@ class Sevo_Eventos_Main {
         $this->inscricao_cpt = new Sevo_Inscricao_CPT_New();
         $this->usuario_org_cpt = new Sevo_Usuario_Organizacao_CPT();
         
-        // Inicializar shortcodes
-        new Sevo_Eventos_Dashboard_Shortcode();
+        // Inicializar shortcodes com permissões organizacionais
+        new Sevo_Orgs_Dashboard_Shortcode_With_Permissions();
+        new Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions();
+        new Sevo_Eventos_Dashboard_Shortcode_With_Permissions();
+        new Sevo_Dashboard_Inscricoes_Shortcode_With_Permissions();
+        new Sevo_Papeis_Shortcode();
         
         // Inicializar integração com fórum se disponível
         if (class_exists('AsgarosForum')) {
