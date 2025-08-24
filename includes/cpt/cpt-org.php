@@ -192,7 +192,7 @@ class Sevo_Orgs_CPT_New {
      */
     public function admin_enqueue_scripts($hook) {
         // Verificar se estamos na página de organizações
-        if (strpos($hook, 'sevo-organizacoes') === false) {
+        if (strpos($hook, 'sevo-organizacoes') === false && strpos($hook, 'sevo-eventos') === false) {
             return;
         }
         

@@ -294,7 +294,7 @@ class Sevo_Evento_CPT_New {
      */
     public function admin_enqueue_scripts($hook) {
         // Verificar se estamos na página de eventos
-        if (strpos($hook, 'sevo-eventos-list') === false) {
+        if (strpos($hook, 'sevo-eventos-list') === false && strpos($hook, 'sevo-eventos') === false) {
             return;
         }
         
@@ -330,13 +330,13 @@ class Sevo_Evento_CPT_New {
         }
         
         $data = array(
-            'nome' => sanitize_text_field($_POST['nome']),
+            'titulo' => sanitize_text_field($_POST['nome']),
             'descricao' => sanitize_textarea_field($_POST['descricao']),
             'tipo_evento_id' => absint($_POST['tipo_evento_id']),
-            'data_inicio_inscricao' => sanitize_text_field($_POST['data_inicio_inscricao']),
-            'data_fim_inscricao' => sanitize_text_field($_POST['data_fim_inscricao']),
-            'data_inicio' => sanitize_text_field($_POST['data_inicio']),
-            'data_fim' => sanitize_text_field($_POST['data_fim']),
+            'data_inicio_inscricoes' => sanitize_text_field($_POST['data_inicio_inscricao']),
+            'data_fim_inscricoes' => sanitize_text_field($_POST['data_fim_inscricao']),
+            'data_inicio_evento' => sanitize_text_field($_POST['data_inicio']),
+            'data_fim_evento' => sanitize_text_field($_POST['data_fim']),
             'vagas' => absint($_POST['vagas']),
             'local' => sanitize_text_field($_POST['local']),
             'observacoes' => sanitize_textarea_field($_POST['observacoes']),
@@ -367,13 +367,13 @@ class Sevo_Evento_CPT_New {
         
         $id = absint($_POST['id']);
         $data = array(
-            'nome' => sanitize_text_field($_POST['nome']),
+            'titulo' => sanitize_text_field($_POST['nome']),
             'descricao' => sanitize_textarea_field($_POST['descricao']),
             'tipo_evento_id' => absint($_POST['tipo_evento_id']),
-            'data_inicio_inscricao' => sanitize_text_field($_POST['data_inicio_inscricao']),
-            'data_fim_inscricao' => sanitize_text_field($_POST['data_fim_inscricao']),
-            'data_inicio' => sanitize_text_field($_POST['data_inicio']),
-            'data_fim' => sanitize_text_field($_POST['data_fim']),
+            'data_inicio_inscricoes' => sanitize_text_field($_POST['data_inicio_inscricao']),
+            'data_fim_inscricoes' => sanitize_text_field($_POST['data_fim_inscricao']),
+            'data_inicio_evento' => sanitize_text_field($_POST['data_inicio']),
+            'data_fim_evento' => sanitize_text_field($_POST['data_fim']),
             'vagas' => absint($_POST['vagas']),
             'local' => sanitize_text_field($_POST['local']),
             'observacoes' => sanitize_textarea_field($_POST['observacoes']),
@@ -428,10 +428,10 @@ class Sevo_Evento_CPT_New {
         
         if ($evento) {
             // Converter datas para formato datetime-local
-            $evento->data_inicio_inscricao = date('Y-m-d\TH:i', strtotime($evento->data_inicio_inscricao));
-            $evento->data_fim_inscricao = date('Y-m-d\TH:i', strtotime($evento->data_fim_inscricao));
-            $evento->data_inicio = date('Y-m-d\TH:i', strtotime($evento->data_inicio));
-            $evento->data_fim = date('Y-m-d\TH:i', strtotime($evento->data_fim));
+            $evento->data_inicio_inscricao = date('Y-m-d\TH:i', strtotime($evento->data_inicio_inscricoes));
+            $evento->data_fim_inscricao = date('Y-m-d\TH:i', strtotime($evento->data_fim_inscricoes));
+            $evento->data_inicio = date('Y-m-d\TH:i', strtotime($evento->data_inicio_evento));
+            $evento->data_fim = date('Y-m-d\TH:i', strtotime($evento->data_fim_evento));
             
             wp_send_json_success($evento);
         } else {
@@ -478,9 +478,9 @@ class Sevo_Evento_CPT_New {
                                 <td><?php echo esc_html($evento->organizacao_titulo ?: '-'); ?></td>
                             <td>
                                 <?php 
-                                echo esc_html(date('d/m/Y H:i', strtotime($evento->data_inicio)));
-                                if ($evento->data_fim !== $evento->data_inicio) {
-                                    echo ' - ' . esc_html(date('d/m/Y H:i', strtotime($evento->data_fim)));
+                                echo esc_html(date('d/m/Y H:i', strtotime($evento->data_inicio_evento)));
+                                if ($evento->data_fim_evento !== $evento->data_inicio_evento) {
+                                    echo ' - ' . esc_html(date('d/m/Y H:i', strtotime($evento->data_fim_evento)));
                                 }
                                 ?>
                             </td>

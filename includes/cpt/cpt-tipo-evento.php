@@ -261,7 +261,7 @@ class Sevo_Tipo_Evento_CPT_New {
      */
     public function admin_enqueue_scripts($hook) {
         // Verificar se estamos na página de tipos de evento
-        if (strpos($hook, 'sevo-tipos-evento') === false) {
+        if (strpos($hook, 'sevo-tipos-evento') === false && strpos($hook, 'sevo-eventos') === false) {
             return;
         }
         
@@ -297,11 +297,11 @@ class Sevo_Tipo_Evento_CPT_New {
         }
         
         $data = array(
-            'nome' => sanitize_text_field($_POST['nome']),
+            'titulo' => sanitize_text_field($_POST['nome']),
             'descricao' => sanitize_textarea_field($_POST['descricao']),
             'organizacao_id' => absint($_POST['organizacao_id']),
             'autor_id' => absint($_POST['autor_id']),
-            'vagas_max' => absint($_POST['vagas_max']),
+            'max_vagas' => absint($_POST['vagas_max']),
             'tipo_participacao' => sanitize_text_field($_POST['tipo_participacao']),
             'status' => sanitize_text_field($_POST['status'])
         );
@@ -330,11 +330,11 @@ class Sevo_Tipo_Evento_CPT_New {
         
         $id = absint($_POST['id']);
         $data = array(
-            'nome' => sanitize_text_field($_POST['nome']),
+            'titulo' => sanitize_text_field($_POST['nome']),
             'descricao' => sanitize_textarea_field($_POST['descricao']),
             'organizacao_id' => absint($_POST['organizacao_id']),
             'autor_id' => absint($_POST['autor_id']),
-            'vagas_max' => absint($_POST['vagas_max']),
+            'max_vagas' => absint($_POST['vagas_max']),
             'tipo_participacao' => sanitize_text_field($_POST['tipo_participacao']),
             'status' => sanitize_text_field($_POST['status'])
         );
@@ -435,7 +435,7 @@ class Sevo_Tipo_Evento_CPT_New {
                                 echo $autor ? esc_html($autor->display_name) : '-';
                                 ?>
                             </td>
-                            <td><?php echo esc_html($tipo->vagas_max); ?></td>
+                            <td><?php echo esc_html($tipo->max_vagas); ?></td>
                             <td><?php echo esc_html(ucfirst($tipo->tipo_participacao)); ?></td>
                             <td>
                                 <span class="status-<?php echo esc_attr($tipo->status); ?>">

@@ -227,7 +227,7 @@ abstract class Sevo_Base_Model {
         $total = $this->count($conditions);
         
         return [
-            'items' => $items,
+            'data' => $items,
             'total' => $total,
             'per_page' => $per_page,
             'current_page' => $page,

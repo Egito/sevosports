@@ -171,6 +171,7 @@
         
         loadTiposEvento: function(page) {
             page = page || 1;
+            console.log('SevoTipoAdmin: Carregando tipos de evento, página:', page);
             
             $.ajax({
                 url: sevoTipoAdmin.ajax_url,
@@ -182,13 +183,15 @@
                     nonce: sevoTipoAdmin.nonce
                 },
                 success: function(response) {
+                    console.log('SevoTipoAdmin: Resposta recebida:', response);
                     if (response.success) {
                         $('#sevo-tipo-list-container').html(response.data.html);
                     } else {
                         SevoTipoAdmin.showNotice(response.data || sevoTipoAdmin.strings.error, 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('SevoTipoAdmin: Erro AJAX:', status, error);
                     SevoTipoAdmin.showNotice(sevoTipoAdmin.strings.error, 'error');
                 }
             });
@@ -246,6 +249,7 @@
     
     // Inicializar quando o documento estiver pronto
     $(document).ready(function() {
+        console.log('SevoTipoAdmin: Inicializando...');
         SevoTipoAdmin.init();
     });
     

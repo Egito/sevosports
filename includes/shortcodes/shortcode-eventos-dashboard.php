@@ -474,7 +474,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         // Extrair apenas os IDs dos eventos
         $evento_ids = array();
-        foreach ($result['items'] as $evento) {
+        foreach ($result['data'] as $evento) {
             $evento_ids[] = $evento->id;
         }
         

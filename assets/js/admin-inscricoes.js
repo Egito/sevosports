@@ -13,6 +13,7 @@ jQuery(document).ready(function($) {
     init();
     
     function init() {
+        console.log('SevoInscricaoAdmin: Inicializando...');
         loadInscricoesList();
         loadEventosSelect();
         bindEvents();
@@ -242,6 +243,7 @@ jQuery(document).ready(function($) {
     }
     
     function loadInscricoesList() {
+        console.log('SevoInscricaoAdmin: Carregando inscrições...');
         const data = {
             action: 'sevo_list_inscricoes',
             nonce: sevoInscricaoAdmin.nonce,
@@ -255,13 +257,15 @@ jQuery(document).ready(function($) {
             type: 'POST',
             data: data,
             success: function(response) {
+                console.log('SevoInscricaoAdmin: Resposta recebida:', response);
                 if (response.success) {
                     $('#sevo-inscricao-list-container').html(response.data.html);
                 } else {
                     showNotification(response.data || sevoInscricaoAdmin.strings.error, 'error');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('SevoInscricaoAdmin: Erro AJAX:', status, error);
                 showNotification(sevoInscricaoAdmin.strings.error, 'error');
             }
         });

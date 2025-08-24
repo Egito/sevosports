@@ -188,6 +188,7 @@
         
         loadEventos: function(page) {
             page = page || 1;
+            console.log('SevoEventoAdmin: Carregando eventos, página:', page);
             
             $.ajax({
                 url: sevoEventoAdmin.ajax_url,
@@ -199,13 +200,15 @@
                     nonce: sevoEventoAdmin.nonce
                 },
                 success: function(response) {
+                    console.log('SevoEventoAdmin: Resposta recebida:', response);
                     if (response.success) {
                         $('#sevo-evento-list-container').html(response.data.html);
                     } else {
                         SevoEventoAdmin.showNotice(response.data || sevoEventoAdmin.strings.error, 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('SevoEventoAdmin: Erro AJAX:', status, error);
                     SevoEventoAdmin.showNotice(sevoEventoAdmin.strings.error, 'error');
                 }
             });
@@ -306,6 +309,7 @@
     
     // Inicializar quando o documento estiver pronto
     $(document).ready(function() {
+        console.log('SevoEventoAdmin: Inicializando...');
         SevoEventoAdmin.init();
     });
     

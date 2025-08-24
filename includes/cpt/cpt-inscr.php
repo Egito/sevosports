@@ -290,7 +290,7 @@ class Sevo_Inscricao_CPT_New {
      */
     public function admin_enqueue_scripts($hook) {
         // Verificar se estamos na página de inscrições
-        if (strpos($hook, 'sevo-inscricoes') === false) {
+        if (strpos($hook, 'sevo-inscricoes') === false && strpos($hook, 'sevo-eventos') === false) {
             return;
         }
         

@@ -24,7 +24,7 @@ class Sevo_Tipo_Evento_Model extends Sevo_Base_Model {
         'autor_id',
         'max_vagas',
         'status',
-        'participacao'
+        'tipo_participacao'
     ];
     
     public function __construct() {
@@ -334,7 +334,7 @@ class Sevo_Tipo_Evento_Model extends Sevo_Base_Model {
         $total = (int) $this->wpdb->get_var($this->wpdb->prepare($count_sql, $count_params));
         
         return [
-            'items' => $items,
+            'data' => $items,
             'total' => $total,
             'per_page' => $per_page,
             'current_page' => $page,

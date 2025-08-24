@@ -54,6 +54,8 @@
             $('#sevo-org-modal-title').text(sevoOrgAdmin.strings.add_new || 'Nova Organização');
             $('#sevo-org-form')[0].reset();
             $('input[name="org_id"]').val('');
+            // Atualizar botão do modal
+            $('#sevo-org-save').text('Criar');
             // Limpar mensagens de erro
             $('.sevo-notice').remove();
             $('#sevo-org-modal').show();
@@ -81,6 +83,9 @@
                         $('#org_autor').val(org.autor_id);
                         $('#org_status').val(org.status);
                         $('#org_imagem_url').val(org.imagem_url || '');
+                        
+                        // Atualizar botão do modal
+                        $('#sevo-org-save').text('Atualizar');
                         
                         // Atualizar preview da imagem
                         if (org.imagem_url) {
@@ -204,6 +209,7 @@
         
         loadOrganizacoes: function(page) {
             page = page || 1;
+            console.log('SevoOrgAdmin: Carregando organizações, página:', page);
             
             $.ajax({
                 url: sevoOrgAdmin.ajax_url,
@@ -215,13 +221,15 @@
                     nonce: sevoOrgAdmin.nonce
                 },
                 success: function(response) {
+                    console.log('SevoOrgAdmin: Resposta recebida:', response);
                     if (response.success) {
                         $('#sevo-org-list-container').html(response.data.html);
                     } else {
                         SevoOrgAdmin.showNotice(response.data || sevoOrgAdmin.strings.error, 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('SevoOrgAdmin: Erro AJAX:', status, error);
                     SevoOrgAdmin.showNotice(sevoOrgAdmin.strings.error, 'error');
                 }
             });
@@ -455,6 +463,15 @@
     
     // Inicializar quando o documento estiver pronto
     $(document).ready(function() {
+        console.log('SevoOrgAdmin: Inicializando...');
+        
+        // Verificar se as variáveis JavaScript estão disponíveis
+        if (typeof sevoOrgAdmin === 'undefined') {
+            console.error('SevoOrgAdmin: Variável sevoOrgAdmin não encontrada!');
+            return;
+        }
+        
+        console.log('SevoOrgAdmin: Dados disponíveis:', sevoOrgAdmin);
         SevoOrgAdmin.init();
     });
     

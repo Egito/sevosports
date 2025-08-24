@@ -49,7 +49,7 @@ if (!empty($org_filter)) {
 
 // Buscar inscrições com paginação
 $result = $inscricao_model->get_paginated($paged, $per_page, $filters);
-$inscricoes = $result['items'];
+$inscricoes = $result['data'];
 $total_items = $result['total'];
 $total_pages = $result['total_pages'];
 ?>
