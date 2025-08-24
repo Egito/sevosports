@@ -1,20 +1,20 @@
 <?php
 /**
  * Shortcode handler para o dashboard de Tipos de Evento [sevo-tipo-evento-dashboard]
- * com controle de permissões organizacionais
+ * com funcionalidade CRUD completa via modal.
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
+class Sevo_Tipo_Evento_Dashboard_Shortcode {
     private $tipo_evento_model;
     
     public function __construct() {
-        // Carregar o modelo com permissões
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model_With_Permissions.php';
-        $this->tipo_evento_model = new Sevo_Tipo_Evento_Model_With_Permissions();
+        // Carregar o modelo
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+        $this->tipo_evento_model = new Sevo_Tipo_Evento_Model();
         
         add_shortcode('sevo-tipo-evento-dashboard', array($this, 'render_dashboard'));
         
@@ -32,17 +32,12 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
     }
 
     public function render_dashboard() {
-        // Verificar se usuário está logado
-        if (!is_user_logged_in()) {
-            return '<div class="sevo-error">Você precisa estar logado para acessar esta página.</div>';
-        }
-        
         // Enfileira os assets específicos para este dashboard
         wp_enqueue_style('sevo-dashboard-common', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_style('sevo-button-colors', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_style('sevo-button-fixes-style');
-        wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
-        wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
+    wp_enqueue_style('sevo-button-colors', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
+    wp_enqueue_style('sevo-button-fixes-style');
+    wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
+    wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
         // Removido card-standards.css e filter-standards.css - usando padrão visual unificado
 
         wp_enqueue_style('sevo-dashboard-tipo-evento', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);
@@ -74,7 +69,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
         }
 
         ob_start();
-        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-tipo-evento-view-with-permissions.php');
+        include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/view/dashboard-tipo-evento-view.php');
         return ob_get_clean();
     }
     
@@ -83,23 +78,10 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
      */
     public function ajax_get_tipo_evento_form() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        
-        $user_id = get_current_user_id();
-        
-        // Verificar se usuário pode editar tipos de evento
-        if (!user_can($user_id, 'manage_options') && !user_can($user_id, 'edit_posts')) {
-            wp_send_json_error('Você não tem permissão para editar tipos de evento.');
-        }
+        sevo_check_permission_or_die('edit_tipo_evento');
 
         $tipo_evento_id = isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0;
         $tipo_evento = ($tipo_evento_id > 0) ? $this->tipo_evento_model->find($tipo_evento_id) : null;
-        
-        // Se é edição, verificar se usuário tem permissão para editar este tipo de evento
-        if ($tipo_evento_id > 0 && $tipo_evento) {
-            if (!sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
-                wp_send_json_error('Você não tem permissão para editar este tipo de evento.');
-            }
-        }
 
         ob_start();
         include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-tipo-evento-edit.php');
@@ -114,20 +96,14 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
     public function ajax_get_tipo_evento_details() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
         
+        // Removida verificação de permissão para permitir visualização por visitantes
+
         if (!isset($_POST['tipo_evento_id']) || empty($_POST['tipo_evento_id'])) {
             wp_send_json_error('ID do tipo de evento não fornecido.');
         }
 
         $tipo_evento_id = intval($_POST['tipo_evento_id']);
         $tipo_evento = $this->tipo_evento_model->find($tipo_evento_id);
-        
-        // Verificar se usuário tem permissão para ver este tipo de evento
-        $user_id = get_current_user_id();
-        if (!user_can($user_id, 'manage_options') && $tipo_evento) {
-            if (!sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
-                wp_send_json_error('Você não tem permissão para acessar este tipo de evento.');
-            }
-        }
 
         if (!$tipo_evento) {
             wp_send_json_error('Tipo de evento não encontrado.');
@@ -145,13 +121,7 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
      */
     public function ajax_save_tipo_evento() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        
-        $user_id = get_current_user_id();
-        
-        // Apenas administradores podem criar tipos de evento
-        if (!user_can($user_id, 'manage_options')) {
-            wp_send_json_error('Você não tem permissão para criar/editar tipos de evento.');
-        }
+        sevo_check_permission_or_die('create_tipo_evento');
 
         $tipo_evento_id = isset($_POST['tipo_id']) ? intval($_POST['tipo_id']) : 0;
         
@@ -159,20 +129,13 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
         if (empty($_POST['titulo']) || empty($_POST['organizacao_id'])) {
             wp_send_json_error('Título e Organização são obrigatórios.');
         }
-        
-        $organizacao_id = intval($_POST['organizacao_id']);
-        
-        // Verificar se usuário tem permissão para criar/editar na organização especificada
-        if (!sevo_user_can_manage_organization($user_id, $organizacao_id)) {
-            wp_send_json_error('Você não tem permissão para criar/editar tipos de evento nesta organização.');
-        }
 
         // Preparar dados para salvar na tabela customizada
         $data = array(
             'titulo' => sanitize_text_field($_POST['titulo']),
             'descricao' => wp_kses_post($_POST['descricao']),
-            'organizacao_id' => $organizacao_id,
-            'autor_id' => $user_id,
+            'organizacao_id' => intval($_POST['organizacao_id']),
+            'autor_id' => get_current_user_id(),
             'max_vagas' => !empty($_POST['max_vagas']) ? intval($_POST['max_vagas']) : null,
             'status' => sanitize_text_field($_POST['status']),
             'imagem_url' => esc_url_raw($_POST['imagem_url'])
@@ -205,94 +168,6 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
         wp_send_json_success(array('message' => 'Tipo de evento salvo com sucesso!', 'tipo_evento_id' => $tipo_evento_id));
     }
 
-    /**
-     * AJAX: Alterna o status de um tipo de evento entre 'ativo' e 'inativo'.
-     */
-    public function ajax_toggle_tipo_evento_status() {
-        check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        
-        $user_id = get_current_user_id();
-        
-        // Apenas administradores podem alterar status de tipos de evento
-        if (!user_can($user_id, 'manage_options')) {
-            wp_send_json_error('Você não tem permissão para alterar o status de tipos de evento.');
-        }
-        
-        $tipo_evento_id = isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0;
-
-        if (!$tipo_evento_id) {
-            wp_send_json_error('ID do tipo de evento não fornecido.');
-        }
-
-        $tipo_evento = $this->tipo_evento_model->find($tipo_evento_id);
-        if (!$tipo_evento) {
-            wp_send_json_error('Tipo de evento não encontrado.');
-        }
-        
-        // Verificar se usuário tem permissão para gerenciar esta organização
-        if (!sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id)) {
-            wp_send_json_error('Você não tem permissão para alterar o status deste tipo de evento.');
-        }
-        
-        $new_status = ($tipo_evento->status === 'ativo') ? 'inativo' : 'ativo';
-        
-        $result = $this->tipo_evento_model->update($tipo_evento_id, array('status' => $new_status));
-        
-        if (!$result) {
-            wp_send_json_error('Erro ao atualizar status do tipo de evento.');
-        }
-        
-        $message = ($new_status === 'ativo') ? 'Tipo de evento ativado.' : 'Tipo de evento inativado.';
-        wp_send_json_success(array('message' => $message, 'new_status' => $new_status));
-    }
-    
-    /**
-     * AJAX: Upload de imagem para tipo de evento.
-     */
-    public function ajax_upload_tipo_evento_image() {
-        check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
-        
-        $user_id = get_current_user_id();
-        
-        // Verificar permissões
-        if (!user_can($user_id, 'manage_options') && !user_can($user_id, 'edit_posts')) {
-            wp_send_json_error('Você não tem permissão para fazer upload de imagens.');
-        }
-        
-        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            wp_send_json_error('Nenhuma imagem foi enviada ou ocorreu um erro no upload.');
-        }
-        
-        $file = $_FILES['image'];
-        
-        // Validar tipo de arquivo
-        $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp');
-        $file_type = wp_check_filetype($file['name']);
-        
-        if (!in_array($file_type['type'], $allowed_types)) {
-            wp_send_json_error('Tipo de arquivo não permitido. Use JPEG, PNG, GIF ou WebP.');
-        }
-        
-        // Validar tamanho (máximo 5MB)
-        if ($file['size'] > 5 * 1024 * 1024) {
-            wp_send_json_error('A imagem deve ter no máximo 5MB.');
-        }
-        
-        // Processar upload
-        $attachment_id = $this->process_tipo_evento_image($file);
-        
-        if (!$attachment_id) {
-            wp_send_json_error('Erro ao processar a imagem.');
-        }
-        
-        $image_url = wp_get_attachment_url($attachment_id);
-        
-        wp_send_json_success(array(
-            'url' => $image_url,
-            'attachment_id' => $attachment_id
-        ));
-    }
-    
     /**
      * Processa o upload e redimensionamento da imagem do tipo de evento.
      */
@@ -372,41 +247,140 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
     }
     
     /**
+     * AJAX: Alterna o status de um tipo de evento entre 'ativo' e 'inativo'.
+     */
+    public function ajax_toggle_tipo_evento_status() {
+        check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
+        sevo_check_permission_or_die('toggle_tipo_evento_status');
+        
+        $tipo_evento_id = isset($_POST['tipo_evento_id']) ? intval($_POST['tipo_evento_id']) : 0;
+
+        if (!$tipo_evento_id) {
+            wp_send_json_error('ID do tipo de evento não fornecido.');
+        }
+
+        $tipo_evento = $this->tipo_evento_model->find($tipo_evento_id);
+        if (!$tipo_evento) {
+            wp_send_json_error('Tipo de evento não encontrado.');
+        }
+        
+        $new_status = ($tipo_evento->status === 'ativo') ? 'inativo' : 'ativo';
+        
+        $result = $this->tipo_evento_model->update($tipo_evento_id, array('status' => $new_status));
+        
+        if (!$result) {
+            wp_send_json_error('Erro ao atualizar status do tipo de evento.');
+        }
+        
+        $message = ($new_status === 'ativo') ? 'Tipo de evento ativado.' : 'Tipo de evento inativado.';
+        wp_send_json_success(array('message' => $message, 'new_status' => $new_status));
+    }
+    
+    /**
+     * AJAX: Upload de imagem para tipo de evento.
+     */
+    public function ajax_upload_tipo_evento_image() {
+        check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
+        sevo_check_permission_or_die('edit_tipo_evento');
+        
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            wp_send_json_error('Nenhuma imagem foi enviada ou ocorreu um erro no upload.');
+        }
+        
+        $file = $_FILES['image'];
+        
+        // Validar tipo de arquivo
+        $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp');
+        $file_type = wp_check_filetype($file['name']);
+        
+        if (!in_array($file_type['type'], $allowed_types)) {
+            wp_send_json_error('Tipo de arquivo não permitido. Use JPEG, PNG, GIF ou WebP.');
+        }
+        
+        // Validar tamanho (máximo 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            wp_send_json_error('A imagem deve ter no máximo 5MB.');
+        }
+        
+        // Processar upload
+        $attachment_id = $this->process_tipo_evento_image($file);
+        
+        if (!$attachment_id) {
+            wp_send_json_error('Erro ao processar a imagem.');
+        }
+        
+        $image_url = wp_get_attachment_url($attachment_id);
+        
+        wp_send_json_success(array(
+            'url' => $image_url,
+            'attachment_id' => $attachment_id
+        ));
+    }
+    
+    /**
      * AJAX: Carrega os cards de tipo de evento para o dashboard.
      */
     public function ajax_load_more_tipos_evento() {
         check_ajax_referer('sevo_tipo_evento_nonce', 'nonce');
         
-        $user_id = get_current_user_id();
         $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $per_page = 10;
         $offset = ($page - 1) * $per_page;
         
-        // Usar o modelo com permissões para buscar tipos de evento
-        $result = $this->tipo_evento_model->get_with_stats_for_user($page, $per_page, '', [], $user_id);
+        // Filtrar tipos de eventos inativos para usuários sem permissão de atualização
+        $user_can_update = current_user_can('manage_options') || current_user_can('edit_posts');
+        
+        global $wpdb;
+        $where_conditions = array();
+        $params = array();
+        
+        if (!$user_can_update) {
+            $where_conditions[] = "te.status = %s";
+            $params[] = 'ativo';
+        }
+        
+        $where_sql = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
+        
+        // Buscar tipos de evento com dados da organização
+        $sql = $wpdb->prepare(
+            "SELECT te.*, o.titulo as organizacao_titulo
+             FROM {$wpdb->prefix}sevo_tipos_evento te
+             LEFT JOIN {$wpdb->prefix}sevo_organizacoes o ON te.organizacao_id = o.id
+             {$where_sql}
+             ORDER BY te.titulo ASC
+             LIMIT %d OFFSET %d",
+            array_merge($params, array($per_page, $offset))
+        );
+        
+        $tipos_evento = $wpdb->get_results($sql);
+        
+        // Contar total para paginação
+        $count_sql = $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}sevo_tipos_evento te {$where_sql}",
+            $params
+        );
+        $total = $wpdb->get_var($count_sql);
+        $max_pages = ceil($total / $per_page);
         
         $items_html = '';
-        if (!empty($result['data'])) {
-            foreach ($result['data'] as $tipo_evento) {
-                $items_html .= $this->render_tipo_evento_card($tipo_evento, $user_id);
+        if (!empty($tipos_evento)) {
+            foreach ($tipos_evento as $tipo_evento) {
+                $items_html .= $this->render_tipo_evento_card($tipo_evento);
             }
         }
 
         wp_send_json_success(array(
             'items' => $items_html,
-            'hasMore' => $page < $result['total_pages']
+            'hasMore' => $page < $max_pages
         ));
     }
 
-    private function render_tipo_evento_card($tipo_evento, $user_id) {
+    private function render_tipo_evento_card($tipo_evento) {
         // Usar imagem da URL ou imagem padrão
         $image_url = !empty($tipo_evento->imagem_url) ? $tipo_evento->imagem_url : SEVO_EVENTOS_PLUGIN_URL . 'assets/images/default-tipo-evento.svg';
         
         // Nome da organização já vem do JOIN
         $org_name = !empty($tipo_evento->organizacao_titulo) ? $tipo_evento->organizacao_titulo : 'N/A';
-        
-        // Verificar se usuário pode editar este tipo de evento
-        $can_edit = sevo_user_can_manage_organization($user_id, $tipo_evento->organizacao_id);
         
         ob_start();
         ?>
@@ -431,15 +405,13 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
                     <p><strong>Organização:</strong> <?php echo esc_html($org_name); ?></p>
                     <p><strong>Vagas:</strong> <?php echo esc_html($tipo_evento->max_vagas ?: 'Ilimitadas'); ?></p>
                     <p><strong>Participação:</strong> <?php echo esc_html(ucfirst($tipo_evento->participacao ?: 'Não definida')); ?></p>
-                    <p><strong>Eventos:</strong> <?php echo esc_html($tipo_evento->eventos_count ?: 0); ?></p>
-                    <p><strong>Inscrições:</strong> <?php echo esc_html($tipo_evento->inscricoes_count ?: 0); ?></p>
                 </div>
                 
                 <div class="card-actions">
                     <button class="btn-view-tipo-evento" data-tipo-evento-id="<?php echo esc_attr($tipo_evento->id); ?>" title="Ver Detalhes">
                         <i class="dashicons dashicons-visibility"></i>
                     </button>
-                    <?php if ($can_edit): ?>
+                    <?php if (current_user_can('manage_options') || current_user_can('edit_posts')): ?>
                         <button class="btn-edit-tipo-evento" data-tipo-evento-id="<?php echo esc_attr($tipo_evento->id); ?>" title="Editar">
                             <i class="dashicons dashicons-edit"></i>
                         </button>
@@ -451,4 +423,4 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions {
         return ob_get_clean();
     }
 }
-new Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions();
+new Sevo_Tipo_Evento_Dashboard_Shortcode();
