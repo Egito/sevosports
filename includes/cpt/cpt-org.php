@@ -76,16 +76,20 @@ class Sevo_Orgs_CPT_New {
         </div>
         
         <style>
+        /* Modal com z-index alto e regras anti-conflito */
         .sevo-modal {
             position: fixed;
-            z-index: 9999999;
+            z-index: 2147483647; /* Valor máximo de z-index */
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            /* Previne interações com elementos por baixo */
+            pointer-events: auto;
         }
         
+        /* Garante que o conteúdo do modal também tenha z-index alto */
         .sevo-modal-content {
             background-color: #fefefe;
             margin: 5% auto;
@@ -94,6 +98,10 @@ class Sevo_Orgs_CPT_New {
             width: 80%;
             max-width: 600px;
             border-radius: 4px;
+            position: relative;
+            z-index: 2147483647;
+            /* Previne que elementos do tema interfiram */
+            isolation: isolate;
         }
         
         .sevo-modal-header {

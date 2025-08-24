@@ -9,6 +9,8 @@ function openOrgViewModal(orgId) {
     
     modalContent.html('<div class="sevo-spinner"></div>');
     modal.removeClass('hidden').addClass('show').css('display', 'flex');
+    // Adiciona classe no body para prevenir conflitos com header do tema
+    jQuery('body').addClass('modal-open');
 
     jQuery.ajax({
         url: sevoOrgsDashboard.ajax_url,
@@ -41,6 +43,8 @@ function openOrgFormModal(orgId = null) {
     
     modalContent.html('<div class="sevo-spinner"></div>');
     modal.removeClass('hidden').addClass('show').css('display', 'flex');
+    // Adiciona classe no body para prevenir conflitos com header do tema
+    jQuery('body').addClass('modal-open');
 
     jQuery.ajax({
         url: sevoOrgsDashboard.ajax_url,
@@ -178,11 +182,23 @@ jQuery(document).ready(function($) {
         closeModal();
     });
 
+    // Função para abrir modal com proteção anti-conflito
+    function showModal() {
+        modal.removeClass('hidden').addClass('show').css('display', 'flex');
+        // Adiciona classe no body para prevenir conflitos com header do tema
+        $('body').addClass('modal-open');
+    }
+    
     // Função para fechar o modal
     function closeModal() {
         modal.addClass('hidden').removeClass('show').css('display', 'none');
         modalContent.html(''); // Limpa o conteúdo para a próxima abertura
+        // Remove classe do body
+        $('body').removeClass('modal-open');
     }
+    
+    // Expor closeModal globalmente para uso em eventos onclick
+    window.closeModal = closeModal;
 
     // Eventos para fechar o modal
     closeButton.on('click', closeModal);

@@ -68,7 +68,25 @@ if (!isset($organizacao) || !$organizacao) {
 
 <?php
 // Detectar se estamos na área administrativa ou no frontend
-$is_admin_context = is_admin() || (isset($_POST['action']) && strpos($_POST['action'], 'admin') !== false);
+// Verifica se a chamada AJAX veio de uma página administrativa ou shortcode
+$is_admin_context = false;
+
+// Verificar se estamos no admin do WordPress
+if (is_admin()) {
+    $is_admin_context = true;
+}
+
+// Verificar se a chamada AJAX veio de uma função administrativa
+if (isset($_POST['action'])) {
+    $admin_actions = array('sevo_get_organizacao', 'sevo_list_organizacoes'); // Ações do admin
+    $frontend_actions = array('sevo_get_org_details', 'sevo_get_org_form'); // Ações do frontend
+    
+    if (in_array($_POST['action'], $admin_actions)) {
+        $is_admin_context = true;
+    } elseif (in_array($_POST['action'], $frontend_actions)) {
+        $is_admin_context = false;
+    }
+}
 ?>
 
 <div class="sevo-modal-footer">
