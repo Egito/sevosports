@@ -52,12 +52,6 @@ define('SEVO_EVENTOS_VERSION', '3.0');
 define('SEVO_EVENTOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SEVO_EVENTOS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-// Definir constantes para os post types
-define('SEVO_ORG_POST_TYPE', 'sevo-orgs');
-define('SEVO_TIPO_EVENTO_POST_TYPE', 'sevo-tipo-evento');
-define('SEVO_EVENTO_POST_TYPE', 'sevo-evento');
-define('SEVO_INSCR_POST_TYPE', 'sevo_inscr');
-
 /**
  * Sistema centralizado de verificação de permissões do plugin Sevo Eventos
  * 
@@ -175,6 +169,12 @@ function sevo_check_permission_or_die($action, $user_id = null, $post_id = null,
 
 class Sevo_Eventos_Main {
     private static $instance = null;
+    
+    // Armazenar instâncias das classes CPT
+    private $org_cpt;
+    private $tipo_evento_cpt;
+    private $evento_cpt;
+    private $inscricao_cpt;
 
     private function __construct() {
         $this->load_files();
@@ -197,8 +197,13 @@ class Sevo_Eventos_Main {
         // Carregar sistema de banco de dados customizado
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/database/init.php';
         
-        // Carregar sistema de backup
+        // Carregar sistema de backup APÓS os modelos
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/backup/Sevo_Backup_Manager.php';
+        
+        // Inicializar backup manager apenas no admin
+        if (is_admin()) {
+            Sevo_Backup_Manager::get_instance();
+        }
         
         // Carregar os arquivos dos Custom Post Types usando tabelas customizadas
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-org.php';
@@ -219,10 +224,10 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-asgaros-comments.php';
 
         // Inicializar as classes dos Custom Post Types (versões com tabelas customizadas)
-        new Sevo_Orgs_CPT_New();
-        new Sevo_Tipo_Evento_CPT_New();
-        new Sevo_Evento_CPT_New();
-        new Sevo_Inscricao_CPT_New();
+        $this->org_cpt = new Sevo_Orgs_CPT_New();
+        $this->tipo_evento_cpt = new Sevo_Tipo_Evento_CPT_New();
+        $this->evento_cpt = new Sevo_Evento_CPT_New();
+        $this->inscricao_cpt = new Sevo_Inscricao_CPT_New();
         
         // Inicializar shortcodes
         new Sevo_Eventos_Dashboard_Shortcode();
@@ -409,7 +414,42 @@ class Sevo_Eventos_Main {
             array($this, 'admin_page_callback')
         );
 
-        // Adicionar página de recuperação de tópicos
+        // Adicionar submenus para cada seção
+        add_submenu_page(
+            'sevo-eventos',
+            'Organizações',
+            'Organizações',
+            'manage_options',
+            'sevo-organizacoes',
+            array($this, 'organizacoes_page_callback')
+        );
+        
+        add_submenu_page(
+            'sevo-eventos',
+            'Tipos de Evento',
+            'Tipos de Evento',
+            'manage_options',
+            'sevo-tipos-evento',
+            array($this, 'tipos_evento_page_callback')
+        );
+        
+        add_submenu_page(
+            'sevo-eventos',
+            'Eventos',
+            'Eventos',
+            'manage_options',
+            'sevo-eventos-list',
+            array($this, 'eventos_page_callback')
+        );
+        
+        add_submenu_page(
+            'sevo-eventos',
+            'Inscrições',
+            'Inscrições',
+            'manage_options',
+            'sevo-inscricoes',
+            array($this, 'inscricoes_page_callback')
+        );
 
     }
 
@@ -557,6 +597,70 @@ class Sevo_Eventos_Main {
             </style>
         </div>
         <?php
+    }
+    
+    /**
+     * Callback para a página de organizações
+     */
+    public function organizacoes_page_callback() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+        
+        // Usar a instância já criada
+        if ($this->org_cpt) {
+            $this->org_cpt->admin_page();
+        } else {
+            echo '<div class="wrap"><h1>Erro: Classe de organizações não foi inicializada.</h1></div>';
+        }
+    }
+    
+    /**
+     * Callback para a página de tipos de evento
+     */
+    public function tipos_evento_page_callback() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+        
+        // Usar a instância já criada
+        if ($this->tipo_evento_cpt) {
+            $this->tipo_evento_cpt->admin_page();
+        } else {
+            echo '<div class="wrap"><h1>Erro: Classe de tipos de evento não foi inicializada.</h1></div>';
+        }
+    }
+    
+    /**
+     * Callback para a página de eventos
+     */
+    public function eventos_page_callback() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+        
+        // Usar a instância já criada
+        if ($this->evento_cpt) {
+            $this->evento_cpt->admin_page();
+        } else {
+            echo '<div class="wrap"><h1>Erro: Classe de eventos não foi inicializada.</h1></div>';
+        }
+    }
+    
+    /**
+     * Callback para a página de inscrições
+     */
+    public function inscricoes_page_callback() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+        
+        // Usar a instância já criada
+        if ($this->inscricao_cpt) {
+            $this->inscricao_cpt->admin_page();
+        } else {
+            echo '<div class="wrap"><h1>Erro: Classe de inscrições não foi inicializada.</h1></div>';
+        }
     }
 
 

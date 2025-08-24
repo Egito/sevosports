@@ -70,7 +70,6 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         wp_localize_script('sevo-orgs-dashboard-script', 'sevoOrgsDashboard', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'admin_url' => admin_url(),
-            'org_post_type' => SEVO_ORG_POST_TYPE,
             'nonce'    => wp_create_nonce('sevo_org_nonce')
         ));
 
@@ -96,9 +95,10 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         }
 
         $org_id = intval($_POST['org_id']);
-        $organizacao = get_post($org_id);
+        $organizacao_model = new Sevo_Organizacao_Model();
+        $organizacao = $organizacao_model->find($org_id);
 
-        if (!$organizacao || $organizacao->post_type !== SEVO_ORG_POST_TYPE) {
+        if (!$organizacao) {
             wp_send_json_error('Organização não encontrada.');
         }
 
@@ -148,36 +148,34 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         sevo_check_permission_or_die('create_org');
 
         $org_id = isset($_POST['org_id']) ? intval($_POST['org_id']) : 0;
-        $post_title = sanitize_text_field($_POST['post_title']);
-        $post_content = wp_kses_post($_POST['post_content']);
+        $titulo = sanitize_text_field($_POST['titulo']);
+        $descricao = wp_kses_post($_POST['descricao']);
+        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'ativo';
+        $imagem_url = isset($_POST['imagem_url']) ? esc_url($_POST['imagem_url']) : '';
+
+        $organizacao_model = new Sevo_Organizacao_Model();
         
-
-
-        $post_data = array(
-            'post_title' => $post_title,
-            'post_content' => $post_content,
-            'post_type' => SEVO_ORG_POST_TYPE,
-            'post_status' => 'publish'
+        $autor_id = isset($_POST['autor_id']) ? intval($_POST['autor_id']) : get_current_user_id();
+        
+        $data = array(
+            'titulo' => $titulo,
+            'descricao' => $descricao,
+            'status' => $status,
+            'imagem_url' => $imagem_url,
+            'autor_id' => $autor_id
         );
 
         if ($org_id > 0) {
             // Edição
-            $post_data['ID'] = $org_id;
-            $result = wp_update_post($post_data);
+            $result = $organizacao_model->update_validated($org_id, $data);
         } else {
             // Criação
-            $result = wp_insert_post($post_data);
+            $result = $organizacao_model->create_validated($data);
         }
 
-        if (is_wp_error($result)) {
-            wp_send_json_error('Erro ao salvar a organização: ' . $result->get_error_message());
+        if (!$result['success']) {
+            wp_send_json_error('Erro ao salvar a organização: ' . implode(', ', $result['errors']));
         }
-
-        // Salvar o campo status
-        $status = isset($_POST['sevo_org_status']) ? sanitize_text_field($_POST['sevo_org_status']) : 'ativo';
-        update_post_meta($result, 'sevo_org_status', $status);
-
-
 
         wp_send_json_success(array('message' => 'Organização salva com sucesso!'));
     }

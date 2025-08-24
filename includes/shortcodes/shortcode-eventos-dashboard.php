@@ -424,7 +424,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
                 foreach ($orgs as $org) {
                     $options[] = array(
                         'value' => $org->id,
-                        'label' => $org->nome
+                        'label' => $org->titulo
                     );
                 }
                 break;

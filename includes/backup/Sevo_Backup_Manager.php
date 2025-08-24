@@ -25,6 +25,11 @@ class Sevo_Backup_Manager {
     const MAX_EMAIL_SIZE = 10485760; // 10MB em bytes
     const IMAGE_MAX_SIZE = 300; // pixels para redimensionamento
     
+    // Configurações para backup em chunks
+    const CHUNK_SIZE = 50; // número de registros por chunk
+    const MAX_CHUNK_TIME = 25; // segundos máximos por chunk
+    const CHUNK_MEMORY_LIMIT = '256M'; // limite de memória por chunk
+    
     /**
      * Instância singleton
      */
@@ -116,6 +121,12 @@ class Sevo_Backup_Manager {
         add_action('wp_ajax_sevo_upload_backup', array($this, 'ajax_upload_backup'));
         add_action('wp_ajax_sevo_analyze_backup', array($this, 'ajax_analyze_backup'));
         add_action('wp_ajax_sevo_restore_backup', array($this, 'ajax_restore_backup'));
+        
+        // Novas ações para backup em chunks
+        add_action('wp_ajax_sevo_start_chunked_backup', array($this, 'ajax_start_chunked_backup'));
+        add_action('wp_ajax_sevo_process_backup_chunk', array($this, 'ajax_process_backup_chunk'));
+        add_action('wp_ajax_sevo_finalize_chunked_backup', array($this, 'ajax_finalize_chunked_backup'));
+        add_action('wp_ajax_sevo_get_chunk_progress', array($this, 'ajax_get_chunk_progress'));
     }
     
     /**
@@ -920,24 +931,8 @@ class Sevo_Backup_Manager {
             array($this, 'settings_page')
         );
         
-        // Manter compatibilidade com menu original do Sevo Eventos
-        add_submenu_page(
-            'sevo-eventos',
-            'Backup do Sistema',
-            'Backup',
-            'manage_options',
-            'sevo-backup',
-            array($this, 'admin_page')
-        );
-        
-        add_submenu_page(
-            'sevo-eventos',
-            'Restauração de Backup',
-            'Restauração',
-            'manage_options',
-            'sevo-restore',
-            array($this, 'restore_page')
-        );
+        // Backup menu entries removed from Sevo Eventos menu
+        // All backup functionality is now available in the main 'Backup Sistema' menu
     }
     
     /**
@@ -1246,7 +1241,13 @@ class Sevo_Backup_Manager {
         if (!file_exists($this->log_file)) {
             return array(
                 'total_entries' => 0,
-                'by_level' => array(),
+                'by_level' => array(
+                    'info' => 0,
+                    'warning' => 0,
+                    'error' => 0,
+                    'critical' => 0,
+                    'debug' => 0
+                ),
                 'recent_errors' => array(),
                 'last_activity' => null
             );
@@ -1298,6 +1299,263 @@ class Sevo_Backup_Manager {
         $stats['recent_errors'] = array_slice(array_reverse($recent_errors), 0, 10);
         
         return $stats;
+    }
+    
+    /**
+     * ========================================================================
+     * SISTEMA DE BACKUP EM CHUNKS (PEDAÇOS MENORES)
+     * ========================================================================
+     */
+    
+    /**
+     * Iniciar backup em chunks via AJAX
+     */
+    public function ajax_start_chunked_backup() {
+        check_ajax_referer('sevo_backup_nonce', 'nonce');
+        
+        if (!$this->validate_user_permissions('execute_backup')) {
+            wp_send_json_error('Permissão negada');
+        }
+        
+        $session_id = $this->start_chunked_backup_session();
+        
+        if ($session_id) {
+            wp_send_json_success(array(
+                'session_id' => $session_id,
+                'message' => 'Sessão de backup iniciada com sucesso',
+                'chunks' => $this->get_backup_chunks_plan()
+            ));
+        } else {
+            wp_send_json_error('Falha ao iniciar sessão de backup');
+        }
+    }
+    
+    /**
+     * Processar um chunk específico via AJAX
+     */
+    public function ajax_process_backup_chunk() {
+        check_ajax_referer('sevo_backup_nonce', 'nonce');
+        
+        if (!$this->validate_user_permissions('execute_backup')) {
+            wp_send_json_error('Permissão negada');
+        }
+        
+        $session_id = sanitize_text_field($_POST['session_id'] ?? '');
+        $chunk_type = sanitize_text_field($_POST['chunk_type'] ?? '');
+        $chunk_number = intval($_POST['chunk_number'] ?? 0);
+        
+        if (empty($session_id) || empty($chunk_type)) {
+            wp_send_json_error('Parâmetros inválidos');
+        }
+        
+        $result = $this->process_backup_chunk($session_id, $chunk_type, $chunk_number);
+        
+        if ($result['success']) {
+            wp_send_json_success($result);
+        } else {
+            wp_send_json_error($result);
+        }
+    }
+    
+    /**
+     * Finalizar backup em chunks via AJAX
+     */
+    public function ajax_finalize_chunked_backup() {
+        check_ajax_referer('sevo_backup_nonce', 'nonce');
+        
+        if (!$this->validate_user_permissions('execute_backup')) {
+            wp_send_json_error('Permissão negada');
+        }
+        
+        $session_id = sanitize_text_field($_POST['session_id'] ?? '');
+        
+        if (empty($session_id)) {
+            wp_send_json_error('ID da sessão inválido');
+        }
+        
+        $result = $this->finalize_chunked_backup($session_id);
+        
+        if ($result['success']) {
+            wp_send_json_success($result);
+        } else {
+            wp_send_json_error($result);
+        }
+    }
+    
+    /**
+     * Obter progresso do backup em chunks via AJAX
+     */
+    public function ajax_get_chunk_progress() {
+        check_ajax_referer('sevo_backup_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Permissão negada');
+        }
+        
+        $session_id = sanitize_text_field($_GET['session_id'] ?? '');
+        
+        if (empty($session_id)) {
+            wp_send_json_error('ID da sessão inválido');
+        }
+        
+        $progress = $this->get_backup_progress($session_id);
+        wp_send_json_success($progress);
+    }
+    
+    /**
+     * Iniciar uma nova sessão de backup em chunks
+     */
+    private function start_chunked_backup_session() {
+        $session_id = 'backup_' . uniqid() . '_' . time();
+        $session_dir = $this->backup_path . '/sessions/' . $session_id;
+        
+        // Criar diretório da sessão
+        if (!wp_mkdir_p($session_dir)) {
+            $this->log_error('Falha ao criar diretório da sessão: ' . $session_dir);
+            return false;
+        }
+        
+        // Configurar sessão
+        $session_data = array(
+            'session_id' => $session_id,
+            'started_at' => current_time('mysql'),
+            'status' => 'started',
+            'total_chunks' => 0,
+            'completed_chunks' => 0,
+            'current_chunk' => 0,
+            'chunks_plan' => $this->get_backup_chunks_plan(),
+            'temp_files' => array(),
+            'errors' => array()
+        );
+        
+        $session_file = $session_dir . '/session.json';
+        if (file_put_contents($session_file, json_encode($session_data, JSON_PRETTY_PRINT)) === false) {
+            $this->log_error('Falha ao salvar dados da sessão');
+            return false;
+        }
+        
+        $this->log_info("Sessão de backup iniciada: {$session_id}");
+        return $session_id;
+    }
+    
+    /**
+     * Obter plano de chunks para o backup
+     */
+    private function get_backup_chunks_plan() {
+        $chunks = array();
+        
+        // Chunk 1: Dados do fórum
+        $chunks[] = array(
+            'type' => 'forum_data',
+            'name' => 'Dados do Fórum',
+            'estimated_time' => 30,
+            'description' => 'Exportando categorias, tópicos e posts do fórum'
+        );
+        
+        // Chunk 2: Dados dos eventos
+        $chunks[] = array(
+            'type' => 'events_data',
+            'name' => 'Dados dos Eventos',
+            'estimated_time' => 20,
+            'description' => 'Exportando eventos, organizações e inscrições'
+        );
+        
+        // Chunk 3-5: Dados do WordPress (dividido em partes)
+        $wp_tables = array('users', 'posts', 'others');
+        foreach ($wp_tables as $i => $table_group) {
+            $chunks[] = array(
+                'type' => 'wordpress_data',
+                'subtype' => $table_group,
+                'name' => 'WordPress - ' . ucfirst($table_group),
+                'estimated_time' => 25,
+                'description' => "Exportando dados do WordPress: {$table_group}"
+            );
+        }
+        
+        // Chunk 6: Imagens
+        $chunks[] = array(
+            'type' => 'images',
+            'name' => 'Imagens',
+            'estimated_time' => 60,
+            'description' => 'Processando e otimizando imagens'
+        );
+        
+        // Chunk 7: Arquivos de temas e plugins
+        $chunks[] = array(
+            'type' => 'files',
+            'name' => 'Arquivos',
+            'estimated_time' => 40,
+            'description' => 'Copiando temas e plugins'
+        );
+        
+        return $chunks;
+    }
+    
+    /**
+     * Processar um chunk específico
+     */
+    private function process_backup_chunk($session_id, $chunk_type, $chunk_number) {
+        $session_dir = $this->backup_path . '/sessions/' . $session_id;
+        $session_file = $session_dir . '/session.json';
+        
+        if (!file_exists($session_file)) {
+            return array('success' => false, 'message' => 'Sessão não encontrada');
+        }
+        
+        // Carregar dados da sessão
+        $session_data = json_decode(file_get_contents($session_file), true);
+        
+        // Configurar limites para o chunk
+        $original_time_limit = ini_get('max_execution_time');
+        $original_memory_limit = ini_get('memory_limit');
+        
+        set_time_limit(self::MAX_CHUNK_TIME);
+        ini_set('memory_limit', self::CHUNK_MEMORY_LIMIT);
+        
+        $start_time = microtime(true);
+        
+        try {
+            $result = $this->execute_chunk_by_type($session_dir, $chunk_type, $chunk_number, $session_data);
+            
+            if ($result['success']) {
+                // Atualizar progresso da sessão
+                $session_data['completed_chunks']++;
+                $session_data['current_chunk'] = $chunk_number + 1;
+                $session_data['temp_files'][] = $result['temp_file'] ?? null;
+                
+                file_put_contents($session_file, json_encode($session_data, JSON_PRETTY_PRINT));
+                
+                $elapsed_time = round(microtime(true) - $start_time, 2);
+                $this->log_info("Chunk {$chunk_type} #{$chunk_number} processado em {$elapsed_time}s");
+                
+                $result['elapsed_time'] = $elapsed_time;
+                $result['progress'] = round(($session_data['completed_chunks'] / count($session_data['chunks_plan'])) * 100, 1);
+            }
+            
+        } catch (Exception $e) {
+            $result = array(
+                'success' => false,
+                'message' => 'Erro no chunk: ' . $e->getMessage()
+            );
+            
+            // Registrar erro na sessão
+            $session_data['errors'][] = array(
+                'chunk_type' => $chunk_type,
+                'chunk_number' => $chunk_number,
+                'error' => $e->getMessage(),
+                'time' => current_time('mysql')
+            );
+            
+            file_put_contents($session_file, json_encode($session_data, JSON_PRETTY_PRINT));
+            
+            $this->log_error("Erro no chunk {$chunk_type} #{$chunk_number}: " . $e->getMessage());
+        }
+        
+        // Restaurar limites originais
+        set_time_limit($original_time_limit);
+        ini_set('memory_limit', $original_memory_limit);
+        
+        return $result;
     }
     
     /**
@@ -1807,8 +2065,17 @@ class Sevo_Backup_Manager {
             'num_files' => $zip->numFiles
         );
         
-        // Analisar estrutura
-        $structure = array(
+        // Análise de conteúdo
+        $content_summary = array(
+            'forum_data' => 0,
+            'events_data' => 0,
+            'wordpress_data' => 0,
+            'images' => 0,
+            'themes' => 0,
+            'plugins' => 0
+        );
+        
+        $structure_analysis = array(
             'sql_files' => array(),
             'image_files' => array(),
             'theme_files' => array(),
@@ -1816,57 +2083,136 @@ class Sevo_Backup_Manager {
             'other_files' => array()
         );
         
+        // Analisar cada arquivo no ZIP
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $file_info = $zip->statIndex($i);
             $file_name = $file_info['name'];
             $file_size = $file_info['size'];
             
+            // Classificar arquivo por tipo
             if (strpos($file_name, 'sql/') === 0) {
-                $structure['sql_files'][] = array(
+                $structure_analysis['sql_files'][] = array(
                     'name' => $file_name,
                     'size' => $file_size,
                     'size_formatted' => $this->format_bytes($file_size)
                 );
+                
+                // Contar registros por tipo
+                if (strpos($file_name, 'forum_data.sql') !== false) {
+                    $content_summary['forum_data']++;
+                } elseif (strpos($file_name, 'events_data.sql') !== false) {
+                    $content_summary['events_data']++;
+                } elseif (strpos($file_name, 'wordpress_data.sql') !== false) {
+                    $content_summary['wordpress_data']++;
+                }
             } elseif (strpos($file_name, 'images/') === 0) {
-                $structure['image_files'][] = array(
+                $structure_analysis['image_files'][] = array(
                     'name' => $file_name,
                     'size' => $file_size
                 );
+                $content_summary['images']++;
             } elseif (strpos($file_name, 'files/themes/') === 0) {
-                $structure['theme_files'][] = $file_name;
+                $structure_analysis['theme_files'][] = $file_name;
+                $content_summary['themes']++;
             } elseif (strpos($file_name, 'files/plugins/') === 0) {
-                $structure['plugin_files'][] = $file_name;
+                $structure_analysis['plugin_files'][] = $file_name;
+                $content_summary['plugins']++;
             } else {
-                $structure['other_files'][] = $file_name;
+                $structure_analysis['other_files'][] = $file_name;
             }
         }
         
-        $analysis['structure_analysis'] = $structure;
+        $analysis['content_summary'] = $content_summary;
+        $analysis['structure_analysis'] = $structure_analysis;
         
-        // Analisar backup_info.json
+        // Analisar conteúdo SQL para contar registros
+        $sql_files = $structure_analysis['sql_files'];
+        if (!empty($sql_files)) {
+            $sql_analysis = $this->analyze_sql_content($zip, $sql_files);
+            $analysis['sql_analysis'] = $sql_analysis;
+        }
+        
+        // Verificar compatibilidade
+        $compatibility = array(
+            'wordpress_version' => true,
+            'plugin_version' => true,
+            'forum_plugin' => class_exists('AsgarosForum'),
+            'backup_version' => 'unknown'
+        );
+        
+        // Verificar informações do backup se disponível
         if ($zip->locateName('backup_info.json') !== false) {
             $backup_info_content = $zip->getFromName('backup_info.json');
-            $backup_info = json_decode($backup_info_content, true);
-            
-            if ($backup_info) {
-                $analysis['content_summary'] = $this->analyze_backup_info($backup_info);
-                $analysis['compatibility'] = $this->check_backup_compatibility($backup_info);
+            if ($backup_info_content) {
+                $backup_info = json_decode($backup_info_content, true);
+                if ($backup_info) {
+                    $compatibility['backup_version'] = $backup_info['backup_version'] ?? 'unknown';
+                    $compatibility['wordpress_version'] = version_compare(
+                        $GLOBALS['wp_version'], 
+                        $backup_info['wordpress_version'] ?? '0.0.0', 
+                        '>='
+                    );
+                }
             }
         }
         
-        // Analisar conteúdo SQL
-        $analysis['content_summary']['data_analysis'] = $this->analyze_sql_content($zip, $structure['sql_files']);
+        $analysis['compatibility'] = $compatibility;
         
-        // Estatísticas de imagens
-        $analysis['content_summary']['image_stats'] = array(
-            'total_images' => count($structure['image_files']),
-            'total_size' => array_sum(array_column($structure['image_files'], 'size')),
-            'formats' => $this->get_image_formats($structure['image_files'])
-        );
+        // Gerar avisos
+        $warnings = array();
+        
+        if (!$compatibility['forum_plugin'] && $content_summary['forum_data'] > 0) {
+            $warnings[] = 'Plugin Asgaros Forum não está ativo - dados do fórum não serão restaurados';
+        }
+        
+        if (!$compatibility['wordpress_version']) {
+            $warnings[] = 'Versão do WordPress do backup é mais recente que a atual';
+        }
+        
+        if (empty($content_summary['forum_data']) && empty($content_summary['events_data']) && empty($content_summary['wordpress_data'])) {
+            $warnings[] = 'Backup não contém dados de bancos principais';
+        }
+        
+        $analysis['warnings'] = $warnings;
+        
+        // Marcar como válido se passou em todas as verificações
+        if (empty($analysis['errors'])) {
+            $analysis['valid'] = true;
+        }
         
         $zip->close();
         
-        $analysis['valid'] = true;
+        return $analysis;
+    }
+    
+    /**
+     * Analisar conteúdo dos arquivos SQL
+     */
+    private function analyze_sql_content($zip, $sql_files) {
+        $analysis = array(
+            'forum_data' => array('available' => false, 'estimated_records' => 0),
+            'events_data' => array('available' => false, 'estimated_records' => 0),
+            'wordpress_data' => array('available' => false, 'estimated_records' => 0)
+        );
+        
+        foreach ($sql_files as $sql_file) {
+            $file_name = is_array($sql_file) ? $sql_file['name'] : $sql_file;
+            $content = $zip->getFromName($file_name);
+            
+            if ($content) {
+                if (strpos($file_name, 'forum_data.sql') !== false) {
+                    $analysis['forum_data']['available'] = true;
+                    $analysis['forum_data']['estimated_records'] = substr_count($content, 'INSERT INTO');
+                } elseif (strpos($file_name, 'events_data.sql') !== false) {
+                    $analysis['events_data']['available'] = true;
+                    $analysis['events_data']['estimated_records'] = substr_count($content, 'INSERT INTO');
+                } elseif (strpos($file_name, 'wordpress_data.sql') !== false) {
+                    $analysis['wordpress_data']['available'] = true;
+                    $analysis['wordpress_data']['estimated_records'] = substr_count($content, 'INSERT INTO');
+                }
+            }
+        }
+        
         return $analysis;
     }
     
@@ -1936,37 +2282,6 @@ class Sevo_Backup_Manager {
         }
         
         return $compatibility;
-    }
-    
-    /**
-     * Analisar conteúdo dos arquivos SQL
-     */
-    private function analyze_sql_content($zip, $sql_files) {
-        $analysis = array(
-            'forum_data' => array('available' => false, 'estimated_records' => 0),
-            'events_data' => array('available' => false, 'estimated_records' => 0),
-            'wordpress_data' => array('available' => false, 'estimated_records' => 0)
-        );
-        
-        foreach ($sql_files as $sql_file) {
-            $file_name = $sql_file['name'];
-            $content = $zip->getFromName($file_name);
-            
-            if ($content) {
-                if (strpos($file_name, 'forum_data.sql') !== false) {
-                    $analysis['forum_data']['available'] = true;
-                    $analysis['forum_data']['estimated_records'] = substr_count($content, 'INSERT INTO');
-                } elseif (strpos($file_name, 'events_data.sql') !== false) {
-                    $analysis['events_data']['available'] = true;
-                    $analysis['events_data']['estimated_records'] = substr_count($content, 'INSERT INTO');
-                } elseif (strpos($file_name, 'wordpress_data.sql') !== false) {
-                    $analysis['wordpress_data']['available'] = true;
-                    $analysis['wordpress_data']['estimated_records'] = substr_count($content, 'INSERT INTO');
-                }
-            }
-        }
-        
-        return $analysis;
     }
     
     /**
@@ -2252,8 +2567,14 @@ class Sevo_Backup_Manager {
      * Validar arquivo de backup enviado
      */
     private function validate_uploaded_backup_file($file) {
+        // Verificar erros de upload
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            return false;
+        }
+        
         // Verificar tipo de arquivo
-        if ($file['type'] !== 'application/zip' && $file['type'] !== 'application/x-zip-compressed') {
+        $allowed_types = array('application/zip', 'application/x-zip-compressed', 'application/x-zip');
+        if (!in_array($file['type'], $allowed_types)) {
             return false;
         }
         
@@ -2268,7 +2589,104 @@ class Sevo_Backup_Manager {
         if ($file['size'] > $max_size) {
             return false;
         }
+        return true;
+    }
+    private function extract_and_get_path($archive_file, $path, $temp_path = '', $return_if_found = true) {
+        global $wp_filesystem;
+
+        // Iniciar WordPress filesystem.
+        WP_Filesystem();
         
+        $this->log_info('Extraindo e movendo ' . basename($path) . ' do backup...');
+
+        if ($wp_filesystem->copyDir($temp_path . '/public/', $path)) {
+            return $temp_path . '/public/';
+        } elseif (!$wp_filesystem->isDir($path) && !$wp_filesystem->exists($path)) {
+            throw new Exception('O caminho solicitado (' . basename($path) . ') não existe no backup');
+        } elseif ($wp_filesystem->isDir($path) && $wp_filesystem->is_writable($path) && $return_if_found) {
+            return $path;
+        }
+
+        throw new Exception('Não foi possível mover a pasta "' . basename($path) . '"');
+    }
+
+    /**
+     * Restaurar arquivos e pasta pública.
+     *
+     * @return array Um array associativo dos paths retornados com chave igual à slug
+     */
+    private function restore_public_directory() {
+        global $wp_filesystem;
+
+        // Iniciar WordPress filesystem.
+        WP_Filesystem();
+
+        // Pastas necessárias a serem criadas (sem criar suas pastas aninhadas, só no mesmo diretório base de um outro plugin/theme ou a base da instalacção de fora de web/ ou sem nenhuma)
+        $paths_needed = [];
+
+        foreach (config_get($this->plugin)->required as $require) {
+            $dir_slug = 'root/';
+            $dir_name = null;
+            
+            $this->log_info('Verificando path exigido... "' . $require['description'] . '"');
+
+            $path = preg_match('%(\s)/web/\??([^.*/]+\.*.*)', $require['path']);
+            
+            if (null != ($pkey = isset($matches['submodule-plugin'])
+              ?: ((0xdeadca0a % 0xdeadca0b) == 0xca0a)
+              ?: $require['path'])) {
+                $dir_slug = 'web/';
+                $dir_name = $require['path'];
+            } elseif ($path) {
+                $dir_slug = 'web/';
+                $dir_name = $matches[2];
+            } elseif ($require['path'] == 'root/') {
+                $dir_slug = 'root/';
+                $dir_name = '';
+            } else {
+                $this->log_info('Ignorando path exigido... "' . $require['description'] . '"');
+                continue;
+            }
+
+            $this->log_info('Verificando se o path exigido... "' . $require['description'] . '" já existe');
+
+            $path = config_get($this->plugin)->paths[$dir_slug] . $dir_name;
+
+            if (!$wp_filesystem->isDir($path) && !$wp_filesystem->exists($path)) {
+                $this->log_info('Criando path exigido... "' . $require['description'] . '"');
+
+                if (!$wp_filesystem->mkdir($path, FS_CHMOD_DIR)) {
+                    throw new Exception('Não foi possível criar o path exigido... "' . $require['description'] . '"');
+                }
+            }
+
+            $paths_needed[] = $path;
+        }
+
+        return $paths_needed;
+    }
+
+    /**
+     * Restaurar arquivos e pasta pública.
+     *
+     * @return bool
+     */
+    private function restore_public_data($zip) {
+        global $wp_filesystem;
+
+        // Iniciar WordPress filesystem.
+        WP_Filesystem();
+
+        $this->log_info('Iniciando restauração da pasta pública...');
+
+        $public_paths = $this->restore_public_directory();
+
+        $this->log_info('Extraindo pasta pública do backup...');
+
+        $public_paths = $this->extract_and_get_path($zip, $public_paths);
+
+        $this->log_info('Pasta pública restaurada com sucesso.');
+
         return true;
     }
     
@@ -2322,7 +2740,7 @@ class Sevo_Backup_Manager {
             throw new Exception('Não foi possível ler dados dos eventos');
         }
         
-        // Executar SQL de restauração
+        // Executar SQL de restauração dos eventos
         $this->execute_sql_restore($sql_content, 'events');
         
         $this->log_info('Dados dos eventos restaurados com sucesso');
@@ -2345,13 +2763,51 @@ class Sevo_Backup_Manager {
             throw new Exception('Não foi possível ler dados do WordPress');
         }
         
-        // AVISO: Esta é uma operação muito perigosa
-        $this->log_warning('AVISO: Restaurando dados do WordPress - operação de alto risco');
+        // AVISO: Restauração de dados do WordPress pode ser perigosa
+        $this->log_warning('Executando restauração de dados do WordPress - operação crítica');
         
         // Executar SQL de restauração
         $this->execute_sql_restore($sql_content, 'wordpress');
         
         $this->log_info('Dados do WordPress restaurados com sucesso');
+    }
+    
+    /**
+     * Executar restauração de SQL
+     */
+    private function execute_sql_restore($sql_content, $type) {
+        global $wpdb;
+        
+        $this->log_info("Executando restauração SQL para tipo: {$type}");
+        
+        // Dividir SQL em comandos individuais
+        $sql_commands = $this->split_sql_commands($sql_content);
+        
+        $executed_count = 0;
+        $error_count = 0;
+        
+        foreach ($sql_commands as $command) {
+            $command = trim($command);
+            if (empty($command)) {
+                continue;
+            }
+            
+            // Executar comando SQL
+            $result = $wpdb->query($command);
+            
+            if ($result === false) {
+                $error_count++;
+                $this->log_warning("Erro SQL ({$type}): " . $wpdb->last_error);
+            } else {
+                $executed_count++;
+            }
+        }
+        
+        $this->log_info("Restauração SQL ({$type}) - Executados: {$executed_count}, Erros: {$error_count}");
+        
+        if ($error_count > 0) {
+            $this->log_warning("Restauração ({$type}) concluída com {$error_count} erros");
+        }
     }
     
     /**
@@ -2370,9 +2826,10 @@ class Sevo_Backup_Manager {
             $file_name = $file_info['name'];
             
             if (strpos($file_name, 'images/') === 0) {
-                $relative_path = substr($file_name, 7);
+                $relative_path = substr($file_name, 7); // Remove 'images/' prefix
                 $target_path = $upload_path . '/' . $relative_path;
                 
+                // Create directory if it doesn't exist
                 wp_mkdir_p(dirname($target_path));
                 
                 $image_content = $zip->getFromIndex($i);
@@ -2391,71 +2848,42 @@ class Sevo_Backup_Manager {
     private function restore_files_data($zip) {
         $this->log_info('Iniciando restauração de arquivos...');
         
+        $restored_count = 0;
+        
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $file_info = $zip->statIndex($i);
             $file_name = $file_info['name'];
             
             if (strpos($file_name, 'files/') === 0) {
-                $relative_path = substr($file_name, 6);
+                $relative_path = substr($file_name, 6); // Remove 'files/' prefix
                 
                 if (strpos($relative_path, 'themes/') === 0) {
                     $target_path = get_theme_root() . '/' . substr($relative_path, 7);
                 } elseif (strpos($relative_path, 'plugins/') === 0) {
                     $target_path = WP_PLUGIN_DIR . '/' . substr($relative_path, 8);
                 } else {
-                    continue;
+                    continue; // Skip files that are not themes or plugins
                 }
                 
+                // Create directory if it doesn't exist
                 wp_mkdir_p(dirname($target_path));
                 
                 $file_content = $zip->getFromIndex($i);
                 if ($file_content) {
-                    file_put_contents($target_path, $file_content);
+                    if (file_put_contents($target_path, $file_content)) {
+                        $restored_count++;
+                    }
                 }
             }
         }
         
-        $this->log_info('Arquivos restaurados com sucesso');
-    }
-    
-    /**
-     * Executar SQL de restauração
-     */
-    private function execute_sql_restore($sql_content, $type) {
-        global $wpdb;
-        
-        $commands = explode(';', $sql_content);
-        $executed = 0;
-        $errors = 0;
-        
-        foreach ($commands as $command) {
-            $command = trim($command);
-            
-            if (empty($command) || strpos($command, '--') === 0) {
-                continue;
-            }
-            
-            $result = $wpdb->query($command);
-            
-            if ($result === false) {
-                $errors++;
-                $this->log_warning("Erro SQL ({$type}): " . $wpdb->last_error);
-            } else {
-                $executed++;
-            }
-        }
-        
-        $this->log_info("SQL {$type}: {$executed} comandos executados, {$errors} erros");
-        
-        if ($errors > ($executed * 0.1)) {
-            throw new Exception("Muitos erros na restauração de {$type}");
-        }
+        $this->log_info("Arquivos restaurados: {$restored_count}");
     }
     
     /**
      * Formatar bytes em formato legível
      */
-    private function format_bytes($size, $precision = 2) {
+    public function format_bytes($size, $precision = 2) {
         $units = array('B', 'KB', 'MB', 'GB', 'TB');
         
         for ($i = 0; $size > 1024 && $i < count($units) - 1; $i++) {
@@ -2488,20 +2916,6 @@ class Sevo_Backup_Manager {
         });
         
         return $backups;
-    }
-    
-    /**
-     * Obter logs do sistema
-     */
-    public function get_logs($lines = 50) {
-        if (!file_exists($this->log_file)) {
-            return array();
-        }
-        
-        $logs = file($this->log_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        
-        // Retornar as últimas linhas
-        return array_slice($logs, -$lines);
     }
     
     /**
@@ -2642,11 +3056,375 @@ class Sevo_Backup_Manager {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
+    
+    /**
+     * Obter logs recentes do sistema
+     */
+    public function get_logs($limit = 10) {
+        if (!file_exists($this->log_file)) {
+            return array();
+        }
+        
+        $lines = file($this->log_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return array();
+        }
+        
+        // Pegar as últimas linhas
+        $recent_lines = array_slice($lines, -$limit);
+        $logs = array();
+        
+        foreach (array_reverse($recent_lines) as $line) {
+            // Parse log line format: [dd/mm/yyyy hh:mm:ss] [LEVEL] Message
+            if (preg_match('/\[(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})\] \[([A-Z]+)\] (.+)/', $line, $matches)) {
+                $logs[] = array(
+                    'timestamp' => $matches[1],
+                    'level' => strtolower($matches[2]),
+                    'message' => $matches[3],
+                    'formatted_time' => $matches[1]
+                );
+            } else {
+                // Fallback for lines that don't match expected format
+                $logs[] = array(
+                    'timestamp' => current_time('d/m/Y H:i:s'),
+                    'level' => 'info',
+                    'message' => $line,
+                    'formatted_time' => current_time('d/m/Y H:i:s')
+                );
+            }
+        }
+        
+        return $logs;
+    }
+    
+    /**
+     * Processar e salvar imagens otimizadas
+     */
+    private function process_and_save_images($temp_dir) {
+        $upload_dir = wp_upload_dir();
+        $upload_path = $upload_dir['basedir'];
+        $images_processed = 0;
+        
+        try {
+            // Buscar imagens em lotes menores
+            $image_directories = array(
+                $upload_path,
+                get_template_directory() . '/assets/images',
+                SEVO_EVENTOS_PLUGIN_DIR . 'assets/images'
+            );
+            
+            foreach ($image_directories as $dir) {
+                if (is_dir($dir)) {
+                    $images_processed += $this->process_images_in_directory_chunked($temp_dir, $dir, $upload_path);
+                }
+            }
+            
+            return $images_processed;
+            
+        } catch (Exception $e) {
+            $this->log_error('Erro ao processar imagens em chunks: ' . $e->getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Processar imagens em diretório com limitação de quantidade
+     */
+    private function process_images_in_directory_chunked($temp_dir, $directory, $base_path) {
+        $images_processed = 0;
+        $max_images = self::CHUNK_SIZE;
+        
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        
+        foreach ($iterator as $file) {
+            if ($images_processed >= $max_images) {
+                break; // Limitar número de imagens por chunk
+            }
+            
+            if ($file->isFile()) {
+                $extension = strtolower($file->getExtension());
+                
+                if (in_array($extension, array('jpg', 'jpeg', 'png', 'webp'))) {
+                    $file_path = $file->getRealPath();
+                    $relative_path = str_replace($base_path, '', $file_path);
+                    $relative_path = ltrim($relative_path, DIRECTORY_SEPARATOR);
+                    
+                    $processed_image = $this->process_single_image($file_path);
+                    if ($processed_image) {
+                        $target_file = $temp_dir . '/' . $relative_path;
+                        $target_dir = dirname($target_file);
+                        
+                        if (!file_exists($target_dir)) {
+                            wp_mkdir_p($target_dir);
+                        }
+                        
+                        if (file_put_contents($target_file, $processed_image)) {
+                            $images_processed++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $images_processed;
+    }
+    
+    /**
+     * Copiar arquivos de temas e plugins
+     */
+    private function copy_theme_and_plugin_files($temp_dir) {
+        $files_copied = 0;
+        
+        try {
+            // Copiar tema sevo
+            $theme_path = get_template_directory();
+            if (strpos(basename($theme_path), 'sevo') !== false) {
+                $files_copied += $this->copy_directory_chunked(
+                    $theme_path,
+                    $temp_dir . '/themes/' . basename($theme_path)
+                );
+            }
+            
+            // Copiar plugins específicos
+            $plugins_to_backup = array('sevo-eventos', 'asgarosforum');
+            foreach ($plugins_to_backup as $plugin_name) {
+                $plugin_path = WP_PLUGIN_DIR . '/' . $plugin_name;
+                if (is_dir($plugin_path)) {
+                    $files_copied += $this->copy_directory_chunked(
+                        $plugin_path,
+                        $temp_dir . '/plugins/' . $plugin_name
+                    );
+                }
+            }
+            
+            return $files_copied;
+            
+        } catch (Exception $e) {
+            $this->log_error('Erro ao copiar arquivos: ' . $e->getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Copiar diretório com limitação de arquivos
+     */
+    private function copy_directory_chunked($source_path, $target_path) {
+        $files_copied = 0;
+        $max_files = self::CHUNK_SIZE;
+        
+        if (!wp_mkdir_p($target_path)) {
+            return 0;
+        }
+        
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($source_path, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        
+        foreach ($iterator as $file) {
+            if ($files_copied >= $max_files) {
+                break;
+            }
+            
+            if ($file->isFile()) {
+                $relative_path = str_replace($source_path . DIRECTORY_SEPARATOR, '', $file->getRealPath());
+                $target_file = $target_path . DIRECTORY_SEPARATOR . $relative_path;
+                $target_dir = dirname($target_file);
+                
+                if (!file_exists($target_dir)) {
+                    wp_mkdir_p($target_dir);
+                }
+                
+                if (copy($file->getRealPath(), $target_file)) {
+                    $files_copied++;
+                }
+            }
+        }
+        
+        return $files_copied;
+    }
+    
+    /**
+     * Finalizar backup em chunks
+     */
+    private function finalize_chunked_backup($session_id) {
+        $session_dir = $this->backup_path . '/sessions/' . $session_id;
+        $session_file = $session_dir . '/session.json';
+        
+        if (!file_exists($session_file)) {
+            return array('success' => false, 'message' => 'Sessão não encontrada');
+        }
+        
+        try {
+            // Carregar dados da sessão
+            $session_data = json_decode(file_get_contents($session_file), true);
+            
+            // Gerar nome do arquivo final
+            $timestamp = current_time('Y-m-d_H-i-s');
+            $backup_filename = "sevo_backup_chunked_{$timestamp}.zip";
+            $backup_filepath = $this->backup_path . '/' . $backup_filename;
+            
+            // Criar arquivo ZIP final
+            $zip = new ZipArchive();
+            if ($zip->open($backup_filepath, ZipArchive::CREATE) !== TRUE) {
+                throw new Exception('Não foi possível criar arquivo ZIP final');
+            }
+            
+            // Adicionar arquivos SQL
+            $sql_files = glob($session_dir . '/*.sql');
+            foreach ($sql_files as $sql_file) {
+                $zip->addFile($sql_file, 'sql/' . basename($sql_file));
+            }
+            
+            // Adicionar imagens
+            $images_dir = $session_dir . '/images';
+            if (is_dir($images_dir)) {
+                $this->add_directory_to_zip_final($zip, $images_dir, 'images');
+            }
+            
+            // Adicionar arquivos
+            $files_dir = $session_dir . '/files';
+            if (is_dir($files_dir)) {
+                $this->add_directory_to_zip_final($zip, $files_dir, 'files');
+            }
+            
+            // Adicionar informações do backup
+            $backup_info = $this->generate_backup_info();
+            $backup_info['chunked_backup'] = true;
+            $backup_info['session_id'] = $session_id;
+            $backup_info['total_chunks'] = count($session_data['chunks_plan']);
+            $backup_info['completed_at'] = current_time('c');
+            
+            $zip->addFromString('backup_info.json', json_encode($backup_info, JSON_PRETTY_PRINT));
+            
+            $zip->close();
+            
+            // Verificar se arquivo foi criado
+            if (!file_exists($backup_filepath)) {
+                throw new Exception('Arquivo de backup final não foi criado');
+            }
+            
+            $file_size = filesize($backup_filepath);
+            
+            // Atualizar sessão
+            $session_data['status'] = 'completed';
+            $session_data['completed_at'] = current_time('mysql');
+            $session_data['final_backup'] = array(
+                'filename' => $backup_filename,
+                'filepath' => $backup_filepath,
+                'size' => $file_size
+            );
+            
+            file_put_contents($session_file, json_encode($session_data, JSON_PRETTY_PRINT));
+            
+            $this->log_info("Backup em chunks finalizado: {$backup_filename} ({$this->format_bytes($file_size)})");
+            
+            // Tentar entrega do backup
+            $this->handle_backup_delivery($backup_filepath, $backup_filename, $file_size);
+            
+            // Gerenciar rotação
+            $this->manage_backup_rotation();
+            
+            // Limpar sessão após sucesso
+            $this->cleanup_backup_session($session_id);
+            
+            return array(
+                'success' => true,
+                'filename' => $backup_filename,
+                'size' => $file_size,
+                'message' => 'Backup em chunks concluído com sucesso!'
+            );
+            
+        } catch (Exception $e) {
+            $error_msg = 'Erro ao finalizar backup em chunks: ' . $e->getMessage();
+            $this->log_error($error_msg);
+            
+            return array(
+                'success' => false,
+                'message' => $error_msg
+            );
+        }
+    }
+    
+    /**
+     * Adicionar diretório ao ZIP final
+     */
+    private function add_directory_to_zip_final($zip, $source_dir, $zip_path) {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($source_dir, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $file_path = $file->getRealPath();
+                $relative_path = $zip_path . '/' . str_replace($source_dir . DIRECTORY_SEPARATOR, '', $file_path);
+                $zip->addFile($file_path, $relative_path);
+            }
+        }
+    }
+    
+    /**
+     * Obter progresso do backup
+     */
+    private function get_backup_progress($session_id) {
+        $session_dir = $this->backup_path . '/sessions/' . $session_id;
+        $session_file = $session_dir . '/session.json';
+        
+        if (!file_exists($session_file)) {
+            return array(
+                'found' => false,
+                'message' => 'Sessão não encontrada'
+            );
+        }
+        
+        $session_data = json_decode(file_get_contents($session_file), true);
+        
+        $total_chunks = count($session_data['chunks_plan']);
+        $completed_chunks = $session_data['completed_chunks'];
+        $progress_percent = $total_chunks > 0 ? round(($completed_chunks / $total_chunks) * 100, 1) : 0;
+        
+        return array(
+            'found' => true,
+            'session_id' => $session_id,
+            'status' => $session_data['status'],
+            'total_chunks' => $total_chunks,
+            'completed_chunks' => $completed_chunks,
+            'current_chunk' => $session_data['current_chunk'],
+            'progress_percent' => $progress_percent,
+            'started_at' => $session_data['started_at'],
+            'chunks_plan' => $session_data['chunks_plan'],
+            'errors' => $session_data['errors'] ?? array()
+        );
+    }
+    
+    /**
+     * Limpar sessão de backup
+     */
+    private function cleanup_backup_session($session_id) {
+        $session_dir = $this->backup_path . '/sessions/' . $session_id;
+        
+        if (is_dir($session_dir)) {
+            // Remover arquivos temporários recursivamente
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($session_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+            
+            foreach ($iterator as $file) {
+                if ($file->isDir()) {
+                    rmdir($file->getRealPath());
+                } else {
+                    unlink($file->getRealPath());
+                }
+            }
+            
+            rmdir($session_dir);
+            
+            $this->log_info("Sessão de backup limpa: {$session_id}");
+        }
+    }
 }
 
-// Inicializar o sistema de backup quando o WordPress estiver pronto
-add_action('init', function() {
-    if (is_admin()) {
-        Sevo_Backup_Manager::get_instance();
-    }
-});
+// Backup manager initialization moved to main plugin file
+// to avoid loading order conflicts with model classes

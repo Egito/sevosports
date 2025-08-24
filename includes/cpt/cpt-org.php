@@ -16,7 +16,8 @@ class Sevo_Orgs_CPT_New {
         $this->model = new Sevo_Organizacao_Model();
         
         // Manter apenas os hooks necessários para o admin
-        add_action('admin_menu', array($this, 'add_admin_menu'));
+        // Menu registrado no arquivo principal para evitar conflitos
+        // add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('wp_ajax_sevo_create_organizacao', array($this, 'ajax_create_organizacao'));
         add_action('wp_ajax_sevo_update_organizacao', array($this, 'ajax_update_organizacao'));
         add_action('wp_ajax_sevo_delete_organizacao', array($this, 'ajax_delete_organizacao'));
@@ -190,8 +191,25 @@ class Sevo_Orgs_CPT_New {
             return;
         }
         
-        // Script de organizações é carregado pelo shortcode
-        // Removido daqui para evitar conflitos de carregamento duplo
+        wp_enqueue_script(
+            'sevo-org-admin',
+            SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-organizacoes.js',
+            array('jquery'),
+            SEVO_EVENTOS_VERSION,
+            true
+        );
+        
+        wp_localize_script('sevo-org-admin', 'sevoOrgAdmin', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sevo_org_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Tem certeza que deseja excluir esta organização?', 'sevo-eventos'),
+                'error' => __('Erro ao processar solicitação.', 'sevo-eventos'),
+                'success_create' => __('Organização criada com sucesso!', 'sevo-eventos'),
+                'success_update' => __('Organização atualizada com sucesso!', 'sevo-eventos'),
+                'success_delete' => __('Organização excluída com sucesso!', 'sevo-eventos')
+            )
+        ));
     }
     
     /**
@@ -392,7 +410,7 @@ class Sevo_Orgs_CPT_New {
                 <?php if (!empty($organizacoes['data'])): ?>
                     <?php foreach ($organizacoes['data'] as $org): ?>
                         <tr>
-                            <td><?php echo esc_html($org->nome); ?></td>
+                            <td><?php echo esc_html($org->titulo); ?></td>
                             <td>
                                 <?php 
                                 $autor = get_user_by('id', $org->autor_id);

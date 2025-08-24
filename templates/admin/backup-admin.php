@@ -75,20 +75,50 @@ $next_scheduled = wp_next_scheduled('sevo_backup_cron_hook');
     
     <!-- Actions -->
     <div class="sevo-backup-actions">
-        <button id="manual-backup-btn" class="button button-primary button-hero">
-            🚀 Executar Backup Manual
-        </button>
-        <button id="refresh-status-btn" class="button button-secondary">
-            🔄 Atualizar Status
-        </button>
+        <div class="sevo-action-group">
+            <h4>🚀 Executar Backup</h4>
+            <div class="sevo-backup-options">
+                <button id="manual-backup-btn" class="button button-primary button-hero">
+                    ⚡ Backup Rápido (Tradicional)
+                </button>
+                <button id="chunked-backup-btn" class="button button-secondary button-hero">
+                    🧩 Backup em Pedaços (Recomendado)
+                </button>
+            </div>
+            <p class="description">
+                <strong>Backup Rápido:</strong> Método tradicional, mais rápido mas pode travar com muitos dados.<br>
+                <strong>Backup em Pedaços:</strong> Processa dados em partes menores, mais lento mas não trava.
+            </p>
+        </div>
+        
+        <div class="sevo-action-group">
+            <button id="refresh-status-btn" class="button button-secondary">
+                🔄 Atualizar Status
+            </button>
+        </div>
     </div>
     
     <!-- Progress indicator -->
     <div id="backup-progress" class="sevo-progress-container" style="display: none;">
-        <div class="sevo-progress-bar">
-            <div class="sevo-progress-fill"></div>
+        <div class="sevo-progress-header">
+            <h4 id="progress-title">Processando backup...</h4>
+            <div id="progress-details" class="sevo-progress-details"></div>
         </div>
-        <div class="sevo-progress-text">Processando backup...</div>
+        <div class="sevo-progress-bar">
+            <div class="sevo-progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="sevo-progress-text" id="progress-text">Iniciando...</div>
+        
+        <!-- Detalhes dos chunks -->
+        <div id="chunks-progress" class="sevo-chunks-progress" style="display: none;">
+            <div class="sevo-chunks-list" id="chunks-list"></div>
+        </div>
+        
+        <!-- Log em tempo real -->
+        <div id="realtime-log" class="sevo-realtime-log" style="display: none;">
+            <h5>📋 Log em Tempo Real:</h5>
+            <div class="sevo-log-output" id="log-output"></div>
+        </div>
     </div>
     
     <!-- Backup List -->
@@ -477,6 +507,177 @@ $next_scheduled = wp_next_scheduled('sevo_backup_cron_hook');
     background: #d1ecf1;
     border: 1px solid #bee5eb;
     color: #0c5460;
+}
+
+/* Estilos para Backup em Chunks */
+.sevo-action-group {
+    margin-bottom: 20px;
+}
+
+.sevo-action-group h4 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.sevo-backup-options {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.sevo-backup-options .button-hero {
+    font-size: 14px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sevo-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.sevo-progress-details {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Chunks Progress */
+.sevo-chunks-progress {
+    margin: 20px 0;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.sevo-chunks-list {
+    display: grid;
+    gap: 10px;
+}
+
+.chunk-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.chunk-item.pending {
+    background: #fff;
+    border-color: #e0e0e0;
+}
+
+.chunk-item.processing {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    animation: pulse 1.5s infinite;
+}
+
+.chunk-item.completed {
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.chunk-item.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.chunk-status {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.chunk-name {
+    font-weight: 600;
+    color: #2c3e50;
+    min-width: 150px;
+}
+
+.chunk-description {
+    color: #666;
+    font-size: 13px;
+    flex: 1;
+}
+
+/* Realtime Log */
+.sevo-realtime-log {
+    margin: 20px 0;
+    background: #2c3e50;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.sevo-realtime-log h5 {
+    color: #ecf0f1;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+}
+
+.sevo-log-output {
+    background: #34495e;
+    color: #ecf0f1;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.log-line {
+    margin-bottom: 3px;
+    word-wrap: break-word;
+}
+
+.log-line:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsividade para chunks */
+@media (max-width: 768px) {
+    .sevo-backup-options {
+        flex-direction: column;
+    }
+    
+    .sevo-backup-options .button-hero {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .chunk-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .chunk-status {
+        align-self: center;
+    }
+    
+    .chunk-name {
+        min-width: auto;
+        width: 100%;
+        text-align: center;
+    }
 }
 </style>
 

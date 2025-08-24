@@ -18,7 +18,8 @@ class Sevo_Evento_CPT_New {
         $this->tipo_model = new Sevo_Tipo_Evento_Model();
         
         // Hooks para o admin
-        add_action('admin_menu', array($this, 'add_admin_menu'));
+        // Menu registrado no arquivo principal para evitar conflitos
+        // add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('wp_ajax_sevo_create_evento', array($this, 'ajax_create_evento'));
         add_action('wp_ajax_sevo_update_evento', array($this, 'ajax_update_evento'));
         add_action('wp_ajax_sevo_delete_evento', array($this, 'ajax_delete_evento'));
@@ -288,7 +289,8 @@ class Sevo_Evento_CPT_New {
      * Enqueue scripts para admin
      */
     public function admin_enqueue_scripts($hook) {
-        if ($hook !== 'sevo-eventos_page_sevo-eventos-list') {
+        // Verificar se estamos na página de eventos
+        if (strpos($hook, 'sevo-eventos-list') === false) {
             return;
         }
         
@@ -446,7 +448,8 @@ class Sevo_Evento_CPT_New {
         $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
         
-        $eventos = $this->model->get_with_related_data_paginated($page, $per_page);
+        $result = $this->model->get_paginated($page, $per_page);
+        $eventos = $result['items'];
         
         ob_start();
         ?>
@@ -466,9 +469,9 @@ class Sevo_Evento_CPT_New {
                 <?php if (!empty($eventos['data'])): ?>
                     <?php foreach ($eventos['data'] as $evento): ?>
                         <tr>
-                            <td><?php echo esc_html($evento->nome); ?></td>
-                            <td><?php echo esc_html($evento->tipo_evento_nome ?: '-'); ?></td>
-                            <td><?php echo esc_html($evento->organizacao_nome ?: '-'); ?></td>
+                            <td><?php echo esc_html($evento->titulo); ?></td>
+                            <td><?php echo esc_html($evento->tipo_evento_titulo ?: '-'); ?></td>
+                                <td><?php echo esc_html($evento->organizacao_titulo ?: '-'); ?></td>
                             <td>
                                 <?php 
                                 echo esc_html(date('d/m/Y H:i', strtotime($evento->data_inicio)));
@@ -501,9 +504,9 @@ class Sevo_Evento_CPT_New {
             </tbody>
         </table>
         
-        <?php if ($eventos['total_pages'] > 1): ?>
+        <?php if ($result['total_pages'] > 1): ?>
             <div class="sevo-pagination">
-                <?php for ($i = 1; $i <= $eventos['total_pages']; $i++): ?>
+                <?php for ($i = 1; $i <= $result['total_pages']; $i++): ?>
                     <button type="button" class="button sevo-page-btn <?php echo $i === $page ? 'button-primary' : ''; ?>" data-page="<?php echo $i; ?>">
                         <?php echo $i; ?>
                     </button>
@@ -531,7 +534,7 @@ class Sevo_Evento_CPT_New {
         ob_start();
         echo '<option value="">' . __('Selecione um tipo de evento', 'sevo-eventos') . '</option>';
         foreach ($tipos as $tipo) {
-            echo '<option value="' . esc_attr($tipo->id) . '">' . esc_html($tipo->nome) . '</option>';
+            echo '<option value="' . esc_attr($tipo['value']) . '">' . esc_html($tipo['label']) . '</option>';
         }
         $html = ob_get_clean();
         

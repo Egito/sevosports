@@ -341,4 +341,33 @@ class Sevo_Tipo_Evento_Model extends Sevo_Base_Model {
             'total_pages' => ceil($total / $per_page)
         ];
     }
+    
+    /**
+     * Sobrescreve o método create para disparar hooks customizados
+     */
+    public function create($data) {
+        $id = parent::create($data);
+        
+        if ($id) {
+            // Disparar hook customizado para integração com fórum
+            do_action('sevo_tipo_evento_created', $id);
+        }
+        
+        return $id;
+    }
+    
+    /**
+     * Sobrescreve o método update para disparar hooks customizados
+     */
+    public function update($id, $data) {
+        $old_data = $this->find($id);
+        $result = parent::update($id, $data);
+        
+        if ($result) {
+            // Disparar hook customizado para integração com fórum
+            do_action('sevo_tipo_evento_updated', $id, $old_data);
+        }
+        
+        return $result;
+    }
 }

@@ -18,7 +18,8 @@ class Sevo_Inscricao_CPT_New {
         $this->evento_model = new Sevo_Evento_Model();
         
         // Hooks para o admin
-        add_action('admin_menu', array($this, 'add_admin_menu'));
+        // Menu registrado no arquivo principal para evitar conflitos
+        // add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('wp_ajax_sevo_create_inscricao', array($this, 'ajax_create_inscricao'));
         add_action('wp_ajax_sevo_update_inscricao', array($this, 'ajax_update_inscricao'));
         add_action('wp_ajax_sevo_delete_inscricao', array($this, 'ajax_delete_inscricao'));
@@ -284,7 +285,8 @@ class Sevo_Inscricao_CPT_New {
      * Enqueue scripts para admin
      */
     public function admin_enqueue_scripts($hook) {
-        if ($hook !== 'sevo-eventos_page_sevo-inscricoes') {
+        // Verificar se estamos na página de inscrições
+        if (strpos($hook, 'sevo-inscricoes') === false) {
             return;
         }
         
@@ -437,7 +439,8 @@ class Sevo_Inscricao_CPT_New {
             $filters['evento_id'] = absint($_POST['evento_id']);
         }
         
-        $inscricoes = $this->model->get_with_related_data_paginated($page, $per_page, $filters);
+        $result = $this->model->get_paginated($page, $per_page, $filters);
+        $inscricoes = $result['items'];
         
         ob_start();
         ?>
@@ -463,7 +466,7 @@ class Sevo_Inscricao_CPT_New {
                                 ?>
                             </td>
                             <td><?php echo esc_html($inscricao->evento_nome ?: '-'); ?></td>
-                            <td><?php echo esc_html($inscricao->organizacao_nome ?: '-'); ?></td>
+                            <td><?php echo esc_html($inscricao->organizacao_titulo ?: '-'); ?></td>
                             <td>
                                 <span class="status-<?php echo esc_attr($inscricao->status); ?>">
                                     <?php echo esc_html(ucfirst($inscricao->status)); ?>
@@ -503,9 +506,9 @@ class Sevo_Inscricao_CPT_New {
             </tbody>
         </table>
         
-        <?php if ($inscricoes['total_pages'] > 1): ?>
+        <?php if ($result['total_pages'] > 1): ?>
             <div class="sevo-pagination">
-                <?php for ($i = 1; $i <= $inscricoes['total_pages']; $i++): ?>
+                <?php for ($i = 1; $i <= $result['total_pages']; $i++): ?>
                     <button type="button" class="button sevo-page-btn <?php echo $i === $page ? 'button-primary' : ''; ?>" data-page="<?php echo $i; ?>">
                         <?php echo $i; ?>
                     </button>
@@ -533,7 +536,7 @@ class Sevo_Inscricao_CPT_New {
         ob_start();
         echo '<option value="">' . __('Selecione um evento', 'sevo-eventos') . '</option>';
         foreach ($eventos as $evento) {
-            echo '<option value="' . esc_attr($evento->id) . '">' . esc_html($evento->nome) . '</option>';
+            echo '<option value="' . esc_attr($evento['value']) . '">' . esc_html($evento['label']) . '</option>';
         }
         $html = ob_get_clean();
         

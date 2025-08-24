@@ -30,6 +30,7 @@ class Sevo_Database_Migration {
         $this->create_tipos_evento_table();
         $this->create_eventos_table();
         $this->create_inscricoes_table();
+        $this->create_forum_metadata_table();
         
         // Atualizar versão do banco
         update_option('sevo_eventos_db_version', '3.0');
@@ -167,10 +168,39 @@ class Sevo_Database_Migration {
     }
     
     /**
+     * Cria tabela de Metadados do Fórum
+     */
+    private function create_forum_metadata_table() {
+        $table_name = $this->wpdb->prefix . 'sevo_forum_metadata';
+        
+        $charset_collate = $this->wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            entity_type varchar(50) NOT NULL,
+            entity_id bigint(20) unsigned NOT NULL,
+            meta_key varchar(255) NOT NULL,
+            meta_value longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_metadata (entity_type, entity_id, meta_key),
+            KEY idx_entity_type (entity_type),
+            KEY idx_entity_id (entity_id),
+            KEY idx_meta_key (meta_key),
+            KEY idx_created (created_at)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+    
+    /**
      * Remove as tabelas (para rollback se necessário)
      */
     public function drop_tables() {
         $tables = [
+            $this->wpdb->prefix . 'sevo_forum_metadata',
             $this->wpdb->prefix . 'sevo_inscricoes',
             $this->wpdb->prefix . 'sevo_eventos',
             $this->wpdb->prefix . 'sevo_tipos_evento',
@@ -192,7 +222,8 @@ class Sevo_Database_Migration {
             $this->wpdb->prefix . 'sevo_organizacoes',
             $this->wpdb->prefix . 'sevo_tipos_evento',
             $this->wpdb->prefix . 'sevo_eventos',
-            $this->wpdb->prefix . 'sevo_inscricoes'
+            $this->wpdb->prefix . 'sevo_inscricoes',
+            $this->wpdb->prefix . 'sevo_forum_metadata'
         ];
         
         foreach ($tables as $table) {

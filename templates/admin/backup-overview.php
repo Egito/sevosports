@@ -121,13 +121,13 @@ $log_stats = $backup_manager->get_log_statistics();
                 <h3>Logs do Sistema</h3>
                 <div class="card-value"><?php echo $log_stats['total_entries']; ?></div>
                 <div class="card-details">
-                    <?php if ($log_stats['by_level']['error'] > 0): ?>
+                    <?php if (isset($log_stats['by_level']['error']) && $log_stats['by_level']['error'] > 0): ?>
                         <div class="error-count">❌ <?php echo $log_stats['by_level']['error']; ?> erros</div>
                     <?php endif; ?>
-                    <?php if ($log_stats['by_level']['warning'] > 0): ?>
+                    <?php if (isset($log_stats['by_level']['warning']) && $log_stats['by_level']['warning'] > 0): ?>
                         <div class="warning-count">⚠️ <?php echo $log_stats['by_level']['warning']; ?> avisos</div>
                     <?php endif; ?>
-                    <div>📝 <?php echo $log_stats['by_level']['info']; ?> informações</div>
+                    <div>📝 <?php echo isset($log_stats['by_level']['info']) ? $log_stats['by_level']['info'] : 0; ?> informações</div>
                 </div>
             </div>
         </div>
@@ -224,14 +224,15 @@ $log_stats = $backup_manager->get_log_statistics();
     <div class="sevo-recent-logs">
         <h3>📝 Últimas Atividades</h3>
         <div class="logs-container">
-            <?php foreach (array_slice(array_reverse($logs), 0, 5) as $log_line): ?>
+            <?php foreach (array_slice($logs, 0, 5) as $log_entry): ?>
                 <div class="log-entry <?php 
-                    if (strpos($log_line, '[error]') !== false) echo 'log-error';
-                    elseif (strpos($log_line, '[warning]') !== false) echo 'log-warning';
-                    elseif (strpos($log_line, '[critical]') !== false) echo 'log-critical';
-                    else echo 'log-info';
+                    echo 'log-' . esc_attr($log_entry['level']);
                 ?>">
-                    <?php echo esc_html($log_line); ?>
+                    <span class="log-time"><?php echo esc_html($log_entry['formatted_time']); ?></span>
+                    <span class="log-level log-level-<?php echo esc_attr($log_entry['level']); ?>">
+                        [<?php echo strtoupper($log_entry['level']); ?>]
+                    </span>
+                    <span class="log-message"><?php echo esc_html($log_entry['message']); ?></span>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -489,21 +490,75 @@ $log_stats = $backup_manager->get_log_statistics();
     font-family: 'Courier New', monospace;
     font-size: 12px;
     line-height: 1.4;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     color: #f8f9fa;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.log-time {
+    color: #adb5bd;
+    flex-shrink: 0;
+    width: 130px;
+    font-weight: 500;
+}
+
+.log-level {
+    flex-shrink: 0;
+    width: 80px;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+}
+
+.log-level-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.log-level-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.log-level-error {
+    background-color: #dc3545;
+    color: white;
+}
+
+.log-level-critical {
+    background-color: #721c24;
+    color: white;
+    animation: blink 1s infinite;
+}
+
+.log-message {
+    flex: 1;
+    word-wrap: break-word;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.7; }
 }
 
 .log-entry.log-error {
-    color: #ff6b6b;
+    border-left: 3px solid #ff6b6b;
+    padding-left: 8px;
 }
 
 .log-entry.log-warning {
-    color: #feca57;
+    border-left: 3px solid #feca57;
+    padding-left: 8px;
 }
 
 .log-entry.log-critical {
-    color: #ff3838;
-    font-weight: bold;
+    border-left: 3px solid #ff3838;
+    padding-left: 8px;
+    background-color: rgba(255, 56, 56, 0.1);
 }
 
 .logs-footer {

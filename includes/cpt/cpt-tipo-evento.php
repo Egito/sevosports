@@ -18,7 +18,8 @@ class Sevo_Tipo_Evento_CPT_New {
         $this->org_model = new Sevo_Organizacao_Model();
         
         // Hooks para o admin
-        add_action('admin_menu', array($this, 'add_admin_menu'));
+        // Menu registrado no arquivo principal para evitar conflitos
+        // add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('wp_ajax_sevo_create_tipo_evento', array($this, 'ajax_create_tipo_evento'));
         add_action('wp_ajax_sevo_update_tipo_evento', array($this, 'ajax_update_tipo_evento'));
         add_action('wp_ajax_sevo_delete_tipo_evento', array($this, 'ajax_delete_tipo_evento'));
@@ -255,7 +256,8 @@ class Sevo_Tipo_Evento_CPT_New {
      * Enqueue scripts para admin
      */
     public function admin_enqueue_scripts($hook) {
-        if ($hook !== 'sevo-eventos_page_sevo-tipos-evento') {
+        // Verificar se estamos na página de tipos de evento
+        if (strpos($hook, 'sevo-tipos-evento') === false) {
             return;
         }
         
@@ -399,7 +401,8 @@ class Sevo_Tipo_Evento_CPT_New {
         $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
         
-        $tipos = $this->model->get_with_organizacao_paginated($page, $per_page);
+        $result = $this->model->get_paginated($page, $per_page);
+        $tipos = $result['items'];
         
         ob_start();
         ?>
@@ -420,8 +423,8 @@ class Sevo_Tipo_Evento_CPT_New {
                 <?php if (!empty($tipos['data'])): ?>
                     <?php foreach ($tipos['data'] as $tipo): ?>
                         <tr>
-                            <td><?php echo esc_html($tipo->nome); ?></td>
-                            <td><?php echo esc_html($tipo->organizacao_nome ?: '-'); ?></td>
+                            <td><?php echo esc_html($tipo->titulo); ?></td>
+                            <td><?php echo esc_html($tipo->organizacao_titulo ?: '-'); ?></td>
                             <td>
                                 <?php 
                                 $autor = get_user_by('id', $tipo->autor_id);
@@ -454,9 +457,9 @@ class Sevo_Tipo_Evento_CPT_New {
             </tbody>
         </table>
         
-        <?php if ($tipos['total_pages'] > 1): ?>
+        <?php if ($result['total_pages'] > 1): ?>
             <div class="sevo-pagination">
-                <?php for ($i = 1; $i <= $tipos['total_pages']; $i++): ?>
+                <?php for ($i = 1; $i <= $result['total_pages']; $i++): ?>
                     <button type="button" class="button sevo-page-btn <?php echo $i === $page ? 'button-primary' : ''; ?>" data-page="<?php echo $i; ?>">
                         <?php echo $i; ?>
                     </button>
@@ -484,7 +487,7 @@ class Sevo_Tipo_Evento_CPT_New {
         ob_start();
         echo '<option value="">' . __('Selecione uma organização', 'sevo-eventos') . '</option>';
         foreach ($organizacoes as $org) {
-            echo '<option value="' . esc_attr($org->id) . '">' . esc_html($org->nome) . '</option>';
+            echo '<option value="' . esc_attr($org['value']) . '">' . esc_html($org['label']) . '</option>';
         }
         $html = ob_get_clean();
         

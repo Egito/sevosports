@@ -1,6 +1,7 @@
 <?php
 /**
  * Lógica de integração com o plugin Asgaros Forum.
+ * Versão atualizada para usar tabelas customizadas externas.
  *
  * @package Sevo_Eventos
  */
@@ -11,28 +12,45 @@ if (!defined('ABSPATH')) {
 
 class Sevo_Forum_Integration {
 
-    private $org_post_type = SEVO_ORG_POST_TYPE;
-    private $tipo_evento_post_type = SEVO_TIPO_EVENTO_POST_TYPE;
-    private $evento_post_type = SEVO_EVENTO_POST_TYPE;
+    private $wpdb;
+    private $org_model;
+    private $tipo_evento_model;
+    private $evento_model;
 
     public function __construct() {
-        // Hooks para criar as estruturas do fórum
-        add_action('save_post_' . $this->org_post_type, array($this, 'create_forum_category_for_organization'), 10, 2);
-        add_action('save_post_' . $this->tipo_evento_post_type, array($this, 'create_forum_for_event_type'), 10, 2);
-        add_action('save_post_' . $this->evento_post_type, array($this, 'handle_event_forum_creation_and_topics'), 10, 3);
+        global $wpdb;
+        $this->wpdb = $wpdb;
+        
+        // Carregar os models
+        $this->org_model = new Sevo_Organizacao_Model();
+        $this->tipo_evento_model = new Sevo_Tipo_Evento_Model();
+        $this->evento_model = new Sevo_Evento_Model();
+        
+        // Hooks customizados para as tabelas externas
+        add_action('sevo_organizacao_created', array($this, 'create_forum_category_for_organization'), 10, 1);
+        add_action('sevo_organizacao_updated', array($this, 'update_forum_category_for_organization'), 10, 2);
+        add_action('sevo_tipo_evento_created', array($this, 'create_forum_for_event_type'), 10, 1);
+        add_action('sevo_tipo_evento_updated', array($this, 'update_forum_for_event_type'), 10, 2);
+        add_action('sevo_evento_created', array($this, 'handle_event_forum_creation_and_topics'), 10, 1);
+        add_action('sevo_evento_updated', array($this, 'handle_event_forum_update'), 10, 2);
     }
 
      /**
-     * Cria ou atualiza uma categoria no Asgaros Forum para uma organização.
+     * Cria uma categoria no Asgaros Forum para uma organização (tabela externa).
      */
-    public function create_forum_category_for_organization($post_id, $post) {
-        if (wp_is_post_revision($post_id) || $post->post_status !== 'publish' || !class_exists('AsgarosForum')) {
+    public function create_forum_category_for_organization($organizacao_id) {
+        if (!class_exists('AsgarosForum')) {
+            return;
+        }
+
+        $organizacao = $this->org_model->find($organizacao_id);
+        if (!$organizacao || $organizacao->status !== 'ativo') {
             return;
         }
 
         global $asgarosforum;
-        $existing_category_id = get_post_meta($post_id, '_sevo_forum_category_id', true);
-        $organization_name = $post->post_title;
+        $existing_category_id = $this->get_organization_forum_category_id($organizacao_id);
+        $organization_name = $organizacao->titulo;
         
         // Se já existe uma categoria, verificar se precisa atualizar o nome
         if ($existing_category_id) {
@@ -50,8 +68,8 @@ class Sevo_Forum_Integration {
                     }
                     return; // Categoria existe e foi atualizada se necessário
                 } else {
-                    // Categoria não existe mais, remover meta
-                    delete_post_meta($post_id, '_sevo_forum_category_id');
+                    // Categoria não existe mais, remover referência
+                    $this->delete_organization_forum_category_id($organizacao_id);
                 }
             }
         }
@@ -59,7 +77,7 @@ class Sevo_Forum_Integration {
         // Verificar se já existe uma categoria com este nome (evitar duplicatas)
         $existing_term = get_term_by('name', $organization_name, 'asgarosforum-category');
         if ($existing_term) {
-            update_post_meta($post_id, '_sevo_forum_category_id', $existing_term->term_id);
+            $this->update_organization_forum_category_id($organizacao_id, $existing_term->term_id);
             return;
         }
 
@@ -82,31 +100,43 @@ class Sevo_Forum_Integration {
         }
 
         if ($category_id) {
-            update_post_meta($post_id, '_sevo_forum_category_id', $category_id);
+            $this->update_organization_forum_category_id($organizacao_id, $category_id);
         }
     }
 
     /**
-     * Cria ou atualiza um fórum no Asgaros para um tipo de evento.
+     * Atualiza categoria do fórum quando organização é atualizada
      */
-    public function create_forum_for_event_type($post_id, $post) {
-        if (wp_is_post_revision($post_id) || $post->post_status !== 'publish' || !class_exists('AsgarosForum')) {
+    public function update_forum_category_for_organization($organizacao_id, $old_data) {
+        $this->create_forum_category_for_organization($organizacao_id);
+    }
+
+    /**
+     * Cria um fórum no Asgaros para um tipo de evento (tabela externa).
+     */
+    public function create_forum_for_event_type($tipo_evento_id) {
+        if (!class_exists('AsgarosForum')) {
             return;
         }
 
-        $org_id = get_post_meta($post_id, '_sevo_tipo_evento_organizacao_id', true);
+        $tipo_evento = $this->tipo_evento_model->find($tipo_evento_id);
+        if (!$tipo_evento || $tipo_evento->status !== 'ativo') {
+            return;
+        }
+
+        $org_id = $tipo_evento->organizacao_id;
         if (!$org_id) {
             return;
         }
 
-        $category_id = get_post_meta($org_id, '_sevo_forum_category_id', true);
+        $category_id = $this->get_organization_forum_category_id($org_id);
         if (!$category_id) {
             return; // Categoria da organização ainda não existe
         }
 
         global $asgarosforum;
-        $existing_forum_id = get_post_meta($post_id, '_sevo_forum_forum_id', true);
-        $event_type_name = $post->post_title;
+        $existing_forum_id = $this->get_tipo_evento_forum_id($tipo_evento_id);
+        $event_type_name = $tipo_evento->titulo;
         
         // Se já existe um fórum, verificar se precisa atualizar o nome
         if ($existing_forum_id && class_exists('AsgarosForum')) {
@@ -134,8 +164,8 @@ class Sevo_Forum_Integration {
                     }
                     return; // Fórum existe e foi atualizado se necessário
                 } else {
-                    // Fórum não existe mais, remover meta
-                    delete_post_meta($post_id, '_sevo_forum_forum_id');
+                    // Fórum não existe mais, remover referência
+                    $this->delete_tipo_evento_forum_id($tipo_evento_id);
                 }
             }
         }
@@ -157,52 +187,71 @@ class Sevo_Forum_Integration {
         }
 
         if ($forum_id) {
-            update_post_meta($post_id, '_sevo_forum_forum_id', $forum_id);
+            $this->update_tipo_evento_forum_id($tipo_evento_id, $forum_id);
         }
     }
 
     /**
-     * Gerencia a criação de tópicos automáticos para um evento.
+     * Atualiza fórum quando tipo de evento é atualizado
      */
-    public function handle_event_forum_creation_and_topics($post_id, $post, $update) {
-        if (wp_is_post_revision($post_id) || $post->post_status !== 'publish' || !class_exists('AsgarosForum')) {
+    public function update_forum_for_event_type($tipo_evento_id, $old_data) {
+        $this->create_forum_for_event_type($tipo_evento_id);
+    }
+
+    /**
+     * Gerencia a criação de tópicos automáticos para um evento (tabela externa).
+     */
+    public function handle_event_forum_creation_and_topics($evento_id) {
+        if (!class_exists('AsgarosForum')) {
+            return;
+        }
+        
+        $evento = $this->evento_model->find($evento_id);
+        if (!$evento || $evento->status !== 'ativo') {
             return;
         }
         
         // Verificar se o evento tem um tópico associado, se não tiver, criar
-        $topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
+        $topic_id = $this->get_evento_forum_topic_id($evento_id);
         if (!$topic_id) {
-            $this->create_event_topic($post_id, $post);
+            $this->create_event_topic($evento_id, $evento);
         }
         
         // Verificar se datas foram alteradas e criar tópicos de notificação
-        $this->create_notification_topics($post_id);
+        $this->create_notification_topics($evento_id);
     }
 
     /**
-     * Cria o tópico inicial para o evento no fórum.
+     * Gerencia atualizações do fórum quando evento é atualizado
      */
-    private function create_event_topic($post_id, $post) {
-        $tipo_evento_id = get_post_meta($post_id, '_sevo_evento_tipo_evento_id', true);
+    public function handle_event_forum_update($evento_id, $old_data) {
+        $this->handle_event_forum_creation_and_topics($evento_id);
+    }
+
+    /**
+     * Cria o tópico inicial para o evento no fórum (tabela externa).
+     */
+    private function create_event_topic($evento_id, $evento) {
+        $tipo_evento_id = $evento->tipo_evento_id;
         if (!$tipo_evento_id) {
             return;
         }
 
-        $forum_id = get_post_meta($tipo_evento_id, '_sevo_forum_forum_id', true);
+        $forum_id = $this->get_tipo_evento_forum_id($tipo_evento_id);
         if (!$forum_id) {
             return;
         }
 
         global $asgarosforum;
-        $event_name = $post->post_title;
-        $event_description = get_post_meta($post_id, '_sevo_evento_descricao', true);
-        $author_id = $post->post_author;
+        $event_name = $evento->titulo;
+        $event_description = $evento->descricao;
+        $author_id = get_current_user_id() ?: 1; // Usar usuário atual ou admin padrão
         
         // Criar novo tópico usando a instância do AsgarosForum
         $topic_ids = null;
         if (class_exists('AsgarosForum')) {
             if ($asgarosforum && method_exists($asgarosforum->content, 'insert_topic')) {
-                $topic_content = $this->generate_event_topic_content($post_id, $event_description);
+                $topic_content = $this->generate_event_topic_content_external($evento_id, $evento);
                 
                 $topic_ids = $asgarosforum->content->insert_topic(
                     $forum_id, // forum_id
@@ -214,121 +263,286 @@ class Sevo_Forum_Integration {
         }
 
         if ($topic_ids && isset($topic_ids->topic_id)) {
-            update_post_meta($post_id, '_sevo_forum_topic_id', $topic_ids->topic_id);
+            $this->update_evento_forum_topic_id($evento_id, $topic_ids->topic_id);
         }
     }
 
     /**
-     * Gera o conteúdo do tópico do evento.
+     * Gera o conteúdo do tópico do evento (tabela externa).
      */
-    private function generate_event_topic_content($post_id, $event_description) {
-        $evento_url = get_permalink($post_id);
-        $data_inicio = get_post_meta($post_id, '_sevo_evento_data_inicio_evento', true);
-        $data_fim = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true);
-        $local = get_post_meta($post_id, '_sevo_evento_local', true);
-        
+    private function generate_event_topic_content_external($evento_id, $evento) {
         $content = "Este é o tópico oficial do evento. Aqui você pode acompanhar as inscrições e discussões relacionadas ao evento.\n\n";
         
-        // Incluir imagem destacada do evento se existir
-        $thumbnail_id = get_post_thumbnail_id($post_id);
-        if ($thumbnail_id) {
-            $image_url = wp_get_attachment_image_url($thumbnail_id, 'medium');
-            if ($image_url) {
-                $content .= "![Imagem do Evento](" . $image_url . ")\n\n";
-            }
+        if (!empty($evento->imagem_url)) {
+            $content .= "![Imagem do Evento](" . $evento->imagem_url . ")\n\n";
         }
         
-        if (!empty($event_description)) {
-            $content .= "**Descrição:**\n" . $event_description . "\n\n";
+        if (!empty($evento->descricao)) {
+            $content .= "**Descrição:**\n" . $evento->descricao . "\n\n";
         }
         
-        if (!empty($data_inicio)) {
-            $content .= "**Data de Início:** " . date('d/m/Y H:i', strtotime($data_inicio)) . "\n";
+        if (!empty($evento->data_inicio_evento)) {
+            $content .= "**Data de Início:** " . date('d/m/Y H:i', strtotime($evento->data_inicio_evento)) . "\n";
         }
         
-        if (!empty($data_fim)) {
-            $content .= "**Data de Fim:** " . date('d/m/Y H:i', strtotime($data_fim)) . "\n";
+        if (!empty($evento->data_fim_evento)) {
+            $content .= "**Data de Fim:** " . date('d/m/Y H:i', strtotime($evento->data_fim_evento)) . "\n";
         }
         
-        if (!empty($local)) {
-            $content .= "**Local:** " . $local . "\n";
-        }
-        
-        $content .= "\n**Para mais detalhes e inscrições, acesse:** [" . get_the_title($post_id) . "](" . home_url() . ")";
+        $content .= "\n**Para mais detalhes e inscrições, acesse o dashboard do sistema.**";
         
         return $content;
     }
 
     /**
-     * Cria posts de notificação no tópico do evento quando datas importantes são alteradas.
+     * Cria posts de notificação no tópico do evento quando datas importantes são alteradas (tabela externa).
      */
-    private function create_notification_topics($post_id) {
-        $topic_id = get_post_meta($post_id, '_sevo_forum_topic_id', true);
-        $author_id = get_post_field('post_author', $post_id);
-        $evento_url = get_permalink($post_id);
-        $evento_title = get_the_title($post_id);
-
-        if (!$topic_id || !$author_id || !class_exists('AsgarosForum')) {
+    private function create_notification_topics($evento_id) {
+        $topic_id = $this->get_evento_forum_topic_id($evento_id);
+        $evento = $this->evento_model->find($evento_id);
+        
+        if (!$topic_id || !$evento || !class_exists('AsgarosForum')) {
             return;
         }
 
-        // Mapeamento de campos de data para conteúdos dos posts de notificação
-        $date_fields = array(
-            '_sevo_evento_data_inicio_inscricoes' => array(
-                'content' => '<strong>Período de Inscrição Definido!</strong><br><br>As inscrições para o evento "[evento_titulo]" estarão abertas de [data_inicio] até [data_fim].<br><br>Para mais detalhes, acesse a página do evento: <a href="[evento_url]">clique aqui</a>.'
-            ),
-            '_sevo_evento_data_inicio_evento' => array(
-                'content' => '<strong>Data do Evento Marcada!</strong><br><br>O evento "[evento_titulo]" está agendado para acontecer de [data_inicio] a [data_fim]. Prepare-se!<br><br>Para mais detalhes, acesse a página do evento: <a href="[evento_url]">clique aqui</a>.'
-            )
-        );
+        $author_id = get_current_user_id() ?: 1; // Usar usuário atual ou admin padrão
+        $evento_title = $evento->titulo;
 
         // Tratamento para datas de inscrição
-        $data_inicio_insc = get_post_meta($post_id, '_sevo_evento_data_inicio_inscricoes', true);
-        $last_posted_inicio_insc = get_post_meta($post_id, '_topic_posted_inicio_insc', true);
+        $data_inicio_insc = $evento->data_inicio_inscricoes;
+        $last_posted_inicio_insc = $this->get_evento_forum_metadata($evento_id, 'topic_posted_inicio_insc');
 
         if ($data_inicio_insc && $data_inicio_insc !== $last_posted_inicio_insc) {
-            $data_fim_insc = get_post_meta($post_id, '_sevo_evento_data_fim_inscricoes', true);
-            $config = $date_fields['_sevo_evento_data_inicio_inscricoes'];
-            $post_content = str_replace(
-                ['[evento_titulo]', '[data_inicio]', '[data_fim]', '[evento_url]'],
-                [$evento_title, date_i18n('d/m/Y', strtotime($data_inicio_insc)), date_i18n('d/m/Y', strtotime($data_fim_insc)), $evento_url],
-                $config['content']
-            );
+            $data_fim_insc = $evento->data_fim_inscricoes;
+            $post_content = "<strong>Período de Inscrição Definido!</strong><br><br>As inscrições para o evento \"" . $evento_title . "\" estarão abertas de " . date_i18n('d/m/Y', strtotime($data_inicio_insc)) . " até " . date_i18n('d/m/Y', strtotime($data_fim_insc)) . ".<br><br>Para mais detalhes, acesse o dashboard do sistema.";
             
             // Criar post no tópico usando a instância do AsgarosForum
             if (class_exists('AsgarosForum')) {
                 global $asgarosforum;
                 if ($asgarosforum && method_exists($asgarosforum->content, 'insert_post')) {
                     $asgarosforum->content->insert_post($topic_id, $post_content, $author_id);
-                    update_post_meta($post_id, '_topic_posted_inicio_insc', $data_inicio_insc);
+                    $this->update_evento_forum_metadata($evento_id, 'topic_posted_inicio_insc', $data_inicio_insc);
                 }
             }
         }
 
         // Tratamento para datas do evento
-        $data_inicio_evento = get_post_meta($post_id, '_sevo_evento_data_inicio_evento', true);
-        $last_posted_inicio_evento = get_post_meta($post_id, '_topic_posted_inicio_evento', true);
+        $data_inicio_evento = $evento->data_inicio_evento;
+        $last_posted_inicio_evento = $this->get_evento_forum_metadata($evento_id, 'topic_posted_inicio_evento');
 
         if ($data_inicio_evento && $data_inicio_evento !== $last_posted_inicio_evento) {
-            $data_fim_evento = get_post_meta($post_id, '_sevo_evento_data_fim_evento', true);
-            $config = $date_fields['_sevo_evento_data_inicio_evento'];
-            $post_content = str_replace(
-                ['[evento_titulo]', '[data_inicio]', '[data_fim]', '[evento_url]'],
-                [$evento_title, date_i18n('d/m/Y', strtotime($data_inicio_evento)), date_i18n('d/m/Y', strtotime($data_fim_evento)), $evento_url],
-                $config['content']
-            );
-
+            $data_fim_evento = $evento->data_fim_evento;
+            $post_content = "<strong>Data do Evento Marcada!</strong><br><br>O evento \"" . $evento_title . "\" está agendado para acontecer de " . date_i18n('d/m/Y', strtotime($data_inicio_evento)) . " a " . date_i18n('d/m/Y', strtotime($data_fim_evento)) . ". Prepare-se!<br><br>Para mais detalhes, acesse o dashboard do sistema.";
+            
             // Criar post no tópico usando a instância do AsgarosForum
             if (class_exists('AsgarosForum')) {
                 global $asgarosforum;
                 if ($asgarosforum && method_exists($asgarosforum->content, 'insert_post')) {
                     $asgarosforum->content->insert_post($topic_id, $post_content, $author_id);
-                    update_post_meta($post_id, '_topic_posted_inicio_evento', $data_inicio_evento);
+                    $this->update_evento_forum_metadata($evento_id, 'topic_posted_inicio_evento', $data_inicio_evento);
                 }
             }
         }
     }
-    
+
+    // ========= Métodos auxiliares para gerenciar metadados do fórum nas tabelas externas =========
+
+    /**
+     * Obtém o ID da categoria do fórum de uma organização
+     */
+    private function get_organization_forum_category_id($organizacao_id) {
+        return $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT meta_value FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'organizacao' AND entity_id = %d AND meta_key = 'forum_category_id'",
+            $organizacao_id
+        ));
+    }
+
+    /**
+     * Atualiza o ID da categoria do fórum de uma organização
+     */
+    private function update_organization_forum_category_id($organizacao_id, $category_id) {
+        $existing = $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT id FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'organizacao' AND entity_id = %d AND meta_key = 'forum_category_id'",
+            $organizacao_id
+        ));
+
+        if ($existing) {
+            $this->wpdb->update(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array('meta_value' => $category_id),
+                array('id' => $existing),
+                array('%s'),
+                array('%d')
+            );
+        } else {
+            $this->wpdb->insert(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array(
+                    'entity_type' => 'organizacao',
+                    'entity_id' => $organizacao_id,
+                    'meta_key' => 'forum_category_id',
+                    'meta_value' => $category_id
+                ),
+                array('%s', '%d', '%s', '%s')
+            );
+        }
+    }
+
+    /**
+     * Remove o ID da categoria do fórum de uma organização
+     */
+    private function delete_organization_forum_category_id($organizacao_id) {
+        $this->wpdb->delete(
+            $this->wpdb->prefix . 'sevo_forum_metadata',
+            array(
+                'entity_type' => 'organizacao',
+                'entity_id' => $organizacao_id,
+                'meta_key' => 'forum_category_id'
+            ),
+            array('%s', '%d', '%s')
+        );
+    }
+
+    /**
+     * Obtém o ID do fórum de um tipo de evento
+     */
+    private function get_tipo_evento_forum_id($tipo_evento_id) {
+        return $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT meta_value FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'tipo_evento' AND entity_id = %d AND meta_key = 'forum_id'",
+            $tipo_evento_id
+        ));
+    }
+
+    /**
+     * Atualiza o ID do fórum de um tipo de evento
+     */
+    private function update_tipo_evento_forum_id($tipo_evento_id, $forum_id) {
+        $existing = $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT id FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'tipo_evento' AND entity_id = %d AND meta_key = 'forum_id'",
+            $tipo_evento_id
+        ));
+
+        if ($existing) {
+            $this->wpdb->update(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array('meta_value' => $forum_id),
+                array('id' => $existing),
+                array('%s'),
+                array('%d')
+            );
+        } else {
+            $this->wpdb->insert(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array(
+                    'entity_type' => 'tipo_evento',
+                    'entity_id' => $tipo_evento_id,
+                    'meta_key' => 'forum_id',
+                    'meta_value' => $forum_id
+                ),
+                array('%s', '%d', '%s', '%s')
+            );
+        }
+    }
+
+    /**
+     * Remove o ID do fórum de um tipo de evento
+     */
+    private function delete_tipo_evento_forum_id($tipo_evento_id) {
+        $this->wpdb->delete(
+            $this->wpdb->prefix . 'sevo_forum_metadata',
+            array(
+                'entity_type' => 'tipo_evento',
+                'entity_id' => $tipo_evento_id,
+                'meta_key' => 'forum_id'
+            ),
+            array('%s', '%d', '%s')
+        );
+    }
+
+    /**
+     * Obtém o ID do tópico do fórum de um evento
+     */
+    private function get_evento_forum_topic_id($evento_id) {
+        return $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT meta_value FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'evento' AND entity_id = %d AND meta_key = 'forum_topic_id'",
+            $evento_id
+        ));
+    }
+
+    /**
+     * Atualiza o ID do tópico do fórum de um evento
+     */
+    private function update_evento_forum_topic_id($evento_id, $topic_id) {
+        $existing = $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT id FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'evento' AND entity_id = %d AND meta_key = 'forum_topic_id'",
+            $evento_id
+        ));
+
+        if ($existing) {
+            $this->wpdb->update(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array('meta_value' => $topic_id),
+                array('id' => $existing),
+                array('%s'),
+                array('%d')
+            );
+        } else {
+            $this->wpdb->insert(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array(
+                    'entity_type' => 'evento',
+                    'entity_id' => $evento_id,
+                    'meta_key' => 'forum_topic_id',
+                    'meta_value' => $topic_id
+                ),
+                array('%s', '%d', '%s', '%s')
+            );
+        }
+    }
+
+    /**
+     * Obtém metadado do fórum de um evento
+     */
+    private function get_evento_forum_metadata($evento_id, $meta_key) {
+        return $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT meta_value FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'evento' AND entity_id = %d AND meta_key = %s",
+            $evento_id,
+            $meta_key
+        ));
+    }
+
+    /**
+     * Atualiza metadado do fórum de um evento
+     */
+    private function update_evento_forum_metadata($evento_id, $meta_key, $meta_value) {
+        $existing = $this->wpdb->get_var($this->wpdb->prepare(
+            "SELECT id FROM {$this->wpdb->prefix}sevo_forum_metadata WHERE entity_type = 'evento' AND entity_id = %d AND meta_key = %s",
+            $evento_id,
+            $meta_key
+        ));
+
+        if ($existing) {
+            $this->wpdb->update(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array('meta_value' => $meta_value),
+                array('id' => $existing),
+                array('%s'),
+                array('%d')
+            );
+        } else {
+            $this->wpdb->insert(
+                $this->wpdb->prefix . 'sevo_forum_metadata',
+                array(
+                    'entity_type' => 'evento',
+                    'entity_id' => $evento_id,
+                    'meta_key' => $meta_key,
+                    'meta_value' => $meta_value
+                ),
+                array('%s', '%d', '%s', '%s')
+            );
+        }
+    }
+
     /**
      * Adiciona um comentário de log de inscrição no tópico do evento
      */
@@ -338,7 +552,7 @@ class Sevo_Forum_Integration {
         }
         
         // Buscar o ID do tópico do evento
-        $topic_id = get_post_meta($evento_id, '_sevo_forum_topic_id', true);
+        $topic_id = $this->get_evento_forum_topic_id($evento_id);
         
         if (!$topic_id) {
             return false;

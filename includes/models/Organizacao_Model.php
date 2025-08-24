@@ -309,5 +309,34 @@ class Sevo_Organizacao_Model extends Sevo_Base_Model {
         return $options;
     }
     
+    /**
+     * Sobrescreve o método create para disparar hooks customizados
+     */
+    public function create($data) {
+        $id = parent::create($data);
+        
+        if ($id) {
+            // Disparar hook customizado para integração com fórum
+            do_action('sevo_organizacao_created', $id);
+        }
+        
+        return $id;
+    }
+    
+    /**
+     * Sobrescreve o método update para disparar hooks customizados
+     */
+    public function update($id, $data) {
+        $old_data = $this->find($id);
+        $result = parent::update($id, $data);
+        
+        if ($result) {
+            // Disparar hook customizado para integração com fórum
+            do_action('sevo_organizacao_updated', $id, $old_data);
+        }
+        
+        return $result;
+    }
+    
 
 }

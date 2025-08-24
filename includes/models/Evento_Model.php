@@ -109,6 +109,34 @@ class Sevo_Evento_Model extends Sevo_Base_Model {
     }
     
     /**
+     * Busca eventos para select/dropdown
+     */
+    public function get_for_select() {
+        $sql = "
+            SELECT e.id, e.titulo,
+                   te.titulo as tipo_titulo,
+                   o.titulo as organizacao_titulo
+            FROM {$this->table_name} e
+            LEFT JOIN {$this->wpdb->prefix}sevo_tipos_evento te ON e.tipo_evento_id = te.id
+            LEFT JOIN {$this->wpdb->prefix}sevo_organizacoes o ON te.organizacao_id = o.id
+            WHERE e.status = 'ativo'
+            ORDER BY o.titulo ASC, te.titulo ASC, e.titulo ASC
+        ";
+        
+        $eventos = $this->wpdb->get_results($sql);
+        $options = [];
+        
+        foreach ($eventos as $evento) {
+            $options[] = [
+                'value' => $evento->id,
+                'label' => $evento->organizacao_titulo . ' - ' . $evento->tipo_titulo . ' - ' . $evento->titulo
+            ];
+        }
+        
+        return $options;
+    }
+    
+    /**
      * Busca eventos organizados por seções (status)
      */
     public function get_by_sections() {
@@ -398,5 +426,34 @@ class Sevo_Evento_Model extends Sevo_Base_Model {
             'current_page' => $page,
             'total_pages' => ceil($total / $per_page)
         ];
+    }
+    
+    /**
+     * Sobrescreve o método create para disparar hooks customizados
+     */
+    public function create($data) {
+        $id = parent::create($data);
+        
+        if ($id) {
+            // Disparar hook customizado para integração com fórum
+            do_action('sevo_evento_created', $id);
+        }
+        
+        return $id;
+    }
+    
+    /**
+     * Sobrescreve o método update para disparar hooks customizados
+     */
+    public function update($id, $data) {
+        $old_data = $this->find($id);
+        $result = parent::update($id, $data);
+        
+        if ($result) {
+            // Disparar hook customizado para integração com fórum
+            do_action('sevo_evento_updated', $id, $old_data);
+        }
+        
+        return $result;
     }
 }
