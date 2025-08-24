@@ -25,6 +25,12 @@ $result = $org_model->get_with_full_stats($current_page, $per_page, $search, $fi
 $organizacoes = $result['data'];
 $total_items = $result['total'];
 $total_pages = $result['total_pages'];
+
+// Check user permissions using the new centralized system
+$current_user_id = get_current_user_id();
+$can_view_orgs = sevo_check_record_permission('view_org', 0, 'organizacao', $current_user_id);
+$can_edit_orgs = sevo_check_record_permission('edit_org', 0, 'organizacao', $current_user_id);
+$can_create_orgs = sevo_check_record_permission('create_org', 0, 'organizacao', $current_user_id);
 ?>
 
 <div class="sevo-dashboard-wrapper">
@@ -44,6 +50,10 @@ $total_pages = $result['total_pages'];
                 
                 $status_class = ($organizacao->status === 'ativo') ? 'status-ativo' : 'status-inativo';
                 $status_text = ($organizacao->status === 'ativo') ? 'Ativo' : 'Inativo';
+                
+                // Check permissions for this specific organization
+                $can_view_this_org = sevo_check_record_permission('view_org', $organizacao->id, 'organizacao', $current_user_id);
+                $can_edit_this_org = sevo_check_record_permission('edit_org', $organizacao->id, 'organizacao', $current_user_id);
             ?>
                 <div class="sevo-card org-card" data-org-id="<?php echo esc_attr($organizacao->id); ?>">
                     <div class="sevo-card-image" style="background-image: url('<?php echo esc_url($organizacao->imagem_url ?: ''); ?>');">
@@ -61,10 +71,13 @@ $total_pages = $result['total_pages'];
                         </p>
                         
                         <div class="card-actions">
-                            <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Ver Detalhes">
-                                <i class="dashicons dashicons-visibility"></i>
-                            </button>
-                            <?php if (current_user_can('manage_options')): ?>
+                            <?php if ($can_view_this_org): ?>
+                                <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Ver Detalhes">
+                                    <i class="dashicons dashicons-visibility"></i>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if ($can_edit_this_org): ?>
                                 <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Editar">
                                     <i class="dashicons dashicons-edit"></i>
                                 </button>
@@ -91,7 +104,7 @@ $total_pages = $result['total_pages'];
     </div>
     
     <!-- Botão Flutuante de Adicionar -->
-    <?php if (current_user_can('manage_options')): ?>
+    <?php if ($can_create_orgs): ?>
         <button id="sevo-create-org-button" class="sevo-floating-add-button sevo-orgs sevo-animate-in" data-tooltip="Criar Nova Organização">
             <i class="dashicons dashicons-plus-alt"></i>
         </button>

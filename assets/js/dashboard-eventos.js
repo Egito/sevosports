@@ -610,7 +610,7 @@ jQuery(document).ready(function($) {
                     this.prev();
                 }
                 this.resetAutoPlay();
-            });
+            }, { passive: false }); // passive: false because we call preventDefault
             
             // Navegação por toque/swipe
             let startX = 0;
@@ -620,12 +620,12 @@ jQuery(document).ready(function($) {
                 startX = e.touches[0].clientX;
                 isDragging = true;
                 this.pauseAutoPlay();
-            });
+            }, { passive: true }); // passive: true because we don't call preventDefault here
             
             this.track.addEventListener('touchmove', (e) => {
                 if (!isDragging) return;
                 e.preventDefault();
-            });
+            }, { passive: false }); // passive: false because we call preventDefault
             
             this.track.addEventListener('touchend', (e) => {
                 if (!isDragging) return;
@@ -643,7 +643,7 @@ jQuery(document).ready(function($) {
                 
                 isDragging = false;
                 this.resetAutoPlay();
-            });
+            }, { passive: true }); // passive: true because we don't call preventDefault here
             
             // Redimensionamento da janela
             window.addEventListener('resize', () => {

@@ -13,10 +13,13 @@ if (!function_exists('sevo_get_summary_cards')) {
     require_once SEVO_EVENTOS_PLUGIN_DIR . 'templates/components/summary-cards.php';
 }
 
-// Verificar permissões
+// Verificar permissões usando função centralizada
+$can_view_inscricoes = sevo_check_user_permission('view_inscricoes');
+$can_manage_all = sevo_check_user_permission('manage_inscricoes');
+$can_view_own = sevo_check_user_permission('view_own_inscricoes');
+$can_cancel_own = sevo_check_user_permission('cancel_inscricao');
 $is_super_admin = is_super_admin();
-$is_admin = current_user_can('manage_options');
-$can_manage_all = $is_super_admin || $is_admin || sevo_check_user_permission('manage_inscricoes');
+
 $current_user = wp_get_current_user();
 
 // Usar o modelo para buscar inscrições
@@ -215,7 +218,7 @@ $total_pages = $result['total_pages'];
                                         <i class="dashicons dashicons-visibility"></i>
                                     </button>
                                     
-                                    <?php if (is_super_admin()): ?>
+                                    <?php if ($is_super_admin): ?>
                                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" 
                                                 data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Editar Inscrição">
                                             <i class="dashicons dashicons-edit"></i>
@@ -230,7 +233,7 @@ $total_pages = $result['total_pages'];
                                         <i class="dashicons dashicons-visibility"></i>
                                     </button>
                                     
-                                    <?php if (in_array($inscricao->status, ['solicitada', 'aceita']) && $inscricao->usuario_id == get_current_user_id()): ?>
+                                    <?php if (in_array($inscricao->status, ['solicitada', 'aceita']) && $inscricao->usuario_id == get_current_user_id() && $can_cancel_own): ?>
                                         <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger cancel-own-btn" 
                                                 data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Cancelar Minha Inscrição">
                                             <i class="dashicons dashicons-dismiss"></i>

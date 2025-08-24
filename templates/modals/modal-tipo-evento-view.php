@@ -98,13 +98,47 @@ if ($tipo_evento->organizacao_id) {
     </div>
 </div>
 
+<?php
+// Detectar se estamos na área administrativa ou no frontend
+// Verifica se a chamada AJAX veio de uma página administrativa ou shortcode
+$is_admin_context = false;
+
+// Verificar se estamos no admin do WordPress
+if (is_admin()) {
+    $is_admin_context = true;
+}
+
+// Verificar se a chamada AJAX veio de uma função administrativa
+if (isset($_POST['action'])) {
+    $admin_actions = array('sevo_get_tipo_evento', 'sevo_list_tipos_evento'); // Ações do admin
+    $frontend_actions = array('sevo_get_tipo_evento_details', 'sevo_get_tipo_evento_form'); // Ações do frontend
+    
+    if (in_array($_POST['action'], $admin_actions)) {
+        $is_admin_context = true;
+    } elseif (in_array($_POST['action'], $frontend_actions)) {
+        $is_admin_context = false;
+    }
+}
+?>
+
 <div class="sevo-modal-footer">
-    <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoTiposEventoAdmin.closeModal()">
-        Fechar
-    </button>
-    <button type="button" class="sevo-btn sevo-btn-primary" onclick="SevoTiposEventoAdmin.editTipoEvento(<?php echo $tipo_evento->id; ?>)">
-        Editar
-    </button>
+    <?php if ($is_admin_context): ?>
+        <!-- Contexto administrativo - usar SevoTiposEventoAdmin -->
+        <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoTiposEventoAdmin.closeModal()">
+            Fechar
+        </button>
+        <button type="button" class="sevo-btn sevo-btn-primary" onclick="SevoTiposEventoAdmin.editTipoEvento(<?php echo $tipo_evento->id; ?>)">
+            Editar
+        </button>
+    <?php else: ?>
+        <!-- Contexto frontend (shortcode) - usar closeModal global e openFormModal -->
+        <button type="button" class="sevo-btn sevo-btn-secondary" onclick="closeModal()">
+            Fechar
+        </button>
+        <button type="button" class="sevo-btn sevo-btn-primary" onclick="openFormModal(<?php echo $tipo_evento->id; ?>)">
+            Editar
+        </button>
+    <?php endif; ?>
 </div>
 
 <style>
@@ -206,47 +240,11 @@ if ($tipo_evento->organizacao_id) {
     justify-content: flex-end;
     gap: 10px;
     padding: 15px 20px;
-    background: #f1f1f1;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #eee;
+    background: #f9f9f9;
 }
 
-.sevo-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-}
-
-.sevo-btn-primary {
-    background: #0073aa;
-    color: white;
-}
-
-.sevo-btn-primary:hover {
-    background: #005a87;
-}
-
-.sevo-btn-secondary {
-    background: #f1f1f1;
-    color: #333;
-    border: 1px solid #ddd;
-}
-
-.sevo-btn-secondary:hover {
-    background: #e1e1e1;
-}
-
-@media (max-width: 768px) {
-    .sevo-info-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .sevo-tipo-evento-details {
-        padding: 15px;
-    }
+.sevo-modal-footer .sevo-btn {
+    min-width: 100px;
 }
 </style>

@@ -52,6 +52,9 @@ define('SEVO_EVENTOS_VERSION', '3.0');
 define('SEVO_EVENTOS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SEVO_EVENTOS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
+// Incluir o sistema de permissões centralizado
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/permissions/centralized-permission-checker.php';
+
 /**
  * Sistema centralizado de verificação de permissões do plugin Sevo Eventos
  * 
@@ -319,10 +322,10 @@ class Sevo_Eventos_Main {
         }
 
         // Incluir handlers de shortcode unificados
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento-with-permissions.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs-with-permissions.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-dashboard-inscricoes-with-permissions.php';
-        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos-dashboard-with-permissions.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-tipo-evento.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-orgs.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-dashboard-inscricoes.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-eventos-dashboard.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-summary-cards.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-asgaros-comments.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-papeis.php';
@@ -334,11 +337,11 @@ class Sevo_Eventos_Main {
         $this->inscricao_cpt = new Sevo_Inscricao_CPT_New();
         $this->usuario_org_cpt = new Sevo_Usuario_Organizacao_CPT();
         
-        // Inicializar shortcodes com permissões organizacionais
-        new Sevo_Orgs_Dashboard_Shortcode_With_Permissions();
-        new Sevo_Tipo_Evento_Dashboard_Shortcode_With_Permissions();
-        new Sevo_Eventos_Dashboard_Shortcode_With_Permissions();
-        new Sevo_Dashboard_Inscricoes_Shortcode_With_Permissions();
+        // Inicializar shortcodes
+        new Sevo_Orgs_Dashboard_Shortcode_Unified();
+        new Sevo_Tipo_Evento_Dashboard_Shortcode();
+        new Sevo_Eventos_Dashboard_Shortcode();
+        new Sevo_Dashboard_Inscricoes_Shortcode();
         new Sevo_Papeis_Shortcode();
         
         // Inicializar integração com fórum se disponível

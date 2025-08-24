@@ -21,7 +21,9 @@ $tests_dir = dirname(__FILE__);
 
 // Array com todos os arquivos de teste
 $test_files = array(
-    'test-shortcode-orgs-buttons.php'
+    'test-shortcode-orgs-buttons.php',
+    'test-centralized-permissions.php',
+    'test-modal-fixes.php'
 );
 
 echo "Executando todos os testes do plugin Sevo Eventos...\n";

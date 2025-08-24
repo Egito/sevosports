@@ -30,6 +30,7 @@ class Sevo_Papeis_Shortcode {
         add_action('wp_ajax_sevo_frontend_remove_user_role', array($this, 'ajax_remove_user_role'));
         add_action('wp_ajax_sevo_frontend_get_user_roles', array($this, 'ajax_get_user_roles'));
         add_action('wp_ajax_sevo_frontend_get_available_users', array($this, 'ajax_get_available_users'));
+        add_action('wp_ajax_sevo_frontend_get_available_users_paginated', array($this, 'ajax_get_available_users_paginated'));
         add_action('wp_ajax_sevo_frontend_get_editor_organizations', array($this, 'ajax_get_editor_organizations'));
         
         // Enqueue scripts
@@ -125,6 +126,8 @@ class Sevo_Papeis_Shortcode {
                             
                             <div class="form-group">
                                 <label for="user-role-user-id"><?php _e('Usuário:', 'sevo-eventos'); ?></label>
+                                <!-- Adicionando campo de filtro de usuário -->
+                                <input type="text" id="user-role-user-filter" class="form-control" placeholder="<?php _e('Filtrar usuários...', 'sevo-eventos'); ?>">
                                 <select id="user-role-user-id" name="usuario_id" required class="form-control">
                                     <option value=""><?php _e('Selecione um usuário', 'sevo-eventos'); ?></option>
                                     <!-- Opções carregadas via AJAX -->
@@ -219,7 +222,8 @@ class Sevo_Papeis_Shortcode {
                     'success_update' => __('Papel atualizado com sucesso!', 'sevo-eventos'),
                     'success_remove' => __('Usuário removido com sucesso!', 'sevo-eventos'),
                     'no_permission' => __('Você não tem permissão para esta ação.', 'sevo-eventos'),
-                    'user_already_exists' => __('Este usuário já possui papel nesta organização.', 'sevo-eventos')
+                    'user_already_exists' => __('Este usuário já possui papel nesta organização.', 'sevo-eventos'),
+                    'no_users_found' => __('Nenhum usuário encontrado.', 'sevo-eventos')
                 )
             ));
         }
@@ -253,11 +257,9 @@ class Sevo_Papeis_Shortcode {
             wp_send_json_error(__('Dados inválidos.', 'sevo-eventos'));
         }
         
-        // Se não é admin, verificar se tem acesso à organização
-        if (!$is_admin) {
-            if (!$this->usuario_org_model->user_has_organization_access($current_user->ID, $organizacao_id)) {
-                wp_send_json_error(__('Você não tem acesso a esta organização.', 'sevo-eventos'));
-            }
+        // Verificar permissões usando o sistema centralizado
+        if (!sevo_check_record_permission('edit_org', $organizacao_id, 'organizacao', $current_user->ID)) {
+            wp_send_json_error(__('Você não tem permissão para gerenciar esta organização.', 'sevo-eventos'));
         }
         
         // Verificar se já existe vínculo ativo
@@ -328,11 +330,9 @@ class Sevo_Papeis_Shortcode {
             wp_send_json_error(__('Vínculo não encontrado.', 'sevo-eventos'));
         }
         
-        // Se não é admin, verificar se tem acesso à organização
-        if (!$is_admin) {
-            if (!$this->usuario_org_model->user_has_organization_access($current_user->ID, $vinculo->organizacao_id)) {
-                wp_send_json_error(__('Você não tem acesso a esta organização.', 'sevo-eventos'));
-            }
+        // Verificar permissões usando o sistema centralizado
+        if (!sevo_check_record_permission('edit_org', $vinculo->organizacao_id, 'organizacao', $current_user->ID)) {
+            wp_send_json_error(__('Você não tem permissão para gerenciar esta organização.', 'sevo-eventos'));
         }
         
         $data = array(
@@ -380,11 +380,9 @@ class Sevo_Papeis_Shortcode {
             wp_send_json_error(__('Vínculo não encontrado.', 'sevo-eventos'));
         }
         
-        // Se não é admin, verificar se tem acesso à organização
-        if (!$is_admin) {
-            if (!$this->usuario_org_model->user_has_organization_access($current_user->ID, $vinculo->organizacao_id)) {
-                wp_send_json_error(__('Você não tem acesso a esta organização.', 'sevo-eventos'));
-            }
+        // Verificar permissões usando o sistema centralizado
+        if (!sevo_check_record_permission('edit_org', $vinculo->organizacao_id, 'organizacao', $current_user->ID)) {
+            wp_send_json_error(__('Você não tem permissão para gerenciar esta organização.', 'sevo-eventos'));
         }
         
         // Desativar vínculo em vez de deletar
@@ -414,6 +412,14 @@ class Sevo_Papeis_Shortcode {
         
         $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_options');
+        $is_editor = current_user_can('edit_others_posts');
+        $is_author = current_user_can('publish_posts');
+        
+        // Check if user has permission to view user roles
+        // Only admins, editors, and authors can access this
+        if (!$is_admin && !$is_editor && !$is_author) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
         
         $filters = array(
             'organizacao_id' => isset($_POST['organizacao_id']) ? absint($_POST['organizacao_id']) : 0,
@@ -425,17 +431,58 @@ class Sevo_Papeis_Shortcode {
             $user_orgs = $this->usuario_org_model->get_user_organizations($current_user->ID);
             $org_ids = wp_list_pluck($user_orgs, 'organizacao_id');
             
+            // Authors might not have any organizations, so we need to handle this case
             if (empty($org_ids)) {
-                wp_send_json_success(array('html' => '<p>' . __('Você não possui organizações.', 'sevo-eventos') . '</p>'));
+                // For authors, show an appropriate message
+                if ($is_author && !$is_editor) {
+                    wp_send_json_success(array('html' => '<p>' . __('Você não possui organizações atribuídas. Entre em contato com um administrador.', 'sevo-eventos') . '</p>'));
+                } else {
+                    wp_send_json_success(array('html' => '<p>' . __('Você não possui organizações.', 'sevo-eventos') . '</p>'));
+                }
+                return;
             }
             
-            $filters['organizacao_ids'] = $org_ids;
+            // Se um filtro de organização foi especificado, verificar se o usuário tem acesso a ela
+            if ($filters['organizacao_id'] > 0) {
+                if (!in_array($filters['organizacao_id'], $org_ids)) {
+                    wp_send_json_error(__('Você não tem acesso a esta organização.', 'sevo-eventos'));
+                }
+                $filters['organizacao_ids'] = [$filters['organizacao_id']];
+            } else {
+                $filters['organizacao_ids'] = $org_ids;
+            }
+            
+            // Remover o filtro de organização individual se estiver usando organizacao_ids
+            unset($filters['organizacao_id']);
+        } else {
+            // Para administradores, aplicar o filtro de organização se especificado
+            if ($filters['organizacao_id'] > 0) {
+                $filters['organizacao_ids'] = [$filters['organizacao_id']];
+                unset($filters['organizacao_id']);
+            }
         }
         
+        // Obter os papéis de usuário com detalhes
         $roles = $this->usuario_org_model->get_user_roles_with_details($filters);
         
+        // Filtrar os papéis com base nas permissões do usuário
+        $filtered_roles = array_filter($roles, function($role) use ($current_user, $is_admin) {
+            // Administradores podem ver tudo
+            if ($is_admin) {
+                return true;
+            }
+            
+            // Para outros usuários, verificar se eles têm permissão para ver esta organização
+            // Make sure we have a valid organization ID before checking permissions
+            if (!empty($role->organizacao_id)) {
+                return sevo_check_record_permission('view_org', $role->organizacao_id, 'organizacao', $current_user->ID);
+            }
+            
+            return false;
+        });
+        
         ob_start();
-        $this->render_roles_table($roles, $is_admin);
+        $this->render_roles_table($filtered_roles, $is_admin || current_user_can('edit_others_posts'));
         $html = ob_get_clean();
         
         wp_send_json_success(array('html' => $html));
@@ -451,12 +498,39 @@ class Sevo_Papeis_Shortcode {
             wp_send_json_error(__('Você precisa estar logado.', 'sevo-eventos'));
         }
         
-        // Buscar usuários que não são administradores
-        $users = get_users(array(
+        // Obter termo de busca, se fornecido
+        $search_term = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+        
+        // Preparar argumentos para buscar usuários
+        $user_args = array(
             'role__not_in' => array('administrator'),
             'orderby' => 'display_name',
-            'order' => 'ASC'
-        ));
+            'order' => 'ASC',
+            'number' => 100 // Limitar a 100 usuários para evitar timeout
+        );
+        
+        // Adicionar busca, se fornecida
+        if (!empty($search_term)) {
+            // Primeiro tentar buscar por display_name
+            $user_args['meta_query'] = array(
+                'relation' => 'OR',
+                array(
+                    'key' => 'first_name',
+                    'value' => $search_term,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key' => 'last_name',
+                    'value' => $search_term,
+                    'compare' => 'LIKE'
+                )
+            );
+            $user_args['search'] = '*' . $search_term . '*';
+            $user_args['search_columns'] = array('user_login', 'user_nicename', 'user_email', 'display_name');
+        }
+        
+        // Buscar usuários que não são administradores
+        $users = get_users($user_args);
         
         $options = '<option value="">' . __('Selecione um usuário', 'sevo-eventos') . '</option>';
         
@@ -469,7 +543,65 @@ class Sevo_Papeis_Shortcode {
             );
         }
         
+        // Adicionar mensagem se houver mais usuários (apenas quando não há busca)
+        if (empty($search_term)) {
+            $total_users = count_users();
+            $non_admin_count = array_sum($total_users['avail_roles']) - ($total_users['avail_roles']['administrator'] ?? 0);
+            
+            if ($non_admin_count > 100) {
+                $options .= '<option value="" disabled>' . 
+                           sprintf(__('Há mais %d usuários. Use o filtro para encontrar o usuário desejado.', 'sevo-eventos'), $non_admin_count) . 
+                           '</option>';
+            }
+        } else if (empty($users)) {
+            // Se houver busca e não encontrar usuários
+            $options .= '<option value="" disabled>' . __('Nenhum usuário encontrado.', 'sevo-eventos') . '</option>';
+        }
+        
         wp_send_json_success(array('options' => $options));
+    }
+    
+    /**
+     * AJAX: Obter usuários disponíveis para adicionar (com paginação)
+     */
+    public function ajax_get_available_users_paginated() {
+        check_ajax_referer('sevo_papeis_nonce', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('Você precisa estar logado.', 'sevo-eventos'));
+        }
+        
+        $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+        $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 100;
+        
+        // Limitar o número de usuários por página para evitar timeout
+        $per_page = min($per_page, 100);
+        
+        // Buscar usuários que não são administradores
+        $users = get_users(array(
+            'role__not_in' => array('administrator'),
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+            'number' => $per_page,
+            'offset' => ($page - 1) * $per_page
+        ));
+        
+        // Preparar dados dos usuários para o frontend
+        $users_data = array();
+        foreach ($users as $user) {
+            $users_data[] = array(
+                'ID' => $user->ID,
+                'display_name' => $user->display_name,
+                'user_email' => $user->user_email
+            );
+        }
+        
+        wp_send_json_success(array(
+            'users' => $users_data,
+            'page' => $page,
+            'per_page' => $per_page,
+            'total' => count($users_data)
+        ));
     }
     
     /**
@@ -485,29 +617,46 @@ class Sevo_Papeis_Shortcode {
         $current_user = wp_get_current_user();
         $is_admin = current_user_can('manage_options');
         
+        // Initialize organizations array
+        $organizations = array();
+        
         if ($is_admin) {
             // Administrador vê todas as organizações
             $organizations = $this->org_model->get_active();
         } else {
-            // Editor vê apenas suas organizações
-            $user_orgs = $this->usuario_org_model->get_user_organizations($current_user->ID);
-            $org_ids = wp_list_pluck($user_orgs, 'organizacao_id');
+            // Check if user has editor or author capabilities
+            $is_editor = current_user_can('edit_others_posts');
+            $is_author = current_user_can('publish_posts');
             
-            if (empty($org_ids)) {
-                wp_send_json_success(array('options' => '<option value="">' . __('Nenhuma organização disponível', 'sevo-eventos') . '</option>'));
+            if ($is_editor || $is_author) {
+                // Editor/Author vê apenas suas organizações
+                $user_orgs = $this->usuario_org_model->get_user_organizations($current_user->ID);
+                $org_ids = wp_list_pluck($user_orgs, 'organizacao_id');
+                
+                if (!empty($org_ids)) {
+                    $organizations = $this->org_model->where_in('id', $org_ids);
+                }
+                // If empty, $organizations remains an empty array
             }
-            
-            $organizations = $this->org_model->where_in('id', $org_ids);
         }
         
         $options = '<option value="">' . __('Todas as organizações', 'sevo-eventos') . '</option>';
         
-        foreach ($organizations as $org) {
-            $options .= sprintf(
-                '<option value="%d">%s</option>',
-                $org->id,
-                esc_html($org->titulo)
-            );
+        // Only process organizations if we have any
+        if (!empty($organizations)) {
+            foreach ($organizations as $org) {
+                // Verificar permissões usando o sistema centralizado
+                // Make sure we have a valid organization ID before checking permissions
+                if (!empty($org->id)) {
+                    if (sevo_check_record_permission('view_org', $org->id, 'organizacao', $current_user->ID)) {
+                        $options .= sprintf(
+                            '<option value="%d">%s</option>',
+                            $org->id,
+                            esc_html($org->titulo)
+                        );
+                    }
+                }
+            }
         }
         
         wp_send_json_success(array('options' => $options));
@@ -567,7 +716,8 @@ class Sevo_Papeis_Shortcode {
                                     data-usuario-id="<?php echo esc_attr($role->usuario_id); ?>"
                                     data-organizacao-id="<?php echo esc_attr($role->organizacao_id); ?>"
                                     data-papel="<?php echo esc_attr($role->papel); ?>"
-                                    data-observacoes="<?php echo esc_attr($role->observacoes); ?>">
+                                    data-observacoes="<?php echo esc_attr($role->observacoes); ?>"
+                                    data-usuario-nome="<?php echo esc_attr($role->usuario_nome); ?>">
                                 <i class="fas fa-edit"></i> <?php _e('Editar', 'sevo-eventos'); ?>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger sevo-remove-role" 
