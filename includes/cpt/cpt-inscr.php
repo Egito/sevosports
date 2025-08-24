@@ -42,27 +42,46 @@ class Sevo_Inscricao_CPT_New {
      * Adiciona menu no admin
      */
     public function add_admin_menu() {
-        add_submenu_page(
-            'sevo-eventos',
-            __('Inscrições', 'sevo-eventos'),
-            __('Inscrições', 'sevo-eventos'),
-            'manage_options',
-            'sevo-inscricoes',
-            array($this, 'admin_page')
-        );
+        // Frontend: Autores e acima podem ver o menu
+        // Backend: Apenas administradores podem modificar (mantido como manage_options para AJAX)
+        if (current_user_can('publish_posts')) { // Author capability
+            add_submenu_page(
+                'sevo-eventos',
+                __('Inscrições', 'sevo-eventos'),
+                __('Inscrições', 'sevo-eventos'),
+                'publish_posts', // Mostrar para autores
+                'sevo-inscricoes',
+                array($this, 'admin_page')
+            );
+        }
     }
     
     /**
      * Página de administração das inscrições
      */
     public function admin_page() {
+        // Verificar permissões para diferentes ações
+        $can_manage = current_user_can('manage_options'); // Apenas administradores podem modificar
+        $can_view = current_user_can('publish_posts'); // Autores podem visualizar
+        
+        if (!$can_view) {
+            wp_die(__('Você não tem permissão para acessar esta página.', 'sevo-eventos'));
+        }
         ?>
         <div class="wrap">
             <h1><?php _e('Inscrições', 'sevo-eventos'); ?>
+                <?php if ($can_manage): ?>
                 <button type="button" class="page-title-action" id="sevo-add-inscricao-btn">
                     <?php _e('Adicionar Nova', 'sevo-eventos'); ?>
                 </button>
+                <?php endif; ?>
             </h1>
+            
+            <?php if (!$can_manage): ?>
+            <div class="notice notice-info">
+                <p><?php _e('Você pode visualizar as inscrições, mas apenas administradores podem modificá-las.', 'sevo-eventos'); ?></p>
+            </div>
+            <?php endif; ?>
             
             <!-- Filtros -->
             <div class="sevo-filters" style="margin: 20px 0; padding: 15px; background: #f9f9f9; border: 1px solid #ddd;">
@@ -159,16 +178,20 @@ class Sevo_Inscricao_CPT_New {
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            overflow-y: auto; /* Permitir scroll no modal */
         }
         
         .sevo-modal-content {
             background-color: #fefefe;
-            margin: 5% auto;
+            margin: 2% auto; /* Margem menor */
             padding: 0;
             border: 1px solid #888;
             width: 80%;
             max-width: 600px;
             border-radius: 4px;
+            max-height: 90vh; /* Altura máxima do viewport */
+            overflow-y: auto; /* Scroll interno se necessário */
+            position: relative;
         }
         
         .sevo-modal-header {
@@ -305,6 +328,7 @@ class Sevo_Inscricao_CPT_New {
         wp_localize_script('sevo-inscricao-admin', 'sevoInscricaoAdmin', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sevo_inscricao_nonce'),
+            'can_manage' => current_user_can('manage_options'), // Indicador de permissão
             'strings' => array(
                 'confirm_delete' => __('Tem certeza que deseja excluir esta inscrição?', 'sevo-eventos'),
                 'confirm_accept' => __('Tem certeza que deseja aceitar esta inscrição?', 'sevo-eventos'),
@@ -316,7 +340,8 @@ class Sevo_Inscricao_CPT_New {
                 'success_delete' => __('Inscrição excluída com sucesso!', 'sevo-eventos'),
                 'success_accept' => __('Inscrição aceita com sucesso!', 'sevo-eventos'),
                 'success_reject' => __('Inscrição rejeitada com sucesso!', 'sevo-eventos'),
-                'success_cancel' => __('Inscrição cancelada com sucesso!', 'sevo-eventos')
+                'success_cancel' => __('Inscrição cancelada com sucesso!', 'sevo-eventos'),
+                'no_permission' => __('Você não tem permissão para esta ação.', 'sevo-eventos')
             )
         ));
     }
@@ -427,9 +452,12 @@ class Sevo_Inscricao_CPT_New {
     public function ajax_list_inscricoes() {
         check_ajax_referer('sevo_inscricao_nonce', 'nonce');
         
-        if (!current_user_can('manage_options')) {
+        // Permitir visualização para autores, mas modificação apenas para administradores
+        if (!current_user_can('publish_posts')) {
             wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
         }
+        
+        $can_manage = current_user_can('manage_options'); // Apenas administradores podem modificar
         
         $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
@@ -456,7 +484,9 @@ class Sevo_Inscricao_CPT_New {
                     <th><?php _e('Organização', 'sevo-eventos'); ?></th>
                     <th><?php _e('Status', 'sevo-eventos'); ?></th>
                     <th><?php _e('Data da Inscrição', 'sevo-eventos'); ?></th>
+                    <?php if ($can_manage): ?>
                     <th><?php _e('Ações', 'sevo-eventos'); ?></th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -477,6 +507,7 @@ class Sevo_Inscricao_CPT_New {
                                 </span>
                             </td>
                             <td><?php echo esc_html(date('d/m/Y H:i', strtotime($inscricao->created_at))); ?></td>
+                            <?php if ($can_manage): ?>
                             <td class="sevo-inscricao-actions">
                                 <?php if ($inscricao->status === 'solicitada'): ?>
                                     <div class="sevo-quick-actions">
@@ -500,11 +531,12 @@ class Sevo_Inscricao_CPT_New {
                                     <?php _e('Excluir', 'sevo-eventos'); ?>
                                 </button>
                             </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6"><?php _e('Nenhuma inscrição encontrada.', 'sevo-eventos'); ?></td>
+                        <td colspan="<?php echo $can_manage ? '6' : '5'; ?>"><?php _e('Nenhuma inscrição encontrada.', 'sevo-eventos'); ?></td>
                     </tr>
                 <?php endif; ?>
             </tbody>

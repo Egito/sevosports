@@ -52,7 +52,11 @@
         
         showCreateModal: function() {
             $('#sevo-org-modal-title').text(sevoOrgAdmin.strings.add_new || 'Nova Organização');
-            $('#sevo-org-form')[0].reset();
+            // Verificar se o formulário existe antes de resetar
+            var form = $('#sevo-org-form')[0];
+            if (form) {
+                form.reset();
+            }
             $('input[name="org_id"]').val('');
             // Atualizar botão do modal
             $('#sevo-org-save').text('Criar');
@@ -110,8 +114,11 @@
         
         hideModal: function() {
             $('#sevo-org-modal').hide();
-            // Limpar formulário
-            $('#sevo-org-form')[0].reset();
+            // Limpar formulário - verificar se existe antes de resetar
+            var form = $('#sevo-org-form')[0];
+            if (form) {
+                form.reset();
+            }
             $('input[name="org_id"]').val('');
             $('#current-image-preview').hide();
             $('#remove-image-btn').hide();

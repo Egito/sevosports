@@ -30,6 +30,7 @@ class Sevo_Database_Migration {
         $this->create_tipos_evento_table();
         $this->create_eventos_table();
         $this->create_inscricoes_table();
+        $this->create_usuarios_organizacoes_table();
         $this->create_forum_metadata_table();
         
         // Atualizar versão do banco
@@ -161,6 +162,40 @@ class Sevo_Database_Migration {
             KEY idx_updated_at (updated_at),
             FOREIGN KEY (evento_id) REFERENCES {$this->wpdb->prefix}sevo_eventos(id) ON DELETE CASCADE,
             FOREIGN KEY (usuario_id) REFERENCES {$this->wpdb->users}(ID) ON DELETE CASCADE
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+    
+    /**
+     * Cria tabela de Usuários por Organização
+     */
+    private function create_usuarios_organizacoes_table() {
+        $table_name = $this->wpdb->prefix . 'sevo_usuarios_organizacoes';
+        
+        $charset_collate = $this->wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            usuario_id bigint(20) unsigned NOT NULL,
+            organizacao_id bigint(20) unsigned NOT NULL,
+            papel varchar(20) NOT NULL DEFAULT 'autor',
+            status varchar(20) DEFAULT 'ativo',
+            data_vinculo datetime DEFAULT CURRENT_TIMESTAMP,
+            observacoes text,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_user_org_active (usuario_id, organizacao_id, status),
+            KEY idx_usuario (usuario_id),
+            KEY idx_organizacao (organizacao_id),
+            KEY idx_papel (papel),
+            KEY idx_status (status),
+            KEY idx_data_vinculo (data_vinculo),
+            KEY idx_created (created_at),
+            FOREIGN KEY (usuario_id) REFERENCES {$this->wpdb->users}(ID) ON DELETE CASCADE,
+            FOREIGN KEY (organizacao_id) REFERENCES {$this->wpdb->prefix}sevo_organizacoes(id) ON DELETE CASCADE
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

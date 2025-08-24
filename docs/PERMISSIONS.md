@@ -64,20 +64,11 @@ Função auxiliar para verificar permissões em contextos AJAX. Se o usuário n�
 - `view_own_inscricoes` - Visualizar próprias inscrições (usuários logados)
 
 ### Inscrições - Administração
-- `manage_inscricoes` - Gerenciar todas as inscrições (administradores e editores)
-- `approve_inscricao` - Aprovar inscrição (administradores e editores)
-- `reject_inscricao` - Rejeitar inscrição (administradores e editores)
-- `change_inscricao_status` - Mudar status da inscrição (administradores e editores)
-- `view_all_inscricoes` - Ver todas as inscrições (administradores e editores)
-
-### Inscrições - Autores (Limitado)
-- `manage_own_event_inscricoes` - Gerenciar inscrições dos próprios eventos (autores)
-- `approve_own_event_inscricao` - Aprovar inscrição do próprio evento (autores)
-- `reject_own_event_inscricao` - Rejeitar inscrição do próprio evento (autores)
-
-### Dados Administrativos
-- `view_admin_data` - Visualizar dados administrativos (administradores e editores)
-- `view_inscricoes` - Visualizar inscrições (administradores e editores)
+- `manage_inscricoes` - Gerenciar todas as inscrições (administradores e editores e autores)
+- `approve_inscricao` - Aprovar inscrição (administradores e editores e autores)
+- `reject_inscricao` - Rejeitar inscrição (administradores e editores e autores)
+- `change_inscricao_status` - Mudar status da inscrição (administradores e editores e autores)
+- `view_all_inscricoes` - Ver todas as inscrições (administradores e editores e autores)
 
 ## Hierarquia de Permissões
 
@@ -90,7 +81,6 @@ Função auxiliar para verificar permissões em contextos AJAX. Se o usuário n�
 
 ### Editor (`edit_posts`)
 - Pode gerenciar tipos de evento e eventos
-- Pode visualizar dados administrativos
 - Pode aprovar/rejeitar inscrições de qualquer evento
 - Pode desativar/ativar tipos de evento e eventos
 - **NÃO** pode gerenciar organizações
@@ -101,7 +91,6 @@ Função auxiliar para verificar permissões em contextos AJAX. Se o usuário n�
 - Pode aprovar/rejeitar inscrições dos próprios eventos
 - Pode desativar/ativar próprios eventos
 - Não pode gerenciar tipos de evento ou organizações
-- Acesso limitado aos dados administrativos
 
 ### Usuário Logado (`read`)
 - Pode criar, cancelar e solicitar inscrições

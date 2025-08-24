@@ -19,6 +19,7 @@ require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model.php';
 require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
 require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
 require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Inscricao_Model.php';
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Usuario_Organizacao_Model.php';
 
 /**
  * Classe principal para inicialização do sistema de banco de dados

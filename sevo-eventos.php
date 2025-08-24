@@ -198,6 +198,9 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/database/init.php';
         
         // Carregar sistema de backup APÓS os modelos
+        
+        // Carregar shortcodes
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/shortcodes/shortcode-papeis.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/backup/Sevo_Backup_Manager.php';
         
         // Inicializar backup manager apenas no admin
@@ -210,6 +213,7 @@ class Sevo_Eventos_Main {
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-tipo-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-evento.php';
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-inscr.php';
+        require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/cpt-usuario-organizacao.php';
         // Carregar a integração com o Fórum
         if (class_exists('AsgarosForum')) {
             require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/cpt/sevo-forum-integration.php';
@@ -228,6 +232,7 @@ class Sevo_Eventos_Main {
         $this->tipo_evento_cpt = new Sevo_Tipo_Evento_CPT_New();
         $this->evento_cpt = new Sevo_Evento_CPT_New();
         $this->inscricao_cpt = new Sevo_Inscricao_CPT_New();
+        $this->usuario_org_cpt = new Sevo_Usuario_Organizacao_CPT();
         
         // Inicializar shortcodes
         new Sevo_Eventos_Dashboard_Shortcode();
@@ -450,6 +455,16 @@ class Sevo_Eventos_Main {
             'sevo-inscricoes',
             array($this, 'inscricoes_page_callback')
         );
+        
+        // Adicionar submenu para Usuários por Organização - apenas administradores
+        add_submenu_page(
+            'sevo-eventos',
+            'Usuários por Organização',
+            'Usuários/Org',
+            'manage_options',
+            'sevo-usuarios-organizacao',
+            array($this, 'usuarios_org_page_callback')
+        );
 
     }
 
@@ -660,6 +675,22 @@ class Sevo_Eventos_Main {
             $this->inscricao_cpt->admin_page();
         } else {
             echo '<div class="wrap"><h1>Erro: Classe de inscrições não foi inicializada.</h1></div>';
+        }
+    }
+    
+    /**
+     * Callback para a página de usuários por organização
+     */
+    public function usuarios_org_page_callback() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para acessar esta página.'));
+        }
+        
+        // Usar a instância já criada
+        if ($this->usuario_org_cpt) {
+            $this->usuario_org_cpt->admin_page();
+        } else {
+            echo '<div class="wrap"><h1>Erro: Classe de usuários por organização não foi inicializada.</h1></div>';
         }
     }
 

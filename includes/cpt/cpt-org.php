@@ -33,14 +33,18 @@ class Sevo_Orgs_CPT_New {
      * Adiciona menu no admin
      */
     public function add_admin_menu() {
-        add_submenu_page(
-            'sevo-eventos',
-            __('Organizações', 'sevo-eventos'),
-            __('Organizações', 'sevo-eventos'),
-            'manage_options',
-            'sevo-organizacoes',
-            array($this, 'admin_page')
-        );
+        // Frontend: Apenas administradores podem ver o menu
+        // Backend: Apenas administradores podem modificar (mantido como manage_options)
+        if (current_user_can('manage_options')) {
+            add_submenu_page(
+                'sevo-eventos',
+                __('Organizações', 'sevo-eventos'),
+                __('Organizações', 'sevo-eventos'),
+                'manage_options',
+                'sevo-organizacoes',
+                array($this, 'admin_page')
+            );
+        }
     }
     
     /**
@@ -87,12 +91,13 @@ class Sevo_Orgs_CPT_New {
             background-color: rgba(0,0,0,0.5);
             /* Previne interações com elementos por baixo */
             pointer-events: auto;
+            overflow-y: auto; /* Permitir scroll no modal */
         }
         
         /* Garante que o conteúdo do modal também tenha z-index alto */
         .sevo-modal-content {
             background-color: #fefefe;
-            margin: 5% auto;
+            margin: 2% auto; /* Margem menor */
             padding: 0;
             border: 1px solid #888;
             width: 80%;
@@ -102,6 +107,8 @@ class Sevo_Orgs_CPT_New {
             z-index: 2147483647;
             /* Previne que elementos do tema interfiram */
             isolation: isolate;
+            max-height: 90vh; /* Altura máxima do viewport */
+            overflow-y: auto; /* Scroll interno se necessário */
         }
         
         .sevo-modal-header {

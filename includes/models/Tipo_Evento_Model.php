@@ -24,7 +24,7 @@ class Sevo_Tipo_Evento_Model extends Sevo_Base_Model {
         'autor_id',
         'max_vagas',
         'status',
-        'tipo_participacao'
+        'participacao'
     ];
     
     public function __construct() {

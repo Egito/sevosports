@@ -79,7 +79,7 @@
                         
                         $('#sevo-evento-modal-title').text('Editar Evento');
                         $('#evento-id').val(evento.id);
-                        $('#evento-nome').val(evento.nome);
+                        $('#evento-titulo').val(evento.titulo);
                         $('#evento-descricao').val(evento.descricao);
                         $('#evento-tipo-id').val(evento.tipo_evento_id);
                         $('#evento-data-inicio-inscricao').val(evento.data_inicio_inscricao);
@@ -87,8 +87,7 @@
                         $('#evento-data-inicio').val(evento.data_inicio);
                         $('#evento-data-fim').val(evento.data_fim);
                         $('#evento-vagas').val(evento.vagas);
-                        $('#evento-local').val(evento.local);
-                        $('#evento-observacoes').val(evento.observacoes);
+                        $('#evento-imagem-url').val(evento.imagem_url || '');
                         $('#evento-status').val(evento.status);
                         
                         $('#sevo-evento-modal').show();
@@ -112,8 +111,8 @@
             var action = eventoId ? 'sevo_update_evento' : 'sevo_create_evento';
             
             // Validação básica
-            if (!$('#evento-nome').val().trim()) {
-                SevoEventoAdmin.showNotice('Nome é obrigatório.', 'error');
+            if (!$('#evento-titulo').val().trim()) {
+                SevoEventoAdmin.showNotice('Título é obrigatório.', 'error');
                 return;
             }
             

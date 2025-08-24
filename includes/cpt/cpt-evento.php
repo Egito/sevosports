@@ -39,27 +39,46 @@ class Sevo_Evento_CPT_New {
      * Adiciona menu no admin
      */
     public function add_admin_menu() {
-        add_submenu_page(
-            'sevo-eventos',
-            __('Eventos', 'sevo-eventos'),
-            __('Eventos', 'sevo-eventos'),
-            'manage_options',
-            'sevo-eventos-list',
-            array($this, 'admin_page')
-        );
+        // Frontend: Autores e acima podem ver o menu
+        // Backend: Apenas administradores podem modificar (mantido como manage_options para AJAX)
+        if (current_user_can('publish_posts')) { // Author capability
+            add_submenu_page(
+                'sevo-eventos',
+                __('Eventos', 'sevo-eventos'),
+                __('Eventos', 'sevo-eventos'),
+                'publish_posts', // Mostrar para autores
+                'sevo-eventos-list',
+                array($this, 'admin_page')
+            );
+        }
     }
     
     /**
      * Página de administração dos eventos
      */
     public function admin_page() {
+        // Verificar permissões para diferentes ações
+        $can_manage = current_user_can('manage_options'); // Apenas administradores podem modificar
+        $can_view = current_user_can('publish_posts'); // Autores podem visualizar
+        
+        if (!$can_view) {
+            wp_die(__('Você não tem permissão para acessar esta página.', 'sevo-eventos'));
+        }
         ?>
         <div class="wrap">
             <h1><?php _e('Eventos', 'sevo-eventos'); ?>
+                <?php if ($can_manage): ?>
                 <button type="button" class="page-title-action" id="sevo-add-evento-btn">
                     <?php _e('Adicionar Novo', 'sevo-eventos'); ?>
                 </button>
+                <?php endif; ?>
             </h1>
+            
+            <?php if (!$can_manage): ?>
+            <div class="notice notice-info">
+                <p><?php _e('Você pode visualizar os eventos, mas apenas administradores podem modificá-los.', 'sevo-eventos'); ?></p>
+            </div>
+            <?php endif; ?>
             
             <div id="sevo-evento-list-container">
                 <!-- Lista será carregada via AJAX -->
@@ -77,8 +96,8 @@ class Sevo_Evento_CPT_New {
                             <input type="hidden" id="evento-id" name="id" value="">
                             
                             <div class="sevo-form-group">
-                                <label for="evento-nome"><?php _e('Nome:', 'sevo-eventos'); ?></label>
-                                <input type="text" id="evento-nome" name="nome" required>
+                                <label for="evento-titulo"><?php _e('Título:', 'sevo-eventos'); ?></label>
+                                <input type="text" id="evento-titulo" name="titulo" required>
                             </div>
                             
                             <div class="sevo-form-group">
@@ -136,13 +155,9 @@ class Sevo_Evento_CPT_New {
                             </div>
                             
                             <div class="sevo-form-group">
-                                <label for="evento-local"><?php _e('Local:', 'sevo-eventos'); ?></label>
-                                <input type="text" id="evento-local" name="local">
-                            </div>
-                            
-                            <div class="sevo-form-group">
-                                <label for="evento-observacoes"><?php _e('Observações:', 'sevo-eventos'); ?></label>
-                                <textarea id="evento-observacoes" name="observacoes" rows="3"></textarea>
+                                <label for="evento-imagem-url"><?php _e('URL da Imagem (300x300):', 'sevo-eventos'); ?></label>
+                                <input type="url" id="evento-imagem-url" name="imagem_url" placeholder="https://exemplo.com/imagem.jpg">
+                                <p class="description"><?php _e('URL da imagem do evento. Recomendado: 300x300 pixels', 'sevo-eventos'); ?></p>
                             </div>
                         </form>
                     </div>
@@ -163,18 +178,20 @@ class Sevo_Evento_CPT_New {
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            overflow-y: auto; /* Permitir scroll no modal */
         }
         
         .sevo-modal-content {
             background-color: #fefefe;
-            margin: 2% auto;
+            margin: 2% auto; /* Margem menor */
             padding: 0;
             border: 1px solid #888;
             width: 90%;
             max-width: 800px;
             border-radius: 4px;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: 90vh; /* Altura máxima do viewport */
+            overflow-y: auto; /* Scroll interno se necessário */
+            position: relative;
         }
         
         .sevo-modal-header {
@@ -309,12 +326,14 @@ class Sevo_Evento_CPT_New {
         wp_localize_script('sevo-evento-admin', 'sevoEventoAdmin', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sevo_evento_nonce'),
+            'can_manage' => current_user_can('manage_options'), // Indicador de permissão
             'strings' => array(
                 'confirm_delete' => __('Tem certeza que deseja excluir este evento?', 'sevo-eventos'),
                 'error' => __('Erro ao processar solicitação.', 'sevo-eventos'),
                 'success_create' => __('Evento criado com sucesso!', 'sevo-eventos'),
                 'success_update' => __('Evento atualizado com sucesso!', 'sevo-eventos'),
-                'success_delete' => __('Evento excluído com sucesso!', 'sevo-eventos')
+                'success_delete' => __('Evento excluído com sucesso!', 'sevo-eventos'),
+                'no_permission' => __('Você não tem permissão para esta ação.', 'sevo-eventos')
             )
         ));
     }
@@ -330,7 +349,7 @@ class Sevo_Evento_CPT_New {
         }
         
         $data = array(
-            'titulo' => sanitize_text_field($_POST['nome']),
+            'titulo' => sanitize_text_field($_POST['titulo']),
             'descricao' => sanitize_textarea_field($_POST['descricao']),
             'tipo_evento_id' => absint($_POST['tipo_evento_id']),
             'data_inicio_inscricoes' => sanitize_text_field($_POST['data_inicio_inscricao']),
@@ -338,8 +357,7 @@ class Sevo_Evento_CPT_New {
             'data_inicio_evento' => sanitize_text_field($_POST['data_inicio']),
             'data_fim_evento' => sanitize_text_field($_POST['data_fim']),
             'vagas' => absint($_POST['vagas']),
-            'local' => sanitize_text_field($_POST['local']),
-            'observacoes' => sanitize_textarea_field($_POST['observacoes']),
+            'imagem_url' => esc_url_raw($_POST['imagem_url']),
             'status' => sanitize_text_field($_POST['status'])
         );
         
@@ -367,7 +385,7 @@ class Sevo_Evento_CPT_New {
         
         $id = absint($_POST['id']);
         $data = array(
-            'titulo' => sanitize_text_field($_POST['nome']),
+            'titulo' => sanitize_text_field($_POST['titulo']),
             'descricao' => sanitize_textarea_field($_POST['descricao']),
             'tipo_evento_id' => absint($_POST['tipo_evento_id']),
             'data_inicio_inscricoes' => sanitize_text_field($_POST['data_inicio_inscricao']),
@@ -375,8 +393,7 @@ class Sevo_Evento_CPT_New {
             'data_inicio_evento' => sanitize_text_field($_POST['data_inicio']),
             'data_fim_evento' => sanitize_text_field($_POST['data_fim']),
             'vagas' => absint($_POST['vagas']),
-            'local' => sanitize_text_field($_POST['local']),
-            'observacoes' => sanitize_textarea_field($_POST['observacoes']),
+            'imagem_url' => esc_url_raw($_POST['imagem_url']),
             'status' => sanitize_text_field($_POST['status'])
         );
         
@@ -445,9 +462,12 @@ class Sevo_Evento_CPT_New {
     public function ajax_list_eventos() {
         check_ajax_referer('sevo_evento_nonce', 'nonce');
         
-        if (!current_user_can('manage_options')) {
+        // Permitir visualização para autores, mas modificação apenas para administradores
+        if (!current_user_can('publish_posts')) {
             wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
         }
+        
+        $can_manage = current_user_can('manage_options'); // Apenas administradores podem modificar
         
         $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
@@ -466,7 +486,9 @@ class Sevo_Evento_CPT_New {
                     <th><?php _e('Data do Evento', 'sevo-eventos'); ?></th>
                     <th><?php _e('Vagas', 'sevo-eventos'); ?></th>
                     <th><?php _e('Status', 'sevo-eventos'); ?></th>
+                    <?php if ($can_manage): ?>
                     <th><?php _e('Ações', 'sevo-eventos'); ?></th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -490,6 +512,7 @@ class Sevo_Evento_CPT_New {
                                     <?php echo esc_html(ucfirst($evento->status)); ?>
                                 </span>
                             </td>
+                            <?php if ($can_manage): ?>
                             <td class="sevo-evento-actions">
                                 <button type="button" class="button button-small sevo-edit-evento" data-id="<?php echo esc_attr($evento->id); ?>">
                                     <?php _e('Editar', 'sevo-eventos'); ?>
@@ -498,11 +521,12 @@ class Sevo_Evento_CPT_New {
                                     <?php _e('Excluir', 'sevo-eventos'); ?>
                                 </button>
                             </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7"><?php _e('Nenhum evento encontrado.', 'sevo-eventos'); ?></td>
+                        <td colspan="<?php echo $can_manage ? '7' : '6'; ?>"><?php _e('Nenhum evento encontrado.', 'sevo-eventos'); ?></td>
                     </tr>
                 <?php endif; ?>
             </tbody>

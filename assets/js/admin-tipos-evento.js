@@ -42,6 +42,12 @@
         },
         
         showCreateModal: function() {
+            // Verificar permissão antes de mostrar modal de criação
+            if (!sevoTipoAdmin.can_manage) {
+                SevoTipoAdmin.showNotice(sevoTipoAdmin.strings.no_permission, 'error');
+                return;
+            }
+            
             $('#sevo-tipo-modal-title').text('Novo Tipo de Evento');
             $('#sevo-tipo-form')[0].reset();
             $('#tipo-id').val('');
@@ -50,6 +56,12 @@
         },
         
         showEditModal: function() {
+            // Verificar permissão antes de permitir edição
+            if (!sevoTipoAdmin.can_manage) {
+                SevoTipoAdmin.showNotice(sevoTipoAdmin.strings.no_permission, 'error');
+                return;
+            }
+            
             var tipoId = $(this).data('id');
             
             $.ajax({
@@ -66,12 +78,12 @@
                         
                         $('#sevo-tipo-modal-title').text('Editar Tipo de Evento');
                         $('#tipo-id').val(tipo.id);
-                        $('#tipo-nome').val(tipo.nome);
+                        $('#tipo-nome').val(tipo.titulo); // Corrigido: titulo em vez de nome
                         $('#tipo-descricao').val(tipo.descricao);
                         $('#tipo-organizacao-id').val(tipo.organizacao_id);
                         $('#tipo-autor-id').val(tipo.autor_id);
-                        $('#tipo-vagas-max').val(tipo.vagas_max);
-                        $('#tipo-participacao').val(tipo.tipo_participacao);
+                        $('#tipo-vagas-max').val(tipo.max_vagas); // Corrigido: max_vagas
+                        $('#tipo-imagem-url').val(tipo.imagem_url || ''); // Campo de imagem
                         $('#tipo-status').val(tipo.status);
                         
                         $('#sevo-tipo-modal').show();
@@ -141,6 +153,12 @@
         },
         
         deleteTipoEvento: function() {
+            // Verificar permissão antes de permitir exclusão
+            if (!sevoTipoAdmin.can_manage) {
+                SevoTipoAdmin.showNotice(sevoTipoAdmin.strings.no_permission, 'error');
+                return;
+            }
+            
             var tipoId = $(this).data('id');
             
             if (!confirm(sevoTipoAdmin.strings.confirm_delete)) {
