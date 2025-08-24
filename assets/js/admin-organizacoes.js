@@ -14,28 +14,36 @@
         },
         
         bindEvents: function() {
+            var self = this;
+            
             // Botão adicionar nova organização
-            $('#sevo-add-org-btn').on('click', this.showCreateModal);
+            $('#sevo-add-org-btn').on('click', function() {
+                self.showCreateModal();
+            });
             
             // Fechar modal
-            $('.sevo-modal-close, #sevo-org-cancel').on('click', this.hideModal);
+            $('.sevo-modal-close, #sevo-org-cancel').on('click', function() {
+                self.hideModal();
+            });
             
             // Salvar organização
-            $('#sevo-org-save').on('click', this.saveOrganizacao);
+            $('#sevo-org-save').on('click', function() {
+                self.saveOrganizacao();
+            });
             
             // Editar organização (delegated event)
-            $(document).on('click', '.sevo-edit-org', this.showEditModal);
+            $(document).on('click', '.sevo-edit-org', self.showEditModal);
             
             // Excluir organização (delegated event)
-            $(document).on('click', '.sevo-delete-org', this.deleteOrganizacao);
+            $(document).on('click', '.sevo-delete-org', self.deleteOrganizacao);
             
             // Paginação (delegated event)
-            $(document).on('click', '.sevo-page-btn', this.changePage);
+            $(document).on('click', '.sevo-page-btn', self.changePage);
             
             // Fechar modal ao clicar fora
             $(window).on('click', function(e) {
                 if ($(e.target).hasClass('sevo-modal')) {
-                    SevoOrgAdmin.hideModal();
+                    self.hideModal();
                 }
             });
             
@@ -45,7 +53,7 @@
         showCreateModal: function() {
             $('#sevo-org-modal-title').text(sevoOrgAdmin.strings.add_new || 'Nova Organização');
             $('#sevo-org-form')[0].reset();
-            $('#org-id').val('');
+            $('input[name="org_id"]').val('');
             // Limpar mensagens de erro
             $('.sevo-notice').remove();
             $('#sevo-org-modal').show();
@@ -108,6 +116,16 @@
         
         closeModal: function() {
             this.hideModal();
+        },
+        
+        editOrganizacao: function(orgId) {
+            // Simular clique no botão de editar
+            $('.sevo-edit-org[data-id="' + orgId + '"]').trigger('click');
+        },
+        
+        viewOrganizacao: function(orgId) {
+            // Implementar visualização da organização se necessário
+            console.log('Visualizar organização:', orgId);
         },
         
         saveOrganizacao: function() {
@@ -439,5 +457,8 @@
     $(document).ready(function() {
         SevoOrgAdmin.init();
     });
+    
+    // Expor SevoOrgAdmin globalmente para uso em eventos onclick
+    window.SevoOrgAdmin = SevoOrgAdmin;
     
 })(jQuery);

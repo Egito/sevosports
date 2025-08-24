@@ -8,6 +8,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Garantir que os modelos estejam carregados
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Tipo_Evento_Model.php';
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Organizacao_Model.php';
+
 class Sevo_Tipo_Evento_CPT_New {
     
     private $model;
@@ -402,7 +406,7 @@ class Sevo_Tipo_Evento_CPT_New {
         $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
         
         $result = $this->model->get_paginated($page, $per_page);
-        $tipos = $result['items'];
+        $tipos = $result;
         
         ob_start();
         ?>

@@ -37,20 +37,8 @@ class Sevo_Orgs_Dashboard_Shortcode_Unified
         wp_enqueue_style('sevo-orgs-dashboard-style');
         wp_enqueue_script('sevo-orgs-dashboard-script');
         
-        wp_enqueue_script('sevo-admin-organizacoes', SEVO_EVENTOS_PLUGIN_URL . 'assets/js/admin-organizacoes.js', array('jquery'), SEVO_EVENTOS_VERSION, true);
-        
-        // Localizar script de organizações
-        wp_localize_script('sevo-admin-organizacoes', 'sevoOrgAdmin', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sevo_org_nonce'),
-            'strings' => array(
-                'confirm_delete' => __('Tem certeza que deseja excluir esta organização?', 'sevo-eventos'),
-                'error' => __('Erro ao processar solicitação.', 'sevo-eventos'),
-                'success_create' => __('Organização criada com sucesso!', 'sevo-eventos'),
-                'success_update' => __('Organização atualizada com sucesso!', 'sevo-eventos'),
-                'success_delete' => __('Organização excluída com sucesso!', 'sevo-eventos')
-            )
-        ));
+        // O script admin-organizacoes.js só deve ser carregado na área administrativa
+        // Aqui usamos apenas o dashboard-orgs.js que é específico para o frontend
         
         wp_enqueue_style('dashicons');
         wp_enqueue_style('sevo-toaster-style');

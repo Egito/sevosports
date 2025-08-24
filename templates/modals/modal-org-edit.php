@@ -101,10 +101,23 @@ $imagem_url = $is_editing ? $organizacao->imagem_url : '';
         </div>
     </div>
     
+    <?php
+    // Detectar se estamos na área administrativa ou no frontend
+    $is_admin_context = is_admin() || (isset($_POST['action']) && strpos($_POST['action'], 'admin') !== false);
+    ?>
+    
     <div class="sevo-modal-footer">
-        <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoOrgsAdmin.closeModal()">
-            Cancelar
-        </button>
+        <?php if ($is_admin_context): ?>
+            <!-- Contexto administrativo - usar SevoOrgAdmin -->
+            <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoOrgAdmin.closeModal()">
+                Cancelar
+            </button>
+        <?php else: ?>
+            <!-- Contexto frontend (shortcode) - usar closeModal global -->
+            <button type="button" class="sevo-btn sevo-btn-secondary" onclick="closeModal()">
+                Cancelar
+            </button>
+        <?php endif; ?>
         <button type="submit" class="sevo-btn sevo-btn-primary">
             <?php echo $is_editing ? 'Atualizar' : 'Criar'; ?>
         </button>
@@ -174,6 +187,9 @@ $imagem_url = $is_editing ? $organizacao->imagem_url : '';
     padding: 15px 20px;
     background: #f1f1f1;
     border-top: 1px solid #ddd;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .sevo-btn {
@@ -224,6 +240,31 @@ $imagem_url = $is_editing ? $organizacao->imagem_url : '';
 .sevo-image-upload-container {
     display: flex;
     flex-direction: column;
+}
+
+.sevo-image-preview {
+    max-width: 200px;
+    max-height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.sevo-image-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.sevo-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 20px;
 }
 
 @media (max-width: 768px) {

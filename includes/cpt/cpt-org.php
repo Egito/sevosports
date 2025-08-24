@@ -23,6 +23,7 @@ class Sevo_Orgs_CPT_New {
         add_action('wp_ajax_sevo_delete_organizacao', array($this, 'ajax_delete_organizacao'));
         add_action('wp_ajax_sevo_get_organizacao', array($this, 'ajax_get_organizacao'));
         add_action('wp_ajax_sevo_list_organizacoes', array($this, 'ajax_list_organizacoes'));
+        add_action('wp_ajax_sevo_upload_org_image', array($this, 'ajax_upload_org_image'));
         
         // Enqueue scripts para admin
         add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
@@ -70,10 +71,6 @@ class Sevo_Orgs_CPT_New {
                     $organizacao = null; // Para modo de criação
                     include(SEVO_EVENTOS_PLUGIN_DIR . 'templates/modals/modal-org-edit.php');
                     ?>
-                    <div class="sevo-modal-footer">
-                        <button type="button" class="button button-secondary" id="sevo-org-cancel"><?php _e('Cancelar', 'sevo-eventos'); ?></button>
-                        <button type="button" class="button button-primary" id="sevo-org-save"><?php _e('Salvar', 'sevo-eventos'); ?></button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -203,6 +200,7 @@ class Sevo_Orgs_CPT_New {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sevo_org_nonce'),
             'strings' => array(
+                'add_new' => __('Nova Organização', 'sevo-eventos'),
                 'confirm_delete' => __('Tem certeza que deseja excluir esta organização?', 'sevo-eventos'),
                 'error' => __('Erro ao processar solicitação.', 'sevo-eventos'),
                 'success_create' => __('Organização criada com sucesso!', 'sevo-eventos'),
@@ -391,7 +389,7 @@ class Sevo_Orgs_CPT_New {
         $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
         $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 20;
         
-        $organizacoes = $this->model->paginate($page, $per_page);
+        $organizacoes = $this->model->get_paginated($page, $per_page);
         
         ob_start();
         ?>
@@ -400,7 +398,6 @@ class Sevo_Orgs_CPT_New {
                 <tr>
                     <th><?php _e('Nome', 'sevo-eventos'); ?></th>
                     <th><?php _e('Autor', 'sevo-eventos'); ?></th>
-                    <th><?php _e('Cidade', 'sevo-eventos'); ?></th>
                     <th><?php _e('Status', 'sevo-eventos'); ?></th>
                     <th><?php _e('Criado em', 'sevo-eventos'); ?></th>
                     <th><?php _e('Ações', 'sevo-eventos'); ?></th>
@@ -417,7 +414,6 @@ class Sevo_Orgs_CPT_New {
                                 echo $autor ? esc_html($autor->display_name) : '-';
                                 ?>
                             </td>
-                            <td><?php echo esc_html($org->cidade ?: '-'); ?></td>
                             <td>
                                 <span class="status-<?php echo esc_attr($org->status); ?>">
                                     <?php echo esc_html(ucfirst($org->status)); ?>
@@ -436,7 +432,7 @@ class Sevo_Orgs_CPT_New {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6"><?php _e('Nenhuma organização encontrada.', 'sevo-eventos'); ?></td>
+                        <td colspan="5"><?php _e('Nenhuma organização encontrada.', 'sevo-eventos'); ?></td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -455,5 +451,62 @@ class Sevo_Orgs_CPT_New {
         
         $html = ob_get_clean();
         wp_send_json_success(array('html' => $html));
+    }
+    
+    /**
+     * AJAX: Upload de imagem da organização
+     */
+    public function ajax_upload_org_image() {
+        // Verificar nonce
+        if (!wp_verify_nonce($_POST['nonce'], 'sevo_org_nonce')) {
+            wp_send_json_error('Nonce inválido');
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Permissão negada.', 'sevo-eventos'));
+        }
+
+        // Verificar se há arquivo
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            wp_send_json_error('Nenhum arquivo foi enviado ou houve erro no upload');
+        }
+
+        $file = $_FILES['image'];
+        
+        // Validar tipo de arquivo
+        $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp');
+        if (!in_array($file['type'], $allowed_types)) {
+            wp_send_json_error('Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP.');
+        }
+
+        // Validar tamanho (máximo 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            wp_send_json_error('Arquivo muito grande. Máximo 5MB.');
+        }
+
+        // Configurar upload
+        if (!function_exists('wp_handle_upload')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+
+        $upload_overrides = array(
+            'test_form' => false,
+            'unique_filename_callback' => function($dir, $name, $ext) {
+                return 'sevo-org-' . uniqid() . $ext;
+            }
+        );
+
+        // Fazer upload
+        $uploaded_file = wp_handle_upload($file, $upload_overrides);
+
+        if (isset($uploaded_file['error'])) {
+            wp_send_json_error('Erro no upload: ' . $uploaded_file['error']);
+        }
+
+        // Retornar URL da imagem
+        wp_send_json_success(array(
+            'url' => $uploaded_file['url'],
+            'message' => 'Imagem carregada com sucesso!'
+        ));
     }
 }

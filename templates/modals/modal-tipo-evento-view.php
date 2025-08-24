@@ -56,7 +56,12 @@ if ($tipo_evento->organizacao_id) {
                     <label>Organização:</label>
                     <span>
                         <?php if ($organizacao): ?>
-                            <a href="#" onclick="SevoOrgsAdmin.viewOrganizacao(<?php echo $organizacao->id; ?>)" class="sevo-link">
+                            <?php 
+                            // Detectar contexto para usar a função correta
+                            $is_admin_context = is_admin() || (isset($_POST['action']) && strpos($_POST['action'], 'admin') !== false);
+                            $view_function = $is_admin_context ? 'SevoOrgAdmin.viewOrganizacao' : 'SevoOrgsDashboard.viewOrg';
+                            ?>
+                            <a href="#" onclick="<?php echo $view_function; ?>(<?php echo $organizacao->id; ?>)" class="sevo-link">
                                 <?php echo esc_html($organizacao->titulo); ?>
                             </a>
                         <?php else: ?>

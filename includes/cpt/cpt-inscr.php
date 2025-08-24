@@ -8,6 +8,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Garantir que os modelos estejam carregados
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Inscricao_Model.php';
+require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';
+
 class Sevo_Inscricao_CPT_New {
     
     private $model;
@@ -440,7 +444,7 @@ class Sevo_Inscricao_CPT_New {
         }
         
         $result = $this->model->get_paginated($page, $per_page, $filters);
-        $inscricoes = $result['items'];
+        $inscricoes = $result;
         
         ob_start();
         ?>
@@ -554,7 +558,7 @@ class Sevo_Inscricao_CPT_New {
         }
         
         $id = absint($_POST['id']);
-        $result = $this->model->aceitar($id);
+        $result = $this->model->accept($id);
         
         if ($result) {
             wp_send_json_success(array(
@@ -576,7 +580,7 @@ class Sevo_Inscricao_CPT_New {
         }
         
         $id = absint($_POST['id']);
-        $result = $this->model->rejeitar($id);
+        $result = $this->model->reject($id);
         
         if ($result) {
             wp_send_json_success(array(
@@ -598,7 +602,7 @@ class Sevo_Inscricao_CPT_New {
         }
         
         $id = absint($_POST['id']);
-        $result = $this->model->cancelar($id);
+        $result = $this->model->cancel($id);
         
         if ($result) {
             wp_send_json_success(array(

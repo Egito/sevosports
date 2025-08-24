@@ -66,13 +66,29 @@ if (!isset($organizacao) || !$organizacao) {
     </div>
 </div>
 
+<?php
+// Detectar se estamos na área administrativa ou no frontend
+$is_admin_context = is_admin() || (isset($_POST['action']) && strpos($_POST['action'], 'admin') !== false);
+?>
+
 <div class="sevo-modal-footer">
-    <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoOrgsAdmin.closeModal()">
-        Fechar
-    </button>
-    <button type="button" class="sevo-btn sevo-btn-primary" onclick="SevoOrgsAdmin.editOrganizacao(<?php echo $organizacao->id; ?>)">
-        Editar
-    </button>
+    <?php if ($is_admin_context): ?>
+        <!-- Contexto administrativo - usar SevoOrgAdmin -->
+        <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoOrgAdmin.closeModal()">
+            Fechar
+        </button>
+        <button type="button" class="sevo-btn sevo-btn-primary" onclick="SevoOrgAdmin.editOrganizacao(<?php echo $organizacao->id; ?>)">
+            Editar
+        </button>
+    <?php else: ?>
+        <!-- Contexto frontend (shortcode) - usar closeModal global e openOrgFormModal -->
+        <button type="button" class="sevo-btn sevo-btn-secondary" onclick="closeModal()">
+            Fechar
+        </button>
+        <button type="button" class="sevo-btn sevo-btn-primary" onclick="openOrgFormModal(<?php echo $organizacao->id; ?>)">
+            Editar
+        </button>
+    <?php endif; ?>
 </div>
 
 <style>
@@ -209,3 +225,4 @@ if (!isset($organizacao) || !$organizacao) {
     }
 }
 </style>
+
