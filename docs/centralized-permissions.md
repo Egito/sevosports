@@ -86,15 +86,17 @@ Verifica se um usuário tem permissão e envia um erro AJAX se não tiver.
 
 ### Editor (edit_others_posts)
 - Pode visualizar organizações às quais está atribuído
-- Pode gerenciar todos os tipos de evento dentro de suas organizações atribuídas
+- Pode gerenciar todos os tipos de evento dentro de suas organizações atribuídas e nao pode ver de outras organizacoes
 - Pode gerenciar todos os eventos dentro de suas organizações atribuídas
 - Pode gerenciar inscrições para eventos em suas organizações atribuídas
+- Pode gerenciar papéis de usuário em suas organizações atribuídas inclusive incluir usuarios para suas organizacoes
 
 ### Autor (publish_posts)
 - Pode visualizar organizações às quais está atribuído
-- Pode visualizar todos os tipos de evento dentro de suas organizações atribuídas
+- Pode visualizar todos os tipos de evento dentro de suas organizações atribuídas e nao pode ver de outras organizacoes
 - Pode gerenciar todos os eventos dentro de suas organizações atribuídas
 - Pode gerenciar inscrições para eventos em suas organizações atribuídas
+- Pode visualizar papéis de usuário de suas organizações atribuídas e nao pode ver de outras organizacoes
 
 ### Usuários sem papéis especiais
 - Podem visualizar organizações
