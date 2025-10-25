@@ -1,0 +1,264 @@
+/**
+ * Estilos para a funcionalidade de teste de papéis
+ * 
+ * @package Sevo_Eventos
+ * @version 1.0
+ */
+
+/* Container principal */
+.sevo-test-form-container {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.sevo-test-form-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #23282d;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Grid do formulário */
+.sevo-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sevo-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sevo-form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #23282d;
+}
+
+.sevo-form-group select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+    min-height: 40px;
+}
+
+.sevo-form-group select:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+/* Ações do formulário */
+.sevo-form-actions {
+    text-align: left;
+}
+
+.sevo-form-actions .button {
+    padding: 8px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 40px;
+}
+
+.sevo-form-actions .button .dashicons {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* Resultados do teste */
+.sevo-test-results {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.sevo-test-results h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #23282d;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Informações do teste */
+.sevo-test-info {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.sevo-test-info h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #495057;
+    font-size: 16px;
+}
+
+.sevo-test-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.sevo-test-info-grid div {
+    padding: 5px 0;
+}
+
+/* Seções de teste */
+.sevo-test-section {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 20px;
+}
+
+.sevo-test-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.sevo-test-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #495057;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Container da tabela */
+.sevo-test-table-container {
+    overflow-x: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+}
+
+/* Tabela de resultados */
+.sevo-test-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 14px;
+}
+
+.sevo-test-table thead {
+    background: #f8f9fa;
+}
+
+.sevo-test-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.sevo-test-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+.sevo-test-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.sevo-test-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Indicadores de acesso */
+.access-yes {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.access-yes::before {
+    content: "✓ ";
+    font-weight: bold;
+}
+
+.access-no {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.access-no::before {
+    content: "✗ ";
+    font-weight: bold;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sevo-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sevo-test-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sevo-test-table {
+        font-size: 12px;
+    }
+    
+    .sevo-test-table th,
+    .sevo-test-table td {
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sevo-test-form-container,
+    .sevo-test-results {
+        padding: 15px;
+    }
+    
+    .sevo-test-table th,
+    .sevo-test-table td {
+        padding: 6px 8px;
+    }
+}
+
+/* Estados de loading */
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.button .dashicons-update-alt {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Melhorias visuais */
+.sevo-test-section p {
+    color: #6c757d;
+    font-style: italic;
+    margin: 10px 0;
+}
+
+.sevo-test-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.sevo-test-table tbody tr:nth-child(even):hover {
+    background: #e9ecef;
+}
