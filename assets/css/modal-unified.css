@@ -24,6 +24,7 @@
     isolation: isolate;
 }
 
+
 .sevo-modal[style*="display: block"],
 .sevo-modal.show {
     opacity: 1;
@@ -630,11 +631,11 @@
 /* Botão de fechar genérico (para outros modais) */
 .sevo-modal-close {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 12px;
+    right: 12px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 24px;
     color: #666;
     cursor: pointer;
     width: 30px;
@@ -643,12 +644,11 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.2s ease;
+    transition: color 0.15s ease;
 }
 
 .sevo-modal-close:hover {
-    background: #f5f5f5;
-    color: #333;
+    color: #dc3232;
 }
 
 /* Corpo do modal */

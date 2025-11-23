@@ -34,10 +34,10 @@ class Sevo_Tipo_Evento_Dashboard_Shortcode {
     public function render_dashboard() {
         // Enfileira os assets específicos para este dashboard
         wp_enqueue_style('sevo-dashboard-common', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-common.css', array(), SEVO_EVENTOS_VERSION);
-    wp_enqueue_style('sevo-button-colors', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
-    wp_enqueue_style('sevo-button-fixes-style');
-    wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
-    wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-colors', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/button-colors.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-button-fixes-style');
+        wp_enqueue_style('sevo-typography-standards', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/typography-standards.css', array(), SEVO_EVENTOS_VERSION);
+        wp_enqueue_style('sevo-modal-unified', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/modal-unified.css', array(), SEVO_EVENTOS_VERSION);
         // Removido card-standards.css e filter-standards.css - usando padrão visual unificado
 
         wp_enqueue_style('sevo-dashboard-tipo-evento', SEVO_EVENTOS_PLUGIN_URL . 'assets/css/dashboard-tipo-evento.css', array(), SEVO_EVENTOS_VERSION);

@@ -72,13 +72,13 @@ $can_create_orgs = sevo_check_record_permission('create_org', 0, 'organizacao', 
                         
                         <div class="card-actions">
                             <?php if ($can_view_this_org): ?>
-                                <button class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Ver Detalhes">
+                                <button type="button" class="btn-view-org" onclick="SevoOrgsDashboard.viewOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Ver Detalhes">
                                     <i class="dashicons dashicons-visibility"></i>
                                 </button>
                             <?php endif; ?>
                             
                             <?php if ($can_edit_this_org): ?>
-                                <button class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Editar">
+                                <button type="button" class="btn-edit-org" onclick="SevoOrgsDashboard.editOrg(<?php echo esc_attr($organizacao->id); ?>)" title="Editar">
                                     <i class="dashicons dashicons-edit"></i>
                                 </button>
                             <?php endif; ?>
@@ -105,7 +105,7 @@ $can_create_orgs = sevo_check_record_permission('create_org', 0, 'organizacao', 
     
     <!-- Botão Flutuante de Adicionar -->
     <?php if ($can_create_orgs): ?>
-        <button id="sevo-create-org-button" class="sevo-floating-add-button sevo-orgs sevo-animate-in" data-tooltip="Criar Nova Organização">
+        <button type="button" id="sevo-create-org-button" class="sevo-floating-add-button sevo-orgs sevo-animate-in" data-tooltip="Criar Nova Organização">
             <i class="dashicons dashicons-plus-alt"></i>
         </button>
     <?php endif; ?>

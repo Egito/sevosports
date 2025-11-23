@@ -11,7 +11,7 @@
         // Configurações
         config: {
             currentPage: 1,
-            itemsPerPage: 50, // Aumentado para melhor performance
+            itemsPerPage: 5,
             totalItems: 0,
             hasMoreItems: true,
             sortBy: 'created_at',
@@ -54,6 +54,7 @@
                 noResults: $('#no-results'),
                 infiniteLoading: $('#infinite-loading'),
                 endOfList: $('#end-of-list'),
+                list: $('#inscricoes-list'),
 
                 modal: $('#confirmation-modal'),
                 modalConfirm: $('#modal-confirm'),
@@ -99,7 +100,7 @@
             $(document).on('click', '.view-event-btn', this.handleViewEvent.bind(this));
             $(document).on('click', '.edit-inscricao-btn', this.handleEdit.bind(this));
 
-            // Scroll infinito
+            // Scroll infinito em um único container (janela)
             $(window).on('scroll', this.handleScroll.bind(this));
 
             // Modal
@@ -625,6 +626,8 @@
                 this.loadMoreInscricoes();
             }
         },
+
+        
 
         // Helpers para loading states
         showLoading: function() {

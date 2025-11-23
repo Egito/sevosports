@@ -121,8 +121,8 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         $evento_id = isset($_POST['evento_id']) ? intval($_POST['evento_id']) : 0;
         
-        // Verifica permissões
-        if (!current_user_can('manage_options')) {
+        // Verifica permissões usando o sistema de frontend
+        if (!sevo_check_frontend_permission('edit_evento')) {
             wp_send_json_error('Você não tem permissão para editar eventos.');
         }
         
@@ -151,8 +151,8 @@ class Sevo_Eventos_Dashboard_Shortcode {
     public function ajax_save_evento() {
         check_ajax_referer('sevo_eventos_dashboard_nonce', 'nonce');
         
-        // Verifica permissões
-        if (!current_user_can('manage_options')) {
+        // Verifica permissões usando o sistema de frontend
+        if (!sevo_check_frontend_permission('edit_evento')) {
             wp_send_json_error('Você não tem permissão para salvar eventos.');
         }
         
@@ -332,7 +332,7 @@ class Sevo_Eventos_Dashboard_Shortcode {
             wp_send_json_error('Inscrição não encontrada.');
         }
         
-        if ($inscricao->usuario_id != $user_id && !current_user_can('manage_options')) {
+        if ($inscricao->usuario_id != $user_id && !sevo_frontend_can_view_admin_data()) {
             wp_send_json_error('Você não tem permissão para cancelar esta inscrição.');
         }
         

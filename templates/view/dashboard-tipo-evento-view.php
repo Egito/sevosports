@@ -29,7 +29,7 @@ if (!defined('ABSPATH')) {
     <!-- Estrutura do Modal para o Formulário -->
     <div id="sevo-tipo-evento-modal" class="sevo-modal-backdrop hidden">
         <div class="sevo-modal-container">
-            <button id="sevo-modal-close" class="sevo-modal-close-button">&times;</button>
+            <button id="sevo-modal-close" class="sevo-modal-close">&times;</button>
             <div id="sevo-modal-content">
                 <!-- O formulário será carregado aqui via AJAX -->
             </div>

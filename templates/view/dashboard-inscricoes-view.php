@@ -102,8 +102,9 @@ $total_pages = $result['total_pages'];
             </div>
             
             <div class="sevo-filter-actions">
-                <button type="button" class="sevo-btn sevo-btn-secondary" id="clear-filters" title="Limpar Filtros">
+                <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info" id="clear-filters" title="Limpar Filtros">
                     <i class="dashicons dashicons-dismiss"></i>
+                    Limpar
                 </button>
             </div>
         </div>
@@ -137,110 +138,59 @@ $total_pages = $result['total_pages'];
                     $status_display = $status_labels[$inscricao->status] ?? ucfirst($inscricao->status);
                     ?>
                     <div class="sevo-inscricao-card" data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" data-status="<?php echo esc_attr($inscricao->status); ?>">
-                        <!-- Imagem do Evento -->
-                        <div class="sevo-card-image">
-                            <?php if (!empty($inscricao->evento_imagem)): ?>
-                                <img src="<?php echo esc_url($inscricao->evento_imagem); ?>" alt="<?php echo esc_attr($inscricao->evento_titulo); ?>">
-                            <?php else: ?>
-                                <div class="sevo-card-placeholder">
-                                    <i class="dashicons dashicons-calendar-alt"></i>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <!-- Conteúdo Principal -->
-                        <div class="sevo-card-content">
-                            <!-- Header do Card -->
-                            <div class="sevo-card-header">
-                                <h3 class="sevo-card-title"><?php echo esc_html($inscricao->evento_titulo); ?></h3>
-                                <span class="sevo-status-badge <?php echo esc_attr($status_class); ?>">
-                                    <?php echo esc_html($status_display); ?>
-                                </span>
+                        <div class="sevo-card-grid">
+                            <div class="grid-col grid-img">
+                                <?php if (!empty($inscricao->evento_imagem)): ?>
+                                    <img src="<?php echo esc_url($inscricao->evento_imagem); ?>" alt="<?php echo esc_attr($inscricao->evento_titulo); ?>">
+                                <?php else: ?>
+                                    <div class="sevo-card-placeholder">
+                                        <i class="dashicons dashicons-calendar-alt"></i>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            
-                            <!-- Informações do Evento -->
-                            <div class="sevo-card-info">
-                                <div class="sevo-info-row">
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-calendar"></i>
-                                        <span><strong>Data do Evento:</strong> <?php echo esc_html($data_evento); ?></span>
-                                    </div>
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-building"></i>
-                                        <span><strong>Organização:</strong> <?php echo esc_html($inscricao->organizacao_titulo); ?></span>
-                                    </div>
+
+                            <div class="grid-col">
+                                <div class="grid-line">
+                                    <i class="dashicons dashicons-building"></i>
+                                    <span class="sevo-card-title"><?php echo esc_html($inscricao->organizacao_titulo); ?></span>
                                 </div>
-                                
-                                <div class="sevo-info-row">
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-category"></i>
-                                        <span><strong>Tipo:</strong> <?php echo esc_html($inscricao->tipo_evento_titulo ?? 'Não definido'); ?></span>
-                                    </div>
-                                    <?php if ($can_manage_all): ?>
-                                        <div class="sevo-info-item">
-                                            <i class="dashicons dashicons-admin-users"></i>
-                                            <span><strong>Usuário:</strong> <?php echo esc_html($inscricao->usuario_nome); ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                                
-                                <div class="sevo-info-row">
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-clock"></i>
-                                        <span><strong>Inscrito em:</strong> <?php echo esc_html($data_formatted); ?></span>
-                                    </div>
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-id"></i>
-                                        <span><strong>ID:</strong> #<?php echo esc_html($inscricao->id); ?></span>
-                                    </div>
+                                <div class="grid-line">
+                                    <span class="sevo-status-badge <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_display); ?></span>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Ações do Card -->
-                        <div class="sevo-card-actions">
-                            <?php if ($can_manage_all): ?>
-                                <!-- Ações para Gestores/Admins -->
-                                <div class="sevo-admin-actions">
-                                    <?php if ($inscricao->status === 'solicitada'): ?>
-                                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" 
-                                                data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Aprovar Inscrição">
-                                            <i class="dashicons dashicons-yes"></i>
-                                        </button>
-                                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" 
-                                                data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Rejeitar Inscrição">
-                                            <i class="dashicons dashicons-no"></i>
-                                        </button>
-                                    <?php endif; ?>
-                                    
-                                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
-                                            data-evento-id="<?php echo esc_attr($inscricao->evento_id); ?>" title="Ver Detalhes do Evento">
-                                        <i class="dashicons dashicons-visibility"></i>
-                                    </button>
-                                    
-                                    <?php if ($is_super_admin): ?>
-                                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" 
-                                                data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Editar Inscrição">
-                                            <i class="dashicons dashicons-edit"></i>
-                                        </button>
-                                    <?php endif; ?>
+
+                            <div class="grid-col">
+                                <div class="grid-line">
+                                    <span class="sevo-card-title"><?php echo esc_html($inscricao->evento_titulo); ?></span>
                                 </div>
-                            <?php else: ?>
-                                <!-- Ações para Usuários Comuns -->
-                                <div class="sevo-user-actions">
-                                    <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-event-btn" 
-                                            data-evento-id="<?php echo esc_attr($inscricao->evento_id); ?>" title="Ver Detalhes do Evento">
-                                        <i class="dashicons dashicons-visibility"></i>
-                                    </button>
-                                    
-                                    <?php if (in_array($inscricao->status, ['solicitada', 'aceita']) && $inscricao->usuario_id == get_current_user_id() && $can_cancel_own): ?>
-                                        <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger cancel-own-btn" 
-                                                data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Cancelar Minha Inscrição">
-                                            <i class="dashicons dashicons-dismiss"></i>
-                                        </button>
-                                    <?php endif; ?>
+                                <div class="grid-line">
+                                    <i class="dashicons dashicons-calendar"></i>
+                                    <span><?php echo esc_html($data_evento); ?></span>
                                 </div>
-                            <?php endif; ?>
+                            </div>
+
+                            <div class="grid-col">
+                                <div class="grid-line">
+                                    <i class="dashicons dashicons-category"></i>
+                                    <span><?php echo esc_html($inscricao->tipo_evento_titulo ?? ''); ?></span>
+                                </div>
+                                <div class="grid-line">
+                                    <i class="dashicons dashicons-admin-users"></i>
+                                    <span><?php echo esc_html($inscricao->usuario_nome ?? ''); ?></span>
+                                </div>
+                            </div>
+
+                            <div class="grid-actions">
+                                <?php 
+                                  $approve_enabled = ($can_manage_all && $inscricao->status === 'solicitada');
+                                  $reject_enabled = ($can_manage_all && $inscricao->status === 'solicitada');
+                                  $edit_enabled = ($is_super_admin);
+                                ?>
+                                <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-success approve-btn" data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Aprovar" <?php echo $approve_enabled ? '' : 'disabled'; ?>><i class="dashicons dashicons-yes"></i></button>
+                                <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-danger reject-btn" data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Rejeitar" <?php echo $reject_enabled ? '' : 'disabled'; ?>><i class="dashicons dashicons-no"></i></button>
+                                <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-info view-btn view-event-btn" data-evento-id="<?php echo esc_attr($inscricao->evento_id); ?>" title="Ver"><i class="dashicons dashicons-visibility"></i></button>
+                                <button type="button" class="sevo-btn sevo-btn-sm sevo-btn-warning edit-inscricao-btn" data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" title="Editar" <?php echo $edit_enabled ? '' : 'disabled'; ?>><i class="dashicons dashicons-edit"></i></button>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>

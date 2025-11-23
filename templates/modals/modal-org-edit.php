@@ -127,12 +127,12 @@ $imagem_url = $is_editing ? $organizacao->imagem_url : '';
     <div class="sevo-modal-footer">
         <?php if ($is_admin_context): ?>
             <!-- Contexto administrativo - usar SevoOrgAdmin -->
-            <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoOrgAdmin.closeModal()">
+            <button type="button" id="sevo-cancel-button" class="sevo-btn sevo-btn-secondary" onclick="SevoOrgAdmin.closeModal()">
                 Cancelar
             </button>
         <?php else: ?>
             <!-- Contexto frontend (shortcode) - usar closeModal global -->
-            <button type="button" class="sevo-btn sevo-btn-secondary" onclick="closeModal()">
+            <button type="button" id="sevo-cancel-button" class="sevo-btn sevo-btn-secondary" onclick="closeModal()">
                 Cancelar
             </button>
         <?php endif; ?>

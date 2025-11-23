@@ -185,7 +185,6 @@ jQuery(document).ready(function($) {
     // Função para abrir modal com proteção anti-conflito
     function showModal() {
         modal.removeClass('hidden').addClass('show').css('display', 'flex');
-        // Adiciona classe no body para prevenir conflitos com header do tema
         $('body').addClass('modal-open');
     }
     
@@ -193,7 +192,6 @@ jQuery(document).ready(function($) {
     function closeModal() {
         modal.addClass('hidden').removeClass('show').css('display', 'none');
         modalContent.html(''); // Limpa o conteúdo para a próxima abertura
-        // Remove classe do body
         $('body').removeClass('modal-open');
     }
     
