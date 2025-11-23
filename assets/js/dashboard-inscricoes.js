@@ -557,53 +557,26 @@
             
             return `
                 <div class="sevo-inscricao-card" data-inscricao-id="${inscricao.id}" data-status="${inscricao.status}">
-                    <div class="sevo-card-image">
-                        ${inscricao.evento_imagem ? 
-                            `<img src="${inscricao.evento_imagem}" alt="${this.escapeHtml(inscricao.evento_titulo)}">` :
-                            '<div class="sevo-card-placeholder"><i class="dashicons dashicons-calendar-alt"></i></div>'
-                        }
-                    </div>
-                    
-                    <div class="sevo-card-content">
-                        <div class="sevo-card-header">
-                            <h3 class="sevo-card-title">${this.escapeHtml(inscricao.evento_titulo || 'Evento')}</h3>
+                    <div class="sevo-card-row">
+                        <div class="row-img">
+                            ${inscricao.evento_imagem ? 
+                                `<img src="${inscricao.evento_imagem}" alt="${this.escapeHtml(inscricao.evento_titulo)}">` :
+                                '<div class="sevo-card-placeholder"><i class="dashicons dashicons-calendar-alt"></i></div>'
+                            }
+                        </div>
+                        <div class="row-title">
+                            ${this.escapeHtml(inscricao.evento_titulo || 'Evento')}
                             <span class="sevo-status-badge ${statusClass}">${statusDisplay}</span>
                         </div>
-                        
-                        <div class="sevo-card-info">
-                            <div class="sevo-info-row">
-                                <div class="sevo-info-item">
-                                    <i class="dashicons dashicons-calendar"></i>
-                                    <span title="${dataEvento}">${dataEvento}</span>
-                                </div>
-                                <div class="sevo-info-item">
-                                    <i class="dashicons dashicons-building"></i>
-                                    <span title="${this.escapeHtml(inscricao.organizacao_titulo || '')}">${this.escapeHtml(inscricao.organizacao_titulo || 'N/A')}</span>
-                                </div>
-                            </div>
-                            
-                            <div class="sevo-info-row">
-                                <div class="sevo-info-item">
-                                    <i class="dashicons dashicons-category"></i>
-                                    <span title="${this.escapeHtml(inscricao.tipo_evento_titulo || '')}">${this.escapeHtml(inscricao.tipo_evento_titulo || 'N/A')}</span>
-                                </div>
-                                ${canManage ? `
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-admin-users"></i>
-                                        <span title="${this.escapeHtml(inscricao.usuario_nome || '')}">${this.escapeHtml(inscricao.usuario_nome || 'N/A')}</span>
-                                    </div>
-                                ` : `
-                                    <div class="sevo-info-item">
-                                        <i class="dashicons dashicons-clock"></i>
-                                        <span title="${dataInscricao}">${dataInscricao}</span>
-                                    </div>
-                                `}
-                            </div>
+                        <div class="row-date">
+                            <i class="dashicons dashicons-calendar"></i>
+                            <span title="${dataEvento}">${dataEvento}</span>
                         </div>
-                    </div>
-                    
-                    <div class="sevo-card-actions">
-                        <div class="${canManage ? 'sevo-admin-actions' : 'sevo-user-actions'}">
+                        <div class="row-org">
+                            <i class="dashicons dashicons-building"></i>
+                            <span title="${this.escapeHtml(inscricao.organizacao_titulo || '')}">${this.escapeHtml(inscricao.organizacao_titulo || 'N/A')}</span>
+                        </div>
+                        <div class="row-actions">
                             ${actionsHtml}
                         </div>
                     </div>

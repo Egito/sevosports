@@ -835,18 +835,17 @@
 .sevo-inscricoes-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
-    max-height: none;
-    overflow: visible;
+    gap: 3px;
 }
 
 .sevo-inscricao-card {
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 2px 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-    min-height: 48px;
+    padding: 1px 6px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.03);
+    min-height: 34px;
+    width: 100%;
 }
 
 .sevo-card-grid .grid-img {
@@ -958,3 +957,18 @@
 .sevo-card-actions .sevo-user-actions {
     display: contents;
 }
+.sevo-card-row {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) 64px;
+    align-items: center;
+    column-gap: 12px;
+    width: 100%;
+}
+.row-img { width: 34px; height: 34px; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa; }
+.row-img img { width: 34px; height: 34px; object-fit: cover; }
+.row-title, .row-date span, .row-org span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-title { font-size: 12px; font-weight: 600; color: #2c3e50; }
+.row-title .sevo-status-badge { margin-left: 10px; }
+.row-date, .row-org { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.row-actions { display: grid; grid-template-columns: repeat(2, 24px); grid-auto-rows: 24px; gap: 7px; justify-content: end; }
+.row-actions .sevo-btn { width: 24px; height: 24px; }

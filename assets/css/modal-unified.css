@@ -67,10 +67,10 @@
     border: 2px solid #2196f3;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);
-    max-width: 85%;
-    width: 80vw;
+    max-width: 700px;
+    width: 100%;
     max-height: 80vh;
-    height: 75vh;
+    height: 72vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -88,10 +88,9 @@
     background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
     color: white;
     border-radius: 12px 12px 0 0;
-    height: 10%;
-    flex: 0 0 10%;
-    min-height: 50px;
-    max-height: 60px;
+    height: auto;
+    flex: 0 0 auto;
+    min-height: 56px;
     overflow: hidden;
 }
 
@@ -192,8 +191,8 @@
     flex: 1;
     padding: 8px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr;
     gap: 8px;
     background: linear-gradient(135deg, #ffffff 0%, #f8faff 50%, #e3f2fd 100%);
     margin: 0;
@@ -202,29 +201,24 @@
 
 /* Container superior com dois lados */
 .sevo-modal-top-container {
-    display: flex;
-    flex-direction: row;
-    gap: 0;
-    height: 40%;
-    flex: 0 0 40%;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: start;
+    gap: 8px;
     background: white;
     border-radius: 8px;
-    padding: 10px;
+    padding: 8px;
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
     margin: 0;
-    overflow: hidden;
 }
 
 /* Dados do evento (lado esquerdo) */
 .sevo-modal-evento-dados {
     background: #f8f9fa;
-    padding: 10px;
+    padding: 8px;
     border-radius: 8px;
     border-left: 4px solid #667eea;
-    height: 100%;
     overflow-y: auto;
-    width: 50%;
-    flex: 0 0 50%;
     border-right: 1px solid #e0e0e0;
 }
 
@@ -236,16 +230,16 @@
 }
 
 .sevo-info-item {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: 6px;
 }
 
 .sevo-info-item strong {
     color: #495057;
     font-weight: 500;
-    min-width: 120px;
+    min-width: 100px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -259,13 +253,10 @@
 /* Lista de inscrições (lado direito) */
 .sevo-modal-inscricoes-lista {
     background: #f8f9fa;
-    padding: 12px;
+    padding: 8px;
     border-radius: 8px;
     border-left: 4px solid #28a745;
-    max-height: 300px;
     overflow-y: auto;
-    width: 50%;
-    flex: 0 0 50%;
 }
 
 .sevo-modal-inscricoes-lista h4 {
@@ -276,7 +267,6 @@
 }
 
 .sevo-inscricoes-container {
-    max-height: 200px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
     border-radius: 6px;
@@ -340,8 +330,8 @@
     margin: 0;
     padding: 10px;
     border-left: 4px solid #ffc107;
-    height: 50%;
-    flex: 0 0 50%;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -357,7 +347,6 @@
     background: white;
     padding: 12px;
     margin: 0;
-    height: 100%;
 }
 
 .sevo-description-section,
@@ -489,11 +478,11 @@
     }
     
     .sevo-inscricoes-container {
-        max-height: 150px;
+        max-height: none;
     }
     
     .sevo-modal-description-content {
-        max-height: 150px;
+        max-height: none;
     }
 }
 
@@ -544,13 +533,14 @@
     }
     
     .sevo-inscricoes-container {
-        max-height: 120px;
+        max-height: none;
     }
     
     .sevo-modal-description-content {
-        max-height: 120px;
+        max-height: none;
         padding: 5px;
     }
+}
     
     .sevo-modal-status-bar {
         justify-content: center;
@@ -590,6 +580,11 @@
 .sevo-modal[style*="display: block"] .sevo-modal-container,
 .sevo-modal.show .sevo-modal-container {
     transform: scale(1) translateY(0);
+}
+
+#sevo-event-modal .sevo-modal-container {
+    width: clamp(340px, 92vw, 720px);
+    max-width: 95%;
 }
 
 /* Header do modal */

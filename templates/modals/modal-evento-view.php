@@ -29,11 +29,11 @@ if ($evento->tipo_evento_id) {
 }
 
 // Formatação de datas
-$data_criacao_formatada = $evento->created_at ? date_i18n('d/m/Y H:i', strtotime($evento->created_at)) : 'N/A';
-$data_inicio_insc_formatada = $evento->data_inicio_inscricoes ? date_i18n('d/m/Y H:i', strtotime($evento->data_inicio_inscricoes)) : 'N/A';
-$data_fim_insc_formatada = $evento->data_fim_inscricoes ? date_i18n('d/m/Y H:i', strtotime($evento->data_fim_inscricoes)) : 'N/A';
-$data_inicio_evento_formatada = $evento->data_inicio_evento ? date_i18n('d/m/Y H:i', strtotime($evento->data_inicio_evento)) : 'N/A';
-$data_fim_evento_formatada = $evento->data_fim_evento ? date_i18n('d/m/Y H:i', strtotime($evento->data_fim_evento)) : 'N/A';
+$data_criacao_formatada = $evento->created_at ? date_i18n('d/m/Y', strtotime($evento->created_at)) : 'N/A';
+$data_inicio_insc_formatada = $evento->data_inicio_inscricoes ? date_i18n('d/m/Y', strtotime($evento->data_inicio_inscricoes)) : 'N/A';
+$data_fim_insc_formatada = $evento->data_fim_inscricoes ? date_i18n('d/m/Y', strtotime($evento->data_fim_inscricoes)) : 'N/A';
+$data_inicio_evento_formatada = $evento->data_inicio_evento ? date_i18n('d/m/Y', strtotime($evento->data_inicio_evento)) : 'N/A';
+$data_fim_evento_formatada = $evento->data_fim_evento ? date_i18n('d/m/Y', strtotime($evento->data_fim_evento)) : 'N/A';
 
 // Status formatado
 $status_labels = [

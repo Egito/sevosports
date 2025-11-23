@@ -386,7 +386,7 @@
 
 /* === CARDS DE EVENTOS (REDUZIDOS EM 20%) === */
 .sevo-event-card {
-    flex: 0 0 240px; /* Reduzido de 300px para 240px (20% menor) */
+    flex: 0 0 clamp(180px, 28vw, 260px);
     background: white;
     border-radius: 12px;
     overflow: hidden;

@@ -138,49 +138,27 @@ $total_pages = $result['total_pages'];
                     $status_display = $status_labels[$inscricao->status] ?? ucfirst($inscricao->status);
                     ?>
                     <div class="sevo-inscricao-card" data-inscricao-id="<?php echo esc_attr($inscricao->id); ?>" data-status="<?php echo esc_attr($inscricao->status); ?>">
-                        <div class="sevo-card-grid">
-                            <div class="grid-col grid-img">
+                        <div class="sevo-card-row">
+                            <div class="row-img">
                                 <?php if (!empty($inscricao->evento_imagem)): ?>
                                     <img src="<?php echo esc_url($inscricao->evento_imagem); ?>" alt="<?php echo esc_attr($inscricao->evento_titulo); ?>">
                                 <?php else: ?>
-                                    <div class="sevo-card-placeholder">
-                                        <i class="dashicons dashicons-calendar-alt"></i>
-                                    </div>
+                                    <div class="sevo-card-placeholder"><i class="dashicons dashicons-calendar-alt"></i></div>
                                 <?php endif; ?>
                             </div>
-
-                            <div class="grid-col">
-                                <div class="grid-line">
-                                    <i class="dashicons dashicons-building"></i>
-                                    <span class="sevo-card-title"><?php echo esc_html($inscricao->organizacao_titulo); ?></span>
-                                </div>
-                                <div class="grid-line">
-                                    <span class="sevo-status-badge <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_display); ?></span>
-                                </div>
+                            <div class="row-title">
+                                <?php echo esc_html($inscricao->evento_titulo); ?>
+                                <span class="sevo-status-badge <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_display); ?></span>
                             </div>
-
-                            <div class="grid-col">
-                                <div class="grid-line">
-                                    <span class="sevo-card-title"><?php echo esc_html($inscricao->evento_titulo); ?></span>
-                                </div>
-                                <div class="grid-line">
-                                    <i class="dashicons dashicons-calendar"></i>
-                                    <span><?php echo esc_html($data_evento); ?></span>
-                                </div>
+                            <div class="row-date">
+                                <i class="dashicons dashicons-calendar"></i>
+                                <span><?php echo esc_html($data_evento); ?></span>
                             </div>
-
-                            <div class="grid-col">
-                                <div class="grid-line">
-                                    <i class="dashicons dashicons-category"></i>
-                                    <span><?php echo esc_html($inscricao->tipo_evento_titulo ?? ''); ?></span>
-                                </div>
-                                <div class="grid-line">
-                                    <i class="dashicons dashicons-admin-users"></i>
-                                    <span><?php echo esc_html($inscricao->usuario_nome ?? ''); ?></span>
-                                </div>
+                            <div class="row-org">
+                                <i class="dashicons dashicons-building"></i>
+                                <span><?php echo esc_html($inscricao->organizacao_titulo); ?></span>
                             </div>
-
-                            <div class="grid-actions">
+                            <div class="row-actions">
                                 <?php 
                                   $approve_enabled = ($can_manage_all && $inscricao->status === 'solicitada');
                                   $reject_enabled = ($can_manage_all && $inscricao->status === 'solicitada');

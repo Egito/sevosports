@@ -545,7 +545,7 @@ jQuery(document).ready(function($) {
             this.prevBtn = container.querySelector('.carousel-btn.prev');
             this.nextBtn = container.querySelector('.carousel-btn.next');
             this.currentPosition = 0;
-            this.cardWidth = 240; // Reduzido de 300px para 240px (20% menor)
+            this.cardWidth = 240;
             this.gap = 16; // 1rem em pixels
             this.visibleCards = 1;
             this.totalCards = 0;
@@ -571,6 +571,10 @@ jQuery(document).ready(function($) {
         
         calculateDimensions() {
             const containerWidth = this.container.offsetWidth;
+            const firstCard = this.track && this.track.children && this.track.children[0] ? this.track.children[0] : null;
+            if (firstCard) {
+                this.cardWidth = firstCard.getBoundingClientRect().width;
+            }
             this.visibleCards = Math.floor(containerWidth / (this.cardWidth + this.gap));
             this.visibleCards = Math.max(1, this.visibleCards); // Pelo menos 1 card visível
             
