@@ -582,9 +582,40 @@
     transform: scale(1) translateY(0);
 }
 
-#sevo-event-modal .sevo-modal-container {
+#sevo-event-modal.sevo-modal .sevo-modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: clamp(340px, 92vw, 720px);
     max-width: 95%;
+    max-height: calc(100vh - 40px);
+}
+
+#sevo-event-modal.sevo-modal.show .sevo-modal-container,
+#sevo-event-modal.sevo-modal[style*="display: block"] .sevo-modal-container {
+    transform: translate(-50%, -50%);
+}
+
+/* === Centralização consistente para modal de Organizações === */
+#sevo-org-modal.sevo-modal {
+    align-items: center;
+    justify-content: center;
+}
+
+#sevo-org-modal.sevo-modal .sevo-modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(340px, 92vw, 720px);
+    max-width: 95%;
+    max-height: calc(100vh - 40px);
+}
+
+#sevo-org-modal.sevo-modal.show .sevo-modal-container,
+#sevo-org-modal.sevo-modal[style*="display: flex"] .sevo-modal-container {
+    transform: translate(-50%, -50%);
 }
 
 /* Header do modal */
@@ -1588,4 +1619,43 @@ body.modal-open {
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
+}
+#sevo-event-modal.sevo-modal {
+    align-items: center;
+    justify-content: center;
+    top: 0 !important;
+}
+
+.sevo-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.sevo-tab {
+    border: 1px solid #e1e8ed;
+    background: #f8f9fa;
+    color: #2c3e50;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.sevo-tab.active {
+    background: #667eea;
+    color: #fff;
+    border-color: #667eea;
+}
+
+.sevo-tab-content { display: none; }
+.sevo-tab-content.active { display: block; }
+#sevo-event-modal.sevo-modal {
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+body.sevo-modal-open {
+    overflow: hidden;
 }

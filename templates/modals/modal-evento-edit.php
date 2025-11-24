@@ -28,14 +28,24 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
 
 ?>
 
-<div class="sevo-modal-overlay" onclick="SevoEventosDashboard.closeEventFormModal()"></div>
-<div class="sevo-modal-container">
+<div class="sevo-modal-evento-view">
+    <div class="sevo-modal-header-evento">
+        <div class="header-left">
+            <h3 class="sevo-modal-title"><?php echo $is_editing ? 'Editar Evento' : 'Criar Novo Evento'; ?></h3>
+        </div>
+    </div>
+    <div class="sevo-modal-body-evento">
     <form id="sevo-evento-form">
         <input type="hidden" name="evento_id" value="<?php echo esc_attr($evento_id); ?>">
         
-        <div class="sevo-modal-body">
-        <h2 class="sevo-modal-title"><?php echo $is_editing ? 'Editar Evento' : 'Criar Novo Evento'; ?></h2>
+        <div class="sevo-tabs">
+            <button type="button" class="sevo-tab active" data-tab="info">Informações</button>
+            <button type="button" class="sevo-tab" data-tab="datas">Datas</button>
+            <button type="button" class="sevo-tab" data-tab="imagem">Imagem</button>
+            <button type="button" class="sevo-tab" data-tab="descricao">Descrição</button>
+        </div>
         
+        <div class="sevo-tab-content active" data-tab="info">
         <div class="sevo-form-grid">
             <!-- Título do Evento -->
             <div class="sevo-form-group-full">
@@ -76,6 +86,11 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
                 </select>
             </div>
             
+        </div>
+        </div>
+
+        <div class="sevo-tab-content" data-tab="datas">
+        <div class="sevo-form-grid">
             <!-- Data de Início das Inscrições -->
             <div class="sevo-form-group">
                 <label for="evento_data_inicio_inscricao">Início das Inscrições *</label>
@@ -103,6 +118,8 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
                 <input type="date" id="evento_data_fim" name="data_fim" 
                        value="<?php echo $data_fim ? date('Y-m-d', strtotime($data_fim)) : ''; ?>" required>
             </div>
+        </div>
+        </div>
             
             <!-- Máximo de Participantes -->
             <div class="sevo-form-group">
@@ -114,13 +131,14 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
             
 
             
-            <!-- Descrição -->
+        <div class="sevo-tab-content" data-tab="descricao">
             <div class="sevo-form-group-full">
                 <label for="evento_descricao">Descrição</label>
                 <textarea id="evento_descricao" name="descricao" rows="4"><?php echo esc_textarea($descricao); ?></textarea>
             </div>
+        </div>
             
-            <!-- Upload de Imagem do Evento -->
+        <div class="sevo-tab-content" data-tab="imagem">
             <div class="sevo-form-group-full">
                 <label>Imagem do Evento</label>
                 <div class="sevo-image-upload-container sevo-horizontal-layout">
@@ -160,11 +178,12 @@ $tipos_evento = $tipo_evento_model->get_with_organizacao();
             <button type="button" class="sevo-btn sevo-btn-secondary" onclick="SevoEventosDashboard.closeEventFormModal()">
                 Cancelar
             </button>
-            <button type="submit" class="sevo-btn sevo-btn-primary">
+            <button type="submit" class="sevo-btn sevo-btn-primary" id="sevo-save-evento-button" disabled>
                 <?php echo $is_editing ? 'Atualizar' : 'Criar'; ?>
             </button>
         </div>
     </form>
+    </div>
 </div>
 
 <style>

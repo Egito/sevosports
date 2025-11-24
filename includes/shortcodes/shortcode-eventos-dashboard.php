@@ -121,9 +121,9 @@ class Sevo_Eventos_Dashboard_Shortcode {
         
         $evento_id = isset($_POST['evento_id']) ? intval($_POST['evento_id']) : 0;
         
-        // Verifica permissões usando o sistema de frontend
-        if (!sevo_check_frontend_permission('edit_evento')) {
-            wp_send_json_error('Você não tem permissão para editar eventos.');
+        // Verifica permissões usando o sistema centralizado
+        if (!sevo_check_permission_or_die('edit_evento')) {
+            return;
         }
         
         require_once SEVO_EVENTOS_PLUGIN_DIR . 'includes/models/Evento_Model.php';

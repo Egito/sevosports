@@ -35,17 +35,25 @@ jQuery(document).ready(function($) {
         init: function() {
             this.bindEvents();
             this.loadFilterOptions();
+
+            // Garante que o modal não herde contextos de transform do tema
+            // Movendo-o para diretamente sob <body> evita deslocamento fora da viewport
+            const $modalRoot = $('#sevo-event-modal');
+            if ($modalRoot.length && !$modalRoot.parent().is('body')) {
+                $modalRoot.appendTo('body');
+            }
         },
 
         // Vincula eventos
         bindEvents: function() {
             // Clique nos cards para abrir o modal
-            $(document).on('click', '.sevo-card.evento-card', function(e) {
-                // Previne a abertura do modal se clicou em um botão
-                if ($(e.target).closest('.sevo-card-actions').length > 0) {
+            $(document).on('click', '.sevo-event-card, .sevo-evento-card, .sevo-card.evento-card', function(e) {
+                if ($(e.target).closest('.card-actions, .sevo-card-actions').length > 0) {
                     return;
                 }
-                const eventId = $(e.currentTarget).data('event-id');
+                const $card = $(e.target).closest('[data-event-id], [data-evento-id]');
+                const eventId = $card.data('event-id') || $card.data('evento-id');
+                if (!eventId) return;
                 SevoEventosDashboard.openEventModal(eventId);
             });
 
@@ -62,8 +70,6 @@ jQuery(document).ready(function($) {
                 e.preventDefault();
                 e.stopPropagation();
                 const eventId = $(e.currentTarget).data('event-id');
-                console.log('Botão de editar clicado. Event ID:', eventId);
-                console.log('Elemento clicado:', e.currentTarget);
                 SevoEventosDashboard.editEvent(eventId);
             });
 
@@ -244,6 +250,7 @@ jQuery(document).ready(function($) {
             const $loading = $modal.find('.sevo-modal-loading');
             const $content = $modal.find('.sevo-modal-content');
 
+            $('body').addClass('sevo-modal-open');
             $modal.addClass('show').css('display', 'flex');
             $loading.show();
             $content.empty();
@@ -260,28 +267,31 @@ jQuery(document).ready(function($) {
                     $loading.hide();
                     if (response.success) {
                         $content.html(response.data.html);
+                        SevoEventosDashboard.centerEventModal();
                     } else {
                         $content.html('<p>Erro ao carregar evento.</p>');
                         SevoToaster.showError(response.data || 'Erro ao carregar evento.');
+                        SevoEventosDashboard.centerEventModal();
                     }
                 },
                 error: function() {
                     $loading.hide();
                     $content.html('<p>Erro ao carregar evento.</p>');
                     SevoToaster.showError('Erro ao carregar evento.');
+                    SevoEventosDashboard.centerEventModal();
                 }
             });
         },
 
         // Fecha modal do evento
         closeEventModal: function() {
+            $('body').removeClass('sevo-modal-open');
+            $('#sevo-event-modal .sevo-modal-container').attr('style', '');
             $('#sevo-event-modal').removeClass('show').css('display', 'none');
         },
 
         // Edita evento
         editEvent: function(eventId) {
-            console.log('editEvent chamada com parâmetros:', { eventId: eventId, tipo: typeof eventId });
-            
             $.ajax({
                 url: sevoEventosDashboard.ajax_url,
                 type: 'POST',
@@ -291,30 +301,38 @@ jQuery(document).ready(function($) {
                     nonce: sevoEventosDashboard.nonce
                 },
                 success: function(response) {
-                    console.log('editEvent AJAX success:', response);
+                    const $modal = $('#sevo-event-modal');
+                    const $loading = $modal.find('.sevo-modal-loading');
+                    const $content = $modal.find('.sevo-modal-content');
+                    $('body').addClass('sevo-modal-open');
+                    $modal.addClass('show').css('display', 'flex');
+                    $loading.hide();
                     if (response.success) {
-                        console.log('Modal container encontrado:', $('#sevo-evento-form-modal-container').length);
-                        const $modalContainer = $('#sevo-evento-form-modal-container');
-                        $modalContainer.html(response.data.html).addClass('show').css('display', 'flex');
-                        // Fecha o modal de visualização se estiver aberto
-                        SevoEventosDashboard.closeEventModal();
-                        // Inicializa o upload de imagem
+                        $content.html(response.data.html);
                         SevoEventosDashboard.initImageUpload();
+                        SevoEventosDashboard.initEditFormUI();
+                        SevoEventosDashboard.centerEventModal();
                     } else {
-                        console.error('editEvent erro na resposta:', response.data);
+                        $content.html('<p>Erro ao carregar formulário.</p>');
                         SevoToaster.showError(response.data || 'Erro ao carregar formulário.');
+                        SevoEventosDashboard.centerEventModal();
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('editEvent AJAX error:', { xhr, status, error });
+                error: function() {
+                    const $modal = $('#sevo-event-modal');
+                    const $content = $modal.find('.sevo-modal-content');
+                    $('body').addClass('sevo-modal-open');
+                    $modal.addClass('show').css('display', 'flex');
+                    $content.html('<p>Erro ao carregar formulário.</p>');
                     SevoToaster.showError('Erro ao carregar formulário.');
+                    SevoEventosDashboard.centerEventModal();
                 }
             });
         },
 
         // Fecha modal de formulário
         closeEventFormModal: function() {
-            $('#sevo-evento-form-modal-container').removeClass('show').css('display', 'none').empty();
+            SevoEventosDashboard.closeEventModal();
         },
 
         // Inicializa upload de imagem para modal de evento
@@ -396,6 +414,19 @@ jQuery(document).ready(function($) {
             });
         },
 
+        centerEventModal: function() {
+            const $container = $('#sevo-event-modal .sevo-modal-container');
+            if ($container.length === 0) return;
+            // Centraliza o modal sempre em relação à viewport e garante rolagem interna
+            $container.css({
+                position: 'fixed',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                maxHeight: 'calc(100vh - 40px)'
+            });
+        },
+
         // Submete formulário de evento
         submitEventForm: function(form) {
             const $form = $(form);
@@ -436,6 +467,57 @@ jQuery(document).ready(function($) {
                 error: function() {
                     $submitBtn.prop('disabled', false).text(originalText);
                     SevoToaster.showError('Erro ao salvar evento.');
+                }
+            });
+        },
+
+        initEditFormUI: function() {
+            const $modal = $('#sevo-event-modal');
+            const $form = $modal.find('#sevo-evento-form');
+            const $save = $modal.find('#sevo-save-evento-button');
+            const $tabs = $modal.find('.sevo-tab');
+            const $contents = $modal.find('.sevo-tab-content');
+
+            $tabs.off('click').on('click', function() {
+                const tab = $(this).data('tab');
+                $tabs.removeClass('active');
+                $(this).addClass('active');
+                $contents.removeClass('active');
+                $contents.filter(`[data-tab="${tab}"]`).addClass('active');
+            });
+
+            const validate = function() {
+                const titulo = $form.find('#evento_titulo').val().trim();
+                const tipo = $form.find('#evento_tipo_evento_id').val();
+                const status = $form.find('#evento_status').val();
+                const dii = $form.find('#evento_data_inicio_inscricao').val();
+                const dfi = $form.find('#evento_data_fim_inscricao').val();
+                const de = $form.find('#evento_data_inicio').val();
+                const df = $form.find('#evento_data_fim').val();
+
+                let ok = true;
+                ok = ok && titulo.length >= 3;
+                ok = ok && tipo && tipo !== '';
+                ok = ok && status && status !== '';
+                ok = ok && dii && dfi && de && df;
+                if (ok) {
+                    const diid = new Date(dii);
+                    const dfid = new Date(dfi);
+                    const ded = new Date(de);
+                    const dfd = new Date(df);
+                    ok = ok && diid <= dfid && ded <= dfd && dfid <= ded;
+                }
+                $save.prop('disabled', !ok);
+                return ok;
+            };
+
+            $form.find('input, select, textarea').on('input change', validate);
+            validate();
+
+            $form.off('submit').on('submit', function(e) {
+                if (!validate()) {
+                    e.preventDefault();
+                    SevoToaster.showError('Preencha os campos obrigatórios corretamente.');
                 }
             });
         },
@@ -542,8 +624,8 @@ jQuery(document).ready(function($) {
         constructor(container) {
             this.container = container;
             this.track = container.querySelector('.sevo-carousel-track');
-            this.prevBtn = container.querySelector('.carousel-btn.prev');
-            this.nextBtn = container.querySelector('.carousel-btn.next');
+            this.prevBtn = container.querySelector('.carousel-btn.prev-btn');
+            this.nextBtn = container.querySelector('.carousel-btn.next-btn');
             this.currentPosition = 0;
             this.cardWidth = 240;
             this.gap = 16; // 1rem em pixels

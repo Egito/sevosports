@@ -272,6 +272,26 @@ jQuery(document).ready(function($) {
         $('body').removeClass('modal-open');
     }
     
+    // Fechar ao clicar fora (backdrop)
+    modal.on('click', function(e) {
+        if (e.target === e.currentTarget) {
+            closeModal();
+        }
+    });
+
+    // Fechar ao clicar no botão fechar
+    $(document).on('click', '#sevo-modal-close', function(e) {
+        e.preventDefault();
+        closeModal();
+    });
+
+    // Fechar com tecla ESC
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && modal.is(':visible')) {
+            closeModal();
+        }
+    });
+
     // Expor closeModal globalmente para uso em eventos onclick
     window.closeModal = closeModal;
 });

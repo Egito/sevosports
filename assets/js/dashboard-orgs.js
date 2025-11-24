@@ -8,7 +8,9 @@ function openOrgViewModal(orgId) {
     console.log('Elementos encontrados:', { modal: modal.length, modalContent: modalContent.length });
     
     modalContent.html('<div class="sevo-spinner"></div>');
-    modal.removeClass('hidden').addClass('show').css('display', 'flex');
+    // Força visibilidade explícita para evitar regras conflitantes do tema
+    modal.removeClass('hidden').addClass('show')
+        .css({ display: 'flex', opacity: 1, visibility: 'visible', 'z-index': 2147483647 });
     // Adiciona classe no body para prevenir conflitos com header do tema
     jQuery('body').addClass('modal-open');
 
@@ -42,7 +44,9 @@ function openOrgFormModal(orgId = null) {
     console.log('Elementos encontrados:', { modal: modal.length, modalContent: modalContent.length });
     
     modalContent.html('<div class="sevo-spinner"></div>');
-    modal.removeClass('hidden').addClass('show').css('display', 'flex');
+    // Força visibilidade explícita para evitar regras conflitantes do tema
+    modal.removeClass('hidden').addClass('show')
+        .css({ display: 'flex', opacity: 1, visibility: 'visible', 'z-index': 2147483647 });
     // Adiciona classe no body para prevenir conflitos com header do tema
     jQuery('body').addClass('modal-open');
 
@@ -110,9 +114,28 @@ jQuery(document).ready(function($) {
     const closeButton = $('#sevo-modal-close');
     const dashboardContainer = $('.sevo-dashboard-wrapper');
 
+    // Garante que o modal esteja diretamente sob <body> para evitar deslocamentos
+    if (modal.length && !modal.parent().is('body')) {
+        modal.appendTo('body');
+    }
+
     // Botão "Criar Nova Organização"
     dashboardContainer.on('click', '#sevo-create-org-button', function() {
         openOrgFormModal();
+    });
+
+    // Reforça abertura pelos botões dentro dos cards (fallback)
+    dashboardContainer.on('click', '.btn-view-org', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const orgId = $(this).closest('.org-card').data('org-id');
+        openOrgViewModal(orgId);
+    });
+    dashboardContainer.on('click', '.btn-edit-org', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const orgId = $(this).closest('.org-card').data('org-id');
+        openOrgFormModal(orgId);
     });
 
     // Abre o modal ao clicar num cartão de organização (visualização)
@@ -214,8 +237,8 @@ jQuery(document).ready(function($) {
     });
 
     // Fecha o modal se o utilizador pressionar a tecla "Escape"
-    $(document).on('keyup', function(e) {
-        if (e.key === "Escape") {
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && modal.is(':visible')) {
             closeModal();
         }
     });

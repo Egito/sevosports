@@ -306,10 +306,7 @@ function sevo_render_events_sections() {
     </div>
 </div>
 
-<!-- Container para o modal de formulário de edição -->
-<div id="sevo-evento-form-modal-container" class="sevo-modal-backdrop" style="display: none;">
-    <!-- O conteúdo do formulário será carregado aqui via AJAX -->
-</div>
+<!-- Formulário de edição será carregado no mesmo modal de evento -->
 
     <!-- Botão Flutuante de Adicionar -->
     <?php if ($can_manage_events): ?>
