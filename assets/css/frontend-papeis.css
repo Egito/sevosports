@@ -631,3 +631,24 @@ body.sevo-modal-open {
 .form-control {
     transition: var(--sevo-transition);
 }
+/* Unified frontend login notice */
+.sevo-frontend-notice {
+  padding: 16px 18px;
+  margin: 16px 0;
+  border: 1px solid var(--sevo-border-color, #e5e7eb);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--sevo-notice-bg, #f9fafb);
+  color: var(--sevo-text-color, #111827);
+}
+.sevo-frontend-notice--warning {
+  border-left-color: var(--sevo-theme-primary, #2271b1);
+  background: var(--sevo-warning-bg, #f0f6fc);
+}
+.sevo-frontend-notice p { margin: 0 0 8px; }
+.sevo-frontend-notice__action {
+  color: var(--sevo-theme-primary, #2271b1);
+  text-decoration: none;
+  font-weight: 600;
+}
+.sevo-frontend-notice__action:hover { text-decoration: underline; }

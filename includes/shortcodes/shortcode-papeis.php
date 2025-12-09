@@ -43,7 +43,10 @@ class Sevo_Papeis_Shortcode {
     public function render_shortcode($atts) {
         // Verificar se usuário está logado
         if (!is_user_logged_in()) {
-            return '<div class="sevo-error">' . __('Você precisa estar logado para acessar esta página.', 'sevo-eventos') . '</div>';
+            $login_url = wp_login_url(get_permalink());
+            return '<div class="sevo-frontend-notice sevo-frontend-notice--warning"><p>'
+                . __('Você precisa estar logado para acessar esta página.', 'sevo-eventos')
+                . '</p><p><a class="sevo-frontend-notice__action" href="' . esc_url($login_url) . '">' . __('Fazer login', 'sevo-eventos') . '</a></p></div>';
         }
         
         $current_user = wp_get_current_user();

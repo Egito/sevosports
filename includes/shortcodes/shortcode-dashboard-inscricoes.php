@@ -34,7 +34,7 @@ class Sevo_Dashboard_Inscricoes_Shortcode {
     public function render_dashboard($atts) {
         // Verificar se o usuário está logado
         if (!is_user_logged_in()) {
-            return '<div class="sevo-dashboard-error"><p>Você precisa estar logado para acessar o dashboard de inscrições.</p><p><a href="' . wp_login_url(get_permalink()) . '">Fazer login</a></p></div>';
+            return '<div class="sevo-frontend-notice sevo-frontend-notice--warning"><p>Você precisa estar logado para acessar o dashboard de inscrições.</p><p><a class="sevo-frontend-notice__action" href="' . esc_url(wp_login_url(get_permalink())) . '">Fazer login</a></p></div>';
         }
         
         // Verificar permissões
